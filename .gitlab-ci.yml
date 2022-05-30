@@ -5,12 +5,16 @@ tags:
   - shell-runner
 build:
   stage: build
+  tags:
+    - shell-runner
   script:
     - ./gradlew assemble
 #  only:
 #    - master
 deploy:
   stage: deploy
+  tags:
+    - shell-runner
   script:
     - fuser -k 8081/tcp || echo "Kill Port"
     - nohup build/libs/SpringbootMarketplaceCy-0.0.1-SNAPSHOT.jar &
