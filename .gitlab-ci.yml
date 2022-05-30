@@ -8,9 +8,11 @@ build:
   tags:
     - shell-runner
   script:
-    - fuser -k 8081/tcp || echo "Kill Port"
     - ./gradlew assemble
-    - nohup java -jar build/libs/SpringbootMarketplaceCy-0.0.1-SNAPSHOT.jar &
+    - docker image rm -f spring-app || echo "d"
+    - docker build -t spring-app:latest .
+    - - docker container rm -f spring_app || echo "d"
+    - docker run -d -p 8081:8081 spring-app:latest --name spring_app
   only:
     - develop
 #deploy:
