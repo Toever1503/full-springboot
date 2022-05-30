@@ -1,3 +1,6 @@
+workflow:
+  rules:
+    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
 stages:
   - build
   - deploy
@@ -7,12 +10,14 @@ build:
     - shell-runner
   script:
     - ./gradlew assemble
-#  only:
-#    - master
+  only:
+    - develop
 deploy:
   stage: deploy
   tags:
     - shell-runner
   script:
     - fuser -k 8081/tcp || echo "Kill Port"
-    - nohup build/libs/SpringbootMarketplaceCy-0.0.1-SNAPSHOT.jar &
+    - nohup java -jar build/libs/SpringbootMarketplaceCy-0.0.1-SNAPSHOT.jar &
+  only:
+    - develop
