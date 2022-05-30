@@ -11,7 +11,7 @@ build:
     - ./gradlew assemble
     - docker image rm -f spring-app || echo "d"
     - docker build -t spring-app:latest .
-    - - docker container rm -f spring_app || echo "d"
+    - docker container rm -f spring_app || echo "d"
     - docker run -d -p 8081:8081 --name spring_app spring-app:latest
   only:
     - develop
