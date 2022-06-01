@@ -129,7 +129,7 @@ public class UserServiceImp implements IUserService {
 
     @Override
     @Transactional
-    public boolean signUp(RegisterModel registerModel, String url) {
+    public boolean signUp(RegisterModel registerModel) {
         if (!userRepository.findUserEntityByUserNameOrEmail(registerModel.getUserName(), registerModel.getEmail()).isPresent()) {
             Set<RoleEntity> roleEntitySet = new HashSet<>();
             roleEntitySet.add(roleRepository.findRoleEntityByRoleName(RoleEntity.USER));
@@ -139,7 +139,7 @@ public class UserServiceImp implements IUserService {
                 public void run() {
                     StringBuilder sb = new StringBuilder();
                     sb.append(registerModel.getUserName()).append("-").append(user.getCode());
-                    String urlResponse = url + jwtProvider.generateToken(sb.toString(), 86400l);
+                    String urlResponse = registerModel.getUrl() + jwtProvider.generateToken(sb.toString(), 86400l);
                     Map<String, Object> context = new HashMap<>();
                     context.put("url", urlResponse);
                     try {
@@ -181,7 +181,7 @@ public class UserServiceImp implements IUserService {
                 String userToken = user.getUserName().concat("-").concat(user.getCode());
                 System.out.println("raw  userToken: " + userToken);
 
-                userToken = model.getUrl() + "/" + jwtProvider.generateToken(userToken, 86400);
+                userToken = model.getUrl() + jwtProvider.generateToken(userToken, 86400);
                 System.out.println("after generate token: " + userToken);
                 Map<String, Object> context = new HashMap<>();
                 context.put("url", userToken);
