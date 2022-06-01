@@ -1,0 +1,19 @@
+package com.services;
+
+import com.config.jwt.JwtLoginResponse;
+import com.config.jwt.JwtUserLoginModel;
+import com.entities.UserEntity;
+import com.models.ForgetPasswordModel;
+import com.models.PasswordModel;
+import com.models.RegisterModel;
+import com.models.UserModel;
+
+public interface IUserService extends IBaseService<UserEntity, UserModel, Long>{
+    boolean signUp(RegisterModel registerModel, String url);
+
+    JwtLoginResponse logIn(JwtUserLoginModel model);
+
+    boolean forgetPassword( ForgetPasswordModel model);
+
+    boolean changePassword(PasswordModel model);
+}
