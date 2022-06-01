@@ -15,6 +15,7 @@ import com.services.CustomUserDetail;
 import com.services.IAddressService;
 import com.services.IUserService;
 import com.services.MailService;
+import com.utils.SecurityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -84,7 +85,8 @@ public class UserServiceImp implements IUserService {
 
     @Override
     public UserEntity findById(Long id) {
-        return userRepository.findById(id).orElseThrow(() -> new RuntimeException("Not Found"));
+        logger.info("{%s} finding user id: {%d}", SecurityUtils.getCurrentUsername(), id);
+        return userRepository.findById(id).orElseThrow(() -> new RuntimeException("Not found user id: " + id));
     }
 
     @Override
@@ -99,7 +101,8 @@ public class UserServiceImp implements IUserService {
 
     @Override
     public UserEntity update(UserModel model) {
-        UserEntity u = userRepository.findById(model.getId()).orElseThrow(() -> new RuntimeException("Not Found"));
+        logger.info("{%s} is updating userid: {%d}", SecurityUtils.getCurrentUsername(), model.getId());
+        UserEntity u = this.findById(model.getId());
         u.setBirthDate(model.getBirthDate());
         u.setFullName(model.getFullName());
 
@@ -136,9 +139,9 @@ public class UserServiceImp implements IUserService {
                 public void run() {
                     StringBuilder sb = new StringBuilder();
                     sb.append(registerModel.getUserName()).append("-").append(user.getCode());
-                    String urlRespone = url + jwtProvider.generateToken(sb.toString(), 86400l);
+                    String urlResponse = url + jwtProvider.generateToken(sb.toString(), 86400l);
                     Map<String, Object> context = new HashMap<>();
-                    context.put("url", urlRespone);
+                    context.put("url", urlResponse);
                     try {
                         mailService.sendMail("VerificationMailTemplate.html", registerModel.getEmail(), "Active your account", context);
                     } catch (MessagingException e) {
@@ -160,7 +163,7 @@ public class UserServiceImp implements IUserService {
     }
 
     public UserEntity findByUsername(String userName) {
-        return userRepository.findUserEntityByUserNameOrEmail(userName, userName).orElseThrow(() -> new RuntimeException("Not Found"));
+        return userRepository.findUserEntityByUserNameOrEmail(userName, userName).orElseThrow(() -> new RuntimeException("Not found username: " + userName));
     }
 
     public String codeGenerator() {
@@ -196,7 +199,6 @@ public class UserServiceImp implements IUserService {
 
     @Override
     public boolean changePassword(PasswordModel model) {
-        System.out.println("model = " + model.getToken());
         String[] userToken = jwtProvider.getUsernameFromToken(model.getToken()).split("-");
         UserEntity user = this.findByUsername(userToken[0]);
         if (!user.getCode().equals(userToken[1])) throw new RuntimeException("User code mismatch!");
