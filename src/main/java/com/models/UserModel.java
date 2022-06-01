@@ -6,6 +6,8 @@ import lombok.*;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotNull;
 import java.sql.Date;
+import java.util.Collections;
+import java.util.List;
 
 @Getter
 @Setter
@@ -22,6 +24,7 @@ public class UserModel {
     private String password;
     private Date birthDate;
     private Long mainAddress;
+    private List<AddressModel> myAddress = Collections.emptyList();
 
     public static UserEntity toEntity(UserModel model) {
         if (model == null) throw new RuntimeException("UserModel is null");
@@ -30,7 +33,7 @@ public class UserModel {
                 .email(model.getEmail())
                 .password(model.getPassword())
                 .birthDate(model.getBirthDate())
-                .main_address(model.getMainAddress())
+                .mainAddress(model.getMainAddress())
                 .id(model.getId()).build();
     }
 

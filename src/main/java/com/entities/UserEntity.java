@@ -34,9 +34,18 @@ public class UserEntity {
     @Column(name = "failed_login")
     private int failedLogin;
     @Column(name = "lock_status")
-    private boolean lock_status;
+    private boolean lockStatus;
     @Column(name = "main_address")
-    private Long main_address;
+    private Long mainAddress;
+
+    @ManyToMany
+    @JoinTable(
+            name = "user_address",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "address_id")
+    )
+    private Set<Address> myAddress;
+
     @ManyToMany
     @JoinTable(
             name = "user_role",

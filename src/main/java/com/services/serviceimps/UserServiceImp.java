@@ -12,6 +12,7 @@ import com.models.UserModel;
 import com.repositories.IRoleRepository;
 import com.repositories.IUserRepository;
 import com.services.CustomUserDetail;
+import com.services.IAddressService;
 import com.services.IUserService;
 import com.services.MailService;
 import org.slf4j.Logger;
@@ -51,18 +52,20 @@ public class UserServiceImp implements IUserService {
 
     final Random random = new Random();
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final IAddressService addressService;
 
-    public UserServiceImp(IUserRepository userRepository, IRoleRepository roleRepository, JwtProvider jwtProvider, AuthenticationManager authenticationManager, PasswordEncoder passwordEncoder, MailService mailService) {
+    public UserServiceImp(IUserRepository userRepository, IRoleRepository roleRepository, JwtProvider jwtProvider, AuthenticationManager authenticationManager, PasswordEncoder passwordEncoder, MailService mailService, IAddressService addressService) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.jwtProvider = jwtProvider;
         this.authenticationManager = authenticationManager;
         this.passwordEncoder = passwordEncoder;
         this.mailService = mailService;
+        this.addressService = addressService;
         try {
             this.roleRepository.save(RoleEntity.builder().roleId(1L).roleName(RoleEntity.USER).build());
             this.roleRepository.save(RoleEntity.builder().roleId(2L).roleName(RoleEntity.ADMINISTRATOR).build());
-        }catch (Exception e){
+        } catch (Exception e) {
             System.out.println(e);
         }
 
@@ -100,10 +103,14 @@ public class UserServiceImp implements IUserService {
         u.setBirthDate(model.getBirthDate());
         u.setFullName(model.getFullName());
 
+        if (!model.getMyAddress().isEmpty()) {
+            if (model.getMainAddress() == null) throw new RuntimeException("mainAddress must not be null");
+            u.setMyAddress(this.addressService.add(model.getMyAddress()).stream().collect(Collectors.toSet()));
+        }
 
-        if (model.getPassword()!=null)
-        u.setPassword(passwordEncoder.encode(model.getPassword()));
-        u.setMain_address(model.getMainAddress());
+        if (model.getPassword() != null)
+            u.setPassword(passwordEncoder.encode(model.getPassword()));
+        u.setMainAddress(model.getMainAddress());
         return userRepository.save(u);
     }
 
@@ -171,7 +178,7 @@ public class UserServiceImp implements IUserService {
                 String userToken = user.getUserName().concat("-").concat(user.getCode());
                 System.out.println("raw  userToken: " + userToken);
 
-                userToken = model.getUrl() +"/"+ jwtProvider.generateToken(userToken, 86400);
+                userToken = model.getUrl() + "/" + jwtProvider.generateToken(userToken, 86400);
                 System.out.println("after generate token: " + userToken);
                 Map<String, Object> context = new HashMap<>();
                 context.put("url", userToken);
@@ -192,7 +199,7 @@ public class UserServiceImp implements IUserService {
         System.out.println("model = " + model.getToken());
         String[] userToken = jwtProvider.getUsernameFromToken(model.getToken()).split("-");
         UserEntity user = this.findByUsername(userToken[0]);
-        if(!user.getCode().equals(userToken[1])) throw new RuntimeException("User code mismatch!");
+        if (!user.getCode().equals(userToken[1])) throw new RuntimeException("User code mismatch!");
         user.setPassword(passwordEncoder.encode(model.getNewPassword()));
         user.setCode("0");
         user.setStatus(true);

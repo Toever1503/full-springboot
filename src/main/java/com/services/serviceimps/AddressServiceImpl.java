@@ -15,6 +15,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class AddressServiceImpl implements IAddressService {
@@ -42,15 +43,15 @@ public class AddressServiceImpl implements IAddressService {
 
     @Override
     public Address findById(Long id) {
-        return addressRepository.findById(id).orElseThrow(()-> new RuntimeException("Address not found"));
+        return addressRepository.findById(id).orElseThrow(() -> new RuntimeException("Address not found"));
     }
 
     @Override
     public Address add(AddressModel model) {
-        if(model == null) return null;
-        Province province = provinceRepository.findById(model.getProvinceId()).orElseThrow(()-> new RuntimeException("Province not found"));
-        District district = districtRepository.findById(model.getDistrictId()).orElseThrow(()-> new RuntimeException("District not found"));
-        Ward ward = wardRepository.findById(model.getWardId()).orElseThrow(()-> new RuntimeException("Ward not found"));
+        if (model == null) return null;
+        Province province = provinceRepository.findById(model.getProvinceId()).orElseThrow(() -> new RuntimeException("Province not found"));
+        District district = districtRepository.findById(model.getDistrictId()).orElseThrow(() -> new RuntimeException("District not found"));
+        Ward ward = wardRepository.findById(model.getWardId()).orElseThrow(() -> new RuntimeException("Ward not found"));
         Address address = Address.builder()
                 .street(model.getStreet())
                 .provine(province)
@@ -62,19 +63,19 @@ public class AddressServiceImpl implements IAddressService {
 
     @Override
     public List<Address> add(List<AddressModel> model) {
-        return null;
+        return model.stream().map(m -> add(m)).collect(Collectors.toList());
     }
 
     @Override
     public Address update(AddressModel model) {
-        if(model == null) return null;
+        if (model == null) return null;
         List<Address> addresses = this.addressRepository.findAll();
         for (Address address : addresses) {
             if (address.getId() == model.getId()) {
                 address.setStreet(model.getStreet());
-                address.setProvine(provinceRepository.findById(model.getProvinceId()).orElseThrow(()-> new RuntimeException("Province not found")));
-                address.setDistrict(districtRepository.findById(model.getDistrictId()).orElseThrow(()-> new RuntimeException("District not found")));
-                address.setWard(wardRepository.findById(model.getWardId()).orElseThrow(()-> new RuntimeException("Ward not found")));
+                address.setProvine(provinceRepository.findById(model.getProvinceId()).orElseThrow(() -> new RuntimeException("Province not found")));
+                address.setDistrict(districtRepository.findById(model.getDistrictId()).orElseThrow(() -> new RuntimeException("District not found")));
+                address.setWard(wardRepository.findById(model.getWardId()).orElseThrow(() -> new RuntimeException("Ward not found")));
                 return addressRepository.save(address);
             }
         }
@@ -105,6 +106,6 @@ public class AddressServiceImpl implements IAddressService {
     @Override
     public List<Ward> getAllByWard(Integer provinceId, Integer DistrictId) {
         List<Ward> ls = this.wardRepository.findAllByProvinceAndDistrict(provinceId, DistrictId);
-        return  ls;
+        return ls;
     }
 }

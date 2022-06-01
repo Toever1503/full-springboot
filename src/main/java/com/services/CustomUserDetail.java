@@ -1,14 +1,11 @@
 package com.services;
 
-import com.entities.RoleEntity;
 import com.entities.UserEntity;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 import java.util.stream.Collectors;
 
 public class CustomUserDetail implements UserDetails {
@@ -43,7 +40,7 @@ public class CustomUserDetail implements UserDetails {
 
     @Override
     public boolean isAccountNonLocked() {
-        return !user.isLock_status();
+        return !user.isLockStatus();
     }
 
     @Override
