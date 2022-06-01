@@ -3,6 +3,7 @@ package com.config;
 
 import com.config.jwt.JwtAuthenticationProvider;
 import com.config.jwt.JwtFilter;
+import com.services.IUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Lazy;
@@ -26,15 +27,18 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
             new AntPathRequestMatcher("/users/login"),
             new AntPathRequestMatcher("/users/forget-password"),
             new AntPathRequestMatcher("/users/change-password/**"),
+            new AntPathRequestMatcher("/addresses/provinces"),
+            new AntPathRequestMatcher("/addresses/getAllDistrict/**"),
+            new AntPathRequestMatcher("/addresses/getAllWards/**"),
             new AntPathRequestMatcher("/swagger-ui/**"),
             new AntPathRequestMatcher("/v2/api-docs"),
             new AntPathRequestMatcher("/webjars/**")
     );
     private RequestMatcher PRIVATE_URLS = new NegatedRequestMatcher(PUBLIC_URLS);
 
-//    @Autowired
-//    @Lazy
-//    private IStaffService staffService;
+    @Autowired
+    @Lazy
+    private IUserService userService;
 
 
     @Bean
@@ -66,6 +70,6 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .and().exceptionHandling().authenticationEntryPoint((req, res, auth) -> {
                     res.sendError(401, "You must have to login");
                 });
-//        http.addFilterBefore(new JwtFilter(staffService), org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter.class);
+        http.addFilterBefore(new JwtFilter(userService), org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter.class);
     }
 }

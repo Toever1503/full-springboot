@@ -1,5 +1,6 @@
 package com.config.jwt;
 
+import com.services.IUserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -12,11 +13,12 @@ import java.io.IOException;
 
 public class JwtFilter extends OncePerRequestFilter {
     private final Logger log = LoggerFactory.getLogger(JwtFilter.class);
-//    private final IStaffService staffService;
+    private final IUserService userService;
 
-//    public JwtFilter(IStaffService staffService) {
-//        this.staffService = staffService;
-//    }
+    public JwtFilter(IUserService userService) {
+        this.userService = userService;
+    }
+
 
     @Override
     protected void doFilterInternal(HttpServletRequest req, HttpServletResponse res, FilterChain filterChain) throws ServletException, IOException {
@@ -31,7 +33,7 @@ public class JwtFilter extends OncePerRequestFilter {
                 // token not valid
                 res.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized! Please login to use this feature!");
             else {
-//                this.staffService.tokenFilter(token.substring(7), req);
+                this.userService.tokenFilter(token.substring(7), req);
                 filterChain.doFilter(req, res);
             }
         }

@@ -7,7 +7,6 @@ import com.models.PasswordModel;
 import com.models.RegisterModel;
 import com.services.IUserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
@@ -15,7 +14,7 @@ import javax.validation.Valid;
 
 @RestController
 @RequestMapping("users")
-public class UserController {
+public class UserResources {
     @Autowired
     IUserService userService;
 

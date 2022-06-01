@@ -3,6 +3,8 @@ package com.models;
 import com.entities.UserEntity;
 import lombok.*;
 
+import javax.validation.constraints.Email;
+import javax.validation.constraints.NotNull;
 import java.sql.Date;
 
 @Getter
@@ -13,27 +15,23 @@ import java.sql.Date;
 public class UserModel {
 
     private Long id;
-    private String userName;
+    @Email
+    @NotNull
     private String email;
     private String fullName;
     private String password;
     private Date birthDate;
     private Long mainAddress;
 
-    public static UserEntity toEntity(UserModel model){
-        if(model==null){
-            return null;
-        }
-        else {
-            return UserEntity.builder()
-                    .userName(model.getUserName())
-                    .fullName(model.getFullName())
-                    .email(model.getEmail())
-                    .password(model.getPassword())
-                    .birthDate(model.getBirthDate())
-                    .main_address(model.getMainAddress())
-                    .id(model.getId()).build();
-        }
+    public static UserEntity toEntity(UserModel model) {
+        if (model == null) throw new RuntimeException("UserModel is null");
+        return UserEntity.builder()
+                .fullName(model.getFullName())
+                .email(model.getEmail())
+                .password(model.getPassword())
+                .birthDate(model.getBirthDate())
+                .main_address(model.getMainAddress())
+                .id(model.getId()).build();
     }
 
 }

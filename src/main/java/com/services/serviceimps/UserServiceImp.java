@@ -21,12 +21,15 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.mail.MessagingException;
+import javax.servlet.http.HttpServletRequest;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -96,6 +99,8 @@ public class UserServiceImp implements IUserService {
         UserEntity u = userRepository.findById(model.getId()).orElseThrow(() -> new RuntimeException("Not Found"));
         u.setBirthDate(model.getBirthDate());
         u.setFullName(model.getFullName());
+
+
         if (model.getPassword()!=null)
         u.setPassword(passwordEncoder.encode(model.getPassword()));
         u.setMain_address(model.getMainAddress());
@@ -192,6 +197,16 @@ public class UserServiceImp implements IUserService {
         user.setCode("0");
         user.setStatus(true);
         userRepository.save(user);
+        return true;
+    }
+
+    // Token filter, check token is valid and set to context
+    public boolean tokenFilter(String token, HttpServletRequest req) {
+        String username = this.jwtProvider.getUsernameFromToken(token);
+        CustomUserDetail userDetail = new CustomUserDetail(this.findByUsername(username));
+        UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(userDetail, null, userDetail.getAuthorities());
+        usernamePasswordAuthenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(req));
+        SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
         return true;
     }
 }
