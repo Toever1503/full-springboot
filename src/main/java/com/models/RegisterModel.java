@@ -21,4 +21,8 @@ public class RegisterModel {
     @NotNull
     @Email
     private String email;
+
+    @NotNull
+    @NotBlank
+    private String url;
 }

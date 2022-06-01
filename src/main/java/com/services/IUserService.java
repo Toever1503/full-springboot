@@ -11,7 +11,7 @@ import com.models.UserModel;
 import javax.servlet.http.HttpServletRequest;
 
 public interface IUserService extends IBaseService<UserEntity, UserModel, Long>{
-    boolean signUp(RegisterModel registerModel, String url);
+    boolean signUp(RegisterModel registerModel);
 
     JwtLoginResponse logIn(JwtUserLoginModel model);
 
