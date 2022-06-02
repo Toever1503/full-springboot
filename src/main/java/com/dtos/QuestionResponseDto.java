@@ -16,5 +16,5 @@ public class QuestionResponseDto {
     private List<String> replyFiles;
     private Long userReply;
     private Date updatedDate;
-    private StatusQuestion status;
+    private EStatusQuestion status;
 }

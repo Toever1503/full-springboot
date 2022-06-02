@@ -3,12 +3,10 @@ package com.webs;
 import com.dtos.QuestionDto;
 import com.dtos.ResponseDto;
 import com.entities.QuestionEntity;
-import com.models.DeleteQuestionModel;
 import com.models.QuestionModel;
 import com.services.IQuestionService;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import javax.transaction.Transactional;
 import javax.validation.Valid;
@@ -37,7 +35,7 @@ public class QuestionResources {
 
     @Transactional
     @PostMapping
-    public ResponseDto addQuestion(QuestionModel questionModel) {
+    public ResponseDto addQuestion(@Valid QuestionModel questionModel) {
         QuestionEntity questionEntity = this.questionService.add(questionModel);
         QuestionDto questionDto = QuestionDto.toDto(questionEntity);
         return ResponseDto.of(questionDto,"Add question successfully");
@@ -45,15 +43,21 @@ public class QuestionResources {
 
     @Transactional
     @PutMapping
-    public ResponseDto updateQuestion( QuestionModel questionModel) {
+    public ResponseDto updateQuestion(@Valid QuestionModel questionModel) {
         QuestionEntity questionEntity = this.questionService.update(questionModel);
         QuestionDto questionDto = QuestionDto.toDto(questionEntity);
         return ResponseDto.of(questionDto, "Question updated successfully");
     }
 
     @Transactional
-    @DeleteMapping
-    public ResponseDto deleteQuestion(@Valid DeleteQuestionModel deleteQuestionModel) {
-        return ResponseDto.of(questionService.deleteById(deleteQuestionModel.getId(), deleteQuestionModel.getUrlPath()), "Question deleted successfully");
+    @DeleteMapping("/{id}")
+    public ResponseDto deleteQuestion(@PathVariable("id") Long id) {
+        return ResponseDto.of(questionService.deleteById(id), "Question deleted successfully");
+    }
+
+    @Transactional
+    @DeleteMapping("/delete-list")
+    public ResponseDto DeleteQuestions(@RequestBody List<Long> ids) {
+        return ResponseDto.of(questionService.deleteByIds(ids), "Questions deleted successfully");
     }
 }

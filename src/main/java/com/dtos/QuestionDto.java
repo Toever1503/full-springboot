@@ -15,6 +15,7 @@ import java.util.Map;
 @Builder
 public class QuestionDto {
     private Long id;
+    private String category;
     private String title;
     private String questContent;
     private List<Object> questFiles;
@@ -26,9 +27,10 @@ public class QuestionDto {
     public static QuestionDto toDto(QuestionEntity questionEntity) {
         return QuestionDto.builder()
                 .id(questionEntity.getId())
+                .category(questionEntity.getCategory())
                 .title(questionEntity.getTitle())
                 .questContent(questionEntity.getQuestContent())
-                .questFiles(questionEntity.getQuestFile() != null ? parseJson(questionEntity.getQuestFile()).getJSONArray("files").toList() : null)
+                .questFiles(questionEntity.getQuestFile() == null ? null : parseJson(questionEntity.getQuestFile()).getJSONArray("files").toList())
                 .createdBy(UserDto.toDto(questionEntity.getCreatedBy()))
                 .createdDate(questionEntity.getCreatedDate())
                 .updatedDate(questionEntity.getUpdatedDate())
@@ -37,14 +39,8 @@ public class QuestionDto {
     }
 
         public static JSONObject parseJson(String json){
+            System.out.println("json: " + json);
             return new JSONObject(json);
         }
 
-//    public static void main(String[] args) {
-//        List<String> listString = List.of("1", "2", "3");
-//        // convert list to json, after save to db
-//        System.out.println(new JSONObject(Map.of("files", listString)));
-//        // convert json to list, after get from db
-//        System.out.println(new JSONObject("{\"files\":[\"1\",\"2\",\"3\"]}").getJSONArray("files").toList());
-//    }
 }
