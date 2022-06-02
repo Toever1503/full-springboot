@@ -2,6 +2,7 @@ package com.webs;
 
 import com.config.jwt.JwtUserLoginModel;
 import com.dtos.ResponseDto;
+import com.dtos.UserDto;
 import com.models.ForgetPasswordModel;
 import com.models.PasswordModel;
 import com.models.RegisterModel;
@@ -19,6 +20,16 @@ public class UserResources {
     IUserService userService;
 
 
+    @Transactional
+    @GetMapping("{id}")
+    public ResponseDto getUser(@PathVariable("id") long id) {
+        return ResponseDto.of(UserDto.toDto(this.userService.findById(id)), "Get user id: " + id);
+    }
+
+    @GetMapping("my-profile")
+    public ResponseDto getMyProfile() {
+        return ResponseDto.of(UserDto.toDto(this.userService.getMyProfile()), "Get my profile");
+    }
     @Transactional
     @PostMapping("/signup")
     public ResponseDto signUpUser(@RequestBody @Valid RegisterModel model) {
@@ -40,7 +51,6 @@ public class UserResources {
 
     @Transactional
     @PostMapping(value = "/change-password")
-
     public ResponseDto changePassword(@RequestBody PasswordModel model) {
         return ResponseDto.of(userService.changePassword(model) ? true : null, "Password change successfully");
     }

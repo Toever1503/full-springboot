@@ -218,4 +218,9 @@ public class UserServiceImp implements IUserService {
         SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
         return true;
     }
+
+    @Override
+    public UserEntity getMyProfile() {
+        return this.findById(SecurityUtils.getCurrentUserId());
+    }
 }
