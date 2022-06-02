@@ -43,12 +43,8 @@ public class FileUploadProvider {
             }
         }
         String filePath = folder + checkFileName.toString();
-        s3Client.putObject(this.bucket, UserEntity.FOLDER + SecurityUtils.getCurrentUsername() + QuestionEntity.FOLDER + filePath, file.getInputStream(), null);
-        return bucketEndpoint + UserEntity.FOLDER + SecurityUtils.getCurrentUsername() + QuestionEntity.FOLDER + filePath;
-    }
-
-    public void deleteFile(String urlPath){
-        this.s3Client.deleteObject(this.bucket, urlPath.replace(this.bucketEndpoint, ""));
+        s3Client.putObject(this.bucket, filePath, file.getInputStream(), null);
+        return bucketEndpoint + filePath;
     }
 
     public boolean isFileExist(String key) {
@@ -59,6 +55,10 @@ public class FileUploadProvider {
             e.printStackTrace();
             return false;
         }
+    }
+    public void deleteFile(String key){
+        System.out.println("Delete File: "+ key);
+        this.s3Client.deleteObject(this.bucket,key.replace(this.bucketEndpoint, ""));
     }
 
     public AmazonS3ClientBuilder amazonS3ClientBuilder() {

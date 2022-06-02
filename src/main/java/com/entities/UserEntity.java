@@ -58,4 +58,7 @@ public class UserEntity {
             inverseJoinColumns = @JoinColumn(name = "role_id")
     )
     private Set<RoleEntity> roleEntity;
+
+    public static final String FOLDER = "user/";
+
 }

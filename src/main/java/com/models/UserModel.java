@@ -1,7 +1,9 @@
 package com.models;
 
 import com.entities.UserEntity;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
+import org.hibernate.validator.constraints.Length;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotNull;
@@ -15,15 +17,29 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 public class UserModel {
-
+    @ApiModelProperty(notes = "User ID", dataType = "Long", example = "1")
     private Long id;
+
+    @ApiModelProperty(notes = "User Email", dataType = "String", example = "email@gmail.com")
     @Email
     @NotNull
+    @Length(min = 10,max = 255)
     private String email;
+
+    @ApiModelProperty(notes = "User full name", dataType = "String", example = "Nguyen Van A")
+    @Length(min = 10,max = 255)
     private String fullName;
+
+    @ApiModelProperty(notes = "User password", dataType = "String", example = "123456")
+    @Length(min = 6,max = 255)
     private String password;
+
+    @ApiModelProperty(notes = "User birthdate", dataType = "Date", example = "19/09/2009")
     private Date birthDate;
+
+    @ApiModelProperty(notes = "User address", dataType = "Long", example = "1")
     private Long mainAddress;
+
     private List<AddressModel> myAddress = Collections.emptyList();
 
     public static UserEntity toEntity(UserModel model) {

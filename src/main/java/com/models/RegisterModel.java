@@ -1,5 +1,6 @@
 package com.models;
 
+import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
 
 import javax.persistence.Entity;
@@ -14,10 +15,11 @@ import javax.validation.constraints.NotNull;
 @AllArgsConstructor
 @Builder
 public class RegisterModel {
+    @ApiModelProperty(notes = "User name", dataType = "String", example = "admin")
     @NotNull
     @NotBlank
     private String userName;
-
+    @ApiModelProperty(notes = "User Email", dataType = "String", example = "email@gmail.com")
     @NotNull
     @Email
     private String email;
