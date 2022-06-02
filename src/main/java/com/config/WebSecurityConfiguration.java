@@ -22,7 +22,7 @@ import org.springframework.security.web.util.matcher.RequestMatcher;
 public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     private final RequestMatcher PUBLIC_URLS = new OrRequestMatcher(
-            new AntPathRequestMatcher("/swagger-resources/**"),
+
             new AntPathRequestMatcher("/users/signup"),
             new AntPathRequestMatcher("/users/login"),
             new AntPathRequestMatcher("/users/forget-password"),
@@ -30,6 +30,7 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
             new AntPathRequestMatcher("/addresses/provinces"),
             new AntPathRequestMatcher("/addresses/getAllDistrict/**"),
             new AntPathRequestMatcher("/addresses/getAllWards/**"),
+            new AntPathRequestMatcher("/swagger-resources/**"),
             new AntPathRequestMatcher("/swagger-ui/**"),
             new AntPathRequestMatcher("/v2/api-docs"),
             new AntPathRequestMatcher("/webjars/**")
