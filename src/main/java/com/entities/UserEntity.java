@@ -1,9 +1,11 @@
 package com.entities;
 
 import lombok.*;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 import javax.persistence.*;
 import java.sql.Date;
+import java.util.List;
 import java.util.Set;
 
 @Builder
@@ -37,6 +39,9 @@ public class UserEntity {
     private boolean lockStatus;
     @Column(name = "main_address")
     private Long mainAddress;
+
+    public static final String FOLDER = "user/";
+
 
     @ManyToMany
     @JoinTable(

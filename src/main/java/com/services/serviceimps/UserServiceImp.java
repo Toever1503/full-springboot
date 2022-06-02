@@ -55,7 +55,13 @@ public class UserServiceImp implements IUserService {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private final IAddressService addressService;
 
-    public UserServiceImp(IUserRepository userRepository, IRoleRepository roleRepository, JwtProvider jwtProvider, AuthenticationManager authenticationManager, PasswordEncoder passwordEncoder, MailService mailService, IAddressService addressService) {
+    public UserServiceImp(IUserRepository userRepository,
+                          IRoleRepository roleRepository,
+                          JwtProvider jwtProvider,
+                          AuthenticationManager authenticationManager,
+                          PasswordEncoder passwordEncoder,
+                          MailService mailService,
+                          IAddressService addressService) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.jwtProvider = jwtProvider;
@@ -210,6 +216,7 @@ public class UserServiceImp implements IUserService {
     }
 
     // Token filter, check token is valid and set to context
+    @Transactional
     public boolean tokenFilter(String token, HttpServletRequest req) {
         String username = this.jwtProvider.getUsernameFromToken(token);
         CustomUserDetail userDetail = new CustomUserDetail(this.findByUsername(username));
