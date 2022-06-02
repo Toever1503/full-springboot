@@ -15,21 +15,30 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.mail.MessagingException;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class QuestionServiceImp implements IQuestionService {
-    private final IQuestionRepository questionRepository;
-    private final IUserService userService;
-    private final FileUploadProvider fileUploadProvider;
+    final
+    IQuestionRepository questionRepository;
+    final IUserRepository userRepository;
 
-    public QuestionServiceImp(IQuestionRepository questionRepository, IUserService userService, FileUploadProvider fileUploadProvider) {
+    final
+    FileUploadProvider fileUploadProvider;
+
+    final MailService mailService;
+
+    public QuestionServiceImp(IQuestionRepository questionRepository, IUserRepository userRepository, FileUploadProvider fileUploadProvider, MailService mailService) {
         this.questionRepository = questionRepository;
-        this.userService = userService;
+        this.userRepository = userRepository;
         this.fileUploadProvider = fileUploadProvider;
+        this.mailService = mailService;
     }
 
     @Override
@@ -39,7 +48,7 @@ public class QuestionServiceImp implements IQuestionService {
 
     @Override
     public Page<QuestionEntity> findAll(Pageable page) {
-        return this.questionRepository.findAll(page);
+        return questionRepository.findAllByCompatible(true, page);
     }
 
     @Override
@@ -80,57 +89,105 @@ public class QuestionServiceImp implements IQuestionService {
 
     @Override
     public QuestionEntity update(QuestionModel model) {
-        QuestionEntity originalQuestion = this.findById(model.getId());
-        QuestionEntity questionEntity = QuestionModel.toEntity(model);
-        if(originalQuestion.getStatus().equalsIgnoreCase(EStatusQuestion.COMPLETED.name())) throw new RuntimeException("Question is already completed");
-            if(!model.getQuestFile().get(0).isEmpty()){
-                if(model.getQuestOriginFile() != null) { // model old file 1-3
-                    model.getQuestOriginFile().stream().forEach(u -> fileUploadProvider.deleteFile(u)); // delete old file, 1-3
-                }
-
-                List<String> filePaths =new ArrayList<>();
-                // in database file 1- 5
-                // old file 1-3
-                // we have to delete file 4,5
-                for(MultipartFile file: model.getQuestFile()){
-                    try {
-                        filePaths.add(fileUploadProvider.uploadFile(SecurityUtils.getCurrentUsername(),file));
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
-                JSONObject jsonObject = new JSONObject(Map.of("files", filePaths));
-                questionEntity.setQuestFile(jsonObject.toString());
-            }else {
-                questionEntity.setQuestFile(originalQuestion.getQuestFile());
-            }
-
-
-        questionEntity.setStatus(EStatusQuestion.PENDING.name());
-        Long userId = SecurityUtils.getCurrentUserId();
-        UserEntity userEntity = userService.findById(userId);
-        questionEntity.setCreatedBy(userEntity);
-        questionEntity.setTitle(model.getTitle().equals("") ? originalQuestion.getTitle() : model.getTitle());
-        questionEntity.setQuestContent(model.getQuestContent().equals("") ? originalQuestion.getQuestContent() : model.getQuestContent());
-        return this.questionRepository.save(questionEntity);
+        return null;
     }
 
     @Override
     public boolean deleteById(Long id) {
-        QuestionEntity questionEntity = this.findById(id);
-        if(questionEntity.getQuestFile() != null) {
-            new JSONObject(questionEntity.getQuestFile()).getJSONArray("files").toList().forEach(u -> fileUploadProvider.deleteFile(u.toString()));
-        }
-        if (questionEntity.getReplyFile() != null) {
-            new JSONObject(questionEntity.getReplyFile()).getJSONArray("files").toList().forEach(u -> fileUploadProvider.deleteFile(u.toString()));
-        }
-        questionRepository.deleteById(id);
-        return true;
+        return false;
     }
 
     @Override
-    public boolean deleteByIds(List<Long> ids) {
-        ids.forEach(id -> this.deleteById(id));
-        return true;
+    public boolean deleteByIds(List<Long> id) {
+        return false;
+    }
+
+    @Override
+    public QuestionResponseDto answerQuestion(Long qid, QuestionResponseModel model) {
+        QuestionEntity question = this.findById(qid);
+        List<Object> originalFile;
+        if(question.getReplyFile()!=null){
+            originalFile = (parseJson(question.getReplyFile()).getJSONArray("files").toList());
+            originalFile.removeAll(model.getOldFiles());
+            originalFile.forEach(o -> fileUploadProvider.deleteFile(o.toString()));
+        }else {
+            originalFile = new ArrayList<>();
+        }
+        uploadFile(question,model.getReplyFile(),model.getOldFiles());
+        question.setAnsweredBy(userRepository.findById(SecurityUtils.getCurrentUserId()).orElseThrow(() -> new RuntimeException("User not found")));
+        question.setReplyContent(model.getReplyContent());
+
+        question.setStatus(StatusQuestion.COMPLETED.toString());
+        question = questionRepository.save(question);
+        notifyUser(model.getUrl(), question);
+        return QuestionResponseDto.builder().id(question.getId()).replyContent(question.getReplyContent()).userReply(question.getAnsweredBy().getId()).updatedDate(question.getUpdatedDate()).replyFiles(model.getReplyFile().stream().map(multipartFile -> String.valueOf(multipartFile.getOriginalFilename())).collect(Collectors.toList())).status(StatusQuestion.COMPLETED).build();
+    }
+
+    @Override
+    public Page<QuestionEntity> getAllMyQuestion(Pageable page) {
+        return questionRepository.getQuestionEntitiesByUIDandCompat(SecurityUtils.getCurrentUserId(), true, page);
+
+    }
+
+    @Override
+    public Page<QuestionEntity> getAllMyAnsweredQuestion(Pageable pageable) {
+        return questionRepository.findAllQuestionByUID(SecurityUtils.getCurrentUserId(),true, String.valueOf(StatusQuestion.COMPLETED), pageable);
+    }
+
+    @Override
+    public Page<QuestionEntity> getAllQuestionByID(Long id, Pageable pageable) {
+        return questionRepository.getQuestionEntitiesByUIDandCompat(id, true, pageable);
+//        return questionEntities.getContent().stream().map(QuestionDto::toDto).collect(Collectors.toList());
+    }
+
+    @Override
+    public Page<QuestionEntity> getAllQuestionAnsweredByID(Long id, Pageable pageable) {
+        return questionRepository.findAllQuestionByUID(id, true,String.valueOf(StatusQuestion.COMPLETED),pageable);
+    }
+
+    @Override
+    public List<Long> getAllAskedUser() {
+        return questionRepository.getAllAskedUserIDByStatus().stream().map(UserEntity::getId).collect(Collectors.toList());
+    }
+
+
+    private void uploadFile(QuestionEntity entity, List<MultipartFile> multipartFiles, List<String> oldFiles){
+        if (!multipartFiles.get(0).getName().isEmpty()) {
+            String folder = UserEntity.FOLDER + entity.getCreatedBy().getUserName() + QuestionEntity.FOLDER;
+            List<String> uploadedFiles = new ArrayList<String>();
+            if(!oldFiles.isEmpty()){
+                uploadedFiles.addAll(oldFiles);
+            }
+            multipartFiles.forEach(multipartFile -> {
+                try {
+                    uploadedFiles.add(fileUploadProvider.uploadFile(folder, multipartFile));
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            });
+
+            JSONObject jsonObject = new JSONObject(Map.of("files", uploadedFiles));
+            entity.setReplyFile(jsonObject.toString());
+        }
+
+    }
+    private JSONObject parseJson(String json){
+        return new JSONObject(json);
+    }
+
+    private void notifyUser(String url, QuestionEntity question){
+        new Thread("Send Notify Mail") {
+            @Override
+            public void run() {
+                Map<String, Object> context = new HashMap<>();
+                context.put("url", url);
+                context.put("question", question);
+                try {
+                    mailService.sendMail("QuestionNotifyMailTemplate.html", question.getCreatedBy().getEmail(), "Question Answered", context);
+                } catch (MessagingException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }.start();
     }
 }

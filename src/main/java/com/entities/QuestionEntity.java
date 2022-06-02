@@ -51,5 +51,4 @@ public class QuestionEntity {
     private UserEntity answeredBy;
 
     public static final String FOLDER = "/question/";
-
 }
