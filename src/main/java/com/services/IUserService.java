@@ -20,4 +20,6 @@ public interface IUserService extends IBaseService<UserEntity, UserModel, Long>{
     boolean changePassword(PasswordModel model);
 
     boolean tokenFilter(String substring, HttpServletRequest req);
+
+    UserEntity getMyProfile();
 }
