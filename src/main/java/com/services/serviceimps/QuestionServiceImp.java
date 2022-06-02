@@ -1,9 +1,8 @@
 package com.services.serviceimps;
 
-import com.dtos.StatusQuestion;
+import com.dtos.EStatusQuestion;
 import com.entities.QuestionEntity;
 import com.entities.UserEntity;
-import com.models.DeleteQuestionModel;
 import com.models.QuestionModel;
 import com.repositories.IQuestionRepository;
 import com.services.IQuestionService;
@@ -51,7 +50,7 @@ public class QuestionServiceImp implements IQuestionService {
     @Override
     public QuestionEntity add(QuestionModel model)  {
         QuestionEntity questionEntity = QuestionModel.toEntity(model);
-        if(!model.getQuestFile().get(0).isEmpty()){
+        if(!model.getQuestFile().get(0).getOriginalFilename().equals("")){
             if(model.getQuestFile().size() >=3) {
                 throw new RuntimeException("File upload limit is 3");
             }
@@ -67,7 +66,7 @@ public class QuestionServiceImp implements IQuestionService {
             questionEntity.setQuestFile(jsonObject.toString());
         }
 
-        questionEntity.setStatus(StatusQuestion.PENDING.name());
+        questionEntity.setStatus(EStatusQuestion.PENDING.name());
         Long userId = SecurityUtils.getCurrentUserId();
         UserEntity userEntity = userService.findById(userId);
         questionEntity.setCreatedBy(userEntity);
@@ -83,15 +82,16 @@ public class QuestionServiceImp implements IQuestionService {
     public QuestionEntity update(QuestionModel model) {
         QuestionEntity originalQuestion = this.findById(model.getId());
         QuestionEntity questionEntity = QuestionModel.toEntity(model);
-        if(originalQuestion.getStatus().equalsIgnoreCase(StatusQuestion.COMPLETED.name())) throw new RuntimeException("Question is already completed");
-
+        if(originalQuestion.getStatus().equalsIgnoreCase(EStatusQuestion.COMPLETED.name())) throw new RuntimeException("Question is already completed");
             if(!model.getQuestFile().get(0).isEmpty()){
-
-                if(model.getQuestOriginFile() != null) {
-                    model.getQuestOriginFile().stream().forEach(u -> fileUploadProvider.deleteFile(u));
+                if(model.getQuestOriginFile() != null) { // model old file 1-3
+                    model.getQuestOriginFile().stream().forEach(u -> fileUploadProvider.deleteFile(u)); // delete old file, 1-3
                 }
 
                 List<String> filePaths =new ArrayList<>();
+                // in database file 1- 5
+                // old file 1-3
+                // we have to delete file 4,5
                 for(MultipartFile file: model.getQuestFile()){
                     try {
                         filePaths.add(fileUploadProvider.uploadFile(SecurityUtils.getCurrentUsername(),file));
@@ -106,32 +106,31 @@ public class QuestionServiceImp implements IQuestionService {
             }
 
 
-        questionEntity.setStatus(StatusQuestion.PENDING.name());
+        questionEntity.setStatus(EStatusQuestion.PENDING.name());
         Long userId = SecurityUtils.getCurrentUserId();
         UserEntity userEntity = userService.findById(userId);
         questionEntity.setCreatedBy(userEntity);
-        questionEntity.setTitle(model.getTitle() == null ? originalQuestion.getTitle() : model.getTitle());
-        questionEntity.setQuestContent(model.getQuestContent() == null ? originalQuestion.getQuestContent() : model.getQuestContent());
+        questionEntity.setTitle(model.getTitle().equals("") ? originalQuestion.getTitle() : model.getTitle());
+        questionEntity.setQuestContent(model.getQuestContent().equals("") ? originalQuestion.getQuestContent() : model.getQuestContent());
         return this.questionRepository.save(questionEntity);
     }
 
     @Override
     public boolean deleteById(Long id) {
-        return false;
-    }
-
-    @Override
-    public boolean deleteById(Long id, List<String> urlPath) {
         QuestionEntity questionEntity = this.findById(id);
-        if(questionEntity.getStatus().equalsIgnoreCase(StatusQuestion.COMPLETED.name())) throw new RuntimeException("Question is already completed");
-
-        urlPath.stream().forEach(u -> fileUploadProvider.deleteFile(u));
+        if(questionEntity.getQuestFile() != null) {
+            new JSONObject(questionEntity.getQuestFile()).getJSONArray("files").toList().forEach(u -> fileUploadProvider.deleteFile(u.toString()));
+        }
+        if (questionEntity.getReplyFile() != null) {
+            new JSONObject(questionEntity.getReplyFile()).getJSONArray("files").toList().forEach(u -> fileUploadProvider.deleteFile(u.toString()));
+        }
         questionRepository.deleteById(id);
         return true;
     }
 
     @Override
-    public boolean deleteByIds(List<Long> id) {
-        return false;
+    public boolean deleteByIds(List<Long> ids) {
+        ids.forEach(id -> this.deleteById(id));
+        return true;
     }
 }

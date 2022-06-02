@@ -1,6 +1,5 @@
 package com.entities;
 
-import com.dtos.StatusQuestion;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -19,6 +18,8 @@ public class QuestionEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    @Column(name = "category")
+    private String category;
     @Column(name = "title")
     private String title;
     @Column(name = "quest_content")
