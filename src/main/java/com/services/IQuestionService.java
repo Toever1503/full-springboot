@@ -20,6 +20,8 @@ public interface IQuestionService extends IBaseService<QuestionEntity, QuestionM
 
     Page<QuestionEntity> getAllQuestionByID(Long id,Pageable pageable);
 
+    Page<QuestionEntity> getAllQuestionByCategory(String category, Pageable pageable);
+
     Page<QuestionEntity> getAllQuestionAnsweredByID(Long id,Pageable pageable);
 
     List<Long> getAllAskedUser();

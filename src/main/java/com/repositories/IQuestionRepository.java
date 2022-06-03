@@ -25,4 +25,7 @@ public interface IQuestionRepository extends JpaRepository<QuestionEntity, Long>
     @Query("SELECT distinct c.createdBy from QuestionEntity c")
     List<UserEntity> getAllAskedUserIDByStatus();
 
+    @Query("select c from QuestionEntity c where c.category=?1")
+    Page<QuestionEntity> findQuestionsByCategory(String category, Pageable pageable);
+
 }
