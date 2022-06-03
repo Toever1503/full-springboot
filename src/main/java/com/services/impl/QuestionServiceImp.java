@@ -68,7 +68,7 @@ public class QuestionServiceImp implements IQuestionService {
             List<String> filePaths = new ArrayList<>();
             for (MultipartFile file : model.getQuestFile()) {
                 try {
-                    filePaths.add(fileUploadProvider.uploadFile(SecurityUtils.getCurrentUsername(), file));
+                    filePaths.add(fileUploadProvider.uploadFile(UserEntity.FOLDER + questionEntity.getCreatedBy().getUserName() + QuestionEntity.FOLDER, file));
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -78,6 +78,7 @@ public class QuestionServiceImp implements IQuestionService {
         }
 
         questionEntity.setStatus(EStatusQuestion.PENDING.name());
+        questionEntity.setCategory(model.getCategory().name());
         UserEntity userEntity = userService.findById(SecurityUtils.getCurrentUserId());
         questionEntity.setCreatedBy(userEntity);
         return this.questionRepository.save(questionEntity);
@@ -96,8 +97,8 @@ public class QuestionServiceImp implements IQuestionService {
             throw new RuntimeException("Question is already completed");
 
         List<Object> originalFile = new ArrayList<>();
-        if (originalQuestion.getReplyFile() != null) {
-            originalFile = (parseJson(originalQuestion.getReplyFile()).getJSONArray("files").toList());
+        if (originalQuestion.getQuestFile() != null) {
+            originalFile = (parseJson(originalQuestion.getQuestFile()).getJSONArray("files").toList());
             originalFile.removeAll(model.getQuestOriginFile());
             originalFile.forEach(o -> fileUploadProvider.deleteFile(o.toString()));
         }
@@ -117,8 +118,9 @@ public class QuestionServiceImp implements IQuestionService {
         }
         originalQuestion.setQuestFile(uploadedFiles.isEmpty() ? null : (new JSONObject(Map.of("files", uploadedFiles)).toString()));
 
-        UserEntity userEntity = userService.findById(SecurityUtils.getCurrentUserId());
-        originalQuestion.setCreatedBy(userEntity);
+//        UserEntity userEntity = userService.findById(SecurityUtils.getCurrentUserId());
+//        originalQuestion.setCreatedBy(userEntity);
+        originalQuestion.setCategory(model.getCategory().name());
         originalQuestion.setTitle(model.getTitle());
         originalQuestion.setQuestContent(model.getQuestContent());
         return this.questionRepository.save(originalQuestion);

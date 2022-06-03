@@ -38,7 +38,7 @@ public class QuestionModel {
     private List<MultipartFile> questFile;
 
     @ApiModelProperty(notes = "List String of question origin", dataType = "List<String>", example = "file1, file2")
-    private final List<String> questOriginFile = new ArrayList<>();
+    private List<String> questOriginFile = new ArrayList<String>();
 
     @ApiModelProperty(notes = "user who created question", dataType = "UserModel", example = "1")
     private Long createById;
