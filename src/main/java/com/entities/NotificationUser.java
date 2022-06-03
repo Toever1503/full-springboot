@@ -17,6 +17,7 @@ public class NotificationUser {
     private Long id;
     @Column(name = "is_read")
     private boolean isRead;
+    @Column(name = "notification_id")
     private Long notificationId;
     @Column(name = "user_id")
     private Long userId;

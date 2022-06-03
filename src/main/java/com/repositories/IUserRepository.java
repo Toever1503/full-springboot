@@ -6,6 +6,7 @@ import org.apache.catalina.User;
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Repository;
 
@@ -21,5 +22,6 @@ public interface IUserRepository extends JpaRepository<UserEntity,Long>, JpaSpec
     Optional<UserEntity> findUserEntityByUserNameOrEmail(String username, String email);
 
 
-    List<UserViewId> getAll();
+    @Query("select u.id from UserEntity u")
+    List<Long> getAllId();
 }

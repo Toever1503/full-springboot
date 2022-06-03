@@ -1,5 +1,6 @@
 package com.webs;
 
+import com.dtos.NotificationDetailDto;
 import com.dtos.NotificationDto;
 import com.dtos.ResponseDto;
 import com.services.INotificationService;
@@ -20,22 +21,22 @@ public class NotificationResources {
     }
 
     @GetMapping
-    public ResponseDto getAll(Pageable page){
-        return ResponseDto.of(this.notificationService.findAll(page), "Admin get all notifications");
+    public ResponseDto getAll(Pageable page) {
+        return ResponseDto.of(this.notificationService.findAll(page).map(NotificationDto::toDto), "Admin get all notifications");
     }
 
     @GetMapping("user/getAll")
-    public ResponseDto userGetAll(Pageable page){
-        return ResponseDto.of(this.notificationService.findAll(page), "User get all notifications");
+    public ResponseDto userGetAll(Pageable page) {
+        return ResponseDto.of(this.notificationService.userGetAllNotifications(page), "User get all notifications");
     }
 
     @GetMapping("{id}")
-    public ResponseDto getNotification(@PathVariable long id){
-        return null;
+    public ResponseDto getNotification(@PathVariable long id) {
+        return ResponseDto.of(NotificationDetailDto.toDto(this.notificationService.findById(id)), "Get notification id: " + id);
     }
 
-    @GetMapping("view/{id}")
-    public ResponseDto viewNotification(@PathVariable long id){
-        return null;
+    @GetMapping("increase-view/{id}")
+    public ResponseDto viewNotification(@PathVariable long id) {
+        return ResponseDto.of(this.notificationService.increaseView(id), "Increase view notification id: " + id);
     }
 }

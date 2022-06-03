@@ -6,7 +6,9 @@ import com.entities.NotificationUser;
 import com.models.NotificationModel;
 import com.repositories.IUserRepository;
 import com.repositories.NotificationRepository;
+import com.repositories.NotificationUserRepository;
 import com.services.INotificationService;
+import com.utils.SecurityUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -19,10 +21,12 @@ import java.util.stream.Collectors;
 public class NotificationServiceImpl implements INotificationService {
     private final NotificationRepository notificationRepository;
     private final IUserRepository userRepository;
+    private final NotificationUserRepository notificationUserRepository;
 
-    public NotificationServiceImpl(NotificationRepository notificationRepository, IUserRepository userRepository) {
+    public NotificationServiceImpl(NotificationRepository notificationRepository, IUserRepository userRepository, NotificationUserRepository notificationUserRepository) {
         this.notificationRepository = notificationRepository;
         this.userRepository = userRepository;
+        this.notificationUserRepository = notificationUserRepository;
     }
 
     @Override
@@ -42,16 +46,11 @@ public class NotificationServiceImpl implements INotificationService {
 
     @Override
     public NotificationEntity findById(Long id) {
-        return null;
+        return this.notificationRepository.findById(id).orElseThrow(() -> new RuntimeException("Not found notification id: " + id));
     }
 
     @Override
     public NotificationEntity add(NotificationModel model) {
-        userRepository.getAll().stream().map(idView->  NotificationUser.builder()
-                    .isRead(false)
-                    .notificationId(null)
-                    .userId(idView.getId())
-                    .build()).collect(Collectors.toList());
         return null;
     }
 
@@ -77,10 +76,14 @@ public class NotificationServiceImpl implements INotificationService {
 
     @Override
     public Page<NotificationDto> userGetAllNotifications(Pageable page) {
-        Page<NotificationEntity> notificationEntityPage = this.findAll(page);
-        return notificationEntityPage.map(notificationEntity -> {
-            NotificationDto notificationDto = NotificationDto.toDto(notificationEntity);
-            return null;
-        });
+        return this.notificationRepository.userGetAllNotifications(SecurityUtils.getCurrentUserId(), "POSTED", page);
+    }
+
+    @Override
+    public boolean increaseView(long id) {
+        NotificationEntity entity = this.findById(id);
+        entity.setViewed(entity.getViewed() == null ? 0 : entity.getViewed() + 1);
+        this.notificationRepository.save(entity);
+        return true;
     }
 }

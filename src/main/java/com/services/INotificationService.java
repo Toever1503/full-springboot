@@ -9,4 +9,5 @@ import org.springframework.data.domain.Pageable;
 public interface INotificationService extends IBaseService<NotificationEntity, NotificationModel, Long> {
      Page<NotificationDto> userGetAllNotifications(Pageable page);
 
+    boolean increaseView(long id);
 }
