@@ -70,6 +70,12 @@ public class QuestionResources {
         return ResponseDto.of(questionService.findAll(pageable).map(QuestionDto::toDto), "Get questions successfully");
     }
 
+    @GetMapping("/category")
+    @Transactional
+    public ResponseDto getQuestions(@RequestParam("category") String category ,Pageable pageable) {
+        return ResponseDto.of(questionService.getAllQuestionByCategory(category, pageable).map(QuestionDto::toDto), "Get questions by category successfully");
+    }
+
     @Transactional
     @GetMapping("/{id}")
     public ResponseDto getQuestionById(@PathVariable Long id) {
