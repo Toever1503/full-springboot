@@ -16,7 +16,8 @@ public interface IQuestionRepository extends JpaRepository<QuestionEntity, Long>
     @Query("select c from QuestionEntity c,UserEntity u where c.createdBy = u and c.createdBy.id = ?1 and c.isCompatible = ?2")
     Page<QuestionEntity> getQuestionEntitiesByUIDandCompat(Long id,boolean compat, Pageable pageable);
 
-    Page<QuestionEntity> findAllByCompatible(boolean compat, Pageable pageable);
+    @Query("select c from QuestionEntity c where c.isCompatible=?1")
+    Page<QuestionEntity> findAllWithCompatible(boolean compat, Pageable pageable);
 
     @Query("select c from QuestionEntity c,UserEntity u where c.createdBy = u and c.createdBy.id = ?1 and c.isCompatible = ?2 and c.status = ?3")
     Page<QuestionEntity> findAllQuestionByUID(Long uid, boolean compat, String status, Pageable pageable);

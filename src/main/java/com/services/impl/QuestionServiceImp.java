@@ -48,7 +48,7 @@ public class QuestionServiceImp implements IQuestionService {
 
     @Override
     public Page<QuestionEntity> findAll(Pageable page) {
-        return questionRepository.findAllByCompatible(true, page);
+        return questionRepository.findAllWithCompatible(true, page);
     }
 
     @Override
