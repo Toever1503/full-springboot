@@ -38,6 +38,7 @@ public class TotalQuestionDto {
             dto.setUpdatedDate(entity.getUpdatedDate());
             dto.setReplyFiles(Collections.singletonList(entity.getReplyFile()));
             dto.setReplyContent(entity.getReplyContent());
+            if(entity.getAnsweredBy()!=null)
             dto.setUserReply(entity.getAnsweredBy().getFullName());
             return dto;
     }

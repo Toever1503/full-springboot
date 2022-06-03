@@ -55,4 +55,13 @@ public class NotificationServiceImpl implements INotificationService {
     public boolean deleteByIds(List<Long> ids) {
         return false;
     }
+
+//    @Override
+//    public NotificationEntity addScheduleNotification(NotificationModel model) {
+//        NotificationEntity notification = new NotificationEntity();
+//        notification.setContent(model.get);
+//
+//
+//        return null;
+//    }
 }
