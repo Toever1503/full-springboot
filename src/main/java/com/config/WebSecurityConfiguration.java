@@ -29,7 +29,6 @@ import org.springframework.security.web.util.matcher.RequestMatcher;
 public class WebSecurityConfiguration {
 
     private final RequestMatcher PUBLIC_URLS = new OrRequestMatcher(
-
             new AntPathRequestMatcher("/users/signup"),
             new AntPathRequestMatcher("/users/login"),
             new AntPathRequestMatcher("/users/forget-password"),
@@ -58,7 +57,7 @@ public class WebSecurityConfiguration {
         AuthenticationManager authenticationManager = httpSecurity
                 .getSharedObject(AuthenticationManagerBuilder.class)
                 .parentAuthenticationManager(authentication -> {
-                    throw new RuntimeException("No authentication manager available");
+                    throw new RuntimeException("Bad Credential");
                 }).build();
         httpSecurity
                 .authenticationProvider(new JwtAuthenticationProvider())
