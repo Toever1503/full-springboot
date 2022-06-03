@@ -15,7 +15,6 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class NotificationServiceImpl implements INotificationService {
@@ -81,8 +80,11 @@ public class NotificationServiceImpl implements INotificationService {
 
     @Override
     public boolean increaseView(long id) {
+        NotificationUser notificationUser = this.notificationUserRepository.findByUserIdAndNotificationId(SecurityUtils.getCurrentUserId(), id).orElseThrow(() -> new RuntimeException("Not found notification_user: " + id));
         NotificationEntity entity = this.findById(id);
         entity.setViewed(entity.getViewed() == null ? 0 : entity.getViewed() + 1);
+        notificationUser.setIsRead(true);
+        this.notificationUserRepository.save(notificationUser);
         this.notificationRepository.save(entity);
         return true;
     }
