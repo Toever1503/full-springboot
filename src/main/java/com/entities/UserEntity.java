@@ -59,4 +59,7 @@ public class UserEntity {
     )
     private Set<RoleEntity> roleEntity;
 
+    @OneToMany(mappedBy = "userId")
+    private List<NotificationUser> notificationUsers;
+
 }
