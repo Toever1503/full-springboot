@@ -21,7 +21,7 @@ public class TotalQuestionDto {
     private List<String> questFiles;
     private Date createdDate;
     private Date updatedDate;
-    private StatusQuestion status;
+    private EStatusQuestion status;
     private String replyContent;
     private List<String> replyFiles;
     private String userReply;
@@ -30,7 +30,7 @@ public class TotalQuestionDto {
             if(entity==null) throw new RuntimeException("No Question Found!");
             TotalQuestionDto dto = new TotalQuestionDto();
             dto.setId(entity.getId());
-            dto.setStatus(StatusQuestion.valueOf(entity.getStatus()));
+            dto.setStatus(EStatusQuestion.valueOf(entity.getStatus()));
             dto.setCreatedDate(entity.getCreatedDate());
             dto.setQuestContent(entity.getQuestContent());
             dto.setTitle(entity.getTitle());

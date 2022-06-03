@@ -12,7 +12,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 
 public interface IQuestionService extends IBaseService<QuestionEntity, QuestionModel, Long>{
-    QuestionResponseDto answerQuestion(Long qid, QuestionResponseModel model);
+    QuestionEntity answerQuestion(Long qid, QuestionResponseModel model);
 
     Page<QuestionEntity> getAllMyQuestion(Pageable page);
 

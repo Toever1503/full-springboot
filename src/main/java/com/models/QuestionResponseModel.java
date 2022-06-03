@@ -1,6 +1,6 @@
 package com.models;
 
-import com.dtos.StatusQuestion;
+import com.dtos.EStatusQuestion;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
 import org.hibernate.validator.constraints.Length;
@@ -20,7 +20,6 @@ public class QuestionResponseModel {
     @ApiModelProperty(notes = "Question ID", dataType = "Long", example = "1")
     private Long id;
 
-
     @ApiModelProperty(notes = "Reply Content", dataType = "String", example = "Good question by you")
     @NotBlank
     @NotNull
@@ -28,12 +27,11 @@ public class QuestionResponseModel {
     private String replyContent;
     @ApiModelProperty(notes = "Reply file", dataType = "Multipart file", example = "*.png, *.jpeg, *.mp4...")
     private List<MultipartFile> replyFile;
-    private List<String> oldFiles = new ArrayList<>();
+    private final List<String> oldFiles = new ArrayList<String>();
     private Long userReply;
-
-    @ApiModelProperty(notes = "Reply Link", dataType = "String", example = "http://traloioday.com/daxong")
+    @ApiModelProperty(notes = "detail question link", dataType = "String", example = "http://traloioday.com/daxong")
     @NotNull
     @NotBlank
     private String url;
-    private StatusQuestion status;
+    private EStatusQuestion status;
 }

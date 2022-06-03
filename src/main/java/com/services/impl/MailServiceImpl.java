@@ -1,4 +1,4 @@
-package com.services.serviceimps;
+package com.services.impl;
 
 import com.services.MailService;
 import org.slf4j.Logger;

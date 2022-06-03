@@ -3,7 +3,7 @@ package com.webs;
 import com.dtos.ResponseDto;
 import com.models.AddressModel;
 import com.services.IAddressService;
-import com.services.serviceimps.AddressServiceImpl;
+import com.services.impl.AddressServiceImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;

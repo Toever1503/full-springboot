@@ -40,7 +40,7 @@ public class UserModel {
     @ApiModelProperty(notes = "User address", dataType = "Long", example = "1")
     private Long mainAddress;
 
-    private List<AddressModel> myAddress = Collections.emptyList();
+    private final List<AddressModel> myAddress = Collections.emptyList();
 
     public static UserEntity toEntity(UserModel model) {
         if (model == null) throw new RuntimeException("UserModel is null");

@@ -1,4 +1,4 @@
-package com.services.serviceimps;
+package com.services.impl;
 
 import com.entities.Address;
 import com.entities.District;
@@ -12,6 +12,7 @@ import com.repositories.IWardRepository;
 import com.services.IAddressService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -39,6 +40,11 @@ public class AddressServiceImpl implements IAddressService {
     @Override
     public Page<Address> findAll(Pageable page) {
         return this.addressRepository.findAll(page);
+    }
+
+    @Override
+    public Page<Address> filter(Pageable page, Specification<Address> specs) {
+        return null;
     }
 
     @Override
@@ -89,7 +95,7 @@ public class AddressServiceImpl implements IAddressService {
     }
 
     @Override
-    public boolean deleteByIds(List<Long> id) {
+    public boolean deleteByIds(List<Long> ids) {
         return false;
     }
 

@@ -6,20 +6,27 @@ import com.config.jwt.JwtFilter;
 import com.services.IUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.core.annotation.Order;
+import org.springframework.security.access.intercept.AbstractSecurityInterceptor;
+import org.springframework.security.access.intercept.aopalliance.MethodSecurityInterceptor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.NegatedRequestMatcher;
 import org.springframework.security.web.util.matcher.OrRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 
+@Configuration
 @EnableWebSecurity
-public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
+public class WebSecurityConfiguration {
 
     private final RequestMatcher PUBLIC_URLS = new OrRequestMatcher(
 
@@ -36,32 +43,33 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
             new AntPathRequestMatcher("/webjars/**")
     );
     private RequestMatcher PRIVATE_URLS = new NegatedRequestMatcher(PUBLIC_URLS);
-
     @Autowired
     @Lazy
     private IUserService userService;
 
 
     @Bean
-    @Override
-    public AuthenticationManager authenticationManagerBean() throws Exception {
-        return super.authenticationManagerBean();
+    public WebSecurityCustomizer webSecurityCustomizer() {
+        return (web) -> web.ignoring().requestMatchers(PUBLIC_URLS);
     }
 
-    @Override
-    public void configure(WebSecurity web) throws Exception {
-        web.ignoring().requestMatchers(PUBLIC_URLS);
+    @Bean
+    public AuthenticationManager authenticationManager(HttpSecurity httpSecurity) throws Exception {
+        AuthenticationManager authenticationManager = httpSecurity
+                .getSharedObject(AuthenticationManagerBuilder.class)
+                .parentAuthenticationManager(authentication -> {
+                    throw new RuntimeException("No authentication manager available");
+                }).build();
+        httpSecurity
+                .authenticationProvider(new JwtAuthenticationProvider())
+                .authenticationManager(authenticationManager);
+        return authenticationManager;
     }
 
-    @Override
-    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-        auth.authenticationProvider(new JwtAuthenticationProvider());
-    }
-
-    @Override
-    protected void configure(HttpSecurity http) throws Exception {
-        http.sessionManagement().sessionCreationPolicy(org.springframework.security.config.http.SessionCreationPolicy.STATELESS);
-
+    @Bean
+    @Order(1)
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        http.sessionManagement().disable();
         http.cors().and().csrf().disable()
                 .formLogin().disable()
                 .logout().disable();
@@ -72,5 +80,7 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
                     res.sendError(401, "You must have to login");
                 });
         http.addFilterBefore(new JwtFilter(userService), org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter.class);
+        return http.build();
     }
+
 }

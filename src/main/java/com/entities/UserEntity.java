@@ -59,6 +59,4 @@ public class UserEntity {
     )
     private Set<RoleEntity> roleEntity;
 
-    public static final String FOLDER = "user/";
-
 }

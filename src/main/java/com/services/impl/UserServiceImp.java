@@ -1,4 +1,4 @@
-package com.services.serviceimps;
+package com.services.impl;
 
 import com.config.jwt.JwtLoginResponse;
 import com.config.jwt.JwtProvider;
@@ -18,8 +18,10 @@ import com.services.MailService;
 import com.utils.SecurityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.annotation.Order;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
@@ -36,6 +38,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
+@Order(5)
 public class UserServiceImp implements IUserService {
     final
     IUserRepository userRepository;
@@ -90,6 +93,11 @@ public class UserServiceImp implements IUserService {
     }
 
     @Override
+    public Page<UserEntity> filter(Pageable page, Specification<UserEntity> specs) {
+        return null;
+    }
+
+    @Override
     public UserEntity findById(Long id) {
         logger.info("{%s} finding user id: {%d}", SecurityUtils.getCurrentUsername(), id);
         return userRepository.findById(id).orElseThrow(() -> new RuntimeException("Not found user id: " + id));
@@ -129,7 +137,7 @@ public class UserServiceImp implements IUserService {
     }
 
     @Override
-    public boolean deleteByIds(List<Long> id) {
+    public boolean deleteByIds(List<Long> ids) {
         return false;
     }
 
@@ -165,7 +173,10 @@ public class UserServiceImp implements IUserService {
         UserDetails userDetail = new CustomUserDetail(this.findByUsername(userLogin.getUsername()));
         this.authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(userDetail, userLogin.getPassword(), userDetail.getAuthorities()));
         long timeValid = userLogin.isRemember() ? 86400 * 7 : 1800l;
-        return JwtLoginResponse.builder().token(this.jwtProvider.generateToken(userDetail.getUsername(), timeValid)).type("Bearer").authorities(userDetail.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList())).timeValid(timeValid).build();
+        return JwtLoginResponse.builder()
+                .token(this.jwtProvider.generateToken(userDetail.getUsername(), timeValid))
+                .type("Bearer").authorities(userDetail.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList()))
+                .timeValid(timeValid).build();
     }
 
     public UserEntity findByUsername(String userName) {

@@ -8,6 +8,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import java.util.ArrayList;
 import java.util.List;
 
 @AllArgsConstructor
@@ -37,7 +38,7 @@ public class QuestionModel {
     private List<MultipartFile> questFile;
 
     @ApiModelProperty(notes = "List String of question origin", dataType = "List<String>", example = "file1, file2")
-    private List<String> questOriginFile;
+    private final List<String> questOriginFile = new ArrayList<>();
 
     @ApiModelProperty(notes = "user who created question", dataType = "UserModel", example = "1")
     private Long createById;
