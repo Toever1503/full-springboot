@@ -27,10 +27,14 @@ public class QuestionResources {
     @Transactional
     @PatchMapping("/answer/{qid}")
     public ResponseDto answerQuestion(@PathVariable("qid") @Valid Long qid, @Valid QuestionResponseModel model) {
-        if (model.getOldFiles().size() + model.getReplyFile().size() <= 3)
-            return ResponseDto.of(questionService.answerQuestion(qid, model), "Answered");
+        if (model.getReplyFile() != null) {
+            if (model.getOldFiles().size() + model.getReplyFile().size() <= 3)
+                return ResponseDto.of(TotalQuestionDto.toTotalQuestionDTO(questionService.answerQuestion(qid, model)), "Answered");
+            else
+                return ResponseDto.of(null, "Failed! , Max image count is 3 per answer");
+        }
         else
-            return ResponseDto.of(null, "Failed! , Max image count is 3 per answer");
+        return ResponseDto.of(TotalQuestionDto.toTotalQuestionDTO(questionService.answerQuestion(qid, model)), "Answered");
     }
 
     @Transactional

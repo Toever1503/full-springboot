@@ -17,9 +17,6 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class QuestionResponseModel {
-    @ApiModelProperty(notes = "Question ID", dataType = "Long", example = "1")
-    private Long id;
-
     @ApiModelProperty(notes = "Reply Content", dataType = "String", example = "Good question by you")
     @NotBlank
     @NotNull
@@ -28,7 +25,6 @@ public class QuestionResponseModel {
     @ApiModelProperty(notes = "Reply file", dataType = "Multipart file", example = "*.png, *.jpeg, *.mp4...")
     private List<MultipartFile> replyFile;
     private final List<String> oldFiles = new ArrayList<String>();
-    private Long userReply;
     @ApiModelProperty(notes = "detail question link", dataType = "String", example = "http://traloioday.com/daxong")
     @NotNull
     @NotBlank

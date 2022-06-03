@@ -2,14 +2,22 @@ package com.services.impl;
 
 import com.entities.NotificationEntity;
 import com.models.NotificationModel;
+import com.repositories.NotificationRepository;
 import com.services.INotificationService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+@Service
 public class NotificationServiceImpl implements INotificationService {
+    final NotificationRepository notificationRepository;
+
+    public NotificationServiceImpl(NotificationRepository notificationRepository) {
+        this.notificationRepository = notificationRepository;
+    }
 
     @Override
     public List<NotificationEntity> findAll() {
@@ -56,12 +64,4 @@ public class NotificationServiceImpl implements INotificationService {
         return false;
     }
 
-//    @Override
-//    public NotificationEntity addScheduleNotification(NotificationModel model) {
-//        NotificationEntity notification = new NotificationEntity();
-//        notification.setContent(model.get);
-//
-//
-//        return null;
-//    }
 }

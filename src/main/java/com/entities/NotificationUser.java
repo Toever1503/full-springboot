@@ -10,7 +10,7 @@ import javax.persistence.*;
 @NoArgsConstructor
 @Builder
 @Entity
-@Table(name = "tbl_notification_uer")
+@Table(name = "tbl_notification_user")
 public class NotificationUser {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
