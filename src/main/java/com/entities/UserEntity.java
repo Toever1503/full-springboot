@@ -42,7 +42,6 @@ public class UserEntity {
 
     public static final String FOLDER = "user/";
 
-
     @ManyToMany
     @JoinTable(
             name = "user_address",
@@ -59,7 +58,8 @@ public class UserEntity {
     )
     private Set<RoleEntity> roleEntity;
 
-    @OneToMany(mappedBy = "userId")
+    @OneToMany
+    @JoinColumn(name = "user_id")
     private List<NotificationUser> notificationUsers;
 
 }
