@@ -197,6 +197,11 @@ public class QuestionServiceImp implements IQuestionService {
     }
 
     @Override
+    public Page<QuestionEntity> getAllQuestionByCategory(String category, Pageable pageable) {
+        return questionRepository.findQuestionsByCategory(category, pageable);
+    }
+
+    @Override
     public Page<QuestionEntity> getAllQuestionAnsweredByID(Long id, Pageable pageable) {
         return questionRepository.findAllQuestionByUID(id, true, String.valueOf(EStatusQuestion.COMPLETED), pageable);
     }
