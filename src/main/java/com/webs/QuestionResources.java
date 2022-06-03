@@ -36,13 +36,13 @@ public class QuestionResources {
     @Transactional
     @GetMapping("/user/{uid}")
     public ResponseDto getAllQuestionByUID(@PathVariable("uid") @Valid Long uid, Pageable pageable) {
-        return ResponseDto.of(questionService.getAllQuestionByID(uid, pageable).getContent().stream().map(QuestionDto::toDto), "Get all question by user id");
+        return ResponseDto.of(questionService.getAllQuestionByID(uid, pageable).map(QuestionDto::toDto), "Get all question by user id");
     }
 
     @Transactional
     @GetMapping("/user")
     public ResponseDto getAllMyQuestion(Pageable pageable) {
-        return ResponseDto.of(questionService.getAllMyQuestion(pageable).getContent().stream().map(TotalQuestionDto::toTotalQuestionDTO), "Get all my question");
+        return ResponseDto.of(questionService.getAllMyQuestion(pageable).map(TotalQuestionDto::toTotalQuestionDTO), "Get all my question");
     }
 
     @Transactional
@@ -54,13 +54,13 @@ public class QuestionResources {
     @Transactional
     @GetMapping("/user/answered")
     public ResponseDto getAllMyAnsweredQuestion(Pageable pageable) {
-        return ResponseDto.of(questionService.getAllMyAnsweredQuestion(pageable).getContent().stream().map(TotalQuestionDto::toTotalQuestionDTO), "Get all my answered question");
+        return ResponseDto.of(questionService.getAllMyAnsweredQuestion(pageable).map(TotalQuestionDto::toTotalQuestionDTO), "Get all my answered question");
     }
 
     @Transactional
     @GetMapping("/user/answered/{uid}")
     public ResponseDto getAllAnsweredQuestionByUID(@PathVariable("uid") @Valid Long uid, Pageable pageable) {
-        return ResponseDto.of(questionService.getAllQuestionAnsweredByID(uid, pageable).getContent().stream().map(QuestionDto::toDto), "Get all answered question by user id");
+        return ResponseDto.of(questionService.getAllQuestionAnsweredByID(uid, pageable).map(QuestionDto::toDto), "Get all answered question by user id");
     }
 
 
