@@ -11,4 +11,9 @@ public interface INotificationUserRepository extends JpaRepository<NotificationU
     @Modifying
     @Transactional
     void setReadAll(Long id);
+
+    @Query("update NotificationUser u set u.isRead = true where u.notificationId.id =?1 and u.userId.id=?2")
+    @Modifying
+    @Transactional
+    void setOneRead(Long id, Long uid);
 }

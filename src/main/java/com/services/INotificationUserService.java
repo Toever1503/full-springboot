@@ -5,4 +5,6 @@ import com.models.NotificationUserModel;
 
 public interface INotificationUserService extends IBaseService<NotificationUser, NotificationUserModel, Long>{
     boolean setAllRead();
+
+    boolean setOneRead(Long id);
 }

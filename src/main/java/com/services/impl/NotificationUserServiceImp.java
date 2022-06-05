@@ -69,4 +69,10 @@ public class NotificationUserServiceImp implements INotificationUserService {
         notificationUserRepository.setReadAll(SecurityUtils.getCurrentUserId());
         return true;
     }
+
+    @Override
+    public boolean setOneRead(Long id) {
+        notificationUserRepository.setOneRead(id,SecurityUtils.getCurrentUserId());
+        return true;
+    }
 }
