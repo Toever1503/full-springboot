@@ -47,7 +47,9 @@ public class NotificationResources {
 
     @PutMapping
     public ResponseDto updateNotification(NotificationModel model) {
-        return null;
+        NotificationEntity notificationEntity = this.notificationService.update(model);
+        NotificationDetailDto notificationDetailDto = NotificationDetailDto.toDto(notificationEntity);
+        return ResponseDto.of(notificationDetailDto, "update notification successfully");
     }
 
     @DeleteMapping("/{id}")

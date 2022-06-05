@@ -41,8 +41,9 @@ public class NotificationModel {
                 .contentExcerpt(model.getContentExcerpt())
                 .viewed(0)
                 .isEdit(false)
-                .limitEditCount(model.getLimitEditCount() == null ? 0 : model.getLimitEditCount())
-                .limitEditMin(model.getLimitEditMin() == null ? 0 : model.getLimitEditMin())
+                .limitEditCount(model.getLimitEditCount() == null ? 3 : model.getLimitEditCount())
+                .countEdit(0)
+                .limitEditMin(model.getLimitEditMin() == null ? 15 : model.getLimitEditMin())
                 .status(model.getStatus().name())
                 .futureDate(model.getFutureDate() == null ? null : new Date(model.getFutureDate().getTime()))
                 .build();

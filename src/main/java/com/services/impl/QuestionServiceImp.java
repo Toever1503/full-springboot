@@ -92,8 +92,8 @@ public class QuestionServiceImp implements IQuestionService {
             throw new RuntimeException("Question is already completed");
 
         List<Object> originalFile = new ArrayList<>();
-        if (originalQuestion.getReplyFile() != null) {
-            originalFile = (parseJson(originalQuestion.getReplyFile()).getJSONArray("files").toList());
+        if (originalQuestion.getQuestFile() != null) {
+            originalFile = (parseJson(originalQuestion.getQuestFile()).getJSONArray("files").toList());
             originalFile.removeAll(model.getQuestOriginFile());
             originalFile.forEach(o -> fileUploadProvider.deleteFile(o.toString()));
         }

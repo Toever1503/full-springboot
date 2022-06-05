@@ -18,6 +18,7 @@ import java.util.List;
 @Entity
 @Table(name = "tbl_notification")
 public class NotificationEntity {
+    public static final String FOLDER = "notification/";
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -47,6 +48,8 @@ public class NotificationEntity {
     private Boolean isEdit;
     @Column(name = "limit_edit_count")
     private Integer limitEditCount;
+    @Column(name = "count_edit")
+    private Integer countEdit;
     @Column(name = "status")
     private String status;
     @Column(name="limit_edit_min")
@@ -58,6 +61,4 @@ public class NotificationEntity {
     @ManyToOne
     @JoinColumn(name = "user_id")
     private UserEntity createdBy;
-
-    public static final String FOLDER = "/notification/";
 }

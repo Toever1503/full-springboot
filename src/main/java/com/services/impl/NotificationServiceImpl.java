@@ -2,6 +2,7 @@ package com.services.impl;
 
 import com.entities.NotificationEntity;
 import com.entities.NotificationUser;
+import com.entities.QuestionEntity;
 import com.entities.UserEntity;
 import com.models.NotificationModel;
 import com.repositories.INotificationRepository;
@@ -20,9 +21,12 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import static com.dtos.QuestionDto.parseJson;
 
 @Service
 public class NotificationServiceImpl implements INotificationService {
@@ -63,12 +67,13 @@ public class NotificationServiceImpl implements INotificationService {
     @Override
     public NotificationEntity add(NotificationModel model) {
         NotificationEntity notificationEntity = NotificationModel.toEntity(model);
+        final String folder = "user/" + SecurityUtils.getCurrentUsername() + "/notification/";
 
         if (!model.getAttachFiles().get(0).getOriginalFilename().equals("")) {
             List<String> filePaths = new ArrayList<>();
             for (MultipartFile file : model.getAttachFiles()) {
                 try {
-                    filePaths.add(fileUploadProvider.uploadFile("user/" + SecurityUtils.getCurrentUsername() + "/notification/", file));
+                    filePaths.add(fileUploadProvider.uploadFile(folder, file));
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -80,7 +85,7 @@ public class NotificationServiceImpl implements INotificationService {
         if (!model.getImage().getOriginalFilename().equals("")) {
             String filePath = null;
             try{
-                filePath = fileUploadProvider.uploadFile("user" + SecurityUtils.getCurrentUsername() + "/notification/", model.getImage());
+                filePath = fileUploadProvider.uploadFile(folder, model.getImage());
                 notificationEntity.setImage(filePath);
             }catch (IOException e){
                 e.printStackTrace();
@@ -109,7 +114,83 @@ public class NotificationServiceImpl implements INotificationService {
 
     @Override
     public NotificationEntity update(NotificationModel model) {
-        return null;
+        NotificationEntity originNotificationEntity = this.notificationRepository.findById(model.getId()).orElseThrow(() -> new RuntimeException("NotificationEntity id " + model.getId() + " is null"));
+        final String folder = UserEntity.FOLDER + originNotificationEntity.getCreatedBy().getUserName() + "/"+ NotificationEntity.FOLDER;
+
+        // giới hạn số lần + thời gian sửa file
+        if((originNotificationEntity.getCountEdit() < originNotificationEntity.getLimitEditCount())) {
+            Long difference = (new Date().getTime()  - originNotificationEntity.getUpdatedDate().getTime())/60000;
+
+            if(difference > originNotificationEntity.getLimitEditMin()){
+                throw new RuntimeException("you can edit file only " + originNotificationEntity.getLimitEditMin() + " minutes");
+            }else {
+                originNotificationEntity.setCountEdit(originNotificationEntity.getCountEdit() + 1);
+
+                //delete file into s3
+                List<Object> originalFile = new ArrayList<>();
+                if (originNotificationEntity.getAttachFiles() != null) {
+                    originalFile = (parseJson(originNotificationEntity.getAttachFiles()).getJSONArray("files").toList());
+                    originalFile.removeAll(model.getAttachFilesOrigin());
+                    originalFile.forEach(o -> fileUploadProvider.deleteFile(o.toString()));
+                }
+
+                //add old file to uploadFiles
+                List<String> uploadedFiles = new ArrayList<String>();
+                if (!model.getAttachFilesOrigin().isEmpty())
+                    uploadedFiles.addAll(model.getAttachFilesOrigin());
+
+                //upload new file to uploadFiles and save to database
+                if (!model.getAttachFiles().get(0).getOriginalFilename().equals("")) {
+                    for (MultipartFile file : model.getAttachFiles()) {
+                        try {
+                            uploadedFiles.add(fileUploadProvider.uploadFile(folder, file));
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+                originNotificationEntity.setAttachFiles(uploadedFiles.isEmpty() ? null : (new JSONObject(Map.of("files", uploadedFiles)).toString()));
+                // edit image into notification
+                if (!model.getImage().getOriginalFilename().equals("")) {
+                    String filePath = null;
+                    try{
+                        filePath = fileUploadProvider.uploadFile(folder, model.getImage());
+                        originNotificationEntity.setImage(filePath);
+                    }catch (IOException e){
+                        e.printStackTrace();
+                    }
+                }else {
+                    originNotificationEntity.setImage(null);
+                }
+
+                originNotificationEntity.setCategory(model.getCategory().name());
+                originNotificationEntity.setTitle(model.getTitle());
+                originNotificationEntity.setContent(model.getContent());
+                originNotificationEntity.setContentExcerpt(model.getContentExcerpt());
+                originNotificationEntity.setIsEdit(true);
+
+                originNotificationEntity.setStatus(model.getStatus().name());
+                originNotificationEntity.setFutureDate(model.getFutureDate()== null ? null : new Date(model.getFutureDate().getTime()));
+
+                UserEntity userEntity = userService.findById(SecurityUtils.getCurrentUserId());
+                originNotificationEntity.setCreatedBy(userEntity);
+
+                //set all user to read
+                originNotificationEntity = this.notificationRepository.save(originNotificationEntity);
+                final long notificationId = originNotificationEntity.getId();
+                this.notificationUserRepository.saveAll(
+                        this.userRepository.getAllId().stream().map(id -> NotificationUser.builder()
+                                .isRead(false)
+                                .notificationId(notificationId)
+                                .userId(id)
+                                .build()).collect(Collectors.toList())
+                );
+
+                return originNotificationEntity;
+            }
+        }else {
+            throw new RuntimeException("Edit file is failed, you can edit file only " + originNotificationEntity.getLimitEditCount() + " count");
+        }
     }
 
     @Override
