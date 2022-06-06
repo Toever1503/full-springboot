@@ -23,7 +23,6 @@ public class NotificationDetailDto {
     private Date updatedDate;
     private Integer viewed;
     private boolean isEdit;
-    private Integer limitEditCount;
     private String status;
     private Date futureDate;
     private String createdBy;
@@ -39,7 +38,6 @@ public class NotificationDetailDto {
                 .updatedDate(entity.getUpdatedDate())
                 .viewed(entity.getViewed())
                 .isEdit(entity.getIsEdit())
-                .limitEditCount(entity.getLimitEditCount())
                 .status(entity.getStatus())
                 .futureDate(entity.getFutureDate())
                 .createdBy(entity.getCreatedBy().getUserName())

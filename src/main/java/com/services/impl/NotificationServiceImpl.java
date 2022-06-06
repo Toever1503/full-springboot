@@ -118,11 +118,11 @@ public class NotificationServiceImpl implements INotificationService {
         final String folder = UserEntity.FOLDER + originNotificationEntity.getCreatedBy().getUserName() + "/"+ NotificationEntity.FOLDER;
 
         // giới hạn số lần + thời gian sửa file
-        if((originNotificationEntity.getCountEdit() < originNotificationEntity.getLimitEditCount())) {
+        if((originNotificationEntity.getCountEdit() < NotificationEntity.limitEditCount)) {
             Long difference = (new Date().getTime()  - originNotificationEntity.getUpdatedDate().getTime())/60000;
 
-            if(difference > originNotificationEntity.getLimitEditMin()){
-                throw new RuntimeException("you can edit file only " + originNotificationEntity.getLimitEditMin() + " minutes");
+            if(difference > NotificationEntity.limitEditMin){
+                throw new RuntimeException("you can edit file only " + NotificationEntity.limitEditMin + " minutes");
             }else {
                 originNotificationEntity.setCountEdit(originNotificationEntity.getCountEdit() + 1);
 
@@ -189,7 +189,7 @@ public class NotificationServiceImpl implements INotificationService {
                 return originNotificationEntity;
             }
         }else {
-            throw new RuntimeException("Edit file is failed, you can edit file only " + originNotificationEntity.getLimitEditCount() + " count");
+            throw new RuntimeException("Edit file is failed, you can edit file only " + NotificationEntity.limitEditCount + " count");
         }
     }
 

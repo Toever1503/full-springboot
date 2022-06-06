@@ -26,8 +26,6 @@ public class NotificationModel {
     private List<String> attachFilesOrigin = new ArrayList<>();
     private Integer viewed;
     private Boolean isEdit;
-    private Integer limitEditCount;
-    private Integer limitEditMin;
     private ENotificationStatus status;
     private Date futureDate;
 
@@ -41,9 +39,7 @@ public class NotificationModel {
                 .contentExcerpt(model.getContentExcerpt())
                 .viewed(0)
                 .isEdit(false)
-                .limitEditCount(model.getLimitEditCount() == null ? 3 : model.getLimitEditCount())
                 .countEdit(0)
-                .limitEditMin(model.getLimitEditMin() == null ? 15 : model.getLimitEditMin())
                 .status(model.getStatus().name())
                 .futureDate(model.getFutureDate() == null ? null : new Date(model.getFutureDate().getTime()))
                 .build();

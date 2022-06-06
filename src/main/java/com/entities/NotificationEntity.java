@@ -46,14 +46,14 @@ public class NotificationEntity {
     private Integer viewed;
     @Column(name = "is_edit")
     private Boolean isEdit;
-    @Column(name = "limit_edit_count")
-    private Integer limitEditCount;
+
+    public static Integer limitEditCount = 3;
     @Column(name = "count_edit")
     private Integer countEdit;
     @Column(name = "status")
     private String status;
-    @Column(name="limit_edit_min")
-    private Integer limitEditMin;
+
+    public static Integer limitEditMin = 5;
     @Temporal(javax.persistence.TemporalType.TIMESTAMP)
     @Column(name = "future_date")
     private Date futureDate;
