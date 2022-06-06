@@ -27,12 +27,11 @@ public class QuestionResources {
     @Transactional
     @PatchMapping("/answer/{qid}")
     public ResponseDto answerQuestion(@PathVariable("qid") @Valid Long qid, @Valid QuestionResponseModel model) {
-        if (model.getReplyFile() != null) {
-            if (model.getOldFiles().size() + model.getReplyFile().size() <= 3)
-                return ResponseDto.of(TotalQuestionDto.toTotalQuestionDTO(questionService.answerQuestion(qid, model)), "Answered");
-            else
-                return ResponseDto.of(null, "Failed! , Max image count is 3 per answer");
-        }
+        int count = model.getOldFiles().size();
+        if (model.getReplyFile() != null)
+            count += model.getReplyFile().get(0).isEmpty() ? (count + model.getReplyFile().size()) : 0;
+        if (count > 3)
+            return ResponseDto.of(null, "Failed! , Max image count is 3 per question");
         else
         return ResponseDto.of(TotalQuestionDto.toTotalQuestionDTO(questionService.answerQuestion(qid, model)), "Answered");
     }
@@ -76,7 +75,7 @@ public class QuestionResources {
 
     @GetMapping("/category")
     @Transactional
-    public ResponseDto getQuestions(@RequestParam("category") String category ,Pageable pageable) {
+    public ResponseDto getQuestions(@RequestParam("category") String category, Pageable pageable) {
         return ResponseDto.of(questionService.getAllQuestionByCategory(category, pageable).map(QuestionDto::toDto), "Get questions by category successfully");
     }
 
@@ -89,6 +88,8 @@ public class QuestionResources {
     @Transactional
     @PostMapping
     public ResponseDto addQuestion(@Valid QuestionModel questionModel) {
+        if (questionModel.getQuestFile().size() > 3)
+            return ResponseDto.of(null, "Failed! , Max image count is 3 per question");
         QuestionEntity questionEntity = this.questionService.add(questionModel);
         QuestionDto questionDto = QuestionDto.toDto(questionEntity);
         return ResponseDto.of(questionDto, "Add question successfully");
@@ -97,6 +98,11 @@ public class QuestionResources {
     @Transactional
     @PutMapping
     public ResponseDto updateQuestion(@Valid QuestionModel questionModel) {
+        int count = questionModel.getQuestOriginFile().size();
+        if (questionModel.getQuestFile() != null)
+            count += questionModel.getQuestFile().get(0).isEmpty() ? (count + questionModel.getQuestFile().size()) : 0;
+        if (count > 3)
+            return ResponseDto.of(null, "Failed! , Max image count is 3 per question");
         QuestionEntity questionEntity = this.questionService.update(questionModel);
         QuestionDto questionDto = QuestionDto.toDto(questionEntity);
         return ResponseDto.of(questionDto, "Question updated successfully");

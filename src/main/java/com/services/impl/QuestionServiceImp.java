@@ -78,10 +78,8 @@ public class QuestionServiceImp implements IQuestionService {
                 questionEntity.setQuestFile(jsonObject.toString());
             }
         }
-
         questionEntity.setStatus(EStatusQuestion.PENDING.name());
-        UserEntity userEntity = userService.findById(SecurityUtils.getCurrentUserId());
-        questionEntity.setCreatedBy(userEntity);
+        questionEntity.setCreatedBy(SecurityUtils.getCurrentUser().getUser());
         return this.questionRepository.save(questionEntity);
     }
 
@@ -97,9 +95,8 @@ public class QuestionServiceImp implements IQuestionService {
         if (originalQuestion.getStatus().equalsIgnoreCase(EStatusQuestion.COMPLETED.name()))
             throw new RuntimeException("Question is already completed");
 
-        List<Object> originalFile = new ArrayList<>();
-        if (originalQuestion.getReplyFile() != null) {
-            originalFile = (parseJson(originalQuestion.getReplyFile()).getJSONArray("files").toList());
+        if (originalQuestion.getQuestFile() != null) {
+            List<Object> originalFile = (parseJson(originalQuestion.getQuestFile()).getJSONArray("files").toList());
             originalFile.removeAll(model.getQuestOriginFile());
             originalFile.forEach(o -> fileUploadProvider.deleteFile(o.toString()));
         }
@@ -107,16 +104,14 @@ public class QuestionServiceImp implements IQuestionService {
         if (model.getQuestFile()!=null) {
             uploadedFiles.addAll(model.getQuestOriginFile());
 
-            if (!model.getQuestFile().get(0).getName().isEmpty()) {
-                String folder = UserEntity.FOLDER + originalQuestion.getCreatedBy().getUserName() + QuestionEntity.FOLDER;
-                model.getQuestFile().forEach(multipartFile -> {
-                    try {
-                        uploadedFiles.add(fileUploadProvider.uploadFile(folder, multipartFile));
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
-                    }
-                });
-            }
+        if (!model.getQuestFile().get(0).getName().isEmpty()) {
+            model.getQuestFile().forEach(multipartFile -> {
+                try {
+                    uploadedFiles.add(fileUploadProvider.uploadFile(UserEntity.FOLDER + originalQuestion.getCreatedBy().getUserName() + QuestionEntity.FOLDER, multipartFile));
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            });
         }
         originalQuestion.setQuestFile(uploadedFiles.isEmpty() ? null : (new JSONObject(Map.of("files", uploadedFiles)).toString()));
 
@@ -152,9 +147,8 @@ public class QuestionServiceImp implements IQuestionService {
     public QuestionEntity answerQuestion(Long qid, QuestionResponseModel model) {
         QuestionEntity question = this.findById(qid);
 
-        List<Object> originalFile = new ArrayList<>();
         if (question.getReplyFile() != null) {
-            originalFile = (parseJson(question.getReplyFile()).getJSONArray("files").toList());
+            List<Object> originalFile = (parseJson(question.getReplyFile()).getJSONArray("files").toList());
             originalFile.removeAll(model.getOldFiles());
             originalFile.forEach(o -> fileUploadProvider.deleteFile(o.toString()));
         }
