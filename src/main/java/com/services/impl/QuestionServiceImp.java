@@ -25,13 +25,9 @@ import java.util.stream.Collectors;
 
 @Service
 public class QuestionServiceImp implements IQuestionService {
-    final
-    IQuestionRepository questionRepository;
+    final IQuestionRepository questionRepository;
     final IUserService userService;
-
-    final
-    FileUploadProvider fileUploadProvider;
-
+    final FileUploadProvider fileUploadProvider;
     final MailService mailService;
 
     public QuestionServiceImp(IQuestionRepository questionRepository, IUserService userService, FileUploadProvider fileUploadProvider, MailService mailService) {

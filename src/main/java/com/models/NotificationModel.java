@@ -1,22 +1,47 @@
 package com.models;
 
+import com.dtos.ENotificationCategory;
+import com.dtos.ENotificationStatus;
+import com.entities.NotificationEntity;
+import lombok.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
+@Getter
+@Setter
 public class NotificationModel {
     private Long id;
+    private MultipartFile image;
+    private ENotificationCategory category;
     private String title;
     private String content;
-    private String contentExcert;
+    private String contentExcerpt;
     private List<MultipartFile> attachFiles;
-    private List<String> attachFilesOrigin;
+    private List<String> attachFilesOrigin = new ArrayList<>();
     private Integer viewed;
-    private boolean isEdit;
-    private Integer limitEditCount;
-    private String status;
+    private Boolean isEdit;
+    private ENotificationStatus status;
     private Date futureDate;
 
-    private List<Long> notificationUsers;
+    public static NotificationEntity toEntity(NotificationModel model) {
+        if(model == null) return null;
+        return NotificationEntity.builder()
+                .id(model.getId())
+                .category(model.getCategory().name())
+                .title(model.getTitle())
+                .content(model.getContent())
+                .contentExcerpt(model.getContentExcerpt())
+                .viewed(0)
+                .isEdit(false)
+                .countEdit(0)
+                .status(model.getStatus().name())
+                .futureDate(model.getFutureDate() == null ? null : new Date(model.getFutureDate().getTime()))
+                .build();
+    }
 }
