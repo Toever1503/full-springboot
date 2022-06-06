@@ -28,6 +28,7 @@ public class QuestionResources {
     @PatchMapping("/answer/{qid}")
     public ResponseDto answerQuestion(@PathVariable("qid") @Valid Long qid, @Valid QuestionResponseModel model) {
         int count = model.getOldFiles().size();
+        count += model.getReplyFile().size();
         if (model.getReplyFile() != null)
             count += model.getReplyFile().get(0).isEmpty() ? (count + model.getReplyFile().size()) : 0;
         if (count > 3)
@@ -39,13 +40,13 @@ public class QuestionResources {
     @Transactional
     @GetMapping("/user/{uid}")
     public ResponseDto getAllQuestionByUID(@PathVariable("uid") @Valid Long uid, Pageable pageable) {
-        return ResponseDto.of(questionService.getAllQuestionByID(uid, pageable).map(QuestionDto::toDto), "Get all question by user id");
+        return ResponseDto.of(questionService.getAllQuestionByID(uid, pageable).map(TotalQuestionDto::toTotalQuestionDTO), "Get all question by user id");
     }
 
     @Transactional
     @GetMapping("/user")
     public ResponseDto getAllMyQuestion(Pageable pageable) {
-        return ResponseDto.of(questionService.getAllMyQuestion(pageable).map(TotalQuestionDto::toTotalQuestionDTO), "Get all my question");
+        return ResponseDto.of(questionService.getAllMyQuestion(pageable).map(QuestionDto::toDto), "Get all my question");
     }
 
     @Transactional
@@ -63,14 +64,14 @@ public class QuestionResources {
     @Transactional
     @GetMapping("/user/answered/{uid}")
     public ResponseDto getAllAnsweredQuestionByUID(@PathVariable("uid") @Valid Long uid, Pageable pageable) {
-        return ResponseDto.of(questionService.getAllQuestionAnsweredByID(uid, pageable).map(QuestionDto::toDto), "Get all answered question by user id");
+        return ResponseDto.of(questionService.getAllQuestionAnsweredByID(uid, pageable).map(TotalQuestionDto::toTotalQuestionDTO), "Get all answered question by user id");
     }
 
 
     @GetMapping
     @Transactional
     public ResponseDto getQuestions(Pageable pageable) {
-        return ResponseDto.of(questionService.findAll(pageable).map(QuestionDto::toDto), "Get questions successfully");
+        return ResponseDto.of(questionService.findAll(pageable).map(TotalQuestionDto::toTotalQuestionDTO), "Get questions successfully");
     }
 
     @GetMapping("/category")
@@ -82,7 +83,7 @@ public class QuestionResources {
     @Transactional
     @GetMapping("/{id}")
     public ResponseDto getQuestionById(@PathVariable Long id) {
-        return ResponseDto.of(questionService.findById(id), "Get question by id successfully");
+        return ResponseDto.of(TotalQuestionDto.toTotalQuestionDTO(questionService.findById(id)), "Get question by id successfully");
     }
 
     @Transactional
@@ -99,6 +100,7 @@ public class QuestionResources {
     @PutMapping
     public ResponseDto updateQuestion(@Valid QuestionModel questionModel) {
         int count = questionModel.getQuestOriginFile().size();
+        count += questionModel.getQuestFile().size();
         if (questionModel.getQuestFile() != null)
             count += questionModel.getQuestFile().get(0).isEmpty() ? (count + questionModel.getQuestFile().size()) : 0;
         if (count > 3)
