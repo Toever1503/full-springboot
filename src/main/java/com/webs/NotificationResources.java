@@ -3,24 +3,24 @@ package com.webs;
 import com.dtos.NotificationDetailDto;
 import com.dtos.NotificationDto;
 import com.dtos.ResponseDto;
+import com.entities.NotificationEntity;
+import com.models.NotificationModel;
 import com.services.INotificationService;
 import io.swagger.annotations.*;
 import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
-    @RequestMapping("/notification")
+    @RequestMapping("/notifications")
 public class NotificationResources {
     private final INotificationService notificationService;
 
-    public NotificationResources(INotificationService notificationService) {
+    public NotificationResources(INotificationService notificationService ) {
         this.notificationService = notificationService;
     }
 
+    @Transactional
     @PostMapping
     public ResponseDto addNotificationDetail(NotificationModel model) {
         NotificationEntity notificationEntity = this.notificationService.add(model);
@@ -28,6 +28,7 @@ public class NotificationResources {
         return ResponseDto.of(notificationDetailDto, "Added notification successfully");
     }
 
+    @Transactional
     @PutMapping
     public ResponseDto updateNotification(NotificationModel model) {
         NotificationEntity notificationEntity = this.notificationService.update(model);
@@ -35,9 +36,11 @@ public class NotificationResources {
         return ResponseDto.of(notificationDetailDto, "update notification successfully");
     }
 
+    @Transactional
     @DeleteMapping("/{id}")
     public ResponseDto deleteNotification(@PathVariable("id") Long id) {
         return ResponseDto.of(this.notificationService.deleteById(id), "Deleted notification successfully");
+    }
     @Transactional
     @GetMapping
     public ResponseDto getAll(Pageable page) {
@@ -63,5 +66,11 @@ public class NotificationResources {
     @GetMapping("increase-view/{id}")
     public ResponseDto viewNotification(@PathVariable long id) {
         return ResponseDto.of(this.notificationService.increaseView(id), "Increase view notification id: " + id);
+    }
+
+    @Transactional
+    @GetMapping("/mark-all-read")
+    public ResponseDto setAllRead(){
+        return ResponseDto.of(this.notificationService.setAllRead(),"All Read");
     }
 }

@@ -204,7 +204,7 @@ public class NotificationServiceImpl implements INotificationService {
         if (notificationEntity.getImage() != null) {
             fileUploadProvider.deleteFile(notificationEntity.getImage());
         }
-
+        this.notificationUserRepository.deleteAllByNotificationId(id);
         notificationRepository.deleteById(id);
         return true;
     }
@@ -227,6 +227,12 @@ public class NotificationServiceImpl implements INotificationService {
         notificationUser.setIsRead(true);
         this.notificationUserRepository.save(notificationUser);
         this.notificationRepository.save(entity);
+        return true;
+    }
+
+    @Override
+    public boolean setAllRead() {
+        this.notificationUserRepository.setReadAll(SecurityUtils.getCurrentUserId());
         return true;
     }
 }

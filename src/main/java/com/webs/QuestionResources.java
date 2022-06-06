@@ -15,7 +15,7 @@ import javax.validation.Valid;
 import java.util.List;
 
 @RestController
-@RequestMapping("/question")
+@RequestMapping("/questions")
 public class QuestionResources {
     final
     IQuestionService questionService;

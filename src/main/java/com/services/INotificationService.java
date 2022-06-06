@@ -12,4 +12,6 @@ public interface INotificationService extends IBaseService<NotificationEntity, N
      Page<NotificationDto> userGetAllNotifications(Pageable page);
 
     boolean increaseView(long id);
+
+    boolean setAllRead();
 }
