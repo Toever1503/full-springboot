@@ -9,7 +9,6 @@ import lombok.NoArgsConstructor;
 
 import java.util.Date;
 
-@AllArgsConstructor
 @NoArgsConstructor
 @Builder
 @Data
@@ -24,8 +23,9 @@ public class NotificationDto {
     private Integer viewed;
     private boolean isRead;
 
-    public NotificationDto(Long id, String title, String contentExcerpt, Date updatedDate, Boolean isEdit, String createdBy, Integer viewed, boolean isRead) {
+    public NotificationDto(Long id, String image, String title, String contentExcerpt, Date updatedDate, Boolean isEdit, String createdBy, Integer viewed, boolean isRead) {
         this.id = id;
+        this.image= image;
         this.title = title;
         this.contentExcerpt = contentExcerpt;
         this.updatedDate = updatedDate;

@@ -21,7 +21,7 @@ public interface INotificationRepository extends JpaRepository<NotificationEntit
     @Transactional
     void postCronNotifications();
 
-    @Query("select new com.dtos.NotificationDto(n.id, n.title, n.contentExcerpt, n.updatedDate, n.isEdit, u.userName, n.viewed ,nu.isRead)" +
+    @Query("select new com.dtos.NotificationDto(n.id, n.image, n.title, n.contentExcerpt, n.updatedDate, n.isEdit, u.userName, n.viewed ,nu.isRead)" +
             " from NotificationEntity n join NotificationUser nu on n.id = nu.notificationId join UserEntity u on u.id = nu.userId where nu.userId= ?1 and n.status=?2")
     Page<NotificationDto> userGetAllNotifications(Long id, String status, Pageable page);
 
