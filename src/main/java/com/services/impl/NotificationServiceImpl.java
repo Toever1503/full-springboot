@@ -151,11 +151,13 @@ public class NotificationServiceImpl implements INotificationService {
                     }
                 }
                 originNotificationEntity.setAttachFiles(uploadedFiles.isEmpty() ? null : (new JSONObject(Map.of("files", uploadedFiles)).toString()));
+
                 // edit image into notification
                 if (!model.getImage().getOriginalFilename().equals("")) {
                     String filePath = null;
                     try{
                         filePath = fileUploadProvider.uploadFile(folder, model.getImage());
+                        fileUploadProvider.deleteFile(originNotificationEntity.getImage());
                         originNotificationEntity.setImage(filePath);
                     }catch (IOException e){
                         e.printStackTrace();
@@ -176,18 +178,7 @@ public class NotificationServiceImpl implements INotificationService {
                 UserEntity userEntity = userService.findById(SecurityUtils.getCurrentUserId());
                 originNotificationEntity.setCreatedBy(userEntity);
 
-                //set all user to read
-                originNotificationEntity = this.notificationRepository.save(originNotificationEntity);
-                final long notificationId = originNotificationEntity.getId();
-                this.notificationUserRepository.saveAll(
-                        this.userRepository.getAllId().stream().map(id -> NotificationUser.builder()
-                                .isRead(false)
-                                .notificationId(notificationId)
-                                .userId(id)
-                                .build()).collect(Collectors.toList())
-                );
-
-                return originNotificationEntity;
+                return this.notificationRepository.save(originNotificationEntity);
             }
         }else {
             throw new RuntimeException("Edit file is failed, you can edit file only " + NotificationEntity.limitEditCount + " count");
