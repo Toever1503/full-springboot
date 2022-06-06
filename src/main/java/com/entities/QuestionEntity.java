@@ -50,5 +50,8 @@ public class QuestionEntity {
     @JoinColumn(name = "answered_by")
     private UserEntity answeredBy;
 
+    @Column(name="limit_edit_min")
+    private Integer limitEditMin;
+
     public static final String FOLDER = "/question/";
 }

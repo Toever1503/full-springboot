@@ -15,6 +15,7 @@ import java.util.List;
 @NoArgsConstructor
 @Data
 @Builder
+@Data
 @Entity
 @Table(name = "tbl_notification")
 public class NotificationEntity {
@@ -61,4 +62,5 @@ public class NotificationEntity {
     @ManyToOne
     @JoinColumn(name = "user_id")
     private UserEntity createdBy;
+    public static final String FOLDER = "/notification/";
 }

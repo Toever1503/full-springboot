@@ -42,7 +42,6 @@ public class UserEntity {
 
     public static final String FOLDER = "user/";
 
-
     @ManyToMany
     @JoinTable(
             name = "user_address",

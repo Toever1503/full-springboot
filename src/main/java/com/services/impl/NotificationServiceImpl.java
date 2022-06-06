@@ -1,5 +1,6 @@
 package com.services.impl;
 
+import com.dtos.NotificationDto;
 import com.entities.NotificationEntity;
 import com.entities.NotificationUser;
 import com.entities.QuestionEntity;
@@ -51,7 +52,7 @@ public class NotificationServiceImpl implements INotificationService {
 
     @Override
     public Page<NotificationEntity> findAll(Pageable page) {
-        return null;
+        return this.notificationRepository.findAll(page);
     }
 
     @Override
@@ -61,7 +62,7 @@ public class NotificationServiceImpl implements INotificationService {
 
     @Override
     public NotificationEntity findById(Long id) {
-        return notificationRepository.findById(id).orElse(null);
+        return this.notificationRepository.findById(id).orElseThrow(() -> new RuntimeException("Not found notification id: " + id));
     }
 
     @Override
@@ -213,4 +214,19 @@ public class NotificationServiceImpl implements INotificationService {
         return false;
     }
 
+    @Override
+    public Page<NotificationDto> userGetAllNotifications(Pageable page) {
+        return this.notificationRepository.userGetAllNotifications(SecurityUtils.getCurrentUserId(), "POSTED", page);
+    }
+
+    @Override
+    public boolean increaseView(long id) {
+        NotificationUser notificationUser = this.notificationUserRepository.findByUserIdAndNotificationId(SecurityUtils.getCurrentUserId(), id).orElseThrow(() -> new RuntimeException("Not found notification_user: " + id));
+        NotificationEntity entity = this.findById(id);
+        entity.setViewed(entity.getViewed() == null ? 0 : entity.getViewed() + 1);
+        notificationUser.setIsRead(true);
+        this.notificationUserRepository.save(notificationUser);
+        this.notificationRepository.save(entity);
+        return true;
+    }
 }
