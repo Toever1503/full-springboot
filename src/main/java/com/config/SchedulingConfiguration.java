@@ -9,7 +9,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @EnableScheduling
 public class SchedulingConfiguration {
     @Bean
-    @ConditionalOnProperty(value = "job.enabled", matchIfMissing =true, havingValue = "true")
+    @ConditionalOnProperty(prefix = "job", name = "enabled", matchIfMissing =true, havingValue = "true")
     public ScheduledJobConfig scheduledJob(){
         return new ScheduledJobConfig();
     }

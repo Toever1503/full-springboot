@@ -24,7 +24,7 @@ public class QuestionResponseModel {
     private String replyContent;
     @ApiModelProperty(notes = "Reply file", dataType = "Multipart file", example = "*.png, *.jpeg, *.mp4...")
     private List<MultipartFile> replyFile;
-    private final List<String> oldFiles = new ArrayList<String>();
+    private List<String> oldFiles = new ArrayList<String>();
     @ApiModelProperty(notes = "detail question link", dataType = "String", example = "http://traloioday.com/daxong")
     @NotNull
     @NotBlank
