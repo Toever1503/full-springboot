@@ -1,5 +1,9 @@
 package com.dtos;
 
+import com.entities.Address;
+import com.entities.District;
+import com.entities.Province;
+import com.entities.Ward;
 import lombok.*;
 
 @AllArgsConstructor
@@ -10,11 +14,25 @@ import lombok.*;
 public class AddressDto {
     private Long id;
 
-    private Integer provineId;
+    private Province province;
 
-    private Integer districtId;
+    private District district;
 
-    private Integer wardId;
+    private Ward ward;
 
     private String street;
+    private String receiver;
+    private String phone;
+
+    public static AddressDto toDto(Address address) {
+        return AddressDto.builder()
+                .id(address.getId())
+                .province(address.getProvince())
+                .district(address.getDistrict())
+                .ward(address.getWard())
+                .street(address.getStreet())
+                .receiver(address.getReceiver())
+                .phone(address.getPhone())
+                .build();
+    }
 }

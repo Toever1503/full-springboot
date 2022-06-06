@@ -15,6 +15,7 @@ import java.util.stream.Collectors;
 @Builder
 public class QuestionResponseDto {
     private Long id;
+    private String category;
     private String replyContent;
     private List<Object> replyFiles;
     private UserDto userReply;
@@ -25,6 +26,7 @@ public class QuestionResponseDto {
         return QuestionResponseDto
                 .builder()
                 .id(question.getId())
+                .category(question.getCategory())
                 .replyContent(question.getReplyContent())
                 .userReply(UserDto.toDto(question.getAnsweredBy()))
                 .updatedDate(question.getUpdatedDate())

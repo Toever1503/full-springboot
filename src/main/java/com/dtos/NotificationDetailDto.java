@@ -18,6 +18,7 @@ public class NotificationDetailDto {
     private Long id;
     private String title;
     private String content;
+    private String image;
     private List<Object> attachFiles;
     private Date createdDate;
     private Date updatedDate;
@@ -33,6 +34,7 @@ public class NotificationDetailDto {
                 .id(entity.getId())
                 .title(entity.getTitle())
                 .content(entity.getContent())
+                .image(entity.getImage())
                 .attachFiles(entity.getAttachFiles()!=null ? new JSONObject(entity.getAttachFiles()).getJSONArray("files").toList() : null)
                 .createdDate(entity.getCreatedDate())
                 .updatedDate(entity.getUpdatedDate())

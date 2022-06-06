@@ -12,6 +12,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface INotificationRepository extends JpaRepository<NotificationEntity, Long> {
@@ -23,4 +24,6 @@ public interface INotificationRepository extends JpaRepository<NotificationEntit
     @Query("select new com.dtos.NotificationDto(n.id, n.title, n.contentExcerpt, n.updatedDate, n.isEdit, u.userName, n.viewed ,nu.isRead)" +
             " from NotificationEntity n join NotificationUser nu on n.id = nu.notificationId join UserEntity u on u.id = nu.userId where nu.userId= ?1 and n.status=?2")
     Page<NotificationDto> userGetAllNotifications(Long id, String status, Pageable page);
+
+    Optional<NotificationEntity> findByIdAndCreatedById(Long notificationId, Long userId);
 }

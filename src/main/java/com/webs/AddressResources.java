@@ -8,6 +8,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
+import javax.annotation.security.RolesAllowed;
 import javax.validation.Valid;
 
 @RestController
@@ -18,6 +19,7 @@ public class AddressResources {
     public AddressResources(AddressServiceImpl addressService) {
         this.addressService = addressService;
     }
+
 
     @GetMapping
     @Transactional

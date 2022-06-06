@@ -11,6 +11,7 @@ import javax.persistence.Column;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -37,4 +38,16 @@ public class AddressModel {
     @NotNull
     @NotBlank
     private String street;
+    @ApiModelProperty(notes = "receiver's name", dataType = "String", example = "herman")
+    @NotNull
+    @NotBlank
+    private String receiver;
+    @ApiModelProperty(notes = "receiver's phone, phone must format follow vietnam", dataType = "String", example = "0952888888")
+    @NotNull
+    @NotBlank
+    @Pattern(
+            regexp = "(84|0[3|5|7|8|9])+([0-9]{8})\\b",
+            message = "Phone number must be in format: 84xxxxxxxx"
+    )
+    private String phone;
 }

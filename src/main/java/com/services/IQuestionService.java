@@ -10,6 +10,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
+import java.util.stream.DoubleStream;
 
 public interface IQuestionService extends IBaseService<QuestionEntity, QuestionModel, Long>{
     QuestionEntity answerQuestion(Long qid, QuestionResponseModel model);
@@ -26,4 +27,7 @@ public interface IQuestionService extends IBaseService<QuestionEntity, QuestionM
 
     List<Long> getAllAskedUser();
 
+    Page<QuestionEntity> userGetAllQuestionByCategory(String name, Pageable pageable);
+
+    QuestionEntity getQuestionByIdAndUserId(Long id, Long currentUserId);
 }

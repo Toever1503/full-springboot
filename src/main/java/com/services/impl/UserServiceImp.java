@@ -3,6 +3,7 @@ package com.services.impl;
 import com.config.jwt.JwtLoginResponse;
 import com.config.jwt.JwtProvider;
 import com.config.jwt.JwtUserLoginModel;
+import com.entities.Address;
 import com.entities.RoleEntity;
 import com.entities.UserEntity;
 import com.models.ForgetPasswordModel;
@@ -40,21 +41,21 @@ import java.util.stream.Collectors;
 @Service
 @Order(5)
 public class UserServiceImp implements IUserService {
-    final
+    private final
     IUserRepository userRepository;
-    final
+    private final
     IRoleRepository roleRepository;
-    final
+    private final
     JwtProvider jwtProvider;
-    final
+    private final
     AuthenticationManager authenticationManager;
-    final
+    private final
     PasswordEncoder passwordEncoder;
 
-    final
+    private final
     MailService mailService;
 
-    final Random random = new Random();
+    private final Random random = new Random();
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private final IAddressService addressService;
 
@@ -128,7 +129,15 @@ public class UserServiceImp implements IUserService {
         if (model.getPassword() != null)
             u.setPassword(passwordEncoder.encode(model.getPassword()));
         u.setMainAddress(model.getMainAddress());
+        this.setRoles(u, model.getRoles());
         return userRepository.save(u);
+    }
+
+    public void setRoles(UserEntity user, List<Long> roles) {
+        if (roles == null || roles.isEmpty())
+            user.setRoleEntity(Collections.singleton(this.roleRepository.findRoleEntityByRoleName(RoleEntity.USER)));
+        else
+            user.setRoleEntity(this.roleRepository.findAllByRoleIdIn(roles));
     }
 
     @Override
@@ -240,5 +249,18 @@ public class UserServiceImp implements IUserService {
     @Override
     public UserEntity getMyProfile() {
         return this.findById(SecurityUtils.getCurrentUserId());
+    }
+
+    @Override
+    public Set<Address> getMyAddresses() {
+        return SecurityUtils.getCurrentUser().getUser().getMyAddress();
+    }
+
+    @Override
+    public boolean deleteMyAddress(Long id) {
+        UserEntity user = SecurityUtils.getCurrentUser().getUser();
+        user.setMyAddress(user.getMyAddress().stream().filter(a -> a.getId() != id).collect(Collectors.toSet()));
+        this.userRepository.save(user);
+        return true;
     }
 }

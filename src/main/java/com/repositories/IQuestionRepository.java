@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface IQuestionRepository extends JpaRepository<QuestionEntity, Long>, JpaSpecificationExecutor<QuestionEntity> {
     Page<QuestionEntity> getQuestionEntitiesByCompatibleIsTrue(Pageable pageable);
@@ -27,5 +28,9 @@ public interface IQuestionRepository extends JpaRepository<QuestionEntity, Long>
 
     @Query("select c from QuestionEntity c where c.category=?1")
     Page<QuestionEntity> findQuestionsByCategory(String category, Pageable pageable);
+    @Query("select c from QuestionEntity c where c.category=?1 and c.createdBy.id = ?2")
+    Page<QuestionEntity> findQuestionsByCategoryAndUserId(String category, Long userId, Pageable pageable);
+
+    Optional<QuestionEntity> findByIdAndCreatedById(Long questionId, Long UserId);
 
 }

@@ -60,7 +60,7 @@ public class AddressServiceImpl implements IAddressService {
         Ward ward = wardRepository.findById(model.getWardId()).orElseThrow(() -> new RuntimeException("Ward not found"));
         Address address = Address.builder()
                 .street(model.getStreet())
-                .provine(province)
+                .province(province)
                 .district(district)
                 .ward(ward)
                 .build();
@@ -79,7 +79,7 @@ public class AddressServiceImpl implements IAddressService {
         for (Address address : addresses) {
             if (address.getId() == model.getId()) {
                 address.setStreet(model.getStreet());
-                address.setProvine(provinceRepository.findById(model.getProvinceId()).orElseThrow(() -> new RuntimeException("Province not found")));
+                address.setProvince(provinceRepository.findById(model.getProvinceId()).orElseThrow(() -> new RuntimeException("Province not found")));
                 address.setDistrict(districtRepository.findById(model.getDistrictId()).orElseThrow(() -> new RuntimeException("District not found")));
                 address.setWard(wardRepository.findById(model.getWardId()).orElseThrow(() -> new RuntimeException("Ward not found")));
                 return addressRepository.save(address);

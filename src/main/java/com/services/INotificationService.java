@@ -14,4 +14,6 @@ public interface INotificationService extends IBaseService<NotificationEntity, N
     boolean increaseView(long id);
 
     boolean setAllRead();
+
+    NotificationEntity findByIdAndUserId(Long id, Long currentUserId);
 }

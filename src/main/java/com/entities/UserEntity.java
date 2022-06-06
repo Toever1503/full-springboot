@@ -42,7 +42,7 @@ public class UserEntity {
 
     public static final String FOLDER = "user/";
 
-    @ManyToMany
+    @ManyToMany(cascade = CascadeType.ALL)
     @JoinTable(
             name = "user_address",
             joinColumns = @JoinColumn(name = "user_id"),

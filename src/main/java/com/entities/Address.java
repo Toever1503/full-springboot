@@ -22,7 +22,7 @@ public class Address {
 
     @ManyToOne
     @JoinColumn(name = "province_id")
-    private Province provine;
+    private Province province;
 
     @ManyToOne
     @JoinColumn(name = "district_id")
@@ -32,4 +32,9 @@ public class Address {
     @JoinColumn(name = "ward_id")
     private Ward ward;
 
+    @Column(name = "receiver")
+    private String receiver;
+
+    @Column(name = "phone")
+    private String phone;
 }

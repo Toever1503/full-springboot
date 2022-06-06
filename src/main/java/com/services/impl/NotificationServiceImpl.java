@@ -3,7 +3,6 @@ package com.services.impl;
 import com.dtos.NotificationDto;
 import com.entities.NotificationEntity;
 import com.entities.NotificationUser;
-import com.entities.QuestionEntity;
 import com.entities.UserEntity;
 import com.models.NotificationModel;
 import com.repositories.INotificationRepository;
@@ -70,7 +69,7 @@ public class NotificationServiceImpl implements INotificationService {
         NotificationEntity notificationEntity = NotificationModel.toEntity(model);
         final String folder = "user/" + SecurityUtils.getCurrentUsername() + "/notification/";
 
-        if (!model.getAttachFiles().get(0).getOriginalFilename().equals("")) {
+        if (!model.getAttachFiles().get(0).isEmpty()) {
             List<String> filePaths = new ArrayList<>();
             for (MultipartFile file : model.getAttachFiles()) {
                 try {
@@ -83,8 +82,8 @@ public class NotificationServiceImpl implements INotificationService {
             notificationEntity.setAttachFiles(jsonObject.toString());
         }
 
-        if (!model.getImage().getOriginalFilename().equals("")) {
-            String filePath = null;
+        if (!model.getImage().isEmpty()) {
+            String filePath;
             try{
                 filePath = fileUploadProvider.uploadFile(folder, model.getImage());
                 notificationEntity.setImage(filePath);
@@ -120,7 +119,7 @@ public class NotificationServiceImpl implements INotificationService {
 
         // giới hạn số lần + thời gian sửa file
         if((originNotificationEntity.getCountEdit() < NotificationEntity.limitEditCount)) {
-            Long difference = (new Date().getTime()  - originNotificationEntity.getUpdatedDate().getTime())/60000;
+            long difference = (new Date().getTime()  - originNotificationEntity.getUpdatedDate().getTime())/60000;
 
             if(difference > NotificationEntity.limitEditMin){
                 throw new RuntimeException("you can edit file only " + NotificationEntity.limitEditMin + " minutes");
@@ -128,7 +127,7 @@ public class NotificationServiceImpl implements INotificationService {
                 originNotificationEntity.setCountEdit(originNotificationEntity.getCountEdit() + 1);
 
                 //delete file into s3
-                List<Object> originalFile = new ArrayList<>();
+                List<Object> originalFile;
                 if (originNotificationEntity.getAttachFiles() != null) {
                     originalFile = (parseJson(originNotificationEntity.getAttachFiles()).getJSONArray("files").toList());
                     originalFile.removeAll(model.getAttachFilesOrigin());
@@ -136,12 +135,12 @@ public class NotificationServiceImpl implements INotificationService {
                 }
 
                 //add old file to uploadFiles
-                List<String> uploadedFiles = new ArrayList<String>();
+                List<String> uploadedFiles = new ArrayList<>();
                 if (!model.getAttachFilesOrigin().isEmpty())
                     uploadedFiles.addAll(model.getAttachFilesOrigin());
 
                 //upload new file to uploadFiles and save to database
-                if (!model.getAttachFiles().get(0).getOriginalFilename().equals("")) {
+                if (!model.getAttachFiles().get(0).isEmpty()) {
                     for (MultipartFile file : model.getAttachFiles()) {
                         try {
                             uploadedFiles.add(fileUploadProvider.uploadFile(folder, file));
@@ -153,8 +152,8 @@ public class NotificationServiceImpl implements INotificationService {
                 originNotificationEntity.setAttachFiles(uploadedFiles.isEmpty() ? null : (new JSONObject(Map.of("files", uploadedFiles)).toString()));
 
                 // edit image into notification
-                if (!model.getImage().getOriginalFilename().equals("")) {
-                    String filePath = null;
+                if (!model.getImage().isEmpty()) {
+                    String filePath;
                     try{
                         filePath = fileUploadProvider.uploadFile(folder, model.getImage());
                         fileUploadProvider.deleteFile(originNotificationEntity.getImage());
@@ -225,5 +224,10 @@ public class NotificationServiceImpl implements INotificationService {
     public boolean setAllRead() {
         this.notificationUserRepository.setReadAll(SecurityUtils.getCurrentUserId());
         return true;
+    }
+
+    @Override
+    public NotificationEntity findByIdAndUserId(Long id, Long currentUserId) {
+        return this.notificationRepository.findByIdAndCreatedById(id, currentUserId).orElseThrow(() -> new RuntimeException("Not found notification id: " + id));
     }
 }

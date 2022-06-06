@@ -17,6 +17,7 @@ import java.util.List;
 @Builder
 public class TotalQuestionDto {
     private Long id;
+    private String category;
     private String title;
     private String questContent;
     private List<Object> questFiles;
@@ -27,23 +28,25 @@ public class TotalQuestionDto {
     private List<Object> replyFiles;
     private String userReply;
 
-    public static TotalQuestionDto toTotalQuestionDTO(QuestionEntity entity){
-            if(entity==null) throw new RuntimeException("No Question Found!");
-            TotalQuestionDto dto = new TotalQuestionDto();
-            dto.setId(entity.getId());
-            dto.setStatus(EStatusQuestion.valueOf(entity.getStatus()));
-            dto.setCreatedDate(entity.getCreatedDate());
-            dto.setQuestContent(entity.getQuestContent());
-            dto.setTitle(entity.getTitle());
+    public static TotalQuestionDto toTotalQuestionDTO(QuestionEntity entity) {
+        if (entity == null) throw new RuntimeException("No Question Found!");
+        TotalQuestionDto dto = new TotalQuestionDto();
+        dto.setId(entity.getId());
+        dto.setCategory(entity.getCategory());
+        dto.setStatus(EStatusQuestion.valueOf(entity.getStatus()));
+        dto.setCreatedDate(entity.getCreatedDate());
+        dto.setQuestContent(entity.getQuestContent());
+        dto.setTitle(entity.getTitle());
         dto.setQuestFiles((entity.getQuestFile() == null ? null : parseJson(entity.getQuestFile()).getJSONArray("files").toList()));
         dto.setUpdatedDate(entity.getUpdatedDate());
         dto.setReplyFiles((entity.getReplyFile() == null ? null : parseJson(entity.getReplyFile()).getJSONArray("files").toList()));
-            dto.setReplyContent(entity.getReplyContent());
-            if(entity.getAnsweredBy()!=null)
+        dto.setReplyContent(entity.getReplyContent());
+        if (entity.getAnsweredBy() != null)
             dto.setUserReply(entity.getAnsweredBy().getFullName());
-            return dto;
+        return dto;
     }
-    public static JSONObject parseJson(String json){
+
+    public static JSONObject parseJson(String json) {
         System.out.println("json: " + json);
         return new JSONObject(json);
     }

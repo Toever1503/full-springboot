@@ -40,9 +40,6 @@ public class QuestionModel {
     @ApiModelProperty(notes = "List String of question origin", dataType = "List<String>", example = "file1, file2")
     private List<String> questOriginFile = new ArrayList<>();
 
-    @ApiModelProperty(notes = "user who created question", dataType = "UserModel", example = "1")
-    private Long createById;
-
     public static QuestionEntity toEntity(QuestionModel model) {
         if (model == null) throw new RuntimeException("QuestionModel is null");
 
