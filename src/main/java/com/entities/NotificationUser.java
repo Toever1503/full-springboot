@@ -12,7 +12,7 @@ import javax.persistence.*;
 @Builder
 @Entity
 @Data
-@Table(name = "tbl_notification_user")
+@Table(name = "tbl_notification_user", uniqueConstraints = { @UniqueConstraint(columnNames = { "notification_id", "user_id" }) })
 public class NotificationUser {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
