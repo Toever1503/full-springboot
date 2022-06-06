@@ -92,88 +92,91 @@ public class QuestionServiceImp implements IQuestionService {
             throw new RuntimeException("Question is already completed");
 
         if (originalQuestion.getQuestFile() != null) {
-            List<Object> originalFile = (parseJson(originalQuestion.getQuestFile()).getJSONArray("files").toList());
+            List<Object> originalFile = (this.parseJson(originalQuestion.getQuestFile()).getJSONArray("files").toList());
             originalFile.removeAll(model.getQuestOriginFile());
             originalFile.forEach(o -> fileUploadProvider.deleteFile(o.toString()));
         }
         List<String> uploadedFiles = new ArrayList<String>();
-        if (model.getQuestFile()!=null) {
+        if (model.getQuestFile() != null) {
             uploadedFiles.addAll(model.getQuestOriginFile());
 
-        if (!model.getQuestFile().get(0).getName().isEmpty()) {
-            model.getQuestFile().forEach(multipartFile -> {
-                try {
-                    uploadedFiles.add(fileUploadProvider.uploadFile(UserEntity.FOLDER + originalQuestion.getCreatedBy().getUserName() + QuestionEntity.FOLDER, multipartFile));
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
-            });
-        }
-        originalQuestion.setQuestFile(uploadedFiles.isEmpty() ? null : (new JSONObject(Map.of("files", uploadedFiles)).toString()));
-
-        UserEntity userEntity = userService.findById(SecurityUtils.getCurrentUserId());
-        originalQuestion.setCreatedBy(userEntity);
-        originalQuestion.setTitle(model.getTitle());
-        originalQuestion.setQuestContent(model.getQuestContent());
-        return this.questionRepository.save(originalQuestion);
-
-    }
-
-    @Override
-    public boolean deleteById(Long id) {
-        QuestionEntity questionEntity = this.findById(id);
-        if (questionEntity.getQuestFile() != null) {
-            new JSONObject(questionEntity.getQuestFile()).getJSONArray("files").toList().forEach(u -> fileUploadProvider.deleteFile(u.toString()));
-        }
-        if (questionEntity.getReplyFile() != null) {
-            new JSONObject(questionEntity.getReplyFile()).getJSONArray("files").toList().forEach(u -> fileUploadProvider.deleteFile(u.toString()));
-        }
-        questionRepository.deleteById(id);
-        return true;
-
-    }
-
-    @Override
-    public boolean deleteByIds(List<Long> ids) {
-        ids.forEach(id -> this.deleteById(id));
-        return true;
-    }
-
-    @Override
-    public QuestionEntity answerQuestion(Long qid, QuestionResponseModel model) {
-        QuestionEntity question = this.findById(qid);
-
-        if (question.getReplyFile() != null) {
-            List<Object> originalFile = (parseJson(question.getReplyFile()).getJSONArray("files").toList());
-            originalFile.removeAll(model.getOldFiles());
-            originalFile.forEach(o -> fileUploadProvider.deleteFile(o.toString()));
-        }
-        List<String> uploadedFiles = new ArrayList<String>();
-        if (!model.getOldFiles().isEmpty())
-            uploadedFiles.addAll(model.getOldFiles());
-
-        if (model.getReplyFile()!=null) {
-            if(!model.getReplyFile().get(0).getName().isEmpty()){
-                String folder = UserEntity.FOLDER + question.getCreatedBy().getUserName() + QuestionEntity.FOLDER;
-                model.getReplyFile().forEach(multipartFile -> {
+            if (!model.getQuestFile().get(0).getName().isEmpty()) {
+                model.getQuestFile().forEach(multipartFile -> {
                     try {
-                        uploadedFiles.add(fileUploadProvider.uploadFile(folder, multipartFile));
+                        uploadedFiles.add(fileUploadProvider.uploadFile(UserEntity.FOLDER + originalQuestion.getCreatedBy().getUserName() + QuestionEntity.FOLDER, multipartFile));
                     } catch (IOException e) {
                         throw new RuntimeException(e);
                     }
                 });
             }
+        }
+            originalQuestion.setQuestFile(uploadedFiles.isEmpty() ? null : (new JSONObject(Map.of("files", uploadedFiles)).toString()));
+
+            UserEntity userEntity = userService.findById(SecurityUtils.getCurrentUserId());
+            originalQuestion.setCreatedBy(userEntity);
+            originalQuestion.setTitle(model.getTitle());
+            originalQuestion.setQuestContent(model.getQuestContent());
+            return this.questionRepository.save(originalQuestion);
 
         }
-        question.setReplyFile(uploadedFiles.isEmpty() ? null : (new JSONObject(Map.of("files", uploadedFiles)).toString()));
 
-        question.setAnsweredBy(userService.findById(SecurityUtils.getCurrentUserId()));
-        question.setReplyContent(model.getReplyContent());
-        question.setStatus(EStatusQuestion.COMPLETED.toString());
-        question = questionRepository.save(question);
-        notifyUser(model.getUrl(), question);
-        return question;
-    }
+
+        @Override
+        public boolean deleteById (Long id){
+            QuestionEntity questionEntity = this.findById(id);
+            if (questionEntity.getQuestFile() != null) {
+                new JSONObject(questionEntity.getQuestFile()).getJSONArray("files").toList().forEach(u -> fileUploadProvider.deleteFile(u.toString()));
+            }
+            if (questionEntity.getReplyFile() != null) {
+                new JSONObject(questionEntity.getReplyFile()).getJSONArray("files").toList().forEach(u -> fileUploadProvider.deleteFile(u.toString()));
+            }
+            questionRepository.deleteById(id);
+            return true;
+
+        }
+
+        @Override
+        public boolean deleteByIds (List < Long > ids) {
+            ids.forEach(id -> this.deleteById(id));
+            return true;
+        }
+
+        @Override
+        public QuestionEntity answerQuestion (Long qid, QuestionResponseModel model){
+            QuestionEntity question = this.findById(qid);
+
+            if (question.getReplyFile() != null) {
+                List<Object> originalFile = (parseJson(question.getReplyFile()).getJSONArray("files").toList());
+                originalFile.removeAll(model.getOldFiles());
+                originalFile.forEach(o -> fileUploadProvider.deleteFile(o.toString()));
+            }
+            List<String> uploadedFiles = new ArrayList<String>();
+            if (!model.getOldFiles().isEmpty())
+                uploadedFiles.addAll(model.getOldFiles());
+
+            if (model.getReplyFile() != null) {
+                if (!model.getReplyFile().get(0).getName().isEmpty()) {
+                    String folder = UserEntity.FOLDER + question.getCreatedBy().getUserName() + QuestionEntity.FOLDER;
+                    model.getReplyFile().forEach(multipartFile -> {
+                        try {
+                            uploadedFiles.add(fileUploadProvider.uploadFile(folder, multipartFile));
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
+                    });
+                }
+
+            }
+            question.setReplyFile(uploadedFiles.isEmpty() ? null : (new JSONObject(Map.of("files", uploadedFiles)).toString()));
+
+            question.setAnsweredBy(userService.findById(SecurityUtils.getCurrentUserId()));
+            question.setReplyContent(model.getReplyContent());
+            question.setStatus(EStatusQuestion.COMPLETED.toString());
+            question = questionRepository.save(question);
+            notifyUser(model.getUrl(), question);
+            return question;
+        }
+
 
     @Override
     public Page<QuestionEntity> getAllMyQuestion(Pageable page) {
@@ -206,7 +209,7 @@ public class QuestionServiceImp implements IQuestionService {
         return questionRepository.getAllAskedUserIDByStatus().stream().map(UserEntity::getId).collect(Collectors.toList());
     }
 
-    private JSONObject parseJson(String json) {
+    public JSONObject parseJson(String json) {
         return new JSONObject(json);
     }
 

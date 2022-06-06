@@ -11,8 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 @Repository
-public interface NotificationRepository extends JpaRepository<NotificationEntity, Long> {
-
+public interface INotificationRepository extends JpaRepository<NotificationEntity, Long> {
     @Query(value = "update tbl_notification set status = 'POSTED' where( id>0 and status = 'FUTURE' and (UNIX_TIMESTAMP(future_date)) < UNIX_TIMESTAMP(DATE_ADD(CURRENT_TIMESTAMP(), INTERVAL '0 7' DAY_HOUR)))",nativeQuery = true)
     @Modifying
     @Transactional
