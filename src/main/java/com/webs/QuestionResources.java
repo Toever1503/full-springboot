@@ -33,7 +33,7 @@ public class QuestionResources {
         if (count > 3)
             return ResponseDto.of(null, "Failed! , Max image count is 3 per question");
         else
-            return ResponseDto.of(null, "Failed! , Max image count is 3 per answer");
+        return ResponseDto.of(TotalQuestionDto.toTotalQuestionDTO(questionService.answerQuestion(qid, model)), "Answered");
     }
 
     @Transactional

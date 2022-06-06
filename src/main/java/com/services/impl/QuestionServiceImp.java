@@ -60,17 +60,19 @@ public class QuestionServiceImp implements IQuestionService {
     @Override
     public QuestionEntity add(QuestionModel model) {
         QuestionEntity questionEntity = QuestionModel.toEntity(model);
-        if (!model.getQuestFile().get(0).isEmpty()) {
-            List<String> filePaths = new ArrayList<>();
-            for (MultipartFile file : model.getQuestFile()) {
-                try {
-                    filePaths.add(fileUploadProvider.uploadFile(UserEntity.FOLDER + SecurityUtils.getCurrentUsername() + QuestionEntity.FOLDER, file));
-                } catch (IOException e) {
-                    e.printStackTrace();
+        if(model.getQuestFile()!=null){
+            if (!model.getQuestFile().get(0).getOriginalFilename().equals("")) {
+                List<String> filePaths = new ArrayList<>();
+                for (MultipartFile file : model.getQuestFile()) {
+                    try {
+                        filePaths.add(fileUploadProvider.uploadFile(SecurityUtils.getCurrentUsername(), file));
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                 }
+                JSONObject jsonObject = new JSONObject(Map.of("files", filePaths));
+                questionEntity.setQuestFile(jsonObject.toString());
             }
-            JSONObject jsonObject = new JSONObject(Map.of("files", filePaths));
-            questionEntity.setQuestFile(jsonObject.toString());
         }
         questionEntity.setStatus(EStatusQuestion.PENDING.name());
         questionEntity.setCreatedBy(SecurityUtils.getCurrentUser().getUser());
@@ -95,7 +97,7 @@ public class QuestionServiceImp implements IQuestionService {
             originalFile.forEach(o -> fileUploadProvider.deleteFile(o.toString()));
         }
         List<String> uploadedFiles = new ArrayList<String>();
-        if (!model.getQuestFile().isEmpty())
+        if (model.getQuestFile()!=null) {
             uploadedFiles.addAll(model.getQuestOriginFile());
 
         if (!model.getQuestFile().get(0).getName().isEmpty()) {
@@ -137,7 +139,6 @@ public class QuestionServiceImp implements IQuestionService {
         return true;
     }
 
-
     @Override
     public QuestionEntity answerQuestion(Long qid, QuestionResponseModel model) {
         QuestionEntity question = this.findById(qid);
@@ -151,15 +152,18 @@ public class QuestionServiceImp implements IQuestionService {
         if (!model.getOldFiles().isEmpty())
             uploadedFiles.addAll(model.getOldFiles());
 
-        if (!model.getReplyFile().get(0).getName().isEmpty()) {
-            String folder = UserEntity.FOLDER + question.getCreatedBy().getUserName() + QuestionEntity.FOLDER;
-            model.getReplyFile().forEach(multipartFile -> {
-                try {
-                    uploadedFiles.add(fileUploadProvider.uploadFile(folder, multipartFile));
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
-            });
+        if (model.getReplyFile()!=null) {
+            if(!model.getReplyFile().get(0).getName().isEmpty()){
+                String folder = UserEntity.FOLDER + question.getCreatedBy().getUserName() + QuestionEntity.FOLDER;
+                model.getReplyFile().forEach(multipartFile -> {
+                    try {
+                        uploadedFiles.add(fileUploadProvider.uploadFile(folder, multipartFile));
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                });
+            }
+
         }
         question.setReplyFile(uploadedFiles.isEmpty() ? null : (new JSONObject(Map.of("files", uploadedFiles)).toString()));
 

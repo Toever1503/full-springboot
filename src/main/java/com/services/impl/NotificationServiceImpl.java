@@ -212,4 +212,5 @@ public class NotificationServiceImpl implements INotificationService {
     public boolean deleteByIds(List<Long> ids) {
         return false;
     }
+
 }
