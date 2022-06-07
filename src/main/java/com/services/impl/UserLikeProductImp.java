@@ -43,11 +43,7 @@ public class UserLikeProductImp implements IUserLikeProductService {
 
     @Override
     public UserLikeProductEntity add(UserLikeProductModel model) {
-        UserLikeProductEntity entity = new UserLikeProductEntity();
-        entity.setProductId(model.getProductId());
-        entity.setUserId(SecurityUtils.getCurrentUserId());
-        entity.setIsLike(true);
-        return userLikeProductRepository.save(entity);
+        return null;
     }
 
     @Override
@@ -72,11 +68,13 @@ public class UserLikeProductImp implements IUserLikeProductService {
 
     @Override
     public int likeProduct(Long id) {
+        //If product is present
         if(userLikeProductRepository.findFirstByProductIdAndUserId(id, SecurityUtils.getCurrentUserId())!=null){
             UserLikeProductEntity userLikeProductEntity = userLikeProductRepository.findFirstByProductIdAndUserId(id, SecurityUtils.getCurrentUserId());
             userLikeProductEntity.setIsLike(!userLikeProductEntity.getIsLike());
             return 0;
         }else {
+            //if product not present
             UserLikeProductEntity entity = new UserLikeProductEntity();
             entity.setProductId(id);
             entity.setIsLike(true);
