@@ -3,13 +3,11 @@ package com.services.impl;
 import com.config.jwt.JwtLoginResponse;
 import com.config.jwt.JwtProvider;
 import com.config.jwt.JwtUserLoginModel;
+import com.dtos.AddressDto;
 import com.entities.Address;
 import com.entities.RoleEntity;
 import com.entities.UserEntity;
-import com.models.ForgetPasswordModel;
-import com.models.PasswordModel;
-import com.models.RegisterModel;
-import com.models.UserModel;
+import com.models.*;
 import com.repositories.IRoleRepository;
 import com.repositories.IUserRepository;
 import com.services.CustomUserDetail;
@@ -255,5 +253,31 @@ public class UserServiceImp implements IUserService {
         user.setMyAddress(user.getMyAddress().stream().filter(a -> a.getId() != id).collect(Collectors.toSet()));
         this.userRepository.save(user);
         return true;
+    }
+
+    @Override
+    public boolean setMainAddress(Long id) {
+        this.addressService.findById(id);
+        UserEntity user = SecurityUtils.getCurrentUser().getUser();
+        user.setMainAddress(id);
+        this.userRepository.save(user);
+        return true;
+    }
+
+    @Override
+    public Address addMyAddress(AddressModel model) {
+        UserEntity user = this.findById(SecurityUtils.getCurrentUserId());
+        Address address = this.addressService.add(model);
+        user.getMyAddress().add(address);
+        this.userRepository.save(user);
+        return address;
+    }
+
+    @Override
+    public Address updateMyAddress(AddressModel model) {
+        UserEntity user = this.findById(SecurityUtils.getCurrentUserId());
+        if (user.getMyAddress().stream().anyMatch(a -> a.getId() == model.getId()) == false)
+            throw new RuntimeException("Address not found!, id: " + model.getId());
+        return this.addressService.update(model);
     }
 }

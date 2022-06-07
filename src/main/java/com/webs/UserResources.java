@@ -4,10 +4,7 @@ import com.config.jwt.JwtUserLoginModel;
 import com.dtos.AddressDto;
 import com.dtos.ResponseDto;
 import com.dtos.UserDto;
-import com.models.ForgetPasswordModel;
-import com.models.PasswordModel;
-import com.models.RegisterModel;
-import com.models.UserModel;
+import com.models.*;
 import com.services.IUserService;
 import com.utils.SecurityUtils;
 import org.slf4j.Logger;
@@ -45,6 +42,12 @@ public class UserResources {
         model.setRoles(SecurityUtils.getCurrentUser().getUser().getRoleEntity().stream().map(roleEntity -> roleEntity.getRoleId()).collect(Collectors.toList()));
         return ResponseDto.of(UserDto.toDto(this.userService.update(model)), "Update my profile successfully");
     }
+    @Transactional
+    @GetMapping("my-profile")
+    public ResponseDto getMyProfile() {
+        log.info("{%s} is getting their profile", SecurityUtils.getCurrentUser().getUsername());
+        return ResponseDto.of(UserDto.toDto(this.userService.getMyProfile()), "Get my profile");
+    }
 
     @Transactional
     @GetMapping("my-addresses")
@@ -53,12 +56,27 @@ public class UserResources {
         return ResponseDto.of(this.userService.getMyAddresses().stream().map(AddressDto::toDto).collect(Collectors.toList()), "Get all my addresses successfully");
     }
 
+    @Transactional
+    @PostMapping("my-addresses") // create address
+    public ResponseDto addMyAddress(@Valid AddressModel model) {
+        log.info("{%s} is adding new address", SecurityUtils.getCurrentUser().getUsername());
+        model.setId(null);
+        return ResponseDto.of(AddressDto.toDto(this.userService.addMyAddress(model)), "Add new address successfully!");
+    }
 
     @Transactional
-    @GetMapping("my-profile")
-    public ResponseDto getMyProfile() {
-        log.info("{%s} is getting their profile", SecurityUtils.getCurrentUser().getUsername());
-        return ResponseDto.of(UserDto.toDto(this.userService.getMyProfile()), "Get my profile");
+    @PutMapping("my-addresses/{id}") // update address
+    public ResponseDto updateMyAddress(@PathVariable("id") Long id, @Valid AddressModel model) {
+        model.setId(id);
+        log.info("{%s} is updating address id: {%d}", SecurityUtils.getCurrentUser().getUsername(), id);
+        return ResponseDto.of(AddressDto.toDto(this.userService.updateMyAddress(model)), "Update address successfully!, ID: " + id);
+    }
+
+    @Transactional
+    @GetMapping("my-addresses/main/{id}") // set main address
+    public ResponseDto setMainAddress(@PathVariable("id") Long id) {
+        log.info("{%s} is setting main address", SecurityUtils.getCurrentUser().getUsername());
+        return ResponseDto.of(this.userService.setMainAddress(id), "Set main address successfully");
     }
 
     @Transactional
