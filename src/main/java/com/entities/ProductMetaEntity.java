@@ -25,5 +25,5 @@ public class ProductMetaEntity {
     @ManyToOne(fetch =
             FetchType.LAZY)
     @JoinColumn(name = "product_id")
-    private ProductEntity products;
+    private ProductEntity product;
 }

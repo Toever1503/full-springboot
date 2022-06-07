@@ -1,5 +1,6 @@
 package com.dtos;
 
+import com.entities.OptionEntity;
 import lombok.*;
 
 @AllArgsConstructor
@@ -10,9 +11,20 @@ import lombok.*;
 public class OptionsDto {
     private Long id;
     private String optionName;
-    private Long quantity;
-    private Long newPrice;
-    private Long oldPrice;
+    private Integer quantity;
+    private Double newPrice;
+    private Double oldPrice;
 
     private Long productId;
+
+    public static OptionsDto toDto(OptionEntity entity){
+        OptionsDto dto = new OptionsDto();
+        dto.setId(entity.getId());
+        dto.setOptionName(entity.getOptionName());
+        dto.setQuantity(entity.getQuantity());
+        dto.setNewPrice(entity.getNewPrice());
+        dto.setOldPrice(entity.getOldPrice());
+        dto.setProductId(entity.getProduct().getId());
+        return dto;
+    }
 }

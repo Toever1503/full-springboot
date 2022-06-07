@@ -22,7 +22,7 @@ public class OptionEntity {
     private String optionName;
 
     @Column(name = "quantity")
-    private Long quantity;
+    private Integer quantity;
 
     @Column(name = "new_price")
     private Double newPrice;
@@ -33,5 +33,5 @@ public class OptionEntity {
     @ManyToOne(fetch =
             FetchType.LAZY)
     @JoinColumn(name = "product_id")
-    private ProductEntity products;
+    private ProductEntity product;
 }
