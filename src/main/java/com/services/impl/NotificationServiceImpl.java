@@ -226,8 +226,4 @@ public class NotificationServiceImpl implements INotificationService {
         return true;
     }
 
-    @Override
-    public NotificationEntity findByIdAndUserId(Long id, Long currentUserId) {
-        return this.notificationRepository.findByIdAndCreatedById(id, currentUserId).orElseThrow(() -> new RuntimeException("Not found notification id: " + id));
-    }
 }
