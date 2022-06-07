@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.util.List;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -25,11 +26,13 @@ public class CategoryEntity {
     private String slug;
     @Column(name = "description")
     private String description;
+    @Column(name = "total_product")
+    private Long totalProduct;
 
     @ManyToOne
     @JoinColumn(name = "parent_id")
     private CategoryEntity parentCategory;
 
-    @Column(name = "total_product")
-    private Integer totalProduct;
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "category")
+    private List<ProductEntity> products;
 }

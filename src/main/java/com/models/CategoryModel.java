@@ -26,7 +26,7 @@ public class CategoryModel {
                 .categoryName(model.getCategoryName())
                 .slug(model.getSlug() == null ? ASCIIConverter.utf8ToAscii(model.getCategoryName()) : ASCIIConverter.utf8ToAscii(model.getSlug()))
                 .description(model.getDescription())
-                .totalProduct(0)
+                .totalProduct(0L)
                 .build();
     }
 }
