@@ -22,9 +22,10 @@ public class JwtProvider implements Serializable {
 
     public static final long JWT_TOKEN_VALIDITY = 1800; // 30 mins
     @Value("${jwt.secret}")
-    private String secret;
+    private String secret; //secret key
 
 
+    //get 
     public Date getIssuedAtDateFromToken(String token) {
         return getClaimFromToken(token, Claims::getIssuedAt);
     }

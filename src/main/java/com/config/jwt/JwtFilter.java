@@ -20,12 +20,16 @@ public class JwtFilter extends OncePerRequestFilter {
     }
 
 
+    //Filter jw token
     @Override
     protected void doFilterInternal(HttpServletRequest req, HttpServletResponse res, FilterChain filterChain) throws ServletException, IOException {
         log.info("JwtFilter is checking");
+        //If request method is options, do filter
         if (req.getMethod().equalsIgnoreCase("OPTIONS")) {
             filterChain.doFilter(req, res);
-        } else {
+        }
+        //if not, checking token and do filter afterward
+        else {
             String token = null;
             token = req.getHeader("Authorization");
             System.out.println("token: " + token);
