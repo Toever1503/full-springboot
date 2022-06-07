@@ -24,12 +24,12 @@ import java.util.Properties;
 
 @Configuration
 public class BeanConfiguration {
-
+    //Password encoder bean configuration
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
-
+    //WebMvcConfigurer bean
     @Bean
     public WebMvcConfigurer configurer() {
         return new WebMvcConfigurer() {
@@ -43,7 +43,7 @@ public class BeanConfiguration {
             }
         };
     }
-
+    //Template resolver's resource bean configurer
     @Bean
     public SpringResourceTemplateResolver templateResolver(ApplicationContext context){
         // SpringResourceTemplateResolver automatically integrates with Spring's own
@@ -59,7 +59,7 @@ public class BeanConfiguration {
         templateResolver.setCacheable(true);
         return templateResolver;
     }
-
+    //Template engine bean configurer
     @Bean
     public SpringTemplateEngine templateEngine(ApplicationContext context){
         // SpringTemplateEngine automatically applies SpringStandardDialect and
@@ -75,7 +75,7 @@ public class BeanConfiguration {
         return templateEngine;
     }
 
-
+    //Mail sender bean configure
     @Bean
     public JavaMailSender getMailSender(@Value("${mail.smtp.host}")
                                         String host,

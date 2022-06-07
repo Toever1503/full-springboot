@@ -11,6 +11,5 @@ import java.util.Optional;
 @Repository
 public interface ICategoryRepository extends JpaRepository<CategoryEntity, Long> {
     Page<CategoryEntity> findAllByParentCategoryId(Long id, Pageable pageable);
-
     Optional<CategoryEntity> findBySlug(String slug);
 }

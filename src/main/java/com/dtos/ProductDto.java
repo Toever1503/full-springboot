@@ -4,6 +4,7 @@ import com.entities.OptionEntity;
 import com.entities.ProductEntity;
 import com.entities.ProductMetaEntity;
 import lombok.*;
+import org.json.JSONObject;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -22,7 +23,7 @@ public class ProductDto {
     private Integer totalReview;
     private Integer rating;
     private String avatar;
-    private String attachFiles;
+    private List<Object> attachFiles;
     private String slug;
     private Long categoryId;
     private List<Long> productMetaId;
@@ -38,7 +39,7 @@ public class ProductDto {
         productDto.setTotalReview(entity.getTotalReview());
         productDto.setRating(entity.getRating());
         productDto.setAvatar(entity.getImage());
-        productDto.setAttachFiles(entity.getAttachFiles());
+        productDto.setAttachFiles(entity.getAttachFiles()!=null ? new JSONObject(entity.getAttachFiles()).getJSONArray("files").toList() : null);
         productDto.setSlug(entity.getSlug());
         productDto.setCategoryId(entity.getCategory().getId()==null? null : entity.getCategory().getId());
         productDto.setProductMetaId(entity.getProductMetas().stream().map(ProductMetaEntity::getId).collect(Collectors.toList()));

@@ -27,7 +27,7 @@ import org.springframework.security.web.util.matcher.RequestMatcher;
 @Configuration
 @EnableWebSecurity
 public class WebSecurityConfiguration {
-
+    //List of public urls
     private final RequestMatcher PUBLIC_URLS = new OrRequestMatcher(
             new AntPathRequestMatcher("/users/signup"),
             new AntPathRequestMatcher("/users/login"),
@@ -41,17 +41,18 @@ public class WebSecurityConfiguration {
             new AntPathRequestMatcher("/v2/api-docs"),
             new AntPathRequestMatcher("/webjars/**")
     );
+
     private RequestMatcher PRIVATE_URLS = new NegatedRequestMatcher(PUBLIC_URLS);
     @Autowired
     @Lazy
     private IUserService userService;
 
-
+    //Gain access for public urls
     @Bean
     public WebSecurityCustomizer webSecurityCustomizer() {
         return (web) -> web.ignoring().requestMatchers(PUBLIC_URLS);
     }
-
+    //Authentication manager bean config
     @Bean
     public AuthenticationManager authenticationManager(HttpSecurity httpSecurity) throws Exception {
         AuthenticationManager authenticationManager = httpSecurity
@@ -65,6 +66,7 @@ public class WebSecurityConfiguration {
         return authenticationManager;
     }
 
+    //Filter chain bean config
     @Bean
     @Order(1)
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -76,7 +78,7 @@ public class WebSecurityConfiguration {
         http.authorizeRequests()
                 .requestMatchers(PRIVATE_URLS).authenticated()
                 .and().exceptionHandling().authenticationEntryPoint((req, res, auth) -> {
-                    res.sendError(401, "You must have to login");
+                    res.sendError(401, "You have to login");
                 });
         http.addFilterBefore(new JwtFilter(userService), org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter.class);
         return http.build();

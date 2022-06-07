@@ -11,7 +11,7 @@ import javax.validation.constraints.NotNull;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class JwtUserLoginModel {
+public class JwtUserLoginModel {  //Authentication login model
     @ApiModelProperty(notes = "User name", dataType = "String", example = "user1")
     @NotNull
     @NotBlank

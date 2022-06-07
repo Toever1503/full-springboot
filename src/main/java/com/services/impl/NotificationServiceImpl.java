@@ -69,7 +69,7 @@ public class NotificationServiceImpl implements INotificationService {
         NotificationEntity notificationEntity = NotificationModel.toEntity(model);
         final String folder = "user/" + SecurityUtils.getCurrentUsername() + "/notification/";
 
-        if (!model.getAttachFiles().get(0).isEmpty()) {
+        if (!model.getAttachFiles().get(0).isEmpty()) {// check if model has attached file
             List<String> filePaths = new ArrayList<>();
             for (MultipartFile file : model.getAttachFiles()) {
                 try {
@@ -82,7 +82,7 @@ public class NotificationServiceImpl implements INotificationService {
             notificationEntity.setAttachFiles(jsonObject.toString());
         }
 
-        if (!model.getImage().isEmpty()) {
+        if (!model.getImage().isEmpty()) { //Check if notification avatar is empty or not
             String filePath;
             try{
                 filePath = fileUploadProvider.uploadFile(folder, model.getImage());
@@ -228,6 +228,6 @@ public class NotificationServiceImpl implements INotificationService {
 
     @Override
     public NotificationEntity findByIdAndUserId(Long id, Long currentUserId) {
-        return this.notificationRepository.findByIdAndCreatedById(id, currentUserId).orElseThrow(() -> new RuntimeException("Not found notification id: " + id));
+        return null;
     }
 }

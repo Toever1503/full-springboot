@@ -44,7 +44,7 @@ public class TagServiceImp implements ITagService {
     @Override
     public TagEntity add(TagModel model) {
         TagEntity tag = new TagEntity();
-        if(tag.getTagName()==null){
+        if(model.getTagName()==null){
             return null;
         }else {
             tag.setTagName(model.getTagName());

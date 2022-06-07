@@ -37,7 +37,7 @@ public class ProductEntity {
     private String image;
     @Column(name = "attach_files")
     private String attachFiles;
-    @Column(name = "slug")
+    @Column(name = "slug", unique = true)
     private String slug;
 
     @Column(name = "active")

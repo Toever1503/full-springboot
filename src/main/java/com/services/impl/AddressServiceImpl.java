@@ -54,7 +54,7 @@ public class AddressServiceImpl implements IAddressService {
 
     @Override
     public Address add(AddressModel model) {
-        if (model == null) return null;
+        if (model == null) return null; // check if model exist
         Province province = provinceRepository.findById(model.getProvinceId()).orElseThrow(() -> new RuntimeException("Province not found"));
         District district = districtRepository.findById(model.getDistrictId()).orElseThrow(() -> new RuntimeException("District not found"));
         Ward ward = wardRepository.findById(model.getWardId()).orElseThrow(() -> new RuntimeException("Ward not found"));
@@ -74,7 +74,7 @@ public class AddressServiceImpl implements IAddressService {
 
     @Override
     public Address update(AddressModel model) {
-        if (model == null) return null;
+        if (model == null) return null; //check if model is null
         List<Address> addresses = this.addressRepository.findAll();
         for (Address address : addresses) {
             if (address.getId() == model.getId()) {

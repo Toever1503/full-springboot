@@ -25,24 +25,25 @@ public class JwtProvider implements Serializable {
     private String secret; //secret key
 
 
-    //get 
+    //Get token created date
     public Date getIssuedAtDateFromToken(String token) {
         return getClaimFromToken(token, Claims::getIssuedAt);
     }
-
+    //Get token expired date
     public Date getExpirationDateFromToken(String token) {
         return getClaimFromToken(token, Claims::getExpiration);
     }
 
+    //Get token's claim
     public <T> T getClaimFromToken(String token, Function<Claims, T> claimsResolver) {
         final Claims claims = getAllClaimsFromToken(token);
         return claimsResolver.apply(claims);
     }
-
+    //Get all claims from token
     private Claims getAllClaimsFromToken(String token) {
         return Jwts.parser().setSigningKey(secret).parseClaimsJws(token).getBody();
     }
-
+    //Check if token expired
     public Boolean isTokenExpired(String token) {
         final Date expiration = getExpirationDateFromToken(token);
         return expiration.before(new Date());
@@ -52,11 +53,11 @@ public class JwtProvider implements Serializable {
         // here you specify tokens, for that the expiration is ignored
         return false;
     }
-
+    //Generate new token with username
     public String generateToken(String username, long invalidTime) {
         return doGenerateToken(username, invalidTime == 0 ? JWT_TOKEN_VALIDITY : invalidTime);
     }
-
+    //Generate new token
     private String doGenerateToken(String subject, long timeAvail) {
         return Jwts.builder()
                 .setSubject(subject)
@@ -64,11 +65,10 @@ public class JwtProvider implements Serializable {
                 .setExpiration(new Date(System.currentTimeMillis() + timeAvail * 1000))
                 .signWith(SignatureAlgorithm.HS512, secret).compact();
     }
-
+    //Get username from token
     public String getUsernameFromToken(String token) {
         return getClaimFromToken(token, Claims::getSubject);
     }
-
     public Boolean canTokenBeRefreshed(String token) {
         return (!isTokenExpired(token) || ignoreTokenExpiration(token));
     }
