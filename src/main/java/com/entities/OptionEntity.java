@@ -12,21 +12,26 @@ import javax.persistence.*;
 @Builder
 @Data
 @Entity
-@Table(name = "tbl_option")
-public class OptionsEntity {
+@Table(name = "tbl_product_option")
+public class OptionEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     @Column(name = "option_name")
     private String optionName;
+
     @Column(name = "quantity")
     private Long quantity;
-    @Column(name = "new_price")
-    private Long newPrice;
-    @Column(name = "old_price")
-    private Long oldPrice;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @Column(name = "new_price")
+    private Double newPrice;
+
+    @Column(name = "old_price")
+    private Double oldPrice;
+
+    @ManyToOne(fetch =
+            FetchType.LAZY)
     @JoinColumn(name = "product_id")
-    private ProductEntity product;
+    private ProductEntity products;
 }

@@ -4,6 +4,7 @@ import lombok.*;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+import java.util.Set;
 
 
 @Data
@@ -20,4 +21,7 @@ public class TagEntity {
     private String tagName;
     @Column(name = "slug", unique = true)
     private String slug;
+
+    @ManyToMany
+    private Set<ProductEntity> products;
 }

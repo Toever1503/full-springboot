@@ -1,4 +1,5 @@
 package com.models;
+import com.entities.ProductEntity;
 import lombok.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -17,10 +18,16 @@ public class ProductModel {
     private Long totalLike;
     private Long totalReview;
     private Long rating;
-    private MultipartFile avater;
+    private MultipartFile image;
     private List<MultipartFile> attachFiles;
-    private String slugs;
+    private String slug;
     private Long categoryId;
     private List<Long> productMetaId;
     private List<Long> optionsId;
+
+    public static ProductEntity toEntity(ProductModel model){
+        if(model == null) return null;
+        return ProductEntity.builder()
+                .build();
+    }
 }

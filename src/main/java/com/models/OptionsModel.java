@@ -10,9 +10,9 @@ import lombok.*;
 public class OptionsModel {
     private Long id;
     private String optionName;
-    private Long quantity;
-    private Long newPrice;
-    private Long oldPrice;
+    private Integer quantity;
+    private Double newPrice;
+    private Double oldPrice;
 
     private Long productId;
 }

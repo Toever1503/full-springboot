@@ -22,7 +22,8 @@ public class ProductMetaEntity {
     @Column(name = "meta_value")
     private String metaValue;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne(fetch =
+            FetchType.LAZY)
     @JoinColumn(name = "product_id")
-    private ProductEntity product;
+    private ProductEntity products;
 }

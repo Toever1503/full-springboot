@@ -4,9 +4,12 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.*;
 import java.util.List;
+import java.util.Set;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -23,27 +26,45 @@ public class ProductEntity {
     @Column(name = "description")
     private String description;
     @Column(name = "total_quantity")
-    private Long totalQuantity;
+    private Integer totalQuantity;
     @Column(name = "total_like")
-    private Long totalLike;
+    private Integer totalLike;
     @Column(name = "total_review")
-    private Long totalReview;
+    private Integer totalReview;
     @Column(name = "rating")
-    private Long rating;
-    @Column(name = "avater")
-    private String avater;
+    private Integer rating;
+    @Column(name = "image")
+    private String image;
     @Column(name = "attach_files")
     private String attachFiles;
-    @Column(name = "slugs")
-    private String slugs;
+    @Column(name = "slug")
+    private String slug;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @Column(name = "active")
+    private Boolean active;
+
+    @CreationTimestamp
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "created_date")
+    private java.util.Date createdDate;
+
+    @UpdateTimestamp
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "updated_Date")
+    private java.util.Date updatedDate;
+
+    @ManyToOne
     @JoinColumn(name = "category_id")
     private CategoryEntity category;
 
-    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
-    private List<ProductMetaEntity> productMeta;
+    @OneToMany(mappedBy = "products", cascade = CascadeType.ALL)
+    private List<ProductMetaEntity> productMetas;
 
-    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
-    private List<OptionsEntity> options;
+    @OneToMany(mappedBy = "products", cascade = CascadeType.ALL)
+    private List<OptionEntity> options;
+
+    @ManyToMany(mappedBy = "products",cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    private Set<TagEntity> tags;
+
+    public static String FOLDER = "product/";
 }

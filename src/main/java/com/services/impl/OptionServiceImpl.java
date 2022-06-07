@@ -1,6 +1,6 @@
 package com.services.impl;
 
-import com.entities.OptionsEntity;
+import com.entities.OptionEntity;
 import com.models.OptionsModel;
 import com.services.IOptionsService;
 import org.springframework.data.domain.Page;
@@ -13,37 +13,37 @@ import java.util.List;
 public class OptionServiceImpl implements IOptionsService {
 
     @Override
-    public List<OptionsEntity> findAll() {
+    public List<OptionEntity> findAll() {
         return null;
     }
 
     @Override
-    public Page<OptionsEntity> findAll(Pageable page) {
+    public Page<OptionEntity> findAll(Pageable page) {
         return null;
     }
 
     @Override
-    public Page<OptionsEntity> filter(Pageable page, Specification<OptionsEntity> specs) {
+    public Page<OptionEntity> filter(Pageable page, Specification<OptionEntity> specs) {
         return null;
     }
 
     @Override
-    public OptionsEntity findById(Long id) {
+    public OptionEntity findById(Long id) {
         return null;
     }
 
     @Override
-    public OptionsEntity add(OptionsModel model) {
+    public OptionEntity add(OptionsModel model) {
         return null;
     }
 
     @Override
-    public List<OptionsEntity> add(List<OptionsModel> model) {
+    public List<OptionEntity> add(List<OptionsModel> model) {
         return null;
     }
 
     @Override
-    public OptionsEntity update(OptionsModel model) {
+    public OptionEntity update(OptionsModel model) {
         return null;
     }
 

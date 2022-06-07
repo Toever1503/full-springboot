@@ -1,8 +1,8 @@
 package com.services;
 
-import com.entities.OptionsEntity;
+import com.entities.OptionEntity;
 import com.models.OptionsModel;
 
-public interface IOptionsService extends IBaseService<OptionsEntity, OptionsModel, Long> {
+public interface IOptionsService extends IBaseService<OptionEntity, OptionsModel, Long> {
 
 }
