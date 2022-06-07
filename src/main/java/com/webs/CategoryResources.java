@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.transaction.Transactional;
 
 @RestController
-@RequestMapping("/categorys")
+@RequestMapping("/categories")
 public class CategoryResources {
     private final ICategoryService categoryService;
 
@@ -58,5 +58,10 @@ public class CategoryResources {
     @GetMapping("/slug")
     public ResponseDto findBySlug(@ModelAttribute("slug") String slug) {
         return ResponseDto.of(CategoryDto.toDto(categoryService.findBySlug(slug)), "get category by slug success");
+    }
+    @Transactional
+    @GetMapping("search/{q}")
+    public ResponseDto search(@PathVariable String q, Pageable page) {
+        return ResponseDto.of(categoryService.search(q, page).map(CategoryDto::toDto), "search category success");
     }
 }

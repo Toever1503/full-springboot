@@ -18,8 +18,6 @@ public class CategoryEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column(name = "type_category")
-    private String type;
     @Column(name = "category_name")
     private String categoryName;
     @Column(name = "slug", unique = true)
@@ -33,6 +31,6 @@ public class CategoryEntity {
     @JoinColumn(name = "parent_id")
     private CategoryEntity parentCategory;
 
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "category")
+    @OneToMany(mappedBy = "category")
     private List<ProductEntity> products;
 }

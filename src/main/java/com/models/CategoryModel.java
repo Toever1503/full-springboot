@@ -22,7 +22,6 @@ public class CategoryModel {
         if(model == null) return null;
         return CategoryEntity.builder()
                 .id(model.getId())
-                .type(model.type.name())
                 .categoryName(model.getCategoryName())
                 .slug(model.getSlug() == null ? ASCIIConverter.utf8ToAscii(model.getCategoryName()) : ASCIIConverter.utf8ToAscii(model.getSlug()))
                 .description(model.getDescription())

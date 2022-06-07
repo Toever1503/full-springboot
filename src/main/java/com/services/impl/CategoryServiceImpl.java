@@ -42,6 +42,11 @@ public class CategoryServiceImpl implements ICategoryService {
         return this.categoryRepository.findBySlug(slug).orElseThrow(() -> new RuntimeException("Category not found" + slug));
     }
 
+    @Override
+    public Page<CategoryEntity> search(String q, Pageable page) {
+        return this.categoryRepository.search(q, page);
+    }
+
 
     @Override
     public Page<CategoryEntity> filter(Pageable page, Specification<CategoryEntity> specs) {
@@ -72,7 +77,6 @@ public class CategoryServiceImpl implements ICategoryService {
     public CategoryEntity update(CategoryModel model) {
         CategoryEntity originCategory = this.categoryRepository.findById(model.getId()).get();
         if(this.categoryRepository.findById(model.getId()).isPresent()) {
-            originCategory.setType(model.getType().name());
             originCategory.setCategoryName(model.getCategoryName());
             originCategory.setSlug(model.getSlug() == null ? ASCIIConverter.utf8ToAscii(model.getCategoryName()) : ASCIIConverter.utf8ToAscii(model.getSlug()));
             originCategory.setDescription(model.getDescription());
