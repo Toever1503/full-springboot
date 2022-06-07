@@ -31,6 +31,6 @@ public class CustomException {
     @ResponseStatus(HttpStatus.EXPECTATION_FAILED)
     public ResponseDto inValidArguments(RuntimeException ex) {
         ex.printStackTrace();
-        return new ResponseDto("Failed handle", "ERROR", ex.getMessage());
+        return new ResponseDto(ex.getMessage(), "ERROR", ex.getMessage());
     }
 }

@@ -136,7 +136,7 @@ public class QuestionResources {
     public ResponseDto updateQuestion(@Valid QuestionModel questionModel) {
         log.info("admin {%s} is updating question", SecurityUtils.getCurrentUser().getUsername());
         int count = questionModel.getQuestOriginFile().size();
-        count += questionModel.getQuestFile().size();
+        count += questionModel.getQuestOriginFile().size();
         if (questionModel.getQuestFile() != null)
             count += questionModel.getQuestFile().get(0).isEmpty() ? (count + questionModel.getQuestFile().size()) : 0;
         if (count > 3)
