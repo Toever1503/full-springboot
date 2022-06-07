@@ -120,15 +120,8 @@ public class UserServiceImp implements IUserService {
         UserEntity u = this.findById(model.getId());
         u.setBirthDate(model.getBirthDate());
         u.setFullName(model.getFullName());
-
-        if (!model.getMyAddress().isEmpty()) {
-            if (model.getMainAddress() == null) throw new RuntimeException("mainAddress must not be null");
-            u.setMyAddress(this.addressService.add(model.getMyAddress()).stream().collect(Collectors.toSet()));
-        }
-
         if (model.getPassword() != null)
             u.setPassword(passwordEncoder.encode(model.getPassword()));
-        u.setMainAddress(model.getMainAddress());
         this.setRoles(u, model.getRoles());
         return userRepository.save(u);
     }

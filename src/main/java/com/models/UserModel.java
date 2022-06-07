@@ -36,7 +36,7 @@ public class UserModel {
 
     @ApiModelProperty(notes = "User birthdate", dataType = "Date", example = "19/09/2009")
     private Date birthDate;
-
+    @ApiModelProperty(notes = "User roles", dataType = "array", example = "1,3,5")
     private List<Long> roles;
 
     public static UserEntity toEntity(UserModel model) {
@@ -48,5 +48,4 @@ public class UserModel {
                 .birthDate(model.getBirthDate())
                 .id(model.getId()).build();
     }
-
 }
