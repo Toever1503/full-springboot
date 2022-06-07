@@ -40,7 +40,7 @@ public class ProductDto {
         productDto.setAvatar(entity.getImage());
         productDto.setAttachFiles(entity.getAttachFiles());
         productDto.setSlug(entity.getSlug());
-        productDto.setCategoryId(entity.getCategory().getId());
+        productDto.setCategoryId(entity.getCategory().getId()==null? null : entity.getCategory().getId());
         productDto.setProductMetaId(entity.getProductMetas().stream().map(ProductMetaEntity::getId).collect(Collectors.toList()));
         productDto.setOptionsId(entity.getOptions().stream().map(OptionEntity::getId).collect(Collectors.toList()));
         return productDto;
