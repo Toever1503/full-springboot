@@ -18,17 +18,19 @@ public class NotificationDto {
     private String title;
     private String contentExcerpt;
     private Date updatedDate;
+    private Date createdDate;
     private Boolean isEdit;
     private String createdBy;
     private Integer viewed;
     private boolean isRead;
 
-    public NotificationDto(Long id, String image, String title, String contentExcerpt, Date updatedDate, Boolean isEdit, String createdBy, Integer viewed, boolean isRead) {
+    public NotificationDto(Long id, String image, String title, String contentExcerpt, Date updatedDate, Date createdDate, Boolean isEdit, String createdBy, Integer viewed, boolean isRead) {
         this.id = id;
         this.image= image;
         this.title = title;
         this.contentExcerpt = contentExcerpt;
         this.updatedDate = updatedDate;
+        this.createdDate = createdDate;
         this.isEdit = isEdit;
         this.createdBy = createdBy;
         this.viewed = viewed;
@@ -46,6 +48,7 @@ public class NotificationDto {
                 .title(entity.getTitle())
                 .contentExcerpt(entity.getContentExcerpt())
                 .updatedDate(entity.getUpdatedDate())
+                .createdDate(entity.getCreatedDate())
                 .viewed(SecurityUtils.hasRole("ADMIN") ? entity.getViewed() : null)
                 .createdBy(entity.getCreatedBy().getUserName())
                 .isEdit(entity.getIsEdit())
