@@ -38,22 +38,15 @@ public class TagServiceImp implements ITagService {
 
     @Override
     public TagEntity findById(Long id) {
-        return tagRepository.findById(id).orElseThrow(()->new RuntimeException("Not Found"));
+        return tagRepository.findById(id).orElseThrow(() -> new RuntimeException("Not Found"));
     }
 
     @Override
     public TagEntity add(TagModel model) {
-        TagEntity tag = new TagEntity();
-        if(tag.getTagName()==null){
-            return null;
-        }else {
-            tag.setTagName(model.getTagName());
-        }
-        if(model.getSlug()!=null){
-            tag.setSlug(model.getSlug());
-        }
-        else
-            tag.setSlug(ASCIIConverter.utf8ToAscii(model.getTagName()));
+        TagEntity tag = TagEntity.builder()
+                .tagName(model.getTagName())
+                .slug(model.getSlug() == null ? ASCIIConverter.utf8ToAscii(model.getTagName()) : ASCIIConverter.utf8ToAscii(model.getSlug()))
+                .build();
         return tagRepository.save(tag);
     }
 
@@ -64,26 +57,18 @@ public class TagServiceImp implements ITagService {
 
     @Override
     public TagEntity update(TagModel model) {
-        if(model.getId()!=null){
-            TagEntity tag = this.findById(model.getId());
-            if(model.getTagName()!= null){
-                tag.setTagName(model.getTagName());
-            }
-            if(model.getSlug()!=null){
-                tag.setSlug(model.getSlug());
-            }else
-                tag.setSlug(ASCIIConverter.utf8ToAscii(tag.getTagName()));
-            return tagRepository.save(tag);
-        }else
-            return null;
+        TagEntity tag = this.findById(model.getId());
+        tag.setTagName(model.getTagName());
+        tag.setSlug(model.getSlug() == null ? ASCIIConverter.utf8ToAscii(model.getTagName()) : ASCIIConverter.utf8ToAscii(model.getSlug()));
+        return tagRepository.save(tag);
     }
 
     @Override
     public boolean deleteById(Long id) {
-        if(this.findById(id)!=null){
+        if (this.findById(id) != null) {
             tagRepository.deleteById(id);
             return true;
-        }else
+        } else
             return false;
     }
 

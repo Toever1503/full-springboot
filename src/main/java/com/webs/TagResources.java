@@ -21,41 +21,41 @@ public class TagResources {
     }
 
     @GetMapping("/all")
-    public ResponseDto getAllTags(Pageable pageable){
-        return ResponseDto.of(tagService.findAll(pageable).map(TagDto::toTagDto),"Get all tags");
+    public ResponseDto getAllTags(Pageable pageable) {
+        return ResponseDto.of(tagService.findAll(pageable).map(TagDto::toTagDto), "Get all tags");
     }
+
     @GetMapping("/{id}")
-    public ResponseDto getTagById(@PathVariable("id") Long id){
-        return ResponseDto.of(TagDto.toTagDto(tagService.findById(id)),"Get all tags");
+    public ResponseDto getTagById(@PathVariable("id") Long id) {
+        return ResponseDto.of(TagDto.toTagDto(tagService.findById(id)), "Get all tags");
     }
 
     @GetMapping("/slug")
-    public ResponseDto getTagBySlug(@RequestParam("slug") String slug){
-        return ResponseDto.of(TagDto.toTagDto(tagService.findBySlug(slug)),"Get tag by slug");
+    public ResponseDto getTagBySlug(@RequestParam("slug") String slug) {
+        return ResponseDto.of(TagDto.toTagDto(tagService.findBySlug(slug)), "Get tag by slug");
     }
 
     @PostMapping
-    public ResponseDto addTag(@RequestBody @Valid TagModel model){
-        try{
-           return ResponseDto.of(TagDto.toTagDto(tagService.add(model)),"Add tag");
-        }catch (Exception e){
-            System.out.println(e);
+    public ResponseDto addTag(@RequestBody @Valid TagModel model) {
+        try {
+            return ResponseDto.of(TagDto.toTagDto(tagService.add(model)), "Add tag");
+        } catch (Exception e) {
+            throw new RuntimeException("Slug has existed, Please add another slug");
         }
-        return ResponseDto.of(null,"Please add another slug, Add tag");
     }
 
-    @PutMapping
-    public ResponseDto updateTag(@RequestBody @Valid TagModel model){
-        try{
-            return ResponseDto.of(TagDto.toTagDto(tagService.update(model)),"Update tag");
-        }catch (Exception e){
-            System.out.println(e);
+    @PutMapping("{id}")
+    public ResponseDto updateTag(@PathVariable Long id, @RequestBody @Valid TagModel model) {
+        model.setId(id);
+        try {
+            return ResponseDto.of(TagDto.toTagDto(tagService.update(model)), "Update tag");
+        } catch (Exception e) {
+            throw new RuntimeException("Slug has existed, Please add another slug");
         }
-        return ResponseDto.of(null,"Duplicate slug found, Update tag");
     }
 
     @DeleteMapping("/delete/{id}")
-    public ResponseDto deleteTag(@PathVariable("id") Long id){
-        return ResponseDto.of(tagService.deleteById(id),"Delete tag");
+    public ResponseDto deleteTag(@PathVariable("id") Long id) {
+        return ResponseDto.of(tagService.deleteById(id), "Delete tag");
     }
 }
