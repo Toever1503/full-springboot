@@ -57,10 +57,10 @@ public class ProductEntity {
     @JoinColumn(name = "category_id")
     private CategoryEntity category;
 
-    @OneToMany(mappedBy = "products", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
     private List<ProductMetaEntity> productMetas;
 
-    @OneToMany(mappedBy = "products", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
     private List<OptionEntity> options;
 
     @ManyToMany(mappedBy = "products",cascade = {CascadeType.PERSIST, CascadeType.MERGE})
