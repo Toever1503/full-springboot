@@ -39,7 +39,6 @@ public class UserEntity {
     private boolean lockStatus;
     @Column(name = "main_address")
     private Long mainAddress;
-
     public static final String FOLDER = "user/";
 
     @ManyToMany(cascade = CascadeType.ALL)

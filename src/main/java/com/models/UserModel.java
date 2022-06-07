@@ -31,11 +31,11 @@ public class UserModel {
     private String fullName;
 
     @ApiModelProperty(notes = "User password", dataType = "String", example = "123456")
-    @Length(min = 6,max = 255)
     private String password;
 
-    @ApiModelProperty(notes = "User birthdate", dataType = "Date", example = "19/09/2009")
+    @ApiModelProperty(notes = "User birthdate", dataType = "Date", example = "2002-04-29")
     private Date birthDate;
+
     @ApiModelProperty(notes = "User roles", dataType = "array", example = "1,3,5")
     private List<Long> roles;
 
