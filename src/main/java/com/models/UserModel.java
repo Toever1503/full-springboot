@@ -37,11 +37,6 @@ public class UserModel {
     @ApiModelProperty(notes = "User birthdate", dataType = "Date", example = "19/09/2009")
     private Date birthDate;
 
-    @ApiModelProperty(notes = "User address", dataType = "Long", example = "1")
-    private Long mainAddress;
-
-    private  List<AddressModel> myAddress = Collections.emptyList();
-
     private List<Long> roles;
 
     public static UserEntity toEntity(UserModel model) {
@@ -51,7 +46,6 @@ public class UserModel {
                 .email(model.getEmail())
                 .password(model.getPassword())
                 .birthDate(model.getBirthDate())
-                .mainAddress(model.getMainAddress())
                 .id(model.getId()).build();
     }
 
