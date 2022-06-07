@@ -58,7 +58,7 @@ public class UserResources {
 
     @Transactional
     @PostMapping("my-addresses") // create address
-    public ResponseDto addMyAddress(@Valid AddressModel model) {
+    public ResponseDto addMyAddress(@Valid @RequestBody AddressModel model) {
         log.info("{%s} is adding new address", SecurityUtils.getCurrentUser().getUsername());
         model.setId(null);
         return ResponseDto.of(AddressDto.toDto(this.userService.addMyAddress(model)), "Add new address successfully!");
@@ -66,14 +66,14 @@ public class UserResources {
 
     @Transactional
     @PutMapping("my-addresses/{id}") // update address
-    public ResponseDto updateMyAddress(@PathVariable("id") Long id, @Valid AddressModel model) {
+    public ResponseDto updateMyAddress(@PathVariable("id") Long id, @Valid @RequestBody AddressModel model) {
         model.setId(id);
         log.info("{%s} is updating address id: {%d}", SecurityUtils.getCurrentUser().getUsername(), id);
         return ResponseDto.of(AddressDto.toDto(this.userService.updateMyAddress(model)), "Update address successfully!, ID: " + id);
     }
 
     @Transactional
-    @GetMapping("my-addresses/main/{id}") // set main address
+    @PatchMapping("my-addresses/main/{id}") // set main address
     public ResponseDto setMainAddress(@PathVariable("id") Long id) {
         log.info("{%s} is setting main address", SecurityUtils.getCurrentUser().getUsername());
         return ResponseDto.of(this.userService.setMainAddress(id), "Set main address successfully");

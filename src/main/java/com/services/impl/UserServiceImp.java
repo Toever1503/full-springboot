@@ -244,21 +244,23 @@ public class UserServiceImp implements IUserService {
 
     @Override
     public Set<Address> getMyAddresses() {
-        return SecurityUtils.getCurrentUser().getUser().getMyAddress();
+        return this.findById(SecurityUtils.getCurrentUserId()).getMyAddress();
     }
 
     @Override
     public boolean deleteMyAddress(Long id) {
-        UserEntity user = SecurityUtils.getCurrentUser().getUser();
+        UserEntity user = this.findById(SecurityUtils.getCurrentUserId());
         user.setMyAddress(user.getMyAddress().stream().filter(a -> a.getId() != id).collect(Collectors.toSet()));
         this.userRepository.save(user);
+        this.addressService.deleteById(id);
         return true;
     }
 
     @Override
     public boolean setMainAddress(Long id) {
-        this.addressService.findById(id);
-        UserEntity user = SecurityUtils.getCurrentUser().getUser();
+        UserEntity user = this.findById(SecurityUtils.getCurrentUserId());
+        if (!user.getMyAddress().stream().anyMatch(a -> a.getId() == id))
+            throw new RuntimeException("Address not found!, id: " + id);
         user.setMainAddress(id);
         this.userRepository.save(user);
         return true;
@@ -276,7 +278,7 @@ public class UserServiceImp implements IUserService {
     @Override
     public Address updateMyAddress(AddressModel model) {
         UserEntity user = this.findById(SecurityUtils.getCurrentUserId());
-        if (user.getMyAddress().stream().anyMatch(a -> a.getId() == model.getId()) == false)
+        if (!user.getMyAddress().stream().anyMatch(a -> a.getId() == model.getId()))
             throw new RuntimeException("Address not found!, id: " + model.getId());
         return this.addressService.update(model);
     }
