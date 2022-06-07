@@ -82,7 +82,7 @@ public class NotificationResources {
     @GetMapping("user/{id}")
     public ResponseDto userGetDetailQuestion(@PathVariable Long id) {
         log.info("user {%s} is getting notification id: {%d}", SecurityUtils.getCurrentUser().getUsername(), id);
-        return ResponseDto.of(NotificationDetailDto.toDto(this.notificationService.findByIdAndUserId(id, SecurityUtils.getCurrentUserId())), "Get notification id: " + id);
+        return ResponseDto.of(NotificationDetailDto.toDto(this.notificationService.findById(id)), "Get notification id: " + id);
     }
 
     @ApiKeyAuthDefinition(name = "Authorization", in = ApiKeyAuthDefinition.ApiKeyLocation.HEADER, key = "Authorization")
