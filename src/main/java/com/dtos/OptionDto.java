@@ -8,7 +8,7 @@ import lombok.*;
 @Builder
 @Getter
 @Setter
-public class OptionsDto {
+public class OptionDto {
     private Long id;
     private String optionName;
     private Integer quantity;
@@ -17,8 +17,8 @@ public class OptionsDto {
 
     private Long productId;
 
-    public static OptionsDto toDto(OptionEntity entity){
-        OptionsDto dto = new OptionsDto();
+    public static OptionDto toDto(OptionEntity entity){
+        OptionDto dto = new OptionDto();
         dto.setId(entity.getId());
         dto.setOptionName(entity.getOptionName());
         dto.setQuantity(entity.getQuantity());
