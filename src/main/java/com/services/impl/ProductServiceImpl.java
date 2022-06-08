@@ -44,7 +44,7 @@ public class ProductServiceImpl implements IProductService {
 
     @Override
     public ProductEntity findById(Long id) {
-        return productRepository.findById(id).orElseThrow(() -> new RuntimeException("Product not found"));
+        return productRepository.findByIdAndActive(id,true).orElseThrow(() -> new RuntimeException("Product not found"));
     }
 
     @Override
@@ -74,7 +74,7 @@ public class ProductServiceImpl implements IProductService {
 
     @Override
     public ProductEntity findProductBySlug(String slug) {
-        return productRepository.findBySlug(slug).orElseThrow(() -> new RuntimeException("Product not found"));
+        return productRepository.findBySlugAndActive(slug,true).orElseThrow(() -> new RuntimeException("Product not found"));
     }
 
     @Override
