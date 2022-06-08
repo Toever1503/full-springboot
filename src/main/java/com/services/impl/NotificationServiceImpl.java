@@ -69,7 +69,7 @@ public class NotificationServiceImpl implements INotificationService {
         NotificationEntity notificationEntity = NotificationModel.toEntity(model);
         final String folder = "user/" + SecurityUtils.getCurrentUsername() + "/notification/";
 
-        if (!model.getAttachFiles().get(0).isEmpty()) {
+        if (model.getAttachFiles() != null) {
             List<String> filePaths = new ArrayList<>();
             for (MultipartFile file : model.getAttachFiles()) {
                 try {
@@ -140,7 +140,7 @@ public class NotificationServiceImpl implements INotificationService {
                     uploadedFiles.addAll(model.getAttachFilesOrigin());
 
                 //upload new file to uploadFiles and save to database
-                if (!model.getAttachFiles().get(0).isEmpty()) {
+                if (model.getAttachFiles() != null) {
                     for (MultipartFile file : model.getAttachFiles()) {
                         try {
                             uploadedFiles.add(fileUploadProvider.uploadFile(folder, file));
@@ -152,7 +152,7 @@ public class NotificationServiceImpl implements INotificationService {
                 originNotificationEntity.setAttachFiles(uploadedFiles.isEmpty() ? null : (new JSONObject(Map.of("files", uploadedFiles)).toString()));
 
                 // edit image into notification
-                if (!model.getImage().isEmpty()) {
+                if (model.getImage() != null) {
                     String filePath;
                     try{
                         filePath = fileUploadProvider.uploadFile(folder, model.getImage());
