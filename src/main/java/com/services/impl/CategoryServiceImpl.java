@@ -61,7 +61,7 @@ public class CategoryServiceImpl implements ICategoryService {
     @Override
     public CategoryEntity add(CategoryModel model) {
         CategoryEntity categoryEntity = CategoryModel.toEntity(model);
-        if(model.getParentId() != null) {
+        if (model.getParentId() != null) {
             CategoryEntity parent = this.findById(model.getParentId());
             categoryEntity.setParentCategory(parent);
         }
@@ -75,17 +75,15 @@ public class CategoryServiceImpl implements ICategoryService {
 
     @Override
     public CategoryEntity update(CategoryModel model) {
-        CategoryEntity originCategory = this.categoryRepository.findById(model.getId()).get();
-        if(this.categoryRepository.findById(model.getId()).isPresent()) {
-            originCategory.setCategoryName(model.getCategoryName());
-            originCategory.setSlug(model.getSlug() == null ? ASCIIConverter.utf8ToAscii(model.getCategoryName()) : ASCIIConverter.utf8ToAscii(model.getSlug()));
-            originCategory.setDescription(model.getDescription());
-            if(model.getParentId() != null) {
-                originCategory.setParentCategory(this.categoryRepository.findById(model.getParentId()).get());
-            }
-            return this.categoryRepository.save(originCategory);
+        CategoryEntity originCategory = this.findById(model.getId());
+        originCategory.setCategoryName(model.getCategoryName());
+        originCategory.setSlug(model.getSlug() == null ? ASCIIConverter.utf8ToAscii(model.getCategoryName()) : ASCIIConverter.utf8ToAscii(model.getSlug()));
+        originCategory.setDescription(model.getDescription());
+        if (model.getParentId() != null) {
+            if (model.getParentId() == model.getId()) throw new RuntimeException("Parent category cannot be itself");
+            originCategory.setParentCategory(this.categoryRepository.findById(model.getParentId()).get());
         }
-        return null;
+        return this.categoryRepository.save(originCategory);
     }
 
     @Override

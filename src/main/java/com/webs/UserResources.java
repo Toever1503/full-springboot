@@ -112,7 +112,7 @@ public class UserResources {
     @Transactional
     @PostMapping(value = "/change-password")
     public ResponseDto changePassword(@RequestBody PasswordModel model) {
-        log.info("{%s} is changing password", SecurityUtils.getCurrentUser().getUsername());
+        log.info("{user} is changing password");
         return ResponseDto.of(userService.changePassword(model) ? true : null, "Password change successfully");
     }
 }

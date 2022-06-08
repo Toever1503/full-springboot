@@ -13,7 +13,7 @@ public class CategoryDto {
     private String categoryName;
     private String slug;
     private String description;
-    private String parentCategory;
+    private ParentCategoryDto parentCategory;
 
     public static CategoryDto toDto(CategoryEntity entity) {
         if(entity == null) return null;
@@ -22,7 +22,7 @@ public class CategoryDto {
                 .categoryName(entity.getCategoryName())
                 .slug(entity.getSlug())
                 .description(entity.getDescription())
-                .parentCategory(entity.getParentCategory() == null ? null : entity.getParentCategory().getCategoryName())
+                .parentCategory(entity.getParentCategory() == null ? null : ParentCategoryDto.toDto(entity.getParentCategory()))
                 .build();
     }
 }
