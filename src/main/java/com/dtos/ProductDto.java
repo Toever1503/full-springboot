@@ -35,7 +35,8 @@ public class ProductDto {
     private List<OptionDto> options;
     private Set<TagDto> tags;
 
-    public static ProductDto toDto(ProductEntity entity){
+
+    public static ProductDto toDto(ProductEntity entity) {
         ProductDto productDto = new ProductDto();
         productDto.setId(entity.getId());
         productDto.setName(entity.getName());

@@ -21,6 +21,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -36,14 +37,19 @@ public class ProductServiceImpl implements IProductService {
     private final IProductMetaRepository productMetaRepository;
     private final IOptionsRepository optionsRepository;
     private final TagServiceImp tagService;
+    final IUserLikeProductRepository userLikeProductRepository;
 
-    public ProductServiceImpl(IProductRepository productRepository, FileUploadProvider fileUploadProvider, CategoryServiceImpl categoryService, IProductMetaRepository productMetaRepository, IOptionsRepository optionsRepository, TagServiceImp tagService) {
+    public ProductServiceImpl(IProductRepository productRepository, FileUploadProvider fileUploadProvider, 
+    CategoryServiceImpl categoryService, IProductMetaRepository productMetaRepository,
+    IOptionsRepository optionsRepository, TagServiceImp tagService,
+    IUserLikeProductRepository userLikeProductRepository) {
         this.productRepository = productRepository;
         this.fileUploadProvider = fileUploadProvider;
         this.categoryService = categoryService;
         this.productMetaRepository = productMetaRepository;
         this.optionsRepository = optionsRepository;
         this.tagService = tagService;
+        this.userLikeProductRepository = userLikeProductRepository;
     }
 
     @Override
@@ -63,7 +69,7 @@ public class ProductServiceImpl implements IProductService {
 
     @Override
     public ProductEntity findById(Long id) {
-        return this.productRepository.findById(id).orElseThrow(() -> new RuntimeException("Not product found"));
+        return productRepository.findByIdAndActive(id,true).orElseThrow(() -> new RuntimeException("Product not found"));
     }
 
     @Override
@@ -198,5 +204,28 @@ public class ProductServiceImpl implements IProductService {
     @Override
     public boolean deleteByIds(List<Long> ids) {
         return false;
+    }
+
+    @Override
+    public ProductEntity findProductBySlug(String slug) {
+        return productRepository.findBySlugAndActive(slug,true).orElseThrow(() -> new RuntimeException("Product not found"));
+    }
+
+    @Override
+    public int likeProduct(Long id) {
+        //If product is present
+        if(userLikeProductRepository.findFirstByProductIdAndUserId(id, SecurityUtils.getCurrentUserId())!=null){
+            UserLikeProductEntity userLikeProductEntity = userLikeProductRepository.findFirstByProductIdAndUserId(id, SecurityUtils.getCurrentUserId());
+            userLikeProductEntity.setIsLike(!userLikeProductEntity.getIsLike());
+            return 0;
+        }else {
+            //if product not present
+            UserLikeProductEntity entity = new UserLikeProductEntity();
+            entity.setProductId(id);
+            entity.setIsLike(true);
+            entity.setUserId(SecurityUtils.getCurrentUserId());
+            userLikeProductRepository.save(entity);
+            return 1;
+        }
     }
 }

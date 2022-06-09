@@ -9,6 +9,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Optional;
 
 public interface INotificationUserRepository extends JpaRepository<NotificationUser, Long> {
+
+    //Make all notification read of user
     @Query("update NotificationUser u set u.isRead = true where u.userId=?1")
     @Modifying
     @Transactional

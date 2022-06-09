@@ -76,16 +76,6 @@ public class AddressServiceImpl implements IAddressService {
 
     @Override
     public Address update(AddressModel model) {
-//        List<Address> addresses = this.addressRepository.findAll();
-//        for (Address address : addresses) {
-//            if (address.getId() == model.getId()) {
-//                address.setStreet(model.getStreet());
-//                address.setProvince(provinceRepository.findById(model.getProvinceId()).orElseThrow(() -> new RuntimeException("Province not found")));
-//                address.setDistrict(districtRepository.findById(model.getDistrictId()).orElseThrow(() -> new RuntimeException("District not found")));
-//                address.setWard(wardRepository.findById(model.getWardId()).orElseThrow(() -> new RuntimeException("Ward not found")));
-//                return addressRepository.save(address);
-//            }
-//        }
         return add(model);
     }
 

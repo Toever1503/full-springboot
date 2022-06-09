@@ -12,7 +12,6 @@ import java.util.Optional;
 @Repository
 public interface ICategoryRepository extends JpaRepository<CategoryEntity, Long> {
     Page<CategoryEntity> findAllByParentCategoryId(Long id, Pageable pageable);
-
     Optional<CategoryEntity> findBySlug(String slug);
 
     @Query("SELECT c FROM CategoryEntity c WHERE c.slug LIKE %?1% or c.categoryName LIKE %?1% or c.description LIKE %?1%")

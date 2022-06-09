@@ -30,11 +30,11 @@ public class FileUploadProvider {
     public FileUploadProvider() {
         this.s3Client = amazonS3ClientBuilder().build();
     }
-
+    //Upload file to aws s3
     public String uploadFile(String folder, MultipartFile file) throws IOException {
         StringBuilder checkFileName = new StringBuilder(folder);
         checkFileName.append(file.getOriginalFilename());
-        if (isFileExist(checkFileName.toString())) {
+        if (isFileExist(checkFileName.toString())) { //Check if file exist, make a copy with increase prefix
             int i = 1;
             while (true) {
                 checkFileName.setLength(0);
@@ -47,7 +47,7 @@ public class FileUploadProvider {
         s3Client.putObject(this.bucket, filePath, file.getInputStream(), null);
         return bucketEndpoint + filePath;
     }
-
+    //Check if file exist
     public boolean isFileExist(String key) {
         try {
             s3Client.getObject(bucket, key);
@@ -61,13 +61,13 @@ public class FileUploadProvider {
         System.out.println("Delete File: "+ key);
         this.s3Client.deleteObject(this.bucket,key.replace(this.bucketEndpoint, ""));
     }
-
+    //Client initialization
     public AmazonS3ClientBuilder amazonS3ClientBuilder() {
         return AmazonS3ClientBuilder.standard()
                 .withCredentials(credentialsProvider())
                 .withRegion(this.region);
     }
-
+    //Client's credential provider
     private AWSCredentialsProvider credentialsProvider() {
         AWSCredentials awsCredentials = new BasicAWSCredentials(this.accessKey, this.accessSecret);
         return new AWSStaticCredentialsProvider(awsCredentials);

@@ -11,6 +11,9 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.transaction.Transactional;
 import java.util.List;
+import com.services.IUserLikeProductService;
+import org.springframework.data.domain.Page;
+
 
 @RestController
 @RequestMapping("/product")
@@ -25,12 +28,6 @@ public class ProductResources {
     @GetMapping
     public ResponseDto getProducts(Pageable pageable){
         return ResponseDto.of(productService.findAll(pageable).map(ProductDto::toDto), "Get products successfully");
-    }
-
-    @Transactional
-    @GetMapping("{id}")
-    public ResponseDto getProductById(@PathVariable("id") Long id){
-        return ResponseDto.of(ProductDto.toDto(productService.findById(id)), "Get product successfully");
     }
 
     @Transactional
@@ -55,5 +52,34 @@ public class ProductResources {
     @DeleteMapping("{id}")
     public ResponseDto deleteProduct(@PathVariable("id") Long id){
         return ResponseDto.of(productService.deleteById(id), "Delete product successfully");
+    }
+
+    @GetMapping("/like")
+    @Transactional
+    public ResponseDto likeAndUnlikeProduct(@RequestParam("id") Long id){
+        int result = productService.likeProduct(id);
+        if(result==1){
+            return ResponseDto.of(true,"Liked product");
+        }else{
+            return ResponseDto.of(true,"Unliked product");
+        }
+    }
+
+    @GetMapping
+    @Transactional
+    public ResponseDto getAllProducts(Pageable pageable){
+        return ResponseDto.of(productService.findAll(pageable).map(ProductDto::toDto),"Get all products");
+    }
+
+    @GetMapping("/slug")
+    @Transactional
+    public ResponseDto getProductBySlug(@RequestParam("slug") String slug){
+        return ResponseDto.of(ProductDto.toDto(productService.findProductBySlug(slug)),"Get product by slug");
+    }
+
+    @GetMapping("/{id}")
+    @Transactional
+    public ResponseDto getProductById(@PathVariable("id") Long id){
+        return ResponseDto.of(ProductDto.toDto(productService.findById(id)),"Get product by id");
     }
 }

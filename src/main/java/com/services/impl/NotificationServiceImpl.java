@@ -69,7 +69,7 @@ public class NotificationServiceImpl implements INotificationService {
         NotificationEntity notificationEntity = NotificationModel.toEntity(model);
         final String folder = "user/" + SecurityUtils.getCurrentUsername() + "/notification/";
 
-        if (model.getAttachFiles() != null) {
+        if (model.getAttachFiles() != null) { // check if model has attached file
             List<String> filePaths = new ArrayList<>();
             for (MultipartFile file : model.getAttachFiles()) {
                 try {
@@ -82,7 +82,7 @@ public class NotificationServiceImpl implements INotificationService {
             notificationEntity.setAttachFiles(jsonObject.toString());
         }
 
-        if (model.getImage() != null) {
+        if (model.getImage() != null) {//Check if notification avatar is empty or not
             String filePath;
             try {
                 filePath = fileUploadProvider.uploadFile(folder, model.getImage());
