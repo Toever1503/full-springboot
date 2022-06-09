@@ -2,12 +2,13 @@ package com.dtos;
 
 import com.entities.NotificationEntity;
 import com.utils.SecurityUtils;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.json.JSONObject;
 
 import java.util.Date;
+import java.util.List;
 
 @NoArgsConstructor
 @Builder
@@ -16,6 +17,8 @@ public class NotificationDto {
     private Long id;
     private String image;
     private String title;
+
+    private String status;
     private String contentExcerpt;
     private Date updatedDate;
     private Date createdDate;
@@ -24,10 +27,14 @@ public class NotificationDto {
     private Integer viewed;
     private boolean isRead;
 
-    public NotificationDto(Long id, String image, String title, String contentExcerpt, Date updatedDate, Date createdDate, Boolean isEdit, String createdBy, Integer viewed, boolean isRead) {
+    private List<Object> attachFiles;
+
+
+    public NotificationDto(Long id, String image, String title, String status, String contentExcerpt, Date updatedDate, Date createdDate, Boolean isEdit, String createdBy, Integer viewed, boolean isRead, String attachFiles) {
         this.id = id;
-        this.image= image;
+        this.image = image;
         this.title = title;
+        this.status = status;
         this.contentExcerpt = contentExcerpt;
         this.updatedDate = updatedDate;
         this.createdDate = createdDate;
@@ -35,16 +42,34 @@ public class NotificationDto {
         this.createdBy = createdBy;
         this.viewed = viewed;
         this.isRead = isRead;
+        this.attachFiles = attachFiles == null ? null : new JSONObject(attachFiles).getJSONArray("files").toList();
+    }
+
+    public NotificationDto(Long id, String image, String title, String status, String contentExcerpt, Date updatedDate, Date createdDate, Boolean isEdit, String createdBy, Integer viewed, boolean isRead, List<Object> attachFiles) {
+        this.id = id;
+        this.image = image;
+        this.title = title;
+        this.status = status;
+        this.contentExcerpt = contentExcerpt;
+        this.updatedDate = updatedDate;
+        this.createdDate = createdDate;
+        this.isEdit = isEdit;
+        this.createdBy = createdBy;
+        this.viewed = viewed;
+        this.isRead = isRead;
+        this.attachFiles = attachFiles;
     }
 
     public NotificationDto isRead(boolean isRead) {
         this.isRead = isRead;
         return this;
     }
-    public static NotificationDto toDto(NotificationEntity entity){
-        if(entity == null) throw new RuntimeException("NotificationEntity id " + entity.getId() + " is null");
+
+    public static NotificationDto toDto(NotificationEntity entity) {
+        if (entity == null) throw new RuntimeException("NotificationEntity id " + entity.getId() + " is null");
         return NotificationDto.builder()
                 .id(entity.getId())
+                .image(entity.getImage())
                 .title(entity.getTitle())
                 .contentExcerpt(entity.getContentExcerpt())
                 .updatedDate(entity.getUpdatedDate())
@@ -52,6 +77,7 @@ public class NotificationDto {
                 .viewed(SecurityUtils.hasRole("ADMIN") ? entity.getViewed() : null)
                 .createdBy(entity.getCreatedBy().getUserName())
                 .isEdit(entity.getIsEdit())
+                .attachFiles(entity.getAttachFiles() == null ? null : new JSONObject(entity.getAttachFiles()).getJSONArray("files").toList())
                 .build();
     }
 }
