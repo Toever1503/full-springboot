@@ -34,4 +34,6 @@ public interface IUserService extends IBaseService<UserEntity, UserModel, Long>{
     Address addMyAddress(AddressModel model);
 
     Address updateMyAddress(AddressModel model);
+
+    UserEntity updateUserProfile(UserProfileModel model);
 }

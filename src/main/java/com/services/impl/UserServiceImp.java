@@ -3,7 +3,6 @@ package com.services.impl;
 import com.config.jwt.JwtLoginResponse;
 import com.config.jwt.JwtProvider;
 import com.config.jwt.JwtUserLoginModel;
-import com.dtos.AddressDto;
 import com.entities.Address;
 import com.entities.RoleEntity;
 import com.entities.UserEntity;
@@ -14,6 +13,7 @@ import com.services.CustomUserDetail;
 import com.services.IAddressService;
 import com.services.IUserService;
 import com.services.MailService;
+import com.utils.FileUploadProvider;
 import com.utils.SecurityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,6 +33,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.mail.MessagingException;
 import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -56,6 +57,7 @@ public class UserServiceImp implements IUserService {
     private final Random random = new Random();
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private final IAddressService addressService;
+    private final FileUploadProvider fileUploadProvider;
 
     public UserServiceImp(IUserRepository userRepository,
                           IRoleRepository roleRepository,
@@ -63,7 +65,7 @@ public class UserServiceImp implements IUserService {
                           AuthenticationManager authenticationManager,
                           PasswordEncoder passwordEncoder,
                           MailService mailService,
-                          IAddressService addressService) {
+                          IAddressService addressService, FileUploadProvider fileUploadProvider) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.jwtProvider = jwtProvider;
@@ -71,6 +73,7 @@ public class UserServiceImp implements IUserService {
         this.passwordEncoder = passwordEncoder;
         this.mailService = mailService;
         this.addressService = addressService;
+        this.fileUploadProvider = fileUploadProvider;
         try {
             this.roleRepository.save(RoleEntity.builder().roleId(1L).roleName(RoleEntity.USER).build());
             this.roleRepository.save(RoleEntity.builder().roleId(2L).roleName(RoleEntity.ADMINISTRATOR).build());
@@ -118,6 +121,7 @@ public class UserServiceImp implements IUserService {
         UserEntity u = this.findById(model.getId());
         u.setBirthDate(model.getBirthDate());
         u.setFullName(model.getFullName());
+        u.setPhone(u.getPhone());
         if (model.getPassword() != null)
             u.setPassword(passwordEncoder.encode(model.getPassword()));
         this.setRoles(u, model.getRoles());
@@ -281,5 +285,24 @@ public class UserServiceImp implements IUserService {
         if (!user.getMyAddress().stream().anyMatch(a -> a.getId() == model.getId()))
             throw new RuntimeException("Address not found!, id: " + model.getId());
         return this.addressService.update(model);
+    }
+
+    @Override
+    public UserEntity updateUserProfile(UserProfileModel model) {
+        UserEntity userEntity = this.findById(SecurityUtils.getCurrentUserId());
+        userEntity.setFullName(model.getFullName());
+        userEntity.setPhone(model.getPhone());
+        userEntity.setBirthDate(model.getBirthDate());
+        if (model.getPassword() != null)
+            userEntity.setPassword(passwordEncoder.encode(model.getPassword()));
+        if (model.getAvatar() != null) {
+            try {
+                this.fileUploadProvider.deleteFile(userEntity.getAvatar());
+                userEntity.setAvatar(this.fileUploadProvider.uploadFile(UserEntity.FOLDER + userEntity.getUserName() + "/", model.getAvatar()));
+            } catch (IOException e) {
+                throw new RuntimeException("File upload error!");
+            }
+        }
+        return this.userRepository.save(userEntity);
     }
 }

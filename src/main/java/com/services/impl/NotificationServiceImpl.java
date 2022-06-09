@@ -82,12 +82,12 @@ public class NotificationServiceImpl implements INotificationService {
             notificationEntity.setAttachFiles(jsonObject.toString());
         }
 
-        if (!model.getImage().isEmpty()) {
+        if (model.getImage() != null) {
             String filePath;
-            try{
+            try {
                 filePath = fileUploadProvider.uploadFile(folder, model.getImage());
                 notificationEntity.setImage(filePath);
-            }catch (IOException e){
+            } catch (IOException e) {
                 e.printStackTrace();
             }
         }
@@ -115,15 +115,15 @@ public class NotificationServiceImpl implements INotificationService {
     @Override
     public NotificationEntity update(NotificationModel model) {
         NotificationEntity originNotificationEntity = this.notificationRepository.findById(model.getId()).orElseThrow(() -> new RuntimeException("NotificationEntity id " + model.getId() + " is null"));
-        final String folder = UserEntity.FOLDER + originNotificationEntity.getCreatedBy().getUserName() + "/"+ NotificationEntity.FOLDER;
+        final String folder = UserEntity.FOLDER + originNotificationEntity.getCreatedBy().getUserName() + "/" + NotificationEntity.FOLDER;
 
         // giới hạn số lần + thời gian sửa file
-        if((originNotificationEntity.getCountEdit() < NotificationEntity.limitEditCount)) {
-            long difference = (new Date().getTime()  - originNotificationEntity.getUpdatedDate().getTime())/60000;
+        if ((originNotificationEntity.getCountEdit() < NotificationEntity.limitEditCount)) {
+            long difference = (new Date().getTime() - originNotificationEntity.getUpdatedDate().getTime()) / 60000;
 
-            if(difference > NotificationEntity.limitEditMin){
+            if (difference > NotificationEntity.limitEditMin) {
                 throw new RuntimeException("you can edit file only " + NotificationEntity.limitEditMin + " minutes");
-            }else {
+            } else {
                 originNotificationEntity.setCountEdit(originNotificationEntity.getCountEdit() + 1);
 
                 //delete file into s3
@@ -152,13 +152,13 @@ public class NotificationServiceImpl implements INotificationService {
                 originNotificationEntity.setAttachFiles(uploadedFiles.isEmpty() ? null : (new JSONObject(Map.of("files", uploadedFiles)).toString()));
 
                 // edit image into notification
-                if (!model.getImage().isEmpty()) {
+                if (model.getImage() != null) {
                     String filePath;
-                    try{
+                    try {
                         filePath = fileUploadProvider.uploadFile(folder, model.getImage());
                         fileUploadProvider.deleteFile(originNotificationEntity.getImage());
                         originNotificationEntity.setImage(filePath);
-                    }catch (IOException e){
+                    } catch (IOException e) {
                         e.printStackTrace();
                     }
                 }
@@ -170,13 +170,13 @@ public class NotificationServiceImpl implements INotificationService {
                 originNotificationEntity.setIsEdit(true);
 
                 originNotificationEntity.setStatus(model.getStatus().name());
-                originNotificationEntity.setFutureDate(model.getFutureDate()== null ? null : new Date(model.getFutureDate().getTime()));
+                originNotificationEntity.setFutureDate(model.getFutureDate() == null ? null : new Date(model.getFutureDate().getTime()));
 
                 UserEntity userEntity = userService.findById(SecurityUtils.getCurrentUserId());
                 originNotificationEntity.setCreatedBy(userEntity);
                 return this.notificationRepository.save(originNotificationEntity);
             }
-        }else {
+        } else {
             throw new RuntimeException("Edit file is failed, you can edit file only " + NotificationEntity.limitEditCount + " count");
         }
     }

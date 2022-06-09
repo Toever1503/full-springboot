@@ -4,13 +4,13 @@ import com.entities.UserEntity;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
 import org.hibernate.validator.constraints.Length;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import java.sql.Date;
-import java.util.Collections;
 import java.util.List;
 
 @Getter
@@ -18,18 +18,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class UserModel {
-    @ApiModelProperty(notes = "User ID", dataType = "Long", example = "1")
-    private Long id;
-
-    @ApiModelProperty(notes = "User Email", dataType = "String", example = "email@gmail.com")
-    @Email
-    @NotNull
-    @Length(min = 10,max = 255)
-    private String email;
-
-
-
+public class UserProfileModel {
     @ApiModelProperty(notes = "User full name", dataType = "String", example = "Nguyen Van A")
     @Length(min = 10,max = 255)
     private String fullName;
@@ -40,9 +29,6 @@ public class UserModel {
     @ApiModelProperty(notes = "User birthdate", dataType = "Date", example = "2002-04-29")
     private Date birthDate;
 
-    @ApiModelProperty(notes = "User roles", dataType = "array", example = "1,3,5")
-    private List<Long> roles;
-
     @ApiModelProperty(notes = "receiver's phone, phone must format follow vietnam", dataType = "String", example = "0952888888")
     @NotNull
     @NotBlank
@@ -52,14 +38,7 @@ public class UserModel {
     )
     private String phone;
 
-    public static UserEntity toEntity(UserModel model) {
-        if (model == null) throw new RuntimeException("UserModel is null");
-        return UserEntity.builder()
-                .fullName(model.getFullName())
-                .email(model.getEmail())
-                .password(model.getPassword())
-                .birthDate(model.getBirthDate())
-                .phone(model.getPhone())
-                .id(model.getId()).build();
-    }
+    @ApiModelProperty(notes = "user's avatar")
+    private MultipartFile avatar;
+
 }

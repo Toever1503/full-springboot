@@ -27,6 +27,8 @@ public class UserEntity {
     private String fullName;
     @Column(name = "password")
     private String password;
+    @Column(name = "phone", unique = true)
+    private String phone;
     @Column(name = "birth_date")
     private Date birthDate;
     @Column(name = "code")
@@ -39,6 +41,8 @@ public class UserEntity {
     private boolean lockStatus;
     @Column(name = "main_address")
     private Long mainAddress;
+    @Column(name="avatar")
+    private String avatar;
     public static final String FOLDER = "user/";
 
     @ManyToMany(cascade = CascadeType.ALL)

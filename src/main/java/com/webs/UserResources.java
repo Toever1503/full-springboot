@@ -36,11 +36,9 @@ public class UserResources {
 
     @Transactional
     @PutMapping("my-profile/update")
-    public ResponseDto updateMyProfile(@Valid UserModel model) {
+    public ResponseDto updateMyProfile(@Valid UserProfileModel model) {
         log.info("{%s} is updating my profile", SecurityUtils.getCurrentUser().getUsername());
-        model.setId(SecurityUtils.getCurrentUserId());
-        model.setRoles(SecurityUtils.getCurrentUser().getUser().getRoleEntity().stream().map(roleEntity -> roleEntity.getRoleId()).collect(Collectors.toList()));
-        return ResponseDto.of(UserDto.toDto(this.userService.update(model)), "Update my profile successfully");
+        return ResponseDto.of(UserDto.toDto(this.userService.updateUserProfile(model)), "Update my profile successfully");
     }
     @Transactional
     @GetMapping("my-profile")
