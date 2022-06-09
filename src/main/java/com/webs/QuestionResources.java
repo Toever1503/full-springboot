@@ -35,13 +35,15 @@ public class QuestionResources {
     @PatchMapping("/answer/{qid}")
     public ResponseDto answerQuestion(@PathVariable("qid") @Valid Long qid, @Valid QuestionResponseModel model) {
         log.info("admin {%s} is answering question id: {%d}", SecurityUtils.getCurrentUser().getUsername(), qid);
-        int count = model.getOldFiles().size();
-        count += model.getReplyFile().size();
-        if (model.getReplyFile() != null)
+        int count = 0;
+        if(model.getOldFiles()!=null)
+        count += model.getOldFiles().size();
+        if(model.getReplyFile()!=null){
+            count += model.getReplyFile().size();
+            if (count > 3)
+                return ResponseDto.of(null, "Failed! , Max image count is 3 per question");
             count += model.getReplyFile().get(0).isEmpty() ? (count + model.getReplyFile().size()) : 0;
-        if (count > 3)
-            return ResponseDto.of(null, "Failed! , Max image count is 3 per question");
-        else
+        }
             return ResponseDto.of(TotalQuestionDto.toTotalQuestionDTO(questionService.answerQuestion(qid, model)), "Answered");
     }
 
