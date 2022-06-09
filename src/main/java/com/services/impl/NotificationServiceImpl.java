@@ -152,7 +152,7 @@ public class NotificationServiceImpl implements INotificationService {
                 originNotificationEntity.setAttachFiles(uploadedFiles.isEmpty() ? null : (new JSONObject(Map.of("files", uploadedFiles)).toString()));
 
                 // edit image into notification
-                if (model.getImage() != null) {
+                if (!model.getImage().isEmpty()) {
                     String filePath;
                     try{
                         filePath = fileUploadProvider.uploadFile(folder, model.getImage());
@@ -161,8 +161,6 @@ public class NotificationServiceImpl implements INotificationService {
                     }catch (IOException e){
                         e.printStackTrace();
                     }
-                }else {
-                    originNotificationEntity.setImage(null);
                 }
 
                 originNotificationEntity.setCategory(model.getCategory().name());
@@ -176,7 +174,6 @@ public class NotificationServiceImpl implements INotificationService {
 
                 UserEntity userEntity = userService.findById(SecurityUtils.getCurrentUserId());
                 originNotificationEntity.setCreatedBy(userEntity);
-
                 return this.notificationRepository.save(originNotificationEntity);
             }
         }else {

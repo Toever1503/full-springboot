@@ -36,7 +36,7 @@ public class BeanConfiguration {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/**")
-                        .allowedOrigins("http://192.168.1.19:8081")
+                        .allowedOrigins("http://192.168.1.19:8081", "http://3.34.133.37")
                         .allowedOriginPatterns("*.*.*.*:*")
                         .allowCredentials(true)
                         .allowedMethods("GET", "POST", "DELETE", "PUT", "PATCH", "OPTIONS");
