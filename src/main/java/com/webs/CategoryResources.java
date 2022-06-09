@@ -5,12 +5,14 @@ import com.dtos.ResponseDto;
 import com.models.CategoryModel;
 import com.services.ICategoryService;
 import org.springframework.data.domain.Pageable;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.transaction.Transactional;
 
 @RestController
 @RequestMapping("/categories")
+@Validated
 public class CategoryResources {
     private final ICategoryService categoryService;
 

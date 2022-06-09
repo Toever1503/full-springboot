@@ -6,6 +6,7 @@ import com.models.ProductModel;
 import com.services.IProductService;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.codec.multipart.Part;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -16,7 +17,8 @@ import org.springframework.data.domain.Page;
 
 
 @RestController
-@RequestMapping("/product")
+@RequestMapping("/products")
+@Validated
 public class ProductResources {
     private final IProductService productService;
 

@@ -6,6 +6,7 @@ import com.services.IAddressService;
 import com.services.impl.AddressServiceImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.security.RolesAllowed;
@@ -13,6 +14,7 @@ import javax.validation.Valid;
 
 @RestController
 @RequestMapping("addresses")
+@Validated
 public class AddressResources {
     private final IAddressService addressService;
 

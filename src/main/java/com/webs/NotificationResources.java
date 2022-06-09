@@ -12,12 +12,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.security.RolesAllowed;
 
 @RestController
 @RequestMapping("/notifications")
+@Validated
 public class NotificationResources {
     private final INotificationService notificationService;
     private final Logger log = LoggerFactory.getLogger(this.getClass());
