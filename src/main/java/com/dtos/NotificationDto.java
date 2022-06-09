@@ -35,6 +35,7 @@ public class NotificationDto {
         this.image = image;
         this.title = title;
         this.status = status;
+        System.out.println("status: " + status);
         this.contentExcerpt = contentExcerpt;
         this.updatedDate = updatedDate;
         this.createdDate = createdDate;
@@ -70,6 +71,7 @@ public class NotificationDto {
         return NotificationDto.builder()
                 .id(entity.getId())
                 .image(entity.getImage())
+                .status(entity.getStatus())
                 .title(entity.getTitle())
                 .contentExcerpt(entity.getContentExcerpt())
                 .updatedDate(entity.getUpdatedDate())
