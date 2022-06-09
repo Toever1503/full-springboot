@@ -37,12 +37,10 @@ public class ProductEntity {
     private String image;
     @Column(name = "attach_files")
     private String attachFiles;
-    @Column(name = "slug")
+    @Column(name = "slug", unique = true)
     private String slug;
-
     @Column(name = "active")
     private Boolean active;
-
     @CreationTimestamp
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "created_date")
@@ -57,14 +55,21 @@ public class ProductEntity {
     @JoinColumn(name = "category_id")
     private CategoryEntity category;
 
-    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "product_id")
     private List<ProductMetaEntity> productMetas;
 
-    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
+    @OneToMany( cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "product_id")
     private List<OptionEntity> options;
 
-    @ManyToMany(mappedBy = "products",cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @ManyToMany(
+            cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.DETACH})
+    @JoinTable(name = "tbl_tag_products",
+            joinColumns = @JoinColumn(name="product_id"),
+            inverseJoinColumns = @JoinColumn(name="tag_id")
+    )
     private Set<TagEntity> tags;
 
-    public static String FOLDER = "product/";
+    public static String FOLDER = "/product/";
 }

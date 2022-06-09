@@ -1,5 +1,6 @@
 package com.dtos;
 
+import com.entities.ProductEntity;
 import com.entities.ProductMetaEntity;
 import lombok.*;
 
@@ -13,11 +14,12 @@ public class ProductMetaDto {
     private String metaKey;
     private String metaValue;
 
-    public static ProductMetaDto toDto(ProductMetaEntity entity){
-        ProductMetaDto productMetaDto = new ProductMetaDto();
-        productMetaDto.setMetaKey(entity.getMetaKey());
-        productMetaDto.setMetaValue(entity.getMetaValue());
-        productMetaDto.setId(entity.getId());
-        return productMetaDto;
+    public static ProductMetaDto toDto(ProductMetaEntity entity) {
+        if(entity == null) new RuntimeException("ProductMeta is null");
+        return ProductMetaDto.builder()
+                .id(entity.getId())
+                .metaKey(entity.getMetaKey())
+                .metaValue(entity.getMetaValue())
+                .build();
     }
 }

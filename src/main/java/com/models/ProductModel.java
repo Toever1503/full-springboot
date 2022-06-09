@@ -1,8 +1,10 @@
 package com.models;
 import com.entities.ProductEntity;
+import com.utils.ASCIIConverter;
 import lombok.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @AllArgsConstructor
@@ -14,20 +16,26 @@ public class ProductModel {
     private Long id;
     private String name;
     private String description;
-    private Long totalQuantity;
-    private Long totalLike;
-    private Long totalReview;
-    private Long rating;
     private MultipartFile image;
     private List<MultipartFile> attachFiles;
+    private List<String> attachFilesOrigin = new ArrayList<>();
     private String slug;
     private Long categoryId;
-    private List<Long> productMetaId;
-    private List<Long> optionsId;
+    private List<ProductMetaModel> productMetas;
+    private List<OptionModel> options;
+    private List<TagModel> tags;
 
     public static ProductEntity toEntity(ProductModel model){
-        if(model == null) return null;
+        if(model == null) new RuntimeException("ProductModel is null");
         return ProductEntity.builder()
+                .id(model.getId())
+                .name(model.getName())
+                .description(model.getDescription())
+                .totalLike(0)
+                .totalReview(0)
+                .rating(0)
+                .slug(model.getSlug() == null ? ASCIIConverter.utf8ToAscii(model.getName()) : ASCIIConverter.utf8ToAscii(model.getSlug()))
+                .active(true)
                 .build();
     }
 }
