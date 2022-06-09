@@ -293,6 +293,7 @@ public class UserServiceImp implements IUserService {
         userEntity.setFullName(model.getFullName());
         userEntity.setPhone(model.getPhone());
         userEntity.setBirthDate(model.getBirthDate());
+        userEntity.setSex(model.getSex());
         if (model.getPassword() != null)
             userEntity.setPassword(passwordEncoder.encode(model.getPassword()));
         if (model.getAvatar() != null) {

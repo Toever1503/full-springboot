@@ -28,7 +28,10 @@ public class UserModel {
     @Length(min = 10,max = 255)
     private String email;
 
-
+    @ApiModelProperty(notes = "User Email", dataType = "String", example = "email@gmail.com")
+    @NotBlank
+    @NotNull
+    private String sex;
 
     @ApiModelProperty(notes = "User full name", dataType = "String", example = "Nguyen Van A")
     @Length(min = 10,max = 255)
@@ -60,6 +63,7 @@ public class UserModel {
                 .password(model.getPassword())
                 .birthDate(model.getBirthDate())
                 .phone(model.getPhone())
+                .sex(model.getSex())
                 .id(model.getId()).build();
     }
 }

@@ -24,6 +24,8 @@ public class UserDto {
     private String email;
     private String fullName;
     private String avatar;
+    private String phone;
+    private String sex;
     private Date birthDate;
     private boolean status;
     private Long mainAddress;
@@ -32,6 +34,8 @@ public class UserDto {
                 .id(userEntity.getId())
                 .userName(userEntity.getUserName())
                 .email(userEntity.getEmail())
+                .phone(userEntity.getPhone())
+                .sex(userEntity.getSex())
                 .fullName(userEntity.getFullName())
                 .avatar(userEntity.getAvatar())
                 .birthDate(userEntity.getBirthDate())

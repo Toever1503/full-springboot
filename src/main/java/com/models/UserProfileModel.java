@@ -35,6 +35,11 @@ public class UserProfileModel {
     )
     private String phone;
 
+    @ApiModelProperty(notes = "User Email", dataType = "String", example = "email@gmail.com")
+    @NotBlank
+    @NotNull
+    private String sex;
+
     @ApiModelProperty(notes = "user's avatar")
     private MultipartFile avatar;
 
