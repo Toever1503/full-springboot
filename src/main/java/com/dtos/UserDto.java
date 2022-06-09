@@ -23,6 +23,7 @@ public class UserDto {
     private String userName;
     private String email;
     private String fullName;
+    private String avatar;
     private Date birthDate;
     private boolean status;
     private Long mainAddress;
@@ -32,6 +33,7 @@ public class UserDto {
                 .userName(userEntity.getUserName())
                 .email(userEntity.getEmail())
                 .fullName(userEntity.getFullName())
+                .avatar(userEntity.getAvatar())
                 .birthDate(userEntity.getBirthDate())
                 .status(userEntity.isStatus())
                 .mainAddress(userEntity.getMainAddress())

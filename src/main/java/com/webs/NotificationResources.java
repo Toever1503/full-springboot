@@ -35,6 +35,7 @@ public class NotificationResources {
         log.info("admin {%s} is adding new notification", SecurityUtils.getCurrentUser().getUsername());
         NotificationEntity notificationEntity = this.notificationService.add(model);
         NotificationDetailDto notificationDetailDto = NotificationDetailDto.toDto(notificationEntity);
+
         return ResponseDto.of(notificationDetailDto, "Added notification successfully");
     }
 
