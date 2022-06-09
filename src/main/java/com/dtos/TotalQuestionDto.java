@@ -25,6 +25,7 @@ public class TotalQuestionDto {
     private Date updatedDate;
     private EStatusQuestion status;
     private String replyContent;
+    private String createdBy;
     private List<Object> replyFiles;
     private String userReply;
 
@@ -41,6 +42,7 @@ public class TotalQuestionDto {
         dto.setUpdatedDate(entity.getUpdatedDate());
         dto.setReplyFiles((entity.getReplyFile() == null ? null : parseJson(entity.getReplyFile()).getJSONArray("files").toList()));
         dto.setReplyContent(entity.getReplyContent());
+        dto.setCreatedBy(entity.getCreatedBy().getUserName());
         if (entity.getAnsweredBy() != null)
             dto.setUserReply(entity.getAnsweredBy().getFullName());
         return dto;
