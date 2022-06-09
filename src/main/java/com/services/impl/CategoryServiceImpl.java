@@ -77,7 +77,6 @@ public class CategoryServiceImpl implements ICategoryService {
     public CategoryEntity update(CategoryModel model) {
         CategoryEntity originCategory = this.categoryRepository.findById(model.getId()).get();
         if(this.categoryRepository.findById(model.getId()).isPresent()) { //check if category exist
-            originCategory.setType(model.getType().name());
             originCategory.setCategoryName(model.getCategoryName());
             originCategory.setSlug(model.getSlug() == null ? ASCIIConverter.utf8ToAscii(model.getCategoryName()) : ASCIIConverter.utf8ToAscii(model.getSlug()));
             originCategory.setDescription(model.getDescription());

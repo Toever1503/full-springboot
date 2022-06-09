@@ -35,10 +35,12 @@ public class QuestionResources {
     @PatchMapping("/answer/{qid}")
     public ResponseDto answerQuestion(@PathVariable("qid") @Valid Long qid, @Valid QuestionResponseModel model) {
         log.info("admin {%s} is answering question id: {%d}", SecurityUtils.getCurrentUser().getUsername(), qid);
-        int count = model.getOldFiles().size();
-        count += model.getReplyFile().size();
-        if (model.getReplyFile() != null)
-            count += model.getReplyFile().get(0).isEmpty() ? (count + model.getReplyFile().size()) : 0;
+        int count = 0;
+        if (model.getOldFiles() != null)
+            count += model.getOldFiles().size();
+        if (model.getReplyFile() != null) {
+            count += model.getReplyFile().size();
+        }
         if (count > 3)
             return ResponseDto.of(null, "Failed! , Max image count is 3 per question");
         else
@@ -132,15 +134,16 @@ public class QuestionResources {
 
     @RolesAllowed("ADMINISTRATOR")
     @Transactional
-    @PutMapping
-    public ResponseDto updateQuestion(@Valid QuestionModel questionModel) {
+    @PutMapping("{id}")
+    public ResponseDto updateQuestion(@PathVariable Long id, @Valid QuestionModel questionModel) {
         log.info("admin {%s} is updating question", SecurityUtils.getCurrentUser().getUsername());
+        questionModel.setId(id);
         int count = questionModel.getQuestOriginFile().size();
-        count += questionModel.getQuestOriginFile().size();
         if (questionModel.getQuestFile() != null)
             count += questionModel.getQuestFile().get(0).isEmpty() ? (count + questionModel.getQuestFile().size()) : 0;
         if (count > 3)
             return ResponseDto.of(null, "Failed! , Max image count is 3 per question");
+
         QuestionEntity questionEntity = this.questionService.update(questionModel);
         QuestionDto questionDto = QuestionDto.toDto(questionEntity);
         return ResponseDto.of(questionDto, "Question updated successfully");

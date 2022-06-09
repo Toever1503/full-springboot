@@ -8,6 +8,7 @@ import com.models.TagModel;
 import com.repositories.IOptionsRepository;
 import com.repositories.IProductMetaRepository;
 import com.repositories.IProductRepository;
+import com.repositories.IUserLikeProductRepository;
 import com.services.IProductService;
 import com.utils.ASCIIConverter;
 import com.utils.FileUploadProvider;
@@ -196,7 +197,7 @@ public class ProductServiceImpl implements IProductService {
     @Override
     public boolean deleteById(Long id) {
         ProductEntity productEntity = this.findById(id);
-        productEntity.setStatus(false);
+        productEntity.setActive(false);
         this.productRepository.save(productEntity);
         return true;
     }

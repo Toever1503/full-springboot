@@ -25,12 +25,6 @@ public class ProductResources {
     }
 
     @Transactional
-    @GetMapping
-    public ResponseDto getProducts(Pageable pageable){
-        return ResponseDto.of(productService.findAll(pageable).map(ProductDto::toDto), "Get products successfully");
-    }
-
-    @Transactional
     @PostMapping
     public ResponseDto createProduct(@RequestPart("product") ProductModel productModel, @RequestPart("image") MultipartFile image, @RequestPart(name="attachFiles", required = false) List<MultipartFile> attachFiles){
         productModel.setId(null);
