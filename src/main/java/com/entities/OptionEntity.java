@@ -1,5 +1,6 @@
 package com.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -30,8 +31,6 @@ public class OptionEntity {
     @Column(name = "old_price")
     private Double oldPrice;
 
-    @ManyToOne(fetch =
-            FetchType.LAZY)
-    @JoinColumn(name = "product_id")
-    private ProductEntity product;
+    @Column(name = "product_id")
+    private Long productId;
 }

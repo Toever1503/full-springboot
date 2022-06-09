@@ -22,8 +22,7 @@ public class ProductMetaEntity {
     @Column(name = "meta_value")
     private String metaValue;
 
-    @ManyToOne(fetch =
-            FetchType.LAZY)
-    @JoinColumn(name = "product_id")
-    private ProductEntity product;
+//    @ManyToOne
+    @Column(name = "product_id")
+    private Long productId;
 }

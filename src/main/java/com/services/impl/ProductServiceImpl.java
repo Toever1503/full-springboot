@@ -1,17 +1,50 @@
 package com.services.impl;
 
-import com.entities.ProductEntity;
+import com.entities.*;
+import com.models.OptionModel;
+import com.models.ProductMetaModel;
 import com.models.ProductModel;
+import com.models.TagModel;
+import com.repositories.IOptionsRepository;
+import com.repositories.IProductMetaRepository;
+import com.repositories.IProductRepository;
 import com.services.IProductService;
+import com.utils.ASCIIConverter;
+import com.utils.FileUploadProvider;
+import com.utils.SecurityUtils;
+import org.json.JSONObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import static com.dtos.QuestionDto.parseJson;
 
 @Service
 public class ProductServiceImpl implements IProductService {
+    private final IProductRepository productRepository;
+    private final FileUploadProvider fileUploadProvider;
+    private final CategoryServiceImpl categoryService;
+    private final IProductMetaRepository productMetaRepository;
+    private final IOptionsRepository optionsRepository;
+    private final TagServiceImp tagService;
+
+    public ProductServiceImpl(IProductRepository productRepository, FileUploadProvider fileUploadProvider, CategoryServiceImpl categoryService, IProductMetaRepository productMetaRepository, IOptionsRepository optionsRepository, TagServiceImp tagService) {
+        this.productRepository = productRepository;
+        this.fileUploadProvider = fileUploadProvider;
+        this.categoryService = categoryService;
+        this.productMetaRepository = productMetaRepository;
+        this.optionsRepository = optionsRepository;
+        this.tagService = tagService;
+    }
 
     @Override
     public List<ProductEntity> findAll() {
@@ -20,7 +53,7 @@ public class ProductServiceImpl implements IProductService {
 
     @Override
     public Page<ProductEntity> findAll(Pageable page) {
-        return null;
+        return this.productRepository.findAll(page);
     }
 
     @Override
@@ -30,12 +63,52 @@ public class ProductServiceImpl implements IProductService {
 
     @Override
     public ProductEntity findById(Long id) {
-        return null;
+        return this.productRepository.findById(id).orElseThrow(() -> new RuntimeException("Not product found"));
     }
 
     @Override
     public ProductEntity add(ProductModel model) {
-        return null;
+        ProductEntity productEntity = ProductModel.toEntity(model);
+        productEntity.setTotalQuantity(0);
+
+        CategoryEntity category = categoryService.findById(model.getCategoryId());
+        productEntity.setCategory(category);
+
+        // set productMeta, option, tag
+        List<ProductMetaEntity> productMetas = model.getProductMetas().stream().map(productMetaModel -> ProductMetaModel.toEntity(productMetaModel, null)).collect(Collectors.toList());
+        List<OptionEntity> options = model.getOptions().stream().map(optionModel -> OptionModel.toEntity(optionModel, null)).collect(Collectors.toList());
+        Set<TagEntity> tags = model.getTags().stream().map(tagModel -> TagModel.toEntity(tagModel)).collect(Collectors.toSet());
+
+        productEntity.setOptions(options);
+        productEntity.setProductMetas(productMetas);
+        productEntity.setTags(tags);
+        ProductEntity savedProduct = productRepository.save(productEntity);
+
+        String folder = UserEntity.FOLDER + SecurityUtils.getCurrentUsername() + ProductEntity.FOLDER;
+        if (!model.getAttachFiles().get(0).isEmpty()) {
+            List<String> filePaths = new ArrayList<>();
+            for (MultipartFile file : model.getAttachFiles()) {
+                try {
+                    filePaths.add(fileUploadProvider.uploadFile(folder, file));
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            JSONObject jsonObject = new JSONObject(Map.of("files", filePaths));
+            productEntity.setAttachFiles(jsonObject.toString());
+        }
+
+        if (!model.getImage().isEmpty()) {
+            String filePath;
+            try{
+                filePath = fileUploadProvider.uploadFile(folder, model.getImage());
+                productEntity.setImage(filePath);
+            }catch (IOException e){
+                e.printStackTrace();
+            }
+        }
+
+        return savedProduct;
     }
 
     @Override
@@ -45,12 +118,88 @@ public class ProductServiceImpl implements IProductService {
 
     @Override
     public ProductEntity update(ProductModel model) {
-        return null;
+        ProductEntity originProduct = this.findById(model.getId());
+        final String folder = UserEntity.FOLDER + SecurityUtils.getCurrentUsername() + ProductEntity.FOLDER ;
+
+        // update total product quantity => don't yet
+        originProduct.setName(model.getName());
+        originProduct.setDescription(model.getDescription());
+        originProduct.setTotalQuantity(0);
+        originProduct.setTotalLike(0);
+        originProduct.setTotalReview(0);
+        originProduct.setRating(0);
+        originProduct.setSlug(model.getSlug() == null ? ASCIIConverter.utf8ToAscii(model.getName()) : ASCIIConverter.utf8ToAscii(model.getSlug()));
+        originProduct.setActive(true);
+
+        CategoryEntity category = categoryService.findById(model.getCategoryId());
+        originProduct.setCategory(category);
+
+        originProduct.getProductMetas().clear();
+        originProduct.getOptions().clear();
+        originProduct.getProductMetas().addAll(model.getProductMetas().stream().map(mt-> ProductMetaModel.toEntity(mt, originProduct.getId())).collect(Collectors.toList()));
+
+        // set product option
+        originProduct.getOptions().addAll(model.getOptions().stream().map(o-> OptionModel.toEntity(o, originProduct.getId())).collect(Collectors.toList()));
+
+        // set tag
+        Set<TagEntity> tags = model.getTags().stream().map(tagModel -> TagModel.toEntity(tagModel)).collect(Collectors.toSet());
+        originProduct.setTags(tags);
+
+        ProductEntity updateProduct = productRepository.save(originProduct);
+
+        //delete file into s3
+        List<Object> originalFile;
+        if (originProduct.getAttachFiles() != null) {
+            originalFile = (parseJson(originProduct.getAttachFiles()).getJSONArray("files").toList());
+            originalFile.removeAll(model.getAttachFilesOrigin());
+            originalFile.forEach(o -> fileUploadProvider.deleteFile(o.toString()));
+        }
+
+        //add old file to uploadFiles
+        List<String> uploadedFiles = new ArrayList<>();
+        if (!model.getAttachFilesOrigin().isEmpty())
+            uploadedFiles.addAll(model.getAttachFilesOrigin());
+
+        //upload new file to uploadFiles and save to database
+        if (!model.getAttachFiles().get(0).isEmpty()) {
+            for (MultipartFile file : model.getAttachFiles()) {
+                try {
+                    uploadedFiles.add(fileUploadProvider.uploadFile(folder, file));
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        updateProduct.setAttachFiles(uploadedFiles.isEmpty() ? null : (new JSONObject(Map.of("files", uploadedFiles)).toString()));
+
+        // update image
+        if (!model.getImage().isEmpty()) {
+            String filePath;
+            try{
+                filePath = fileUploadProvider.uploadFile(folder, model.getImage());
+                fileUploadProvider.deleteFile(originProduct.getImage());
+                originProduct.setImage(filePath);
+            }catch (IOException e){
+                e.printStackTrace();
+            }
+        }
+
+        return updateProduct;
     }
 
     @Override
     public boolean deleteById(Long id) {
-        return false;
+        ProductEntity productEntity = this.findById(id);
+        if (productEntity.getAttachFiles() != null) {
+            new JSONObject(productEntity.getAttachFiles()).getJSONArray("files").toList().forEach(u -> fileUploadProvider.deleteFile(u.toString()));
+        }
+
+        if (productEntity.getImage() != null) {
+            fileUploadProvider.deleteFile(productEntity.getImage());
+        }
+
+        this.productRepository.deleteById(id);
+        return true;
     }
 
     @Override

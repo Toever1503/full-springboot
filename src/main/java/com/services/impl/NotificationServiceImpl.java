@@ -195,7 +195,7 @@ public class NotificationServiceImpl implements INotificationService {
             fileUploadProvider.deleteFile(notificationEntity.getImage());
         }
         this.notificationUserRepository.deleteAllByNotificationId(id);
-        notificationRepository.deleteById(id);
+        this.notificationRepository.deleteById(id);
         return true;
     }
 

@@ -32,17 +32,18 @@ public class FileUploadProvider {
     }
 
     public String uploadFile(String folder, MultipartFile file) throws IOException {
-        StringBuilder checkFileName = new StringBuilder(file.getOriginalFilename());
-        if (isFileExist(file.toString())) {
+        StringBuilder checkFileName = new StringBuilder(folder);
+        checkFileName.append(file.getOriginalFilename());
+        if (isFileExist(checkFileName.toString())) {
             int i = 1;
             while (true) {
                 checkFileName.setLength(0);
-                checkFileName.append(i++).append(file.getOriginalFilename());
+                checkFileName.append(folder).append(i++).append(file.getOriginalFilename());
                 if (!isFileExist(file.toString()))
                     break;
             }
         }
-        String filePath = folder + checkFileName.toString();
+        String filePath = checkFileName.toString();
         s3Client.putObject(this.bucket, filePath, file.getInputStream(), null);
         return bucketEndpoint + filePath;
     }
@@ -70,5 +71,10 @@ public class FileUploadProvider {
     private AWSCredentialsProvider credentialsProvider() {
         AWSCredentials awsCredentials = new BasicAWSCredentials(this.accessKey, this.accessSecret);
         return new AWSStaticCredentialsProvider(awsCredentials);
+    }
+
+    public static void main(String[] args) {
+        FileUploadProvider fileUploadProvider = new FileUploadProvider();
+        System.out.println(fileUploadProvider.isFileExist("user/vudt/product/19112016.jpeg"));
     }
 }
