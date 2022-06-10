@@ -65,7 +65,7 @@ public class ProductServiceImpl implements IProductService {
 
     @Override
     public Page<ProductEntity> filter(Pageable page, Specification<ProductEntity> specs) {
-        return null;
+        return productRepository.findAll(specs, page);
     }
 
     @Override
