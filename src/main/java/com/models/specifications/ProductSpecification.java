@@ -123,10 +123,10 @@ public class ProductSpecification {
             Join<ProductEntity, CategoryEntity> categoryEntityRoot = root.join(ProductEntity_.CATEGORY, JoinType.INNER);
             List<Predicate> listPre = new ArrayList<>();
             for (String c: categorySlug){
-                Predicate internalPre = criteriaBuilder.equal(categoryEntityRoot.get(CategoryEntity_.SLUG),c);
+                Predicate internalPre = criteriaBuilder.or(criteriaBuilder.equal(categoryEntityRoot.get(CategoryEntity_.SLUG),c));
                 listPre.add(internalPre);
             }
-                return criteriaBuilder.or(listPre.toArray(new Predicate[]{}));
+                return criteriaBuilder.or(listPre.toArray(new Predicate[0]));
         });
     }
 
@@ -188,8 +188,6 @@ public class ProductSpecification {
             specifications.add(byRating(filter.getRatingFilterModel()));
         if (filter.getMetaKey() != null)
             specifications.add(byMetaKey(filter.getMetaKey()));
-        if (filter.getCategorySlugs() != null)
-            specifications.add(byCategory(filter.getCategorySlugs()));
         if (filter.getMetas() != null)
             filter.getMetas().forEach(meta -> specifications.add(byMeta(meta)));
 
@@ -202,6 +200,15 @@ public class ProductSpecification {
             } else
                 finalSpec = finalSpec.and(s);
         }
+        if (filter.getCategorySlugs() != null){
+            if(finalSpec == null) {
+                finalSpec = byCategory(filter.getCategorySlugs());
+            } else {
+                finalSpec.or(byCategory(filter.getCategorySlugs()));
+            }
+        }
+
+
 
         return finalSpec;
     }
