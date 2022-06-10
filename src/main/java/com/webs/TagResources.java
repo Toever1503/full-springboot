@@ -62,4 +62,10 @@ public class TagResources {
     public ResponseDto deleteTag(@PathVariable("id") Long id) {
         return ResponseDto.of(tagService.deleteById(id), "Delete tag");
     }
+
+    @Transactional(rollbackFor = RuntimeException.class)
+    @GetMapping("search")
+    public ResponseDto search(@RequestParam String q, Pageable page){
+        return ResponseDto.of(tagService.search(q, page).map(TagDto::toTagDto), "Search tag");
+    }
 }

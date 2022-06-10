@@ -1,11 +1,11 @@
 package com.entities;
 
 import lombok.*;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.*;
-import java.sql.Date;
-import java.util.List;
+import java.util.Date;
 import java.util.Set;
 
 @Builder
@@ -45,6 +45,16 @@ public class UserEntity {
     private Long mainAddress;
     @Column(name="avatar")
     private String avatar;
+
+    @CreationTimestamp
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "created_date")
+    private Date createdDate;
+
+    @UpdateTimestamp
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "updated_date")
+    private Date updatedDate;
     public static final String FOLDER = "user/";
 
     @ManyToMany(cascade = CascadeType.ALL)

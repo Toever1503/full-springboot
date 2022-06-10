@@ -49,7 +49,7 @@ public class QuestionServiceImp implements IQuestionService {
 
     @Override
     public Page<QuestionEntity> filter(Pageable page, Specification<QuestionEntity> specs) {
-        return null;
+        return this.questionRepository.findAll(specs, page);
     }
 
     @Override

@@ -4,15 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import com.entities.UserEntity;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
-import javax.persistence.Column;
-import java.sql.Date;
+import java.util.Date;
 
 @Builder
 @Data
@@ -29,6 +21,8 @@ public class UserDto {
     private Date birthDate;
     private boolean status;
     private Long mainAddress;
+    private java.util.Date createdDate;
+    private java.util.Date updatedDate;
     public static UserDto toDto(UserEntity userEntity) {
         return UserDto.builder()
                 .id(userEntity.getId())
@@ -41,6 +35,8 @@ public class UserDto {
                 .birthDate(userEntity.getBirthDate())
                 .status(userEntity.isStatus())
                 .mainAddress(userEntity.getMainAddress())
+                .createdDate(userEntity.getCreatedDate())
+                .updatedDate(userEntity.getUpdatedDate())
                 .build();
     }
 }

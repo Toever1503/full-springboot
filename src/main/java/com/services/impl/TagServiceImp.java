@@ -82,4 +82,9 @@ public class TagServiceImp implements ITagService {
     public TagEntity findBySlug(String slug) {
         return tagRepository.findFirstBySlug(slug);
     }
+
+    @Override
+    public Page<TagEntity> search(String q, Pageable page) {
+        return this.tagRepository.search(q, page);
+    }
 }
