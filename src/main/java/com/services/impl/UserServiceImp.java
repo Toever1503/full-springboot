@@ -146,7 +146,7 @@ public class UserServiceImp implements IUserService {
     }
 
     @Override
-    @Transactional
+   @Transactional(rollbackFor = RuntimeException.class)
     public boolean signUp(RegisterModel registerModel) {
         if (!userRepository.findUserEntityByUserNameOrEmail(registerModel.getUserName(), registerModel.getEmail()).isPresent()) {
             Set<RoleEntity> roleEntitySet = new HashSet<>();
@@ -192,7 +192,7 @@ public class UserServiceImp implements IUserService {
     }
 
     @Override
-    @Transactional
+   @Transactional(rollbackFor = RuntimeException.class)
     public boolean forgetPassword(ForgetPasswordModel model) {
         UserEntity user = this.findByUsername(model.getUserName());
         user.setCode(codeGenerator());
@@ -231,7 +231,7 @@ public class UserServiceImp implements IUserService {
     }
 
     // Token filter, check token is valid and set to context
-    @Transactional
+   @Transactional(rollbackFor = RuntimeException.class)
     public boolean tokenFilter(String token, HttpServletRequest req) {
         String username = this.jwtProvider.getUsernameFromToken(token);
         CustomUserDetail userDetail = new CustomUserDetail(this.findByUsername(username));

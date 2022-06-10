@@ -29,7 +29,7 @@ public class NotificationResources {
     }
 
     @RolesAllowed("ADMINISTRATOR")
-    @Transactional
+   @Transactional(rollbackFor = RuntimeException.class)
     @PostMapping
     public ResponseDto addNotificationDetail(NotificationModel model) {
         log.info("admin {%s} is adding new notification", SecurityUtils.getCurrentUser().getUsername());
@@ -40,7 +40,7 @@ public class NotificationResources {
     }
 
     @RolesAllowed("ADMINISTRATOR")
-    @Transactional
+   @Transactional(rollbackFor = RuntimeException.class)
     @PutMapping("{id}")
     public ResponseDto updateNotification(@PathVariable Long id, NotificationModel model) {
         log.info("admin {%s} is updating notification id: {%d}", SecurityUtils.getCurrentUser().getUsername(), id);
@@ -50,7 +50,7 @@ public class NotificationResources {
     }
 
     @RolesAllowed("ADMINISTRATOR")
-    @Transactional
+   @Transactional(rollbackFor = RuntimeException.class)
     @DeleteMapping("/{id}")
     public ResponseDto deleteNotification(@PathVariable("id") Long id) {
         log.info("admin {%s} is deleting notification id: {%d}", SecurityUtils.getCurrentUser().getUsername(), id);
@@ -58,14 +58,14 @@ public class NotificationResources {
     }
 
     @RolesAllowed("ADMINISTRATOR")
-    @Transactional
+   @Transactional(rollbackFor = RuntimeException.class)
     @GetMapping
     public ResponseDto getAll(Pageable page) {
         log.info("admin {%s} is getting all notifications", SecurityUtils.getCurrentUser().getUsername());
         return ResponseDto.of(this.notificationService.findAll(page).map(NotificationDto::toDto), "Admin get all notifications");
     }
 
-    @Transactional
+   @Transactional(rollbackFor = RuntimeException.class)
     @GetMapping("user/getAll")
     public ResponseDto userGetAll(Pageable page) {
         log.info("user {%s} is getting all notifications", SecurityUtils.getCurrentUser().getUsername());
@@ -74,14 +74,14 @@ public class NotificationResources {
 
 
     @RolesAllowed("ADMINISTRATOR")
-    @Transactional
+   @Transactional(rollbackFor = RuntimeException.class)
     @GetMapping("{id}")
     public ResponseDto findById(@PathVariable Long id) {
         log.info("admin {%s} is getting notification id: {%d}", SecurityUtils.getCurrentUser().getUsername(), id);
         return ResponseDto.of(NotificationDetailDto.toDto(this.notificationService.findById(id)), "Get notification id: " + id);
     }
 
-    @Transactional
+   @Transactional(rollbackFor = RuntimeException.class)
     @GetMapping("user/{id}")
     public ResponseDto userGetDetailQuestion(@PathVariable Long id) {
         log.info("user {%s} is getting notification id: {%d}", SecurityUtils.getCurrentUser().getUsername(), id);
@@ -90,13 +90,13 @@ public class NotificationResources {
 
     @ApiKeyAuthDefinition(name = "Authorization", in = ApiKeyAuthDefinition.ApiKeyLocation.HEADER, key = "Authorization")
     @ApiOperation(value = "Increase view notification by id", notes = "Increase view notification by id")
-    @Transactional
+   @Transactional(rollbackFor = RuntimeException.class)
     @GetMapping("increase-view/{id}")
     public ResponseDto viewNotification(@PathVariable long id) {
         return ResponseDto.of(this.notificationService.increaseView(id), "Increase view notification id: " + id);
     }
 
-    @Transactional
+   @Transactional(rollbackFor = RuntimeException.class)
     @GetMapping("/mark-all-read")
     public ResponseDto setAllRead() {
         return ResponseDto.of(this.notificationService.setAllRead(), "All Read");

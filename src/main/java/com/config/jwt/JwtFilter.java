@@ -3,6 +3,7 @@ package com.config.jwt;
 import com.services.IUserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import javax.servlet.FilterChain;
@@ -22,6 +23,7 @@ public class JwtFilter extends OncePerRequestFilter {
 
     //Filter jw token
     @Override
+    @Transactional
     protected void doFilterInternal(HttpServletRequest req, HttpServletResponse res, FilterChain filterChain) throws ServletException, IOException {
         log.info("JwtFilter is checking");
         //If request method is options, do filter

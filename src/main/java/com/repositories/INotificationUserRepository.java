@@ -13,7 +13,7 @@ public interface INotificationUserRepository extends JpaRepository<NotificationU
     //Make all notification read of user
     @Query("update NotificationUser u set u.isRead = true where u.userId=?1")
     @Modifying
-    @Transactional
+   @Transactional(rollbackFor = RuntimeException.class)
     void setReadAll(Long id);
     Optional<NotificationUser> findByUserIdAndNotificationId(Long currentUserId, long id);
 

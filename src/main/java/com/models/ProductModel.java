@@ -25,6 +25,10 @@ public class ProductModel {
     private List<OptionModel> options;
     private List<TagModel> tags;
 
+    public void setAttachFiles(List<MultipartFile> attachFiles) {
+        this.attachFiles = attachFiles;
+    }
+
     public static ProductEntity toEntity(ProductModel model){
         if(model == null) new RuntimeException("ProductModel is null");
         return ProductEntity.builder()
