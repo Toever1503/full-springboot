@@ -17,7 +17,8 @@ import java.sql.Date;
 @Builder
 public class UserProfileModel {
     @ApiModelProperty(notes = "User full name", dataType = "String", example = "Nguyen Van A")
-    @Length(min = 10,max = 255)
+    @NotNull
+    @NotBlank
     private String fullName;
 
     @ApiModelProperty(notes = "User password", dataType = "String", example = "123456")

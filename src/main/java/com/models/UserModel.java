@@ -10,7 +10,6 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import java.sql.Date;
-import java.util.Collections;
 import java.util.List;
 
 @Getter
@@ -25,7 +24,6 @@ public class UserModel {
     @ApiModelProperty(notes = "User Email", dataType = "String", example = "email@gmail.com")
     @Email
     @NotNull
-    @Length(min = 10,max = 255)
     private String email;
 
     @ApiModelProperty(notes = "User Email", dataType = "String", example = "email@gmail.com")
@@ -34,7 +32,6 @@ public class UserModel {
     private String sex;
 
     @ApiModelProperty(notes = "User full name", dataType = "String", example = "Nguyen Van A")
-    @Length(min = 10,max = 255)
     private String fullName;
 
     @ApiModelProperty(notes = "User password", dataType = "String", example = "123456")
