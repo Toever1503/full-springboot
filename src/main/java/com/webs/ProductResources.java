@@ -3,9 +3,12 @@ package com.webs;
 import com.dtos.ProductDto;
 import com.dtos.ResponseDto;
 import com.models.ProductModel;
+import com.models.filters.ProductFilter;
+import com.models.specifications.ProductSpecification;
 import com.services.IProductService;
 import org.springframework.data.domain.Pageable;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.http.codec.multipart.Part;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -25,7 +28,7 @@ public class ProductResources {
 
    @Transactional(rollbackFor = RuntimeException.class)
     @PostMapping
-    public ResponseDto createProduct(@RequestPart("product") ProductModel productModel, @RequestPart("image") MultipartFile image, @RequestPart(name="attachFiles", required = false) List<MultipartFile> attachFiles){
+    public ResponseDto createProduct(@RequestPart("product") ProductModel productModel, @RequestPart("image") MultipartFile image, @RequestPart(name = "attachFiles", required = false) List<MultipartFile> attachFiles) {
         productModel.setId(null);
         productModel.setAttachFiles(attachFiles);
         productModel.setImage(image);
@@ -34,7 +37,7 @@ public class ProductResources {
 
    @Transactional(rollbackFor = RuntimeException.class)
     @PutMapping("{id}")
-    public ResponseDto updateProduct(@PathVariable("id") Long id, @RequestPart("product") ProductModel productModel, @RequestPart("image") MultipartFile image, @RequestPart(name="attachFiles", required = false) List<MultipartFile> attachFiles){
+    public ResponseDto updateProduct(@PathVariable("id") Long id, @RequestPart("product") ProductModel productModel, @RequestPart("image") MultipartFile image, @RequestPart(name = "attachFiles", required = false) List<MultipartFile> attachFiles) {
         productModel.setId(id);
         productModel.setAttachFiles(attachFiles);
         productModel.setImage(image);
@@ -43,7 +46,7 @@ public class ProductResources {
 
    @Transactional(rollbackFor = RuntimeException.class)
     @DeleteMapping("{id}")
-    public ResponseDto deleteProduct(@PathVariable("id") Long id){
+    public ResponseDto deleteProduct(@PathVariable("id") Long id) {
         return ResponseDto.of(productService.deleteById(id), "Delete product successfully");
     }
 
@@ -51,10 +54,10 @@ public class ProductResources {
    @Transactional(rollbackFor = RuntimeException.class)
     public ResponseDto likeAndUnlikeProduct(@RequestParam("id") Long id){
         int result = productService.likeProduct(id);
-        if(result==1){
-            return ResponseDto.of(true,"Liked product");
-        }else{
-            return ResponseDto.of(true,"Unliked product");
+        if (result == 1) {
+            return ResponseDto.of(true, "Liked product");
+        } else {
+            return ResponseDto.of(true, "Unliked product");
         }
     }
 
