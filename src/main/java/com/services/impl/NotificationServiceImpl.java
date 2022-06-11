@@ -5,6 +5,7 @@ import com.entities.NotificationEntity;
 import com.entities.NotificationUser;
 import com.entities.UserEntity;
 import com.models.NotificationModel;
+import com.models.specifications.NotificationSpectification;
 import com.repositories.INotificationRepository;
 import com.repositories.INotificationUserRepository;
 import com.repositories.IUserRepository;
@@ -56,7 +57,7 @@ public class NotificationServiceImpl implements INotificationService {
 
     @Override
     public Page<NotificationEntity> filter(Pageable page, Specification<NotificationEntity> specs) {
-        return null;
+        return notificationRepository.findAll(specs, page);
     }
 
     @Override
