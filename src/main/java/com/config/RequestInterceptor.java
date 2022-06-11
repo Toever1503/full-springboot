@@ -35,7 +35,7 @@ public class RequestInterceptor implements HandlerInterceptor {
         logger.info("AfterGoOutFilter.postHandle");
 
         String token = request.getHeader("Authorization");
-        if (token == null) {
+        if (token != null) {
             if (this.jwtProvider.canTokenBeRefreshed(token)) {
                 Cookie cookieToken = new Cookie("user_logged", this.jwtProvider.generateToken(SecurityUtils.getCurrentUsername(), 0));
                 cookieToken.setMaxAge(JwtProvider.JWT_TOKEN_VALIDITY.intValue());
