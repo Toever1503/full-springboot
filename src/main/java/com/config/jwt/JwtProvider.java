@@ -12,6 +12,7 @@ import java.io.Serializable;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.function.Function;
 
@@ -20,15 +21,11 @@ import java.util.function.Function;
 public class JwtProvider implements Serializable {
     private static final long serialVersionUID = -2550185165626007488L;
 
-    public static final long JWT_TOKEN_VALIDITY = 1800; // 30 mins
+    public static final Long JWT_TOKEN_VALIDITY = 1800L; // 30 mins
     @Value("${jwt.secret}")
     private String secret; //secret key
 
 
-    //Get token created date
-    public Date getIssuedAtDateFromToken(String token) {
-        return getClaimFromToken(token, Claims::getIssuedAt);
-    }
     //Get token expired date
     public Date getExpirationDateFromToken(String token) {
         return getClaimFromToken(token, Claims::getExpiration);
@@ -46,13 +43,9 @@ public class JwtProvider implements Serializable {
     //Check if token expired
     public Boolean isTokenExpired(String token) {
         final Date expiration = getExpirationDateFromToken(token);
-        return expiration.before(new Date());
+        return expiration.before(Calendar.getInstance().getTime());
     }
 
-    private Boolean ignoreTokenExpiration(String token) {
-        // here you specify tokens, for that the expiration is ignored
-        return false;
-    }
     //Generate new token with username
     public String generateToken(String username, long invalidTime) {
         return doGenerateToken(username, invalidTime == 0 ? JWT_TOKEN_VALIDITY : invalidTime);
@@ -69,8 +62,15 @@ public class JwtProvider implements Serializable {
     public String getUsernameFromToken(String token) {
         return getClaimFromToken(token, Claims::getSubject);
     }
-    public Boolean canTokenBeRefreshed(String token) {
-        return (!isTokenExpired(token) || ignoreTokenExpiration(token));
+
+    private boolean isTokenHas5minRemain(String token){
+        Date expireTime = getExpirationDateFromToken(token);
+        Date beforeExpireTime5min = new Date(expireTime.getTime() - 300000); // 5 mins before expire time
+        Date currentTime =  Calendar.getInstance().getTime();
+        return currentTime.before(expireTime) && currentTime.after(beforeExpireTime5min);
+    }
+    public boolean canTokenBeRefreshed(String token) {
+        return isTokenHas5minRemain(token);
     }
 
 
