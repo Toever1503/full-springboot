@@ -5,17 +5,21 @@ import com.dtos.NotificationDto;
 import com.dtos.ResponseDto;
 import com.entities.NotificationEntity;
 import com.models.NotificationModel;
+import com.models.filters.NotificationFilter;
+import com.models.specifications.NotificationSpectification;
 import com.services.INotificationService;
 import com.utils.SecurityUtils;
 import io.swagger.annotations.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.security.RolesAllowed;
+import javax.validation.Valid;
 
 @RestController
 @RequestMapping("/notifications")
@@ -100,5 +104,11 @@ public class NotificationResources {
     @GetMapping("/mark-all-read")
     public ResponseDto setAllRead() {
         return ResponseDto.of(this.notificationService.setAllRead(), "All Read");
+    }
+
+    @Transactional
+    @PostMapping("filter")
+    public ResponseDto filter(@RequestBody @Valid NotificationFilter notificationFilter, Pageable page) {
+        return ResponseDto.of(this.notificationService.filter(page, Specification.where(NotificationSpectification.filter(notificationFilter)) ).map(NotificationDto::toDto), "Filter success");
     }
 }
