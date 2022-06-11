@@ -9,16 +9,14 @@ import com.services.IProductService;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.codec.multipart.Part;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.transaction.Transactional;
 import javax.validation.Valid;
 import java.util.List;
 
-import com.services.IUserLikeProductService;
-import org.springframework.data.domain.Page;
 
 
 @RestController
@@ -31,7 +29,7 @@ public class ProductResources {
         this.productService = productService;
     }
 
-   @Transactional(rollbackFor = RuntimeException.class)
+    @Transactional(rollbackFor = RuntimeException.class)
     @PostMapping
     public ResponseDto createProduct(@RequestPart("product") ProductModel productModel, @RequestPart("image") MultipartFile image, @RequestPart(name = "attachFiles", required = false) List<MultipartFile> attachFiles) {
         productModel.setId(null);
@@ -40,7 +38,7 @@ public class ProductResources {
         return ResponseDto.of(ProductDto.toDto(productService.add(productModel)), "Create product successfully");
     }
 
-   @Transactional(rollbackFor = RuntimeException.class)
+    @Transactional(rollbackFor = RuntimeException.class)
     @PutMapping("{id}")
     public ResponseDto updateProduct(@PathVariable("id") Long id, @RequestPart("product") ProductModel productModel, @RequestPart("image") MultipartFile image, @RequestPart(name = "attachFiles", required = false) List<MultipartFile> attachFiles) {
         productModel.setId(id);
@@ -49,7 +47,7 @@ public class ProductResources {
         return ResponseDto.of(ProductDto.toDto(productService.update(productModel)), "Update product successfully");
     }
 
-   @Transactional(rollbackFor = RuntimeException.class)
+    @Transactional(rollbackFor = RuntimeException.class)
     @DeleteMapping("{id}")
     public ResponseDto deleteProduct(@PathVariable("id") Long id) {
         return ResponseDto.of(productService.deleteById(id), "Delete product successfully");

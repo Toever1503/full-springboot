@@ -29,6 +29,7 @@ public class BeanConfiguration {
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
+
     //WebMvcConfigurer bean
     @Bean
     public WebMvcConfigurer configurer() {
@@ -36,16 +37,21 @@ public class BeanConfiguration {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/**")
-                        .allowedOrigins("http://192.168.1.19:8081", "http://54.180.159.175", "http://54.180.159.175:3000")
+                        .allowedOrigins("http://192.168.1.19:8081",
+                                "http://43.200.3.53",
+                                "http://43.200.3.53:3000",
+                                "http://localhost:8080",
+                                "http://localhost:8081")
                         .allowedOriginPatterns("*.*.*.*:*")
                         .allowCredentials(true)
                         .allowedMethods("GET", "POST", "DELETE", "PUT", "PATCH", "OPTIONS");
             }
         };
     }
+
     //Template resolver's resource bean configurer
     @Bean
-    public SpringResourceTemplateResolver templateResolver(ApplicationContext context){
+    public SpringResourceTemplateResolver templateResolver(ApplicationContext context) {
         // SpringResourceTemplateResolver automatically integrates with Spring's own
         // resource resolution infrastructure, which is highly recommended.
         SpringResourceTemplateResolver templateResolver = new SpringResourceTemplateResolver();
@@ -59,9 +65,10 @@ public class BeanConfiguration {
         templateResolver.setCacheable(true);
         return templateResolver;
     }
+
     //Template engine bean configurer
     @Bean
-    public SpringTemplateEngine templateEngine(ApplicationContext context){
+    public SpringTemplateEngine templateEngine(ApplicationContext context) {
         // SpringTemplateEngine automatically applies SpringStandardDialect and
         // enables Spring's own MessageSource message resolution mechanisms.
         SpringTemplateEngine templateEngine = new SpringTemplateEngine();
