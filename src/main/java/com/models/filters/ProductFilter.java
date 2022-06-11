@@ -16,8 +16,16 @@ public class ProductFilter {
 //    private List<Long> id_not_in;
     private String name;
     private String slug;
-    private Boolean active;
+    private DateFilterModel date;
+    private PriceFilterModel price;
+    private List<String> categorySlugs;
+//    private Integer totalQuantity;
+    private LikeFilterModel likeFilterModel;
+    private ReviewFilterModel reviewFilterModel;
+    private RatingFilterModel ratingFilterModel;
+    private String metaKey;
+    //tag
+//    private List<ProductCategoryFilter> category;
     private List<ProductMetaFilterModel> metas;
-
 
 }

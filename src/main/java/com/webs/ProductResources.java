@@ -3,14 +3,22 @@ package com.webs;
 import com.dtos.ProductDto;
 import com.dtos.ResponseDto;
 import com.models.ProductModel;
+import com.models.filters.ProductFilter;
+import com.models.specifications.ProductSpecification;
 import com.services.IProductService;
 import org.springframework.data.domain.Pageable;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.http.codec.multipart.Part;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.transaction.Transactional;
+import javax.validation.Valid;
 import java.util.List;
+
+import com.services.IUserLikeProductService;
+import org.springframework.data.domain.Page;
 
 
 @RestController
@@ -48,8 +56,8 @@ public class ProductResources {
     }
 
     @GetMapping("/like")
-   @Transactional(rollbackFor = RuntimeException.class)
-    public ResponseDto likeAndUnlikeProduct(@RequestParam("id") Long id){
+    @Transactional
+    public ResponseDto likeAndUnlikeProduct(@RequestParam("id") Long id) {
         int result = productService.likeProduct(id);
         if (result == 1) {
             return ResponseDto.of(true, "Liked product");
@@ -59,20 +67,27 @@ public class ProductResources {
     }
 
     @GetMapping
-   @Transactional(rollbackFor = RuntimeException.class)
-    public ResponseDto getAllProducts(Pageable pageable){
-        return ResponseDto.of(productService.findAll(pageable).map(ProductDto::toDto),"Get all products");
+    @Transactional
+    public ResponseDto getAllProducts(Pageable pageable) {
+        return ResponseDto.of(productService.findAll(pageable).map(ProductDto::toDto), "Get all products");
+    }
+
+    @PostMapping("/filter")
+    @Transactional
+    public ResponseDto filterAllProducts(Pageable pageable, @RequestBody @Valid ProductFilter filter) {
+        return ResponseDto.of(productService.filter(pageable, Specification.where(ProductSpecification.filter(filter)))
+                .map(ProductDto::toDto), "Filter all products");
     }
 
     @GetMapping("/slug")
-   @Transactional(rollbackFor = RuntimeException.class)
-    public ResponseDto getProductBySlug(@RequestParam("slug") String slug){
-        return ResponseDto.of(ProductDto.toDto(productService.findProductBySlug(slug)),"Get product by slug");
+    @Transactional
+    public ResponseDto getProductBySlug(@RequestParam("slug") String slug) {
+        return ResponseDto.of(ProductDto.toDto(productService.findProductBySlug(slug)), "Get product by slug");
     }
 
     @GetMapping("/{id}")
-   @Transactional(rollbackFor = RuntimeException.class)
-    public ResponseDto getProductById(@PathVariable("id") Long id){
-        return ResponseDto.of(ProductDto.toDto(productService.findById(id)),"Get product by id");
+    @Transactional
+    public ResponseDto getProductById(@PathVariable("id") Long id) {
+        return ResponseDto.of(ProductDto.toDto(productService.findById(id)), "Get product by id");
     }
 }
