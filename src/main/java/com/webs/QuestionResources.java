@@ -110,7 +110,6 @@ public class QuestionResources {
         return ResponseDto.of(questionService.userGetAllQuestionByCategory(category.name(), pageable).map(QuestionDto::toDto), "Admin Get questions by category successfully");
     }
 
-    @RolesAllowed("ADMINISTRATOR")
     @Transactional(rollbackFor = RuntimeException.class)
     @GetMapping("/{id}")
     public ResponseDto findById(@PathVariable Long id) {
@@ -125,7 +124,6 @@ public class QuestionResources {
         return ResponseDto.of(QuestionDto.toDto(questionService.getQuestionByIdAndUserId(id, SecurityUtils.getCurrentUserId())), "Get question by id successfully");
     }
 
-    @RolesAllowed("ADMINISTRATOR")
     @Transactional(rollbackFor = RuntimeException.class)
     @PostMapping
     public ResponseDto addQuestion(@Valid QuestionModel questionModel) {
@@ -137,7 +135,6 @@ public class QuestionResources {
         return ResponseDto.of(questionDto, "Add question successfully");
     }
 
-    @RolesAllowed("ADMINISTRATOR")
     @Transactional(rollbackFor = RuntimeException.class)
     @PutMapping("{id}")
     public ResponseDto updateQuestion(@PathVariable Long id, @Valid QuestionModel questionModel) {
@@ -154,7 +151,6 @@ public class QuestionResources {
         return ResponseDto.of(questionDto, "Question updated successfully");
     }
 
-    @RolesAllowed("ADMINISTRATOR")
     @Transactional(rollbackFor = RuntimeException.class)
     @DeleteMapping("/{id}")
     public ResponseDto deleteQuestion(@PathVariable("id") Long id) {
@@ -162,7 +158,6 @@ public class QuestionResources {
         return ResponseDto.of(questionService.deleteById(id), "Question deleted successfully");
     }
 
-    @RolesAllowed("ADMINISTRATOR")
     @Transactional(rollbackFor = RuntimeException.class)
     @DeleteMapping("/delete-list")
     public ResponseDto DeleteQuestions(@RequestBody List<Long> ids) {
