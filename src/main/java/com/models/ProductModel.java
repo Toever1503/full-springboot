@@ -27,7 +27,6 @@ public class ProductModel {
     @NotBlank
     private String description;
     @ApiModelProperty(notes = "image product", dataType = "MUltipartFile", example = "abc.jpg")
-    @NotNull
     private MultipartFile image;
     @ApiModelProperty(notes = "list image product", dataType = "List<MultipartFile>", example = "[abc.jpg, def.jpg]")
     private List<MultipartFile> attachFiles;

@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Min;
 import java.util.List;
 
 @RestController
@@ -67,9 +68,8 @@ public class CartResources {
 
     @Transactional
     @PatchMapping("{id}")
-    public ResponseDto updateCart(@Valid @RequestBody CartModel model, @PathVariable("id") Long id) {
-        model.setId(id);
-        CartEntity cartEntity = this.cartService.update(model);
+    public ResponseDto updateCart(@RequestParam("quantity") @Valid @Min(1) Integer quantity, @PathVariable("id") Long id) {
+        CartEntity cartEntity = this.cartService.update(id, quantity);
         OptionDto optionDto = OptionDto.toDto(this.optionsRepository.findById(cartEntity.getOptionId()).get());
         CartDto cartDto = CartDto.toDto(cartEntity);
         cartDto.setOption(optionDto);

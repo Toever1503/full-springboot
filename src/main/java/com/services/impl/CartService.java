@@ -45,13 +45,23 @@ public class CartService implements ICartService {
 
     @Override
     public CartEntity findById(Long id) {
-        return this.cartRepository.findById(id).orElseThrow(() -> new RuntimeException("Cart not found"));
+        return this.cartRepository.findById(id).orElseThrow(() -> new RuntimeException("Cart not found, id: " + id));
     }
 
     @Override
     public CartEntity add(CartModel model) {
-        CartEntity cart = CartModel.toEntity(model);
 
+        List<CartEntity> listCart = this.cartRepository.findAll();
+        if(listCart.size() > 0) {
+
+            for(CartEntity cartEntity : listCart) {
+                if((cartEntity.getProduct().getId() == model.getProductId()) && (cartEntity.getOptionId() == model.getOptionId())) {
+                    cartEntity.setQuantity(cartEntity.getQuantity() + model.getQuantity());
+                    return this.cartRepository.save(cartEntity);
+                }
+            }
+        }
+        CartEntity cart = CartModel.toEntity(model);
         ProductEntity productEntity = this.productService.findById(model.getProductId());
         productEntity.getOptions().stream().forEach(option -> {
             if (option.getId() == (model.getOptionId())) {
@@ -59,7 +69,7 @@ public class CartService implements ICartService {
             }
         });
         if(cart.getOptionId() == null) {
-            throw new RuntimeException("Option not found");
+            throw new RuntimeException("Option not found, id: " + model.getOptionId());
         }
 
         cart.setProduct(productEntity);
@@ -77,9 +87,14 @@ public class CartService implements ICartService {
 
     @Override
     public CartEntity update(CartModel model) {
-        CartEntity cartOrigin = this.findById(model.getId());
-        cartOrigin.setQuantity(model.getQuantity());
-        return cartOrigin;
+        return null;
+    }
+
+    @Override
+    public CartEntity update(Long id, Integer quantity) {
+        CartEntity cartEntity = this.findById(id);
+        cartEntity.setQuantity(quantity);
+        return this.cartRepository.save(cartEntity);
     }
 
     @Override
