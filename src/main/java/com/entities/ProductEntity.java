@@ -66,8 +66,8 @@ public class ProductEntity {
     @ManyToMany(
             cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.DETACH})
     @JoinTable(name = "tbl_tag_products",
-            joinColumns = @JoinColumn(name="product_id"),
-            inverseJoinColumns = @JoinColumn(name="tag_id")
+            joinColumns = @JoinColumn(name="products_id"),
+            inverseJoinColumns = @JoinColumn(name="tags_id")
     )
     private Set<TagEntity> tags;
 

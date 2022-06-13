@@ -27,7 +27,6 @@ public class ProductModel {
     @NotBlank
     private String description;
     @ApiModelProperty(notes = "image product", dataType = "MUltipartFile", example = "abc.jpg")
-    @NotNull
     private MultipartFile image;
     @ApiModelProperty(notes = "list image product", dataType = "List<MultipartFile>", example = "[abc.jpg, def.jpg]")
     private List<MultipartFile> attachFiles;
@@ -40,8 +39,10 @@ public class ProductModel {
     private Long categoryId;
     @ApiModelProperty(notes = "list product metas", dataType = "List<ProductMeta>", example = "Object productMetas")
     private List<ProductMetaModel> productMetas;
+
     @ApiModelProperty(notes = "list product options", dataType = "List<Option>", example = "Object product Options")
     private List<OptionModel> options;
+
     @ApiModelProperty(notes = "list product tag", dataType = "List<Tag>", example = "Object product tag")
     private List<TagModel> tags;
 

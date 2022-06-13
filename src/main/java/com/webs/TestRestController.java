@@ -30,8 +30,7 @@ public class TestRestController {
         private long id;
     }
 
-    @PostMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE, MediaType.APPLICATION_OCTET_STREAM_VALUE},
-            produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping
     public FormData getFormData(@RequestPart FormData form, @RequestPart("file")MultipartFile file) {
         return form;
     }

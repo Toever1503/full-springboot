@@ -31,7 +31,9 @@ public class ProductResources {
 
     @Transactional(rollbackFor = RuntimeException.class)
     @PostMapping
-    public ResponseDto createProduct(@Valid @RequestPart("product") ProductModel productModel, @RequestPart("image") MultipartFile image, @RequestPart(name = "attachFiles", required = false) List<MultipartFile> attachFiles) {
+    public ResponseDto createProduct(@Valid @RequestPart("product") ProductModel productModel,
+                                     @RequestPart("image") MultipartFile image,
+                                     @RequestPart(name = "attachFiles", required = false) List<MultipartFile> attachFiles) {
         productModel.setId(null);
         productModel.setAttachFiles(attachFiles);
         productModel.setImage(image);
