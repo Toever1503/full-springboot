@@ -1,12 +1,11 @@
-package com.repositories.specifications;
+package com.models.specifications;
 
 import com.entities.UserEntity;
 import com.entities.UserEntity_;
-import com.models.UserFilterModel;
+import com.models.filters.UserFilterModel;
 import org.springframework.data.jpa.domain.Specification;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 public class UserSpecification extends BaseSpecification {

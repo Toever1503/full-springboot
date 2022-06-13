@@ -1,4 +1,4 @@
-package com.models;
+package com.models.filters;
 
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;

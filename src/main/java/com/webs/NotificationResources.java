@@ -6,7 +6,7 @@ import com.dtos.ResponseDto;
 import com.entities.NotificationEntity;
 import com.models.NotificationModel;
 import com.models.filters.NotificationFilter;
-import com.models.specifications.NotificationSpectification;
+import com.models.specifications.NotificationSpecification;
 import com.services.INotificationService;
 import com.utils.SecurityUtils;
 import io.swagger.annotations.*;
@@ -109,6 +109,6 @@ public class NotificationResources {
     @Transactional
     @PostMapping("filter")
     public ResponseDto filter(@RequestBody @Valid NotificationFilter notificationFilter, Pageable page) {
-        return ResponseDto.of(this.notificationService.filter(page, Specification.where(NotificationSpectification.filter(notificationFilter))).map(NotificationDto::toDto), "Filter success");
+        return ResponseDto.of(this.notificationService.filter(page, Specification.where(NotificationSpecification.filter(notificationFilter))).map(NotificationDto::toDto), "Filter success");
     }
 }

@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-public class NotificationSpectification {
+public class NotificationSpecification extends BaseSpecification{
     public static Specification<NotificationEntity> like(String keyword) {
         return (root, query, criteriaBuilder) -> criteriaBuilder.or(
                 criteriaBuilder.like(root.get(NotificationEntity_.TITLE), keyword),
