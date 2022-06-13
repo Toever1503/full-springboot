@@ -71,5 +71,7 @@ public class ProductEntity {
     )
     private Set<TagEntity> tags;
 
+
+
     public static String FOLDER = "/product/";
 }

@@ -70,7 +70,7 @@ public class ProductServiceImpl implements IProductService {
 
     @Override
     public ProductEntity findById(Long id) {
-        return productRepository.findByIdAndActive(id,true).orElseThrow(() -> new RuntimeException("Product not found"));
+        return productRepository.findByIdAndActive(id, true).orElseThrow(() -> new RuntimeException("Product not found"));
     }
 
     @Override
