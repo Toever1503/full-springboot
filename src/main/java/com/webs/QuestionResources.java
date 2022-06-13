@@ -5,10 +5,10 @@ import com.dtos.QuestionDto;
 import com.dtos.ResponseDto;
 import com.dtos.TotalQuestionDto;
 import com.entities.QuestionEntity;
-import com.models.QuestionFilterModel;
+import com.models.filters.QuestionFilterModel;
 import com.models.QuestionModel;
 import com.models.QuestionResponseModel;
-import com.repositories.specifications.QuestionSpecification;
+import com.models.specifications.QuestionSpecification;
 import com.services.IQuestionService;
 import com.utils.SecurityUtils;
 import org.slf4j.Logger;
@@ -166,7 +166,7 @@ public class QuestionResources {
     }
     @Transactional(rollbackFor = RuntimeException.class)
     @PostMapping("filter")
-    public ResponseDto filter(@RequestBody QuestionFilterModel model, Pageable page) {
+    public ResponseDto filter(@Valid @RequestBody QuestionFilterModel model, Pageable page) {
         log.info("{%s} is filtering question", SecurityUtils.getCurrentUser().getUsername());
         return ResponseDto.of(questionService.filter(page, Specification.where(QuestionSpecification.filter(model))).map(TotalQuestionDto::toTotalQuestionDTO), "Get question by filter successfully");
     }

@@ -35,7 +35,6 @@ public class NotificationDto {
         this.image = image;
         this.title = title;
         this.status = status;
-        System.out.println("status: " + status);
         this.contentExcerpt = contentExcerpt;
         this.updatedDate = updatedDate;
         this.createdDate = createdDate;
@@ -76,7 +75,7 @@ public class NotificationDto {
                 .contentExcerpt(entity.getContentExcerpt())
                 .updatedDate(entity.getUpdatedDate())
                 .createdDate(entity.getCreatedDate())
-                .viewed(SecurityUtils.hasRole("ADMIN") ? entity.getViewed() : null)
+                .viewed(entity.getViewed())
                 .createdBy(entity.getCreatedBy().getUserName())
                 .isEdit(entity.getIsEdit())
                 .attachFiles(entity.getAttachFiles() == null ? null : new JSONObject(entity.getAttachFiles()).getJSONArray("files").toList())

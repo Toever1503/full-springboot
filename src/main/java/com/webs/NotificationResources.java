@@ -6,7 +6,7 @@ import com.dtos.ResponseDto;
 import com.entities.NotificationEntity;
 import com.models.NotificationModel;
 import com.models.filters.NotificationFilter;
-import com.models.specifications.NotificationSpectification;
+import com.models.specifications.NotificationSpecification;
 import com.services.INotificationService;
 import com.utils.SecurityUtils;
 import io.swagger.annotations.*;
@@ -35,7 +35,7 @@ public class NotificationResources {
     @RolesAllowed("ADMINISTRATOR")
     @Transactional(rollbackFor = RuntimeException.class)
     @PostMapping
-    public ResponseDto addNotificationDetail(NotificationModel model) {
+    public ResponseDto addNotificationDetail(@Valid @RequestBody NotificationModel model) {
         log.info("admin {%s} is adding new notification", SecurityUtils.getCurrentUser().getUsername());
         NotificationEntity notificationEntity = this.notificationService.add(model);
         NotificationDetailDto notificationDetailDto = NotificationDetailDto.toDto(notificationEntity);
@@ -46,7 +46,7 @@ public class NotificationResources {
     @RolesAllowed("ADMINISTRATOR")
     @Transactional(rollbackFor = RuntimeException.class)
     @PutMapping("{id}")
-    public ResponseDto updateNotification(@PathVariable Long id, NotificationModel model) {
+    public ResponseDto updateNotification(@PathVariable Long id,@Valid @RequestBody NotificationModel model) {
         log.info("admin {%s} is updating notification id: {%d}", SecurityUtils.getCurrentUser().getUsername(), id);
         NotificationEntity notificationEntity = this.notificationService.update(model);
         NotificationDetailDto notificationDetailDto = NotificationDetailDto.toDto(notificationEntity);
@@ -109,6 +109,6 @@ public class NotificationResources {
     @Transactional
     @PostMapping("filter")
     public ResponseDto filter(@RequestBody @Valid NotificationFilter notificationFilter, Pageable page) {
-        return ResponseDto.of(this.notificationService.filter(page, Specification.where(NotificationSpectification.filter(notificationFilter))).map(NotificationDto::toDto), "Filter success");
+        return ResponseDto.of(this.notificationService.filter(page, Specification.where(NotificationSpecification.filter(notificationFilter))).map(NotificationDto::toDto), "Filter success");
     }
 }

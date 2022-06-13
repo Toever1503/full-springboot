@@ -1,7 +1,7 @@
 package com.services.impl;
 
 import com.entities.OptionEntity;
-import com.models.OptionsModel;
+import com.models.OptionModel;
 import com.services.IOptionsService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -33,17 +33,17 @@ public class OptionServiceImpl implements IOptionsService {
     }
 
     @Override
-    public OptionEntity add(OptionsModel model) {
+    public OptionEntity add(OptionModel model) {
         return null;
     }
 
     @Override
-    public List<OptionEntity> add(List<OptionsModel> model) {
+    public List<OptionEntity> add(List<OptionModel> model) {
         return null;
     }
 
     @Override
-    public OptionEntity update(OptionsModel model) {
+    public OptionEntity update(OptionModel model) {
         return null;
     }
 

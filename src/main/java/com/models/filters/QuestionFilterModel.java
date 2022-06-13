@@ -1,4 +1,4 @@
-package com.models;
+package com.models.filters;
 
 import com.dtos.EStatusQuestion;
 import io.swagger.annotations.ApiModelProperty;

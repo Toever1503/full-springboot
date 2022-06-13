@@ -1,8 +1,8 @@
-package com.repositories.specifications;
+package com.models.specifications;
 
 import com.entities.QuestionEntity;
 import com.entities.QuestionEntity_;
-import com.models.QuestionFilterModel;
+import com.models.filters.QuestionFilterModel;
 import org.springframework.data.jpa.domain.Specification;
 
 import java.util.ArrayList;
