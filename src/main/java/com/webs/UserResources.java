@@ -87,7 +87,10 @@ public class UserResources {
     @DeleteMapping("my-addresses/{id}")
     public ResponseDto deleteMyAddress(@PathVariable("id") Long id) {
         log.info("{%s} is deleting their address id: {%d}", SecurityUtils.getCurrentUser().getUsername(), id);
-        return ResponseDto.of(this.userService.deleteMyAddress(id), "Delete my address successfully");
+    if(this.userService.deleteMyAddress(id))
+        return ResponseDto.of(true, "Delete my address successfully");
+    else
+        return ResponseDto.of(null, "Delete address failed! Not your address nor ADMINISTRATOR privilege");
     }
 
 

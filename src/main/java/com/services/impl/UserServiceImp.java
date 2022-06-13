@@ -248,43 +248,77 @@ public class UserServiceImp implements IUserService {
 
     @Override
     public Set<Address> getMyAddresses() {
-        return this.findById(SecurityUtils.getCurrentUserId()).getMyAddress();
+        return this.addressService.findByUid(SecurityUtils.getCurrentUserId());
     }
 
     @Override
     public boolean deleteMyAddress(Long id) {
-        UserEntity user = this.findById(SecurityUtils.getCurrentUserId());
-        user.setMyAddress(user.getMyAddress().stream().filter(a -> a.getId() != id).collect(Collectors.toSet()));
-        this.userRepository.save(user);
-        this.addressService.deleteById(id);
-        return true;
+//        UserEntity user = this.findById(SecurityUtils.getCurrentUserId());
+//        if(this.addressService.findByUid(user.getId())!=null){
+//            Set<Address> myAddress = this.addressService.findByUid(user.getId());
+//            myAddress.stream().filter(address -> address.getId()!=id).collect(Collectors.toSet());
+//            myAddress.stream().forEach(address -> this.addressService.update(address));
+        boolean deleteAddressByID = addressService.deleteById(id);
+        if(deleteAddressByID)
+            return true;
+        else
+            return false;
+
+//        if(user.getMyAddress().contains(addressService.findById(id))){
+//            if(user.getMainAddress() == id){
+//                user.setMainAddress(null);
+//            }
+//            user.setMyAddress(user.getMyAddress().stream().filter(a -> a.getId() != id).collect(Collectors.toSet()));
+//            this.userRepository.save(user);
+//            this.addressService.deleteById(id);
+//            return true;
+//        }else if(SecurityUtils.hasRole(RoleEntity.ADMINISTRATOR)){
+////            List<UserEntity> userEntity = userRepository.findAllByMyAddressContaining(addressService.findById(id));
+////            List<UserEntity> userEntitiesMainAddr = userEntity.stream().filter(userEntity1 -> userEntity1.getMainAddress()==id).collect(Collectors.toList());
+////            userEntitiesMainAddr.stream().forEach(userEntity1 -> userEntity1.setMainAddress(null));
+////
+////            userEntity.stream().forEach(userEntity1 -> userEntity1.setMyAddress(userEntity1.getMyAddress().stream().filter(b->b.getId()!=id).collect(Collectors.toSet())));
+////            userEntity.stream().forEach(userEntity1 -> this.userRepository.save(userEntity1));
+////            userEntity.stream().forEach(userEntity1 -> this.addressService.deleteById(id));
+//            return true;
+//        }
+//        else
     }
 
     @Override
     public boolean setMainAddress(Long id) {
         UserEntity user = this.findById(SecurityUtils.getCurrentUserId());
-        if (!user.getMyAddress().stream().anyMatch(a -> a.getId() == id))
+        if(this.addressService.findById(id).getUser().getId() == user.getId()|| SecurityUtils.hasRole(RoleEntity.ADMINISTRATOR)){
+            user.setMainAddress(id);
+            this.userRepository.save(user);
+            return true;
+        }else
             throw new RuntimeException("Address not found!, id: " + id);
-        user.setMainAddress(id);
-        this.userRepository.save(user);
-        return true;
+//        if (!addressService.findByUid(user.getId()).stream().anyMatch(a -> a.getId() == id))
+//            throw new RuntimeException("Address not found!, id: " + id);
     }
 
     @Override
     public Address addMyAddress(AddressModel model) {
         UserEntity user = this.findById(SecurityUtils.getCurrentUserId());
         Address address = this.addressService.add(model);
-        user.getMyAddress().add(address);
-        this.userRepository.save(user);
         return address;
     }
 
     @Override
     public Address updateMyAddress(AddressModel model) {
-        UserEntity user = this.findById(SecurityUtils.getCurrentUserId());
-        if (!user.getMyAddress().stream().anyMatch(a -> a.getId() == model.getId()))
-            throw new RuntimeException("Address not found!, id: " + model.getId());
-        return this.addressService.update(model);
+        // id 2 want edit address, check
+        // usercreated id = 1  == 2
+        Address oriAddress = this.addressService.findById(model.getId());
+        if(oriAddress.getUser().getId() == SecurityUtils.getCurrentUserId()|| SecurityUtils.hasRole(RoleEntity.ADMINISTRATOR)){
+            return this.addressService.update(model);
+        }
+        else
+            return null;
+//        UserEntity user = this.findById(SecurityUtils.getCurrentUserId());
+//        if (!addressService.findByUid(SecurityUtils.getCurrentUserId()).stream().anyMatch(a -> a.getId() == model.getId())|| SecurityUtils.hasRole(RoleEntity.ADMINISTRATOR))
+//            throw new RuntimeException("Address not found!, id: " + model.getId());
+
     }
 
     @Override

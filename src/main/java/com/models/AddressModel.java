@@ -49,4 +49,5 @@ public class AddressModel {
             message = "Phone number must be in format: 84xxxxxxxx"
     )
     private String phone;
+
 }
