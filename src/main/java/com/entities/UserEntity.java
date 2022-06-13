@@ -56,14 +56,14 @@ public class UserEntity {
     @Column(name = "updated_date")
     private Date updatedDate;
     public static final String FOLDER = "user/";
-
-    @ManyToMany(cascade = CascadeType.ALL)
-    @JoinTable(
-            name = "user_address",
-            joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "address_id")
-    )
-    private Set<Address> myAddress;
+//
+//    @ManyToMany(cascade = CascadeType.ALL)
+//    @JoinTable(
+//            name = "user_address",
+//            joinColumns = @JoinColumn(name = "user_id"),
+//            inverseJoinColumns = @JoinColumn(name = "address_id")
+//    )
+//    private Set<Address> myAddress;
 
     @ManyToMany
     @JoinTable(

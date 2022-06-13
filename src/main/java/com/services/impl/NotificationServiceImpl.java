@@ -3,6 +3,7 @@ package com.services.impl;
 import com.dtos.NotificationDto;
 import com.entities.NotificationEntity;
 import com.entities.NotificationUser;
+import com.entities.RoleEntity;
 import com.entities.UserEntity;
 import com.models.NotificationModel;
 import com.repositories.INotificationRepository;
@@ -184,16 +185,16 @@ public class NotificationServiceImpl implements INotificationService {
     @Override
     public boolean deleteById(Long id) {
         NotificationEntity notificationEntity = this.findById(id);
-        if (notificationEntity.getAttachFiles() != null) {
-            new JSONObject(notificationEntity.getAttachFiles()).getJSONArray("files").toList().forEach(u -> fileUploadProvider.deleteFile(u.toString()));
-        }
+            if (notificationEntity.getAttachFiles() != null) {
+                new JSONObject(notificationEntity.getAttachFiles()).getJSONArray("files").toList().forEach(u -> fileUploadProvider.deleteFile(u.toString()));
+            }
 
-        if (notificationEntity.getImage() != null) {
-            fileUploadProvider.deleteFile(notificationEntity.getImage());
-        }
-        this.notificationUserRepository.deleteAllByNotificationId(id);
-        this.notificationRepository.deleteById(id);
-        return true;
+            if (notificationEntity.getImage() != null) {
+                fileUploadProvider.deleteFile(notificationEntity.getImage());
+            }
+            this.notificationUserRepository.deleteAllByNotificationId(id);
+            this.notificationRepository.deleteById(id);
+            return true;
     }
 
     @Override

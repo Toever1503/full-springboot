@@ -37,4 +37,8 @@ public class Address {
 
     @Column(name = "phone")
     private String phone;
+
+    @ManyToOne(targetEntity = UserEntity.class)
+    @JoinColumn(name = "user_id")
+    private UserEntity user;
 }

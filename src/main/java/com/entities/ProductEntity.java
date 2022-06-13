@@ -41,6 +41,11 @@ public class ProductEntity {
     private String slug;
     @Column(name = "active")
     private Boolean active;
+
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private UserEntity createdBy;
+
     @CreationTimestamp
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "created_date")

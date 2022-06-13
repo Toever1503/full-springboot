@@ -2,6 +2,7 @@ package com.webs;
 
 import com.dtos.CategoryDto;
 import com.dtos.ResponseDto;
+import com.entities.RoleEntity;
 import com.models.CategoryModel;
 import com.services.ICategoryService;
 import org.springframework.data.domain.Pageable;
@@ -9,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import javax.annotation.security.RolesAllowed;
 import javax.validation.Valid;
 import java.util.stream.Collectors;
 
@@ -42,18 +44,21 @@ public class CategoryResources {
 
     @Transactional(rollbackFor = RuntimeException.class)
     @PostMapping
+    @RolesAllowed(RoleEntity.ADMINISTRATOR)
     public ResponseDto add(@Valid @RequestBody CategoryModel model) {
         return ResponseDto.of(CategoryDto.toDto(categoryService.add(model)), "add category success");
     }
 
     @Transactional(rollbackFor = RuntimeException.class)
     @PutMapping
+    @RolesAllowed(RoleEntity.ADMINISTRATOR)
     public ResponseDto update(@Valid @RequestBody CategoryModel model) {
         return ResponseDto.of(CategoryDto.toDto(categoryService.update(model)), "update category success");
     }
 
     @Transactional(rollbackFor = RuntimeException.class)
     @DeleteMapping("/{id}")
+    @RolesAllowed(RoleEntity.ADMINISTRATOR)
     public ResponseDto deleteById(@PathVariable("id") Long id) {
         return ResponseDto.of(categoryService.deleteById(id), "delete category success");
     }
