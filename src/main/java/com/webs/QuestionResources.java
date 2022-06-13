@@ -128,8 +128,12 @@ public class QuestionResources {
     @PostMapping
     public ResponseDto addQuestion(@Valid QuestionModel questionModel) {
         log.info("admin {%s} is adding question", SecurityUtils.getCurrentUser().getUsername());
-        if (questionModel.getQuestFile().size() > 3)
-            return ResponseDto.of(null, "Failed! , Max image count is 3 per question");
+
+        if (questionModel.getQuestFile() != null) {
+            if (questionModel.getQuestFile().size() > 3)
+                return ResponseDto.of(null, "Failed! , Max image count is 3 per question");
+        }
+
         QuestionEntity questionEntity = this.questionService.add(questionModel);
         QuestionDto questionDto = QuestionDto.toDto(questionEntity);
         return ResponseDto.of(questionDto, "Add question successfully");
@@ -164,6 +168,7 @@ public class QuestionResources {
         log.info("admin {%s} is deleting questions by id list {%s}", SecurityUtils.getCurrentUser().getUsername(), ids.toString());
         return ResponseDto.of(questionService.deleteByIds(ids), "Questions deleted successfully");
     }
+
     @Transactional(rollbackFor = RuntimeException.class)
     @PostMapping("filter")
     public ResponseDto filter(@Valid @RequestBody QuestionFilterModel model, Pageable page) {
