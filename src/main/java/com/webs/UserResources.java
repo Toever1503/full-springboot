@@ -30,7 +30,6 @@ public class UserResources {
     @Autowired
     IUserService userService;
 
-
     @RolesAllowed("ADMINISTRATOR")
     @Transactional(rollbackFor = RuntimeException.class)
     @GetMapping("{id}")

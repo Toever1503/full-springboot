@@ -25,7 +25,6 @@ public class AddressModel {
 
     @ApiModelProperty(notes = "Province Address", dataType = "Integer", example = "3")
     @NotNull
-    @NotNull
     private Integer provinceId;
 
     @ApiModelProperty(notes = "District Address", dataType = "Integer", example = "1")
