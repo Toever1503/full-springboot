@@ -40,10 +40,10 @@ public class ProductServiceImpl implements IProductService {
     private final TagServiceImp tagService;
     final IUserLikeProductRepository userLikeProductRepository;
 
-    public ProductServiceImpl(IProductRepository productRepository, FileUploadProvider fileUploadProvider, 
-    CategoryServiceImpl categoryService, IProductMetaRepository productMetaRepository,
-    IOptionsRepository optionsRepository, TagServiceImp tagService,
-    IUserLikeProductRepository userLikeProductRepository) {
+    public ProductServiceImpl(IProductRepository productRepository, FileUploadProvider fileUploadProvider,
+                              CategoryServiceImpl categoryService, IProductMetaRepository productMetaRepository,
+                              IOptionsRepository optionsRepository, TagServiceImp tagService,
+                              IUserLikeProductRepository userLikeProductRepository) {
         this.productRepository = productRepository;
         this.fileUploadProvider = fileUploadProvider;
         this.categoryService = categoryService;
@@ -70,7 +70,7 @@ public class ProductServiceImpl implements IProductService {
 
     @Override
     public ProductEntity findById(Long id) {
-        return productRepository.findByIdAndActive(id,true).orElseThrow(() -> new RuntimeException("Product not found"));
+        return productRepository.findByIdAndActive(id, true).orElseThrow(() -> new RuntimeException("Product not found"));
     }
 
     @Override
@@ -102,20 +102,20 @@ public class ProductServiceImpl implements IProductService {
                 }
             }
             JSONObject jsonObject = new JSONObject(Map.of("files", filePaths));
-            productEntity.setAttachFiles(jsonObject.toString());
+            savedProduct.setAttachFiles(jsonObject.toString());
         }
 
-        if (!model.getImage().isEmpty()) {
+        if (model.getImage() != null) {
             String filePath;
-            try{
+            try {
                 filePath = fileUploadProvider.uploadFile(folder, model.getImage());
-                productEntity.setImage(filePath);
-            }catch (IOException e){
+                savedProduct.setImage(filePath);
+            } catch (IOException e) {
                 e.printStackTrace();
             }
         }
 
-        return savedProduct;
+        return this.productRepository.save(savedProduct);
     }
 
     @Override
@@ -126,7 +126,7 @@ public class ProductServiceImpl implements IProductService {
     @Override
     public ProductEntity update(ProductModel model) {
         ProductEntity originProduct = this.findById(model.getId());
-        final String folder = UserEntity.FOLDER + SecurityUtils.getCurrentUsername() + ProductEntity.FOLDER ;
+        final String folder = UserEntity.FOLDER + SecurityUtils.getCurrentUsername() + ProductEntity.FOLDER;
 
         // update total product quantity => don't yet
         originProduct.setName(model.getName());
@@ -143,10 +143,10 @@ public class ProductServiceImpl implements IProductService {
 
         originProduct.getProductMetas().clear();
         originProduct.getOptions().clear();
-        originProduct.getProductMetas().addAll(model.getProductMetas().stream().map(mt-> ProductMetaModel.toEntity(mt, originProduct.getId())).collect(Collectors.toList()));
+        originProduct.getProductMetas().addAll(model.getProductMetas().stream().map(mt -> ProductMetaModel.toEntity(mt, originProduct.getId())).collect(Collectors.toList()));
 
         // set product option
-        originProduct.getOptions().addAll(model.getOptions().stream().map(o-> OptionModel.toEntity(o, originProduct.getId())).collect(Collectors.toList()));
+        originProduct.getOptions().addAll(model.getOptions().stream().map(o -> OptionModel.toEntity(o, originProduct.getId())).collect(Collectors.toList()));
 
         // set tag
         Set<TagEntity> tags = model.getTags().stream().map(tagModel -> TagModel.toEntity(tagModel)).collect(Collectors.toSet());
@@ -168,7 +168,7 @@ public class ProductServiceImpl implements IProductService {
             uploadedFiles.addAll(model.getAttachFilesOrigin());
 
         //upload new file to uploadFiles and save to database
-        if (!model.getAttachFiles().get(0).isEmpty()) {
+        if (model.getAttachFiles() != null) {
             for (MultipartFile file : model.getAttachFiles()) {
                 try {
                     uploadedFiles.add(fileUploadProvider.uploadFile(folder, file));
@@ -178,20 +178,19 @@ public class ProductServiceImpl implements IProductService {
             }
         }
         updateProduct.setAttachFiles(uploadedFiles.isEmpty() ? null : (new JSONObject(Map.of("files", uploadedFiles)).toString()));
-
         // update image
-        if (!model.getImage().isEmpty()) {
+        if (model.getImage() != null) {
             String filePath;
-            try{
+            try {
                 filePath = fileUploadProvider.uploadFile(folder, model.getImage());
                 fileUploadProvider.deleteFile(originProduct.getImage());
                 originProduct.setImage(filePath);
-            }catch (IOException e){
+            } catch (IOException e) {
                 e.printStackTrace();
             }
         }
 
-        return updateProduct;
+        return this.productRepository.save(updateProduct);
     }
 
     @Override
@@ -209,17 +208,17 @@ public class ProductServiceImpl implements IProductService {
 
     @Override
     public ProductEntity findProductBySlug(String slug) {
-        return productRepository.findBySlugAndActive(slug,true).orElseThrow(() -> new RuntimeException("Product not found"));
+        return productRepository.findBySlugAndActive(slug, true).orElseThrow(() -> new RuntimeException("Product not found"));
     }
 
     @Override
     public int likeProduct(Long id) {
         //If product is present
-        if(userLikeProductRepository.findFirstByProductIdAndUserId(id, SecurityUtils.getCurrentUserId())!=null){
+        if (userLikeProductRepository.findFirstByProductIdAndUserId(id, SecurityUtils.getCurrentUserId()) != null) {
             UserLikeProductEntity userLikeProductEntity = userLikeProductRepository.findFirstByProductIdAndUserId(id, SecurityUtils.getCurrentUserId());
             userLikeProductEntity.setIsLike(!userLikeProductEntity.getIsLike());
             return 0;
-        }else {
+        } else {
             //if product not present
             UserLikeProductEntity entity = new UserLikeProductEntity();
             entity.setProductId(id);
