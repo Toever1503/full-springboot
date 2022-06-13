@@ -181,6 +181,9 @@ public class UserServiceImp implements IUserService {
         long timeValid = userLogin.isRemember() ? 86400 * 7 : 1800l;
         return JwtLoginResponse.builder()
                 .token(this.jwtProvider.generateToken(userDetail.getUsername(), timeValid))
+                .email(findByUsername(userDetail.getUsername()).getEmail())
+                .username(findByUsername(userDetail.getUsername()).getUserName())
+                .avatar(findByUsername(userDetail.getUsername()).getAvatar())
                 .type("Bearer").authorities(userDetail.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList()))
                 .timeValid(timeValid)
                 .avatar(findByUsername(userDetail.getUsername()).getAvatar())
