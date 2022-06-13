@@ -180,7 +180,9 @@ public class UserServiceImp implements IUserService {
         return JwtLoginResponse.builder()
                 .token(this.jwtProvider.generateToken(userDetail.getUsername(), timeValid))
                 .type("Bearer").authorities(userDetail.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList()))
-                .timeValid(timeValid).build();
+                .timeValid(timeValid)
+                .avatar(findByUsername(userDetail.getUsername()).getAvatar())
+                .build();
     }
 
     public UserEntity findByUsername(String userName) {
