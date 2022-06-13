@@ -1,8 +1,6 @@
 package com.webs;
 
-import com.dtos.NotificationDetailDto;
-import com.dtos.NotificationDto;
-import com.dtos.ResponseDto;
+import com.dtos.*;
 import com.entities.NotificationEntity;
 import com.models.NotificationModel;
 import com.models.filters.NotificationFilter;
@@ -35,7 +33,7 @@ public class NotificationResources {
     @RolesAllowed("ADMINISTRATOR")
     @Transactional(rollbackFor = RuntimeException.class)
     @PostMapping
-    public ResponseDto addNotificationDetail(@Valid @RequestBody NotificationModel model) {
+    public ResponseDto addNotificationDetail(@Valid NotificationModel model) {
         log.info("admin {%s} is adding new notification", SecurityUtils.getCurrentUser().getUsername());
         NotificationEntity notificationEntity = this.notificationService.add(model);
         NotificationDetailDto notificationDetailDto = NotificationDetailDto.toDto(notificationEntity);
@@ -46,7 +44,7 @@ public class NotificationResources {
     @RolesAllowed("ADMINISTRATOR")
     @Transactional(rollbackFor = RuntimeException.class)
     @PutMapping("{id}")
-    public ResponseDto updateNotification(@PathVariable Long id,@Valid @RequestBody NotificationModel model) {
+    public ResponseDto updateNotification(@PathVariable Long id,@Valid NotificationModel model) {
         log.info("admin {%s} is updating notification id: {%d}", SecurityUtils.getCurrentUser().getUsername(), id);
         NotificationEntity notificationEntity = this.notificationService.update(model);
         NotificationDetailDto notificationDetailDto = NotificationDetailDto.toDto(notificationEntity);
@@ -110,5 +108,14 @@ public class NotificationResources {
     @PostMapping("filter")
     public ResponseDto filter(@RequestBody @Valid NotificationFilter notificationFilter, Pageable page) {
         return ResponseDto.of(this.notificationService.filter(page, Specification.where(NotificationSpecification.filter(notificationFilter))).map(NotificationDto::toDto), "Filter success");
+    }
+
+    @GetMapping("list-status")
+    public ResponseDto getListNotificationStatus() {
+        return ResponseDto.of(ENotificationStatus.values(), "Get list status successfully!");
+    }
+    @GetMapping("list-categories")
+    public ResponseDto getListNotificationCategory() {
+        return ResponseDto.of(ENotificationCategory.values(), "Get list categories successfully!");
     }
 }

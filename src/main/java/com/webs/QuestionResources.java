@@ -1,9 +1,6 @@
 package com.webs;
 
-import com.dtos.EStatusQuestion;
-import com.dtos.QuestionDto;
-import com.dtos.ResponseDto;
-import com.dtos.TotalQuestionDto;
+import com.dtos.*;
 import com.entities.QuestionEntity;
 import com.models.filters.QuestionFilterModel;
 import com.models.QuestionModel;
@@ -121,15 +118,19 @@ public class QuestionResources {
     @GetMapping("user/{id}")
     public ResponseDto userGetDetailQuestion(@PathVariable Long id) {
         log.info("user {%s} is getting detail question id", SecurityUtils.getCurrentUser().getUsername());
-        return ResponseDto.of(QuestionDto.toDto(questionService.getQuestionByIdAndUserId(id, SecurityUtils.getCurrentUserId())), "Get question by id successfully");
+        return ResponseDto.of(QuestionResponseDto.toDto(questionService.getQuestionByIdAndUserId(id, SecurityUtils.getCurrentUserId())), "Get question by id successfully");
     }
 
     @Transactional(rollbackFor = RuntimeException.class)
     @PostMapping
     public ResponseDto addQuestion(@Valid QuestionModel questionModel) {
         log.info("admin {%s} is adding question", SecurityUtils.getCurrentUser().getUsername());
-        if (questionModel.getQuestFile().size() > 3)
-            return ResponseDto.of(null, "Failed! , Max image count is 3 per question");
+
+        if (questionModel.getQuestFile() != null) {
+            if (questionModel.getQuestFile().size() > 3)
+                return ResponseDto.of(null, "Failed! , Max image count is 3 per question");
+        }
+
         QuestionEntity questionEntity = this.questionService.add(questionModel);
         QuestionDto questionDto = QuestionDto.toDto(questionEntity);
         return ResponseDto.of(questionDto, "Add question successfully");
@@ -164,6 +165,7 @@ public class QuestionResources {
         log.info("admin {%s} is deleting questions by id list {%s}", SecurityUtils.getCurrentUser().getUsername(), ids.toString());
         return ResponseDto.of(questionService.deleteByIds(ids), "Questions deleted successfully");
     }
+
     @Transactional(rollbackFor = RuntimeException.class)
     @PostMapping("filter")
     public ResponseDto filter(@Valid @RequestBody QuestionFilterModel model, Pageable page) {
@@ -171,5 +173,14 @@ public class QuestionResources {
         return ResponseDto.of(questionService.filter(page, Specification.where(QuestionSpecification.filter(model))).map(TotalQuestionDto::toTotalQuestionDTO), "Get question by filter successfully");
     }
 
+    @GetMapping("list-status")
+    public ResponseDto getListQuestionStatus() {
+        return ResponseDto.of(EStatusQuestion.values(), "Get list status successfully!");
+    }
+
+    @GetMapping("list-categories")
+    public ResponseDto getListNotificationCategory() {
+        return ResponseDto.of(EQuestionCategory.values(), "Get list categories successfully!");
+    }
 
 }

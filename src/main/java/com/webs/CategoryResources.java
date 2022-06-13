@@ -10,6 +10,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/categories")
@@ -67,5 +68,10 @@ public class CategoryResources {
     @GetMapping("search/{q}")
     public ResponseDto search(@PathVariable String q, Pageable page) {
         return ResponseDto.of(categoryService.search(q, page).map(CategoryDto::toDto), "search category success");
+    }
+
+    @GetMapping("get-all-categories")
+    public ResponseDto getAllCategories() {
+        return ResponseDto.of(this.categoryService.findAll().stream().map(CategoryDto::toDto).collect(Collectors.toList()), "get all categories success");
     }
 }

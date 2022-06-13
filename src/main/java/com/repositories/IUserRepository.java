@@ -18,4 +18,6 @@ public interface IUserRepository extends JpaRepository<UserEntity,Long>, JpaSpec
     //Get all userId
     @Query("select u.id from UserEntity u")
     List<Long> getAllId();
+
+    UserEntity findByPhone(String phone);
 }

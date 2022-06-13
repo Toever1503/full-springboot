@@ -22,7 +22,7 @@ public class QuestionResponseDto {
     private Date updatedDate;
     private EStatusQuestion status;
 
-    public static QuestionResponseDto fromEntity(QuestionEntity question) {
+    public static QuestionResponseDto toDto(QuestionEntity question) {
         return QuestionResponseDto
                 .builder()
                 .id(question.getId())

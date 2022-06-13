@@ -25,6 +25,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
@@ -34,6 +35,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.mail.MessagingException;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
+import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -294,6 +296,14 @@ public class UserServiceImp implements IUserService {
         userEntity.setPhone(model.getPhone());
         userEntity.setBirthDate(model.getBirthDate());
         userEntity.setSex(model.getSex());
+
+        UserEntity checkUser = this.userRepository.findByPhone(model.getPhone());
+
+        if(checkUser != null){
+            if(checkUser.getId() != userEntity.getId()){
+                throw new RuntimeException("Phone number already exists!");
+            }
+        }
         if (model.getPassword() != null)
             userEntity.setPassword(passwordEncoder.encode(model.getPassword()));
         if (model.getAvatar() != null) {
