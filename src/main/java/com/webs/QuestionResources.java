@@ -1,9 +1,6 @@
 package com.webs;
 
-import com.dtos.EStatusQuestion;
-import com.dtos.QuestionDto;
-import com.dtos.ResponseDto;
-import com.dtos.TotalQuestionDto;
+import com.dtos.*;
 import com.entities.QuestionEntity;
 import com.models.filters.QuestionFilterModel;
 import com.models.QuestionModel;
@@ -176,5 +173,14 @@ public class QuestionResources {
         return ResponseDto.of(questionService.filter(page, Specification.where(QuestionSpecification.filter(model))).map(TotalQuestionDto::toTotalQuestionDTO), "Get question by filter successfully");
     }
 
+    @GetMapping("list-status")
+    public ResponseDto getListQuestionStatus() {
+        return ResponseDto.of(EStatusQuestion.values(), "Get list status successfully!");
+    }
+
+    @GetMapping("list-categories")
+    public ResponseDto getListNotificationCategory() {
+        return ResponseDto.of(EQuestionCategory.values(), "Get list categories successfully!");
+    }
 
 }

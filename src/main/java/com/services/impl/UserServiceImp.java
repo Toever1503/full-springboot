@@ -34,6 +34,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.mail.MessagingException;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
+import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -294,6 +295,8 @@ public class UserServiceImp implements IUserService {
         userEntity.setPhone(model.getPhone());
         userEntity.setBirthDate(model.getBirthDate());
         userEntity.setSex(model.getSex());
+        if(this.userRepository.findByPhone(model.getPhone())!= null)
+            throw new RuntimeException("Phone already existed!");
         if (model.getPassword() != null)
             userEntity.setPassword(passwordEncoder.encode(model.getPassword()));
         if (model.getAvatar() != null) {

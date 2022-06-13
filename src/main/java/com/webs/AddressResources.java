@@ -22,7 +22,6 @@ public class AddressResources {
         this.addressService = addressService;
     }
 
-
     @GetMapping
     @Transactional(rollbackFor = RuntimeException.class)
     public ResponseDto getAll(Pageable page) {

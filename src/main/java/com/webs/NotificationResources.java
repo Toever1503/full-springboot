@@ -1,8 +1,6 @@
 package com.webs;
 
-import com.dtos.NotificationDetailDto;
-import com.dtos.NotificationDto;
-import com.dtos.ResponseDto;
+import com.dtos.*;
 import com.entities.NotificationEntity;
 import com.models.NotificationModel;
 import com.models.filters.NotificationFilter;
@@ -110,5 +108,14 @@ public class NotificationResources {
     @PostMapping("filter")
     public ResponseDto filter(@RequestBody @Valid NotificationFilter notificationFilter, Pageable page) {
         return ResponseDto.of(this.notificationService.filter(page, Specification.where(NotificationSpecification.filter(notificationFilter))).map(NotificationDto::toDto), "Filter success");
+    }
+
+    @GetMapping("list-status")
+    public ResponseDto getListNotificationStatus() {
+        return ResponseDto.of(ENotificationStatus.values(), "Get list status successfully!");
+    }
+    @GetMapping("list-categories")
+    public ResponseDto getListNotificationCategory() {
+        return ResponseDto.of(ENotificationCategory.values(), "Get list categories successfully!");
     }
 }
