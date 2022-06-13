@@ -118,7 +118,7 @@ public class QuestionResources {
     @GetMapping("user/{id}")
     public ResponseDto userGetDetailQuestion(@PathVariable Long id) {
         log.info("user {%s} is getting detail question id", SecurityUtils.getCurrentUser().getUsername());
-        return ResponseDto.of(QuestionDto.toDto(questionService.getQuestionByIdAndUserId(id, SecurityUtils.getCurrentUserId())), "Get question by id successfully");
+        return ResponseDto.of(QuestionResponseDto.toDto(questionService.getQuestionByIdAndUserId(id, SecurityUtils.getCurrentUserId())), "Get question by id successfully");
     }
 
     @Transactional(rollbackFor = RuntimeException.class)
