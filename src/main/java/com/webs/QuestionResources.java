@@ -166,7 +166,7 @@ public class QuestionResources {
     }
     @Transactional(rollbackFor = RuntimeException.class)
     @PostMapping("filter")
-    public ResponseDto filter(@RequestBody QuestionFilterModel model, Pageable page) {
+    public ResponseDto filter(@Valid @RequestBody QuestionFilterModel model, Pageable page) {
         log.info("{%s} is filtering question", SecurityUtils.getCurrentUser().getUsername());
         return ResponseDto.of(questionService.filter(page, Specification.where(QuestionSpecification.filter(model))).map(TotalQuestionDto::toTotalQuestionDTO), "Get question by filter successfully");
     }

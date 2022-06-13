@@ -9,6 +9,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
+
 @RestController
 @RequestMapping("/categories")
 @Validated
@@ -39,13 +41,13 @@ public class CategoryResources {
 
     @Transactional(rollbackFor = RuntimeException.class)
     @PostMapping
-    public ResponseDto add(@RequestBody CategoryModel model) {
+    public ResponseDto add(@Valid @RequestBody CategoryModel model) {
         return ResponseDto.of(CategoryDto.toDto(categoryService.add(model)), "add category success");
     }
 
     @Transactional(rollbackFor = RuntimeException.class)
     @PutMapping
-    public ResponseDto update(@RequestBody CategoryModel model) {
+    public ResponseDto update(@Valid @RequestBody CategoryModel model) {
         return ResponseDto.of(CategoryDto.toDto(categoryService.update(model)), "update category success");
     }
 

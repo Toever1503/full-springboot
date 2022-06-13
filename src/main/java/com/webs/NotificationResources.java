@@ -35,7 +35,7 @@ public class NotificationResources {
     @RolesAllowed("ADMINISTRATOR")
     @Transactional(rollbackFor = RuntimeException.class)
     @PostMapping
-    public ResponseDto addNotificationDetail(NotificationModel model) {
+    public ResponseDto addNotificationDetail(@Valid @RequestBody NotificationModel model) {
         log.info("admin {%s} is adding new notification", SecurityUtils.getCurrentUser().getUsername());
         NotificationEntity notificationEntity = this.notificationService.add(model);
         NotificationDetailDto notificationDetailDto = NotificationDetailDto.toDto(notificationEntity);
@@ -46,7 +46,7 @@ public class NotificationResources {
     @RolesAllowed("ADMINISTRATOR")
     @Transactional(rollbackFor = RuntimeException.class)
     @PutMapping("{id}")
-    public ResponseDto updateNotification(@PathVariable Long id, NotificationModel model) {
+    public ResponseDto updateNotification(@PathVariable Long id,@Valid @RequestBody NotificationModel model) {
         log.info("admin {%s} is updating notification id: {%d}", SecurityUtils.getCurrentUser().getUsername(), id);
         NotificationEntity notificationEntity = this.notificationService.update(model);
         NotificationDetailDto notificationDetailDto = NotificationDetailDto.toDto(notificationEntity);

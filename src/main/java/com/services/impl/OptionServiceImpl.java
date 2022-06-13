@@ -1,7 +1,6 @@
 package com.services.impl;
 
 import com.entities.OptionEntity;
-import com.models.OptionsModel;
 import com.services.IOptionsService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
