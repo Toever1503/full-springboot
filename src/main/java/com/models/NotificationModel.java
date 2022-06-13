@@ -46,7 +46,6 @@ public class NotificationModel {
     private Boolean isEdit;
     @ApiModelProperty(notes = "status Notification", dataType = "Enum", example = "PENDING, POSTED,FUTURE")
     @NotNull
-    @NotBlank
     private ENotificationStatus status;
     @ApiModelProperty(notes = "future date if status notification is future", dataType = "Date", example = "2020-01-01")
     private Date futureDate;
