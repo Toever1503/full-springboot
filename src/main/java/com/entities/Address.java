@@ -3,6 +3,7 @@ package com.entities;
 import lombok.*;
 
 import javax.persistence.*;
+import java.util.List;
 import java.util.Set;
 
 @Builder
@@ -37,4 +38,7 @@ public class Address {
 
     @Column(name = "phone")
     private String phone;
+
+    @OneToMany(mappedBy = "address", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<OrderEntity> orders;
 }

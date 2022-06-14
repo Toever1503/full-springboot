@@ -4,7 +4,6 @@ import com.entities.CartEntity;
 import com.entities.ProductEntity;
 import com.entities.UserEntity;
 import com.models.CartModel;
-import com.models.ProductModel;
 import com.repositories.ICartRepository;
 import com.services.ICartService;
 import com.services.IProductService;
@@ -18,12 +17,12 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
-public class CartService implements ICartService {
+public class CartServiceImp implements ICartService {
     private final ICartRepository cartRepository;
     private final IProductService productService;
     private final IUserService userService;
 
-    public CartService(ICartRepository cartRepository, IProductService productService, IUserService userService) {
+    public CartServiceImp(ICartRepository cartRepository, IProductService productService, IUserService userService) {
         this.cartRepository = cartRepository;
         this.productService = productService;
         this.userService = userService;
@@ -31,7 +30,7 @@ public class CartService implements ICartService {
 
     @Override
     public List<CartEntity> findAll() {
-        return null;
+        return this.cartRepository.findAll();
     }
 
     @Override
