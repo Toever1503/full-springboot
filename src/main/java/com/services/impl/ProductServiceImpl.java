@@ -92,7 +92,7 @@ public class ProductServiceImpl implements IProductService {
         ProductEntity savedProduct = productRepository.save(productEntity);
 
         String folder = UserEntity.FOLDER + SecurityUtils.getCurrentUsername() + ProductEntity.FOLDER;
-        if (!model.getAttachFiles().get(0).isEmpty()) {
+        if (model.getAttachFiles() != null) {
             List<String> filePaths = new ArrayList<>();
             for (MultipartFile file : model.getAttachFiles()) {
                 try {
@@ -128,18 +128,18 @@ public class ProductServiceImpl implements IProductService {
         ProductEntity originProduct = this.findById(model.getId());
         final String folder = UserEntity.FOLDER + SecurityUtils.getCurrentUsername() + ProductEntity.FOLDER;
 
-            // update total product quantity => don't yet
-            originProduct.setName(model.getName());
-            originProduct.setDescription(model.getDescription());
-            originProduct.setTotalQuantity(0);
-            originProduct.setTotalLike(0);
-            originProduct.setTotalReview(0);
-            originProduct.setRating(0);
-            originProduct.setSlug(model.getSlug() == null ? ASCIIConverter.utf8ToAscii(model.getName()) : ASCIIConverter.utf8ToAscii(model.getSlug()));
-            originProduct.setActive(true);
+        // update total product quantity => don't yet
+        originProduct.setName(model.getName());
+        originProduct.setDescription(model.getDescription());
+        originProduct.setTotalQuantity(0);
+        originProduct.setTotalLike(0);
+        originProduct.setTotalReview(0);
+        originProduct.setRating(0);
+        originProduct.setSlug(model.getSlug() == null ? ASCIIConverter.utf8ToAscii(model.getName()) : ASCIIConverter.utf8ToAscii(model.getSlug()));
+        originProduct.setActive(true);
 
-            CategoryEntity category = categoryService.findById(model.getCategoryId());
-            originProduct.setCategory(category);
+        CategoryEntity category = categoryService.findById(model.getCategoryId());
+        originProduct.setCategory(category);
 
         originProduct.getProductMetas().clear();
         originProduct.getOptions().clear();
@@ -148,24 +148,24 @@ public class ProductServiceImpl implements IProductService {
         // set product option
         originProduct.getOptions().addAll(model.getOptions().stream().map(o -> OptionModel.toEntity(o, originProduct.getId())).collect(Collectors.toList()));
 
-            // set tag
-            Set<TagEntity> tags = model.getTags().stream().map(tagModel -> TagModel.toEntity(tagModel)).collect(Collectors.toSet());
-            originProduct.setTags(tags);
+        // set tag
+        Set<TagEntity> tags = model.getTags().stream().map(tagModel -> TagModel.toEntity(tagModel)).collect(Collectors.toSet());
+        originProduct.setTags(tags);
 
-            ProductEntity updateProduct = productRepository.save(originProduct);
+        ProductEntity updateProduct = productRepository.save(originProduct);
 
-            //delete file into s3
-            List<Object> originalFile;
-            if (originProduct.getAttachFiles() != null) {
-                originalFile = (parseJson(originProduct.getAttachFiles()).getJSONArray("files").toList());
-                originalFile.removeAll(model.getAttachFilesOrigin());
-                originalFile.forEach(o -> fileUploadProvider.deleteFile(o.toString()));
-            }
+        //delete file into s3
+        List<Object> originalFile;
+        if (originProduct.getAttachFiles() != null) {
+            originalFile = (parseJson(originProduct.getAttachFiles()).getJSONArray("files").toList());
+            originalFile.removeAll(model.getAttachFilesOrigin());
+            originalFile.forEach(o -> fileUploadProvider.deleteFile(o.toString()));
+        }
 
-            //add old file to uploadFiles
-            List<String> uploadedFiles = new ArrayList<>();
-            if (!model.getAttachFilesOrigin().isEmpty())
-                uploadedFiles.addAll(model.getAttachFilesOrigin());
+        //add old file to uploadFiles
+        List<String> uploadedFiles = new ArrayList<>();
+        if (!model.getAttachFilesOrigin().isEmpty())
+            uploadedFiles.addAll(model.getAttachFilesOrigin());
 
         //upload new file to uploadFiles and save to database
         if (model.getAttachFiles() != null) {
@@ -196,11 +196,11 @@ public class ProductServiceImpl implements IProductService {
     @Override
     public boolean deleteById(Long id) {
         ProductEntity productEntity = this.findById(id);
-        if(productEntity.getCreatedBy().getId() == SecurityUtils.getCurrentUserId()||SecurityUtils.hasRole(RoleEntity.ADMINISTRATOR)){
+        if (productEntity.getCreatedBy().getId() == SecurityUtils.getCurrentUserId() || SecurityUtils.hasRole(RoleEntity.ADMINISTRATOR)) {
             productEntity.setActive(false);
             this.productRepository.save(productEntity);
             return true;
-        }else
+        } else
             return false;
 
     }
