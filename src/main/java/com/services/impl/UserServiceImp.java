@@ -152,28 +152,33 @@ public class UserServiceImp implements IUserService {
     @Override
     @Transactional(rollbackFor = RuntimeException.class)
     public boolean signUp(RegisterModel registerModel) {
-        if (!userRepository.findUserEntityByUserNameOrEmail(registerModel.getUserName(), registerModel.getEmail()).isPresent()) {
-            Set<RoleEntity> roleEntitySet = new HashSet<>();
-            roleEntitySet.add(roleRepository.findRoleEntityByRoleName(RoleEntity.USER));
-            UserEntity user = userRepository.save(UserEntity.builder().userName(registerModel.getUserName()).email(registerModel.getEmail()).code(codeGenerator()).roleEntity(roleEntitySet).status(false).build());
-            new Thread("Sign Up Mail Sender") {
-                @Override
-                public void run() {
-                    StringBuilder sb = new StringBuilder();
-                    sb.append(registerModel.getUserName()).append("-").append(user.getCode());
-                    String urlResponse = registerModel.getUrl() + jwtProvider.generateToken(sb.toString(), 86400l);
-                    Map<String, Object> context = new HashMap<>();
-                    context.put("url", urlResponse);
-                    try {
-                        mailService.sendMail("VerificationMailTemplate.html", registerModel.getEmail(), "Active your account", context);
-                    } catch (MessagingException e) {
-                        throw new RuntimeException(e);
-                    }
+        UserEntity checkedUser = this.userRepository.findUserEntityByUserNameOrEmail(registerModel.getUserName(), registerModel.getEmail())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        if (checkedUser.getUserName().equalsIgnoreCase(registerModel.getUserName()))
+            throw new RuntimeException("Username has already registered!");
+        else if (checkedUser.getEmail().equalsIgnoreCase(registerModel.getUserName()))
+            throw new RuntimeException("Email has already registered!");
+
+        Set<RoleEntity> roleEntitySet = new HashSet<>();
+        roleEntitySet.add(roleRepository.findRoleEntityByRoleName(RoleEntity.USER));
+        UserEntity user = userRepository.save(UserEntity.builder().userName(registerModel.getUserName()).email(registerModel.getEmail()).code(codeGenerator()).roleEntity(roleEntitySet).status(false).build());
+        new Thread("Sign Up Mail Sender") {
+            @Override
+            public void run() {
+                StringBuilder sb = new StringBuilder();
+                sb.append(registerModel.getUserName()).append("-").append(user.getCode());
+                String urlResponse = registerModel.getUrl() + jwtProvider.generateToken(sb.toString(), 86400l);
+                Map<String, Object> context = new HashMap<>();
+                context.put("url", urlResponse);
+                try {
+                    mailService.sendMail("VerificationMailTemplate.html", registerModel.getEmail(), "Active your account", context);
+                } catch (MessagingException e) {
+                    throw new RuntimeException(e);
                 }
-            }.start();
-            return true;
-        }
-        throw new RuntimeException("User already existed!");
+            }
+        }.start();
+        return true;
     }
 
     @Override
@@ -210,7 +215,6 @@ public class UserServiceImp implements IUserService {
             public void run() {
                 String userToken = user.getUserName().concat("-").concat(user.getCode());
                 System.out.println("raw  userToken: " + userToken);
-
                 userToken = model.getUrl() + jwtProvider.generateToken(userToken, 86400);
                 System.out.println("after generate token: " + userToken);
                 Map<String, Object> context = new HashMap<>();
@@ -253,17 +257,17 @@ public class UserServiceImp implements IUserService {
     // Token filter, check token is valid and set to context
     @Transactional(rollbackFor = RuntimeException.class)
     public boolean tokenFilter(String token, HttpServletRequest req, HttpServletResponse res) {
-       try{
-           String username = this.jwtProvider.getUsernameFromToken(token);
-           CustomUserDetail userDetail = new CustomUserDetail(this.findByUsername(username));
-           UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(userDetail, null, userDetail.getAuthorities());
-           usernamePasswordAuthenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(req));
-           SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
-           return true;
-       }catch (Exception e){
-           e.printStackTrace();
-           return false;
-       }
+        try {
+            String username = this.jwtProvider.getUsernameFromToken(token);
+            CustomUserDetail userDetail = new CustomUserDetail(this.findByUsername(username));
+            UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(userDetail, null, userDetail.getAuthorities());
+            usernamePasswordAuthenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(req));
+            SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 
     @Override
@@ -325,7 +329,6 @@ public class UserServiceImp implements IUserService {
 
     @Override
     public Address addMyAddress(AddressModel model) {
-        UserEntity user = this.findById(SecurityUtils.getCurrentUserId());
         Address address = this.addressService.add(model);
         return address;
     }
@@ -349,17 +352,21 @@ public class UserServiceImp implements IUserService {
     public UserEntity updateUserProfile(UserProfileModel model) {
         UserEntity userEntity = this.findById(SecurityUtils.getCurrentUserId());
         userEntity.setFullName(model.getFullName());
-        userEntity.setPhone(model.getPhone());
+
         userEntity.setBirthDate(model.getBirthDate());
         userEntity.setSex(model.getSex());
 
-        UserEntity checkUser = this.userRepository.findByPhone(model.getPhone());
-
-        if (checkUser != null) {
-            if (checkUser.getId() != userEntity.getId()) {
-                throw new RuntimeException("Phone number already exists!");
+        if (model.getPhone() != null) {
+            UserEntity checkUser = this.userRepository.findByPhone(model.getPhone()); // vudt
+            if (checkUser != null) {
+                if (checkUser.getId() != userEntity.getId()) {
+                    throw new RuntimeException("Phone number already exists!");
+                }
             }
+            userEntity.setPhone(model.getPhone());
         }
+
+
         if (model.getPassword() != null)
             userEntity.setPassword(passwordEncoder.encode(model.getPassword()));
         if (model.getAvatar() != null) {

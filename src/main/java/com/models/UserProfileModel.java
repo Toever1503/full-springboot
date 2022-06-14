@@ -17,8 +17,6 @@ import java.sql.Date;
 @Builder
 public class UserProfileModel {
     @ApiModelProperty(notes = "User full name", dataType = "String", example = "Nguyen Van A")
-    @NotNull
-    @NotBlank
     private String fullName;
 
     @ApiModelProperty(notes = "User password", dataType = "String", example = "123456")
@@ -28,8 +26,6 @@ public class UserProfileModel {
     private Date birthDate;
 
     @ApiModelProperty(notes = "receiver's phone, phone must format follow vietnam", dataType = "String", example = "0952888888")
-    @NotNull
-    @NotBlank
     @Pattern(
             regexp = "(84|0[3|5|7|8|9])+([0-9]{8})\\b",
             message = "Phone number must be in format: 84xxxxxxxx"
@@ -37,8 +33,6 @@ public class UserProfileModel {
     private String phone;
 
     @ApiModelProperty(notes = "User Email", dataType = "String", example = "email@gmail.com")
-    @NotBlank
-    @NotNull
     private String sex;
 
     @ApiModelProperty(notes = "user's avatar")
