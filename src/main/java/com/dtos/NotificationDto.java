@@ -18,6 +18,7 @@ public class NotificationDto {
     private String image;
     private String title;
 
+    private String category;
     private String status;
     private String contentExcerpt;
     private Date updatedDate;
@@ -30,7 +31,7 @@ public class NotificationDto {
     private List<Object> attachFiles;
 
 
-    public NotificationDto(Long id, String image, String title, String status, String contentExcerpt, Date updatedDate, Date createdDate, Boolean isEdit, String createdBy, Integer viewed, boolean isRead, String attachFiles) {
+    public NotificationDto(Long id, String image, String title, String status, String contentExcerpt, Date updatedDate, Date createdDate, Boolean isEdit, String createdBy, Integer viewed, boolean isRead, String attachFiles, String category) {
         this.id = id;
         this.image = image;
         this.title = title;
@@ -43,12 +44,14 @@ public class NotificationDto {
         this.viewed = viewed;
         this.isRead = isRead;
         this.attachFiles = attachFiles == null ? null : new JSONObject(attachFiles).getJSONArray("files").toList();
+        this.category = category;
     }
 
-    public NotificationDto(Long id, String image, String title, String status, String contentExcerpt, Date updatedDate, Date createdDate, Boolean isEdit, String createdBy, Integer viewed, boolean isRead, List<Object> attachFiles) {
+    public NotificationDto(Long id, String image, String title, String category, String status, String contentExcerpt, Date updatedDate, Date createdDate, Boolean isEdit, String createdBy, Integer viewed, boolean isRead, List<Object> attachFiles) {
         this.id = id;
         this.image = image;
         this.title = title;
+        this.category = category;
         this.status = status;
         this.contentExcerpt = contentExcerpt;
         this.updatedDate = updatedDate;
@@ -79,6 +82,7 @@ public class NotificationDto {
                 .createdBy(entity.getCreatedBy().getUserName())
                 .isEdit(entity.getIsEdit())
                 .attachFiles(entity.getAttachFiles() == null ? null : new JSONObject(entity.getAttachFiles()).getJSONArray("files").toList())
+                .category(entity.getCategory())
                 .build();
     }
 }
