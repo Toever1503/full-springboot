@@ -1,6 +1,5 @@
 package com.models;
 
-import com.dtos.ETypeCategory;
 import com.entities.CategoryEntity;
 import com.utils.ASCIIConverter;
 import io.swagger.annotations.ApiModelProperty;
@@ -22,12 +21,13 @@ public class CategoryModel {
     @NotBlank
     @NotNull
     private String categoryName;
+    
     @ApiModelProperty(notes = "slug name, can be automatically generated based on the category name or can be entered manually if desired", dataType = "String", example = "smart-phone-samsung-A20")
     private String slug;
+
     @ApiModelProperty(notes = "description category", dataType = "String", example = "this is descripton for category")
-    @NotNull
-    @NotBlank
     private String description;
+
     @ApiModelProperty(notes = "Category Id parent", dataType = "Long", example = "1")
     private Long parentId;
 
