@@ -4,6 +4,7 @@ import com.entities.CartEntity;
 import com.entities.ProductEntity;
 import com.entities.UserEntity;
 import com.models.CartModel;
+import com.models.ProductModel;
 import com.repositories.ICartRepository;
 import com.services.ICartService;
 import com.services.IProductService;
@@ -50,19 +51,16 @@ public class CartService implements ICartService {
 
     @Override
     public CartEntity add(CartModel model) {
-
-        List<CartEntity> listCart = this.cartRepository.findAll();
-        if(listCart.size() > 0) {
-
-            for(CartEntity cartEntity : listCart) {
-                if((cartEntity.getProduct().getId() == model.getProductId()) && (cartEntity.getOptionId() == model.getOptionId())) {
-                    cartEntity.setQuantity(cartEntity.getQuantity() + model.getQuantity());
-                    return this.cartRepository.save(cartEntity);
-                }
-            }
-        }
-        CartEntity cart = CartModel.toEntity(model);
         ProductEntity productEntity = this.productService.findById(model.getProductId());
+        // check product exist
+        CartEntity cartOrigin = this.cartRepository.findAllByProductIdAndOptionId(model.getProductId(), model.getOptionId());
+        if(cartOrigin != null){
+            cartOrigin.setQuantity(cartOrigin.getQuantity() + model.getQuantity());
+            return this.cartRepository.save(cartOrigin);
+        }
+
+        CartEntity cart = CartModel.toEntity(model);
+        // check option in product or not ?
         productEntity.getOptions().stream().forEach(option -> {
             if (option.getId() == (model.getOptionId())) {
                 cart.setOptionId(model.getOptionId());
@@ -91,7 +89,7 @@ public class CartService implements ICartService {
     }
 
     @Override
-    public CartEntity update(Long id, Integer quantity) {
+    public CartEntity updateQuantityProduct(Long id, Integer quantity) {
         CartEntity cartEntity = this.findById(id);
         cartEntity.setQuantity(quantity);
         return this.cartRepository.save(cartEntity);

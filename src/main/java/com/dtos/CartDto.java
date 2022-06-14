@@ -10,7 +10,7 @@ import lombok.*;
 @Getter
 public class CartDto {
     private Long id;
-    private OptionDto option;
+    private Long optionId;
     private Integer quantity;
     private ProductDto product;
 
@@ -18,6 +18,7 @@ public class CartDto {
         if(cartEntity == null) return null;
         return CartDto.builder()
                 .id(cartEntity.getId())
+                .optionId(cartEntity.getOptionId())
                 .quantity(cartEntity.getQuantity())
                 .product(ProductDto.toDto(cartEntity.getProduct()))
                 .build();
