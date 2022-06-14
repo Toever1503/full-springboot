@@ -31,6 +31,9 @@ public class CategoryEntity {
     @JoinColumn(name = "parent_id")
     private CategoryEntity parentCategory;
 
+    @OneToMany(mappedBy = "parentCategory")
+    private List<CategoryEntity> childCategories;
+
     @OneToMany(mappedBy = "category")
     private List<ProductEntity> products;
 }

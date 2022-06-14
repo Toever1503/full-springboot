@@ -102,7 +102,6 @@ public class QuestionServiceImp implements IQuestionService {
             List<String> uploadedFiles = new ArrayList<String>();
             if (model.getQuestFile() != null) {
                 uploadedFiles.addAll(model.getQuestOriginFile());
-
                 if (!model.getQuestFile().get(0).getName().isEmpty()) {
                     model.getQuestFile().forEach(multipartFile -> {
                         try {
@@ -123,8 +122,6 @@ public class QuestionServiceImp implements IQuestionService {
         }
         else
             return null;
-
-
     }
 
 
