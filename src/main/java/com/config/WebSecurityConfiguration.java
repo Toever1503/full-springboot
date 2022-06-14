@@ -32,7 +32,7 @@ public class WebSecurityConfiguration {
             new AntPathRequestMatcher("/users/signup"),
             new AntPathRequestMatcher("/users/login"),
             new AntPathRequestMatcher("/users/forget-password"),
-            new AntPathRequestMatcher("/users/change-password/**"),
+            new AntPathRequestMatcher("/users/set-password/**"),
             new AntPathRequestMatcher("/addresses/provinces"),
             new AntPathRequestMatcher("/addresses/getAllDistrict/**"),
             new AntPathRequestMatcher("/addresses/getAllWards/**"),

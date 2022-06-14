@@ -2,14 +2,24 @@ package com.models.specifications;
 
 import com.entities.QuestionEntity;
 import com.entities.QuestionEntity_;
+import com.entities.UserEntity;
+import com.entities.UserEntity_;
 import com.models.filters.QuestionFilterModel;
 import org.springframework.data.jpa.domain.Specification;
 
+import javax.persistence.criteria.Join;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
 public class QuestionSpecification extends BaseSpecification {
+
+    public static Specification likeCreatedBy(String createdBy) {
+        return (root, query, cb) -> {
+            Join<QuestionEntity, UserEntity> join = root.join(QuestionEntity_.createdBy);
+            return cb.or(cb.like(join.get(UserEntity_.USER_NAME), createdBy), cb.like(join.get(UserEntity_.FULL_NAME), createdBy));
+        };
+    }
 
     public static Specification<QuestionEntity> filter(QuestionFilterModel filter) {
         List<Specification<QuestionEntity>> specs = new ArrayList<>();
@@ -29,6 +39,8 @@ public class QuestionSpecification extends BaseSpecification {
             specs.add(betweenDate(QuestionEntity_.CREATED_DATE, filter.getMinCreatedDate(), filter.getMaxCreatedDate()));
         if (filter.getMinUpdatedDate() != null && filter.getMaxUpdatedDate() != null)
             specs.add(betweenDate(QuestionEntity_.UPDATED_DATE, filter.getMinUpdatedDate(), filter.getMaxUpdatedDate()));
+        if(filter.getCreatedBy() != null)
+            specs.add(likeCreatedBy(filter.getCreatedBy()));
         Specification finalSpec = null;
 
         for (Specification<QuestionEntity> spec : specs) {
