@@ -6,11 +6,10 @@ import lombok.NoArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestPart;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.util.Date;
 
 
 @RestController
@@ -29,11 +28,11 @@ public class TestRestController {
     @AllArgsConstructor
     @NoArgsConstructor
     static class FormData {
-        private long id;
+        private Date date;
     }
 
     @PostMapping
-    public FormData getFormData(@RequestPart FormData form, @RequestPart("file")MultipartFile file) {
+    public FormData getFormData(@RequestBody FormData form) {
         return form;
     }
 
@@ -42,4 +41,5 @@ public class TestRestController {
         log.info("Hello World {}", "1241241");
         System.out.printf("Hello World %S", "1241241");
     }
+
 }

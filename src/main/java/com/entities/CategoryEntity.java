@@ -27,11 +27,11 @@ public class CategoryEntity {
     @Column(name = "total_product")
     private Long totalProduct;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "parent_id")
     private CategoryEntity parentCategory;
 
-    @OneToMany(mappedBy = "parentCategory")
+    @OneToMany(mappedBy = "parentCategory", fetch = FetchType.LAZY)
     private List<CategoryEntity> childCategories;
 
     @OneToMany(mappedBy = "category")
