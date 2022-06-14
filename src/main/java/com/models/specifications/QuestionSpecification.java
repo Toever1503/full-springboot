@@ -36,12 +36,14 @@ public class QuestionSpecification extends BaseSpecification {
         if (filter.getStatus() != null)
             specs.add(orIn(QuestionEntity_.STATUS, filter.getStatus().stream().map(c -> (Object) c).collect(Collectors.toList())));
 
-        if(filter.getMinCreatedDate()!= null)
+        if (filter.getMinCreatedDate() != null && filter.getMaxCreatedDate() != null)
+            specs.add(betweenDate(QuestionEntity_.CREATED_DATE, filter.getMinCreatedDate(), filter.getMaxCreatedDate()));
+        else if (filter.getMinCreatedDate() != null)
             specs.add(dateGreaterThanEqual(QuestionEntity_.CREATED_DATE, filter.getMinCreatedDate()));
-        if(filter.getMaxCreatedDate()!= null)
+        else if (filter.getMaxUpdatedDate() != null)
             specs.add(dateLessThanEqual(QuestionEntity_.CREATED_DATE, filter.getMaxUpdatedDate()));
 
-        if(filter.getCreatedBy() != null)
+        if (filter.getCreatedBy() != null)
             specs.add(likeCreatedBy(filter.getCreatedBy()));
         Specification finalSpec = null;
 

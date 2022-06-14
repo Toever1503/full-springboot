@@ -10,6 +10,7 @@ import com.services.IQuestionService;
 import com.utils.SecurityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.transaction.annotation.Transactional;
@@ -47,13 +48,6 @@ public class QuestionResources {
             return ResponseDto.of(null, "Failed! , Max image count is 3 per question");
         else
             return ResponseDto.of(TotalQuestionDto.toTotalQuestionDTO(questionService.answerQuestion(qid, model)), "Answered");
-    }
-
-    @Transactional(rollbackFor = RuntimeException.class)
-    @GetMapping("/user/{uid}")
-    public ResponseDto getAllQuestionByUID(@PathVariable("uid") @Valid Long uid, Pageable pageable) {
-        log.info("user {} is getting detail question id: {%d}", SecurityUtils.getCurrentUser().getUsername(), uid);
-        return ResponseDto.of(questionService.getAllQuestionByID(uid, pageable).map(TotalQuestionDto::toTotalQuestionDTO), "Get all question by user id");
     }
 
     @Transactional(rollbackFor = RuntimeException.class)
@@ -170,7 +164,8 @@ public class QuestionResources {
     @PostMapping("filter")
     public ResponseDto filter(@Valid @RequestBody QuestionFilterModel model, Pageable page) {
         log.info("{} is filtering question", SecurityUtils.getCurrentUser().getUsername());
-        return ResponseDto.of(questionService.filter(page, Specification.where(QuestionSpecification.filter(model))).map(TotalQuestionDto::toTotalQuestionDTO), "Get question by filter successfully");
+        Page<QuestionEntity> questionEntities = questionService.filter(page, Specification.where(QuestionSpecification.filter(model)));
+        return ResponseDto.of(questionEntities.map(TotalQuestionDto::toTotalQuestionDTO), "Get question by filter successfully");
     }
 
     @GetMapping("list-status")
