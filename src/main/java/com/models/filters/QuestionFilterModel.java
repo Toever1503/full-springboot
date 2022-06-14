@@ -1,6 +1,7 @@
 package com.models.filters;
 
 import com.dtos.EStatusQuestion;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -29,16 +30,16 @@ public class QuestionFilterModel {
     private List<String> status;
 
     @ApiModelProperty(notes = "Min Created Time of question", dataType = "datetime", example = "2022-06-10 09:18:56")
-    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
     private Date minCreatedDate;
     @ApiModelProperty(notes = "Min Updated Time of question", dataType = "datetime", example = "2022-06-10 09:18:56")
-    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
     private Date minUpdatedDate;
     @ApiModelProperty(notes = "Max Created Time of question", dataType = "datetime", example = "2022-06-10 09:18:56")
-    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
     private Date maxCreatedDate;
     @ApiModelProperty(notes = "Max Updated Time of question", dataType = "datetime", example = "2022-06-10 09:18:56")
-    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
     private Date maxUpdatedDate;
     @ApiModelProperty(notes = "User's name created", dataType = "String", example = "shiki")
     String createdBy;

@@ -1,10 +1,12 @@
 package com.webs;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -28,6 +30,7 @@ public class TestRestController {
     @AllArgsConstructor
     @NoArgsConstructor
     static class FormData {
+        @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
         private Date date;
     }
 
