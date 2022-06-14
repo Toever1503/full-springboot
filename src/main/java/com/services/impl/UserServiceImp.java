@@ -27,6 +27,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Service;
@@ -34,6 +35,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.mail.MessagingException;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.*;
@@ -148,7 +150,7 @@ public class UserServiceImp implements IUserService {
     }
 
     @Override
-   @Transactional(rollbackFor = RuntimeException.class)
+    @Transactional(rollbackFor = RuntimeException.class)
     public boolean signUp(RegisterModel registerModel) {
         if (!userRepository.findUserEntityByUserNameOrEmail(registerModel.getUserName(), registerModel.getEmail()).isPresent()) {
             Set<RoleEntity> roleEntitySet = new HashSet<>();
@@ -199,7 +201,7 @@ public class UserServiceImp implements IUserService {
     }
 
     @Override
-   @Transactional(rollbackFor = RuntimeException.class)
+    @Transactional(rollbackFor = RuntimeException.class)
     public boolean forgetPassword(ForgetPasswordModel model) {
         UserEntity user = this.findByUsername(model.getUserName());
         user.setCode(codeGenerator());
@@ -226,7 +228,7 @@ public class UserServiceImp implements IUserService {
     }
 
     @Override
-    public boolean changePassword(PasswordModel model) {
+    public boolean setPassword(PasswordModel model) {
         String[] userToken = jwtProvider.getUsernameFromToken(model.getToken()).split("-");
         UserEntity user = this.findByUsername(userToken[0]);
         if (!user.getCode().equals(userToken[1])) throw new RuntimeException("User code mismatch!");
@@ -237,15 +239,31 @@ public class UserServiceImp implements IUserService {
         return true;
     }
 
-    // Token filter, check token is valid and set to context
-   @Transactional(rollbackFor = RuntimeException.class)
-    public boolean tokenFilter(String token, HttpServletRequest req) {
-        String username = this.jwtProvider.getUsernameFromToken(token);
-        CustomUserDetail userDetail = new CustomUserDetail(this.findByUsername(username));
-        UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(userDetail, null, userDetail.getAuthorities());
-        usernamePasswordAuthenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(req));
-        SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
+    @Override
+    public boolean changePassword(ChangePasswordModel model) {
+        UserEntity user = SecurityUtils.getCurrentUser().getUser();
+        if (!BCrypt.checkpw(model.getOldPassword(), user.getPassword())) {
+            throw new RuntimeException("Old password mismatch!");
+        }
+        user.setPassword(passwordEncoder.encode(model.getNewPassword()));
+        userRepository.save(user);
         return true;
+    }
+
+    // Token filter, check token is valid and set to context
+    @Transactional(rollbackFor = RuntimeException.class)
+    public boolean tokenFilter(String token, HttpServletRequest req, HttpServletResponse res) {
+       try{
+           String username = this.jwtProvider.getUsernameFromToken(token);
+           CustomUserDetail userDetail = new CustomUserDetail(this.findByUsername(username));
+           UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(userDetail, null, userDetail.getAuthorities());
+           usernamePasswordAuthenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(req));
+           SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
+           return true;
+       }catch (Exception e){
+           e.printStackTrace();
+           return false;
+       }
     }
 
     @Override
@@ -266,7 +284,7 @@ public class UserServiceImp implements IUserService {
 //            myAddress.stream().filter(address -> address.getId()!=id).collect(Collectors.toSet());
 //            myAddress.stream().forEach(address -> this.addressService.update(address));
         boolean deleteAddressByID = addressService.deleteById(id);
-        if(deleteAddressByID)
+        if (deleteAddressByID)
             return true;
         else
             return false;
@@ -295,11 +313,11 @@ public class UserServiceImp implements IUserService {
     @Override
     public boolean setMainAddress(Long id) {
         UserEntity user = this.findById(SecurityUtils.getCurrentUserId());
-        if(this.addressService.findById(id).getUser().getId() == user.getId()|| SecurityUtils.hasRole(RoleEntity.ADMINISTRATOR)){
+        if (this.addressService.findById(id).getUser().getId() == user.getId() || SecurityUtils.hasRole(RoleEntity.ADMINISTRATOR)) {
             user.setMainAddress(id);
             this.userRepository.save(user);
             return true;
-        }else
+        } else
             throw new RuntimeException("Address not found!, id: " + id);
 //        if (!addressService.findByUid(user.getId()).stream().anyMatch(a -> a.getId() == id))
 //            throw new RuntimeException("Address not found!, id: " + id);
@@ -317,10 +335,9 @@ public class UserServiceImp implements IUserService {
         // id 2 want edit address, check
         // usercreated id = 1  == 2
         Address oriAddress = this.addressService.findById(model.getId());
-        if(oriAddress.getUser().getId() == SecurityUtils.getCurrentUserId()|| SecurityUtils.hasRole(RoleEntity.ADMINISTRATOR)){
+        if (oriAddress.getUser().getId() == SecurityUtils.getCurrentUserId() || SecurityUtils.hasRole(RoleEntity.ADMINISTRATOR)) {
             return this.addressService.update(model);
-        }
-        else
+        } else
             return null;
 //        UserEntity user = this.findById(SecurityUtils.getCurrentUserId());
 //        if (!addressService.findByUid(SecurityUtils.getCurrentUserId()).stream().anyMatch(a -> a.getId() == model.getId())|| SecurityUtils.hasRole(RoleEntity.ADMINISTRATOR))
@@ -338,8 +355,8 @@ public class UserServiceImp implements IUserService {
 
         UserEntity checkUser = this.userRepository.findByPhone(model.getPhone());
 
-        if(checkUser != null){
-            if(checkUser.getId() != userEntity.getId()){
+        if (checkUser != null) {
+            if (checkUser.getId() != userEntity.getId()) {
                 throw new RuntimeException("Phone number already exists!");
             }
         }

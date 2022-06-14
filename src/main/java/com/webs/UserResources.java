@@ -87,10 +87,10 @@ public class UserResources {
     @DeleteMapping("my-addresses/{id}")
     public ResponseDto deleteMyAddress(@PathVariable("id") Long id) {
         log.info("{%s} is deleting their address id: {%d}", SecurityUtils.getCurrentUser().getUsername(), id);
-    if(this.userService.deleteMyAddress(id))
-        return ResponseDto.of(true, "Delete my address successfully");
-    else
-        return ResponseDto.of(null, "Delete address failed! Not your address nor ADMINISTRATOR privilege");
+        if (this.userService.deleteMyAddress(id))
+            return ResponseDto.of(true, "Delete my address successfully");
+        else
+            return ResponseDto.of(null, "Delete address failed! Not your address nor ADMINISTRATOR privilege");
     }
 
 
@@ -117,9 +117,16 @@ public class UserResources {
     }
 
     @Transactional(rollbackFor = RuntimeException.class)
+    @PostMapping(value = "/set-password")
+    public ResponseDto setPassword(@RequestBody @Valid PasswordModel model) {
+        log.info("user {\\%s} is setting new password", SecurityUtils.getCurrentUser().getUsername());
+        return ResponseDto.of(userService.setPassword(model) ? true : null, "Set password successfully");
+    }
+
+    @Transactional(rollbackFor = RuntimeException.class)
     @PostMapping(value = "/change-password")
-    public ResponseDto changePassword(@RequestBody PasswordModel model) {
-        log.info("{user} is changing password");
+    public ResponseDto changePassword(@RequestBody @Valid ChangePasswordModel model) {
+        log.info("user {\\%} is changing password", SecurityUtils.getCurrentUser().getUsername());
         return ResponseDto.of(userService.changePassword(model) ? true : null, "Password change successfully");
     }
 

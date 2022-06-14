@@ -76,10 +76,7 @@ public class WebSecurityConfiguration {
                 .logout().disable();
 
         http.authorizeRequests()
-                .requestMatchers(PRIVATE_URLS).authenticated()
-                .and().exceptionHandling().authenticationEntryPoint((req, res, auth) -> {
-                    res.sendError(401, "You have to login");
-                });
+                .requestMatchers(PRIVATE_URLS).authenticated();
         http.addFilterBefore(new JwtFilter(userService), org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
