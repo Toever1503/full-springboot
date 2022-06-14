@@ -17,9 +17,7 @@ import javax.validation.constraints.NotNull;
 public class CategoryModel {
     @ApiModelProperty(notes = "Category ID", dataType = "Long", example = "1")
     private Long id;
-    @ApiModelProperty(notes = "Category type", dataType = "Enum", example = "WOMEN, MEN, UNISEX")
-    @NotNull
-    private ETypeCategory type;
+
     @ApiModelProperty(notes = "Category name", dataType = "String", example = "smart phone samsung A20")
     @NotBlank
     @NotNull
