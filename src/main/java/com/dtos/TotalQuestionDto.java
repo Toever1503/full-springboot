@@ -30,7 +30,7 @@ public class TotalQuestionDto {
     private String userReply;
 
     public static TotalQuestionDto toTotalQuestionDTO(QuestionEntity entity) {
-        if (entity == null) throw new RuntimeException("No Question Found!");
+        if (entity == null) throw new RuntimeException("Question entity is null!");
         TotalQuestionDto dto = new TotalQuestionDto();
         dto.setId(entity.getId());
         dto.setCategory(entity.getCategory());
@@ -40,7 +40,6 @@ public class TotalQuestionDto {
         dto.setTitle(entity.getTitle());
         dto.setQuestFiles((entity.getQuestFile() == null ? null : parseJson(entity.getQuestFile()).getJSONArray("files").toList()));
         dto.setUpdatedDate(entity.getUpdatedDate());
-        dto.setReplyFiles((entity.getReplyFile() == null ? null : parseJson(entity.getReplyFile()).getJSONArray("files").toList()));
         dto.setReplyContent(entity.getReplyContent());
         dto.setCreatedBy(entity.getCreatedBy().getUserName());
         if (entity.getAnsweredBy() != null)

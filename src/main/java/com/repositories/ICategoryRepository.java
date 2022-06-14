@@ -7,11 +7,12 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
 public interface ICategoryRepository extends JpaRepository<CategoryEntity, Long> {
-    Page<CategoryEntity> findAllByParentCategoryId(Long id, Pageable pageable);
+    List<CategoryEntity> findAllByParentCategoryId(Long id);
     Optional<CategoryEntity> findBySlug(String slug);
 
     @Query("SELECT c FROM CategoryEntity c WHERE c.slug LIKE %?1% or c.categoryName LIKE %?1% or c.description LIKE %?1%")

@@ -35,9 +35,10 @@ public class CategoryServiceImpl implements ICategoryService {
     }
 
     @Override
-    public Page<CategoryEntity> findChildrenById(Long id, Pageable pageable) {
-        return this.categoryRepository.findAllByParentCategoryId(id, pageable);
+    public List<CategoryEntity> findChildrenById(Long id) {
+        return this.categoryRepository.findAllByParentCategoryId(id);
     }
+
 
     @Override
     public CategoryEntity findBySlug(String slug) {

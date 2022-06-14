@@ -32,8 +32,6 @@ public class QuestionEntity {
     private Date createdDate;
     @Column(name = "reply_content")
     private String replyContent;
-    @Column(name = "reply_file")
-    private String replyFile;
     @UpdateTimestamp
     @Column(name = "updated_date")
     @Temporal(javax.persistence.TemporalType.TIMESTAMP)

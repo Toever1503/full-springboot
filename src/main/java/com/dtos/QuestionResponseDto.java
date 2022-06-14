@@ -17,7 +17,6 @@ public class QuestionResponseDto {
     private Long id;
     private QuestionDto questionDto;
     private String replyContent;
-    private List<Object> replyFiles;
     private UserDto userReply;
 
     public static QuestionResponseDto toDto(QuestionEntity question) {
@@ -27,7 +26,6 @@ public class QuestionResponseDto {
                 .questionDto(QuestionDto.toDto(question))
                 .replyContent(question.getReplyContent())
                 .userReply(UserDto.toDto(question.getAnsweredBy()))
-                .replyFiles(question.getReplyFile() != null ? new JSONObject(question.getReplyFile()).getJSONArray("files").toList() : null)
                 .build();
     }
 }

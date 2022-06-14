@@ -135,9 +135,6 @@ public class QuestionServiceImp implements IQuestionService {
             if (questionEntity.getQuestFile() != null) {
                 new JSONObject(questionEntity.getQuestFile()).getJSONArray("files").toList().forEach(u -> fileUploadProvider.deleteFile(u.toString()));
             }
-            if (questionEntity.getReplyFile() != null) {
-                new JSONObject(questionEntity.getReplyFile()).getJSONArray("files").toList().forEach(u -> fileUploadProvider.deleteFile(u.toString()));
-            }
             questionRepository.deleteById(id);
             return true;
         }
@@ -155,11 +152,6 @@ public class QuestionServiceImp implements IQuestionService {
     public QuestionEntity answerQuestion(Long qid, QuestionResponseModel model) {
         QuestionEntity question = this.findById(qid);
 
-        if (question.getReplyFile() != null) {
-            List<Object> originalFile = (parseJson(question.getReplyFile()).getJSONArray("files").toList());
-            originalFile.removeAll(model.getOldFiles());
-            originalFile.forEach(o -> fileUploadProvider.deleteFile(o.toString()));
-        }
         List<String> uploadedFiles = new ArrayList<String>();
         if (!model.getOldFiles().isEmpty())
             uploadedFiles.addAll(model.getOldFiles());
@@ -177,8 +169,6 @@ public class QuestionServiceImp implements IQuestionService {
             }
 
         }
-        question.setReplyFile(uploadedFiles.isEmpty() ? null : (new JSONObject(Map.of("files", uploadedFiles)).toString()));
-
         question.setAnsweredBy(userService.findById(SecurityUtils.getCurrentUserId()));
         question.setReplyContent(model.getReplyContent());
         question.setStatus(EStatusQuestion.COMPLETED.toString());

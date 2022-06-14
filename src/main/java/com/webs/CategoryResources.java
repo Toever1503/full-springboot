@@ -5,6 +5,7 @@ import com.dtos.ResponseDto;
 import com.entities.RoleEntity;
 import com.models.CategoryModel;
 import com.services.ICategoryService;
+import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
@@ -36,11 +37,20 @@ public class CategoryResources {
         return ResponseDto.of(CategoryDto.toDto(categoryService.findById(id)), "get category success");
     }
 
+    @Operation(summary = "Get all child category", description = "Get all child category by parent category ID")
     @Transactional(rollbackFor = RuntimeException.class)
     @GetMapping("/{id}/children")
-    public ResponseDto findChildrenById(@PathVariable("id") Long id, Pageable pageable) {
-        return ResponseDto.of(this.categoryService.findChildrenById(id, pageable).map(CategoryDto::toDto), "get category children success");
+    public ResponseDto findChildrenById(@PathVariable("id") Long id) {
+        return ResponseDto.of(this.categoryService.findChildrenById(id).stream().map(CategoryDto::toDto).collect(Collectors.toList()), "get category children success");
     }
+
+    @Operation(summary = "Get all parent category", description = "Get all category which hasn't parent")
+    @Transactional(rollbackFor = RuntimeException.class)
+    @GetMapping("/all-parent-categories")
+    public ResponseDto findAllParentCategories() {
+        return ResponseDto.of(this.categoryService.findChildrenById(null).stream().map(CategoryDto::toDto).collect(Collectors.toList()), "get category children success");
+    }
+
 
     @Transactional(rollbackFor = RuntimeException.class)
     @PostMapping

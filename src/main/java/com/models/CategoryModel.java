@@ -21,7 +21,7 @@ public class CategoryModel {
     @NotBlank
     @NotNull
     private String categoryName;
-    
+
     @ApiModelProperty(notes = "slug name, can be automatically generated based on the category name or can be entered manually if desired", dataType = "String", example = "smart-phone-samsung-A20")
     private String slug;
 
