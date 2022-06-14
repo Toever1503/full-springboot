@@ -50,13 +50,6 @@ public class QuestionResources {
     }
 
     @Transactional(rollbackFor = RuntimeException.class)
-    @GetMapping("/user/{uid}")
-    public ResponseDto getAllQuestionByUID(@PathVariable("uid") @Valid Long uid, Pageable pageable) {
-        log.info("user {%s} is getting detail question id: {%d}", SecurityUtils.getCurrentUser().getUsername(), uid);
-        return ResponseDto.of(questionService.getAllQuestionByID(uid, pageable).map(TotalQuestionDto::toTotalQuestionDTO), "Get all question by user id");
-    }
-
-    @Transactional(rollbackFor = RuntimeException.class)
     @GetMapping("/user")
     public ResponseDto getAllMyQuestion(Pageable pageable) {
         log.info("user {%s} is getting all their question", SecurityUtils.getCurrentUser().getUsername());
