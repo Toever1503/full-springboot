@@ -8,17 +8,28 @@ import com.models.filters.OrderFilterModel;
 import org.springframework.data.jpa.domain.Specification;
 
 import javax.persistence.criteria.Join;
+import javax.persistence.criteria.Predicate;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 public class OrderSpecification extends BaseSpecification{
     // like user name method
-    public static Specification<OrderEntity> likeUserName(String keyword) {
+    public static Specification<OrderEntity> likeUserName(String cratedBy) {
         return (root, query, criteriaBuilder) -> {
             Join<OrderEntity, UserEntity> createByJoin = root.join(OrderEntity_.createdBy);
-            return criteriaBuilder.like(criteriaBuilder.upper(createByJoin.get(UserEntity_.userName)), "%" + keyword.toLowerCase() + "%");
+            return criteriaBuilder.like(criteriaBuilder.upper(createByJoin.get(UserEntity_.userName)), "%" + cratedBy.toUpperCase() + "%");
         };
+    }
+
+    //like address method
+    public static Specification<OrderEntity> likeAddress(String address) {
+        return (root, query, criteriaBuilder) -> criteriaBuilder.like(root.get(OrderEntity_.MAIN_ADDRESS), "%" + address + "%");
+    }
+
+    // like note method
+    public static Specification<OrderEntity> likeNote(String note) {
+        return (root, query, criteriaBuilder) -> criteriaBuilder.like(root.get(OrderEntity_.NOTE), "%" + note + "%");
     }
 
     // filter by order date method
@@ -37,13 +48,15 @@ public class OrderSpecification extends BaseSpecification{
     }
 
     // filter by payment method
-    public static Specification<OrderEntity> byOrderPaymentMethod(String nPaymentMethod) {
-        return (root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get(OrderEntity_.PAYMENT_METHOD), nPaymentMethod);
-    }
+    public static Specification<OrderEntity> byOrderPaymentMethod(List<String> nPaymentMethods) {
+        return (root, query, criteriaBuilder) -> criteriaBuilder.or(
+                    nPaymentMethods.stream().map(paymentMethod -> criteriaBuilder.equal(root.get(OrderEntity_.paymentMethod), paymentMethod)).toArray(Predicate[]::new));
+        };
 
     // filter by order status
-    public static Specification<OrderEntity> byOrderStatus(String nStatus) {
-        return ((root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get(OrderEntity_.STATUS), nStatus));
+    public static Specification<OrderEntity> byOrderStatus(List<String> nStatus) {
+        return ((root, query, criteriaBuilder) -> criteriaBuilder.or(
+                    nStatus.stream().map(status -> criteriaBuilder.equal(root.get(OrderEntity_.status), status)).toArray(Predicate[]::new)));
     }
 
     // filter by total price method
@@ -64,21 +77,27 @@ public class OrderSpecification extends BaseSpecification{
     public static Specification<OrderEntity> filter(OrderFilterModel orderFilterModel){
         List<Specification<OrderEntity>> specs =new ArrayList<>();
 
-        if(orderFilterModel.getKeyword() != null && !orderFilterModel.getKeyword().isEmpty()){
-            specs.add(likeUserName(orderFilterModel.getKeyword()));
+        if(orderFilterModel.getUserName() != null && !orderFilterModel.getUserName().isEmpty()){
+            specs.add(likeUserName(orderFilterModel.getUserName()));
+        }
+        if(orderFilterModel.getAddress() != null && !orderFilterModel.getAddress().isEmpty()){
+            specs.add(likeAddress(orderFilterModel.getAddress()));
+        }
+        if(orderFilterModel.getNote() != null && !orderFilterModel.getNote().isEmpty()){
+            specs.add(likeNote(orderFilterModel.getNote()));
         }
 
-        if(orderFilterModel.getPaymentMethod()!=null){
-            specs.add(byOrderPaymentMethod(orderFilterModel.getPaymentMethod()));
+        if(orderFilterModel.getPaymentMethods()!=null){
+            specs.add(byOrderPaymentMethod(orderFilterModel.getPaymentMethods()));
         }
-        if(orderFilterModel.getFromCreatedDate()!=null && orderFilterModel.getToCreatedDate()!=null){
+        if(orderFilterModel.getFromCreatedDate()!=null || orderFilterModel.getToCreatedDate()!=null){
             specs.add(byOrderDate(orderFilterModel.getFromCreatedDate(), orderFilterModel.getToCreatedDate()));
         }
-        if (orderFilterModel.getStatus() != null) {
-            specs.add(byOrderStatus(orderFilterModel.getStatus()));
+        if (orderFilterModel.getStatusList() != null) {
+            specs.add(byOrderStatus(orderFilterModel.getStatusList()));
         }
-        if (orderFilterModel.getFromTotalPrices() != null && orderFilterModel.getToTotalPrices() != null) {
-            specs.add(byTotalPrice(orderFilterModel.getFromTotalPrices(), orderFilterModel.getToTotalPrices()));
+        if (orderFilterModel.getMinTotalPrices() != null || orderFilterModel.getMaxTotalPrices() != null) {
+            specs.add(byTotalPrice(orderFilterModel.getMinTotalPrices(), orderFilterModel.getMaxTotalPrices()));
         }
 
         Specification<OrderEntity> finalSpec = null;

@@ -6,12 +6,13 @@ import com.models.OrderModel;
 import com.models.filters.OrderFilterModel;
 import com.models.specifications.OrderSpecification;
 import com.services.IOrderService;
+import com.utils.SecurityUtils;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
-import javax.validation.Valid;
+import javax.annotation.security.RolesAllowed;
 
 @RestController
 @RequestMapping("/order")
@@ -22,10 +23,30 @@ public class OrderResources {
         this.orderService = orderService;
     }
 
+    @RolesAllowed("ADMINISTRATOR")
     @Transactional
     @GetMapping("/{id}")
     public ResponseDto getOrderById(@PathVariable("id") Long id) {
-        return ResponseDto.of(orderService.findById(id), "Get order by id success, id: " + id);
+        return ResponseDto.of(OrderDto.toDto(orderService.findById(id)), "Get order by id success, id: " + id);
+    }
+
+    @Transactional
+    @GetMapping("/user/{id}")
+    public ResponseDto getOrderUserById(@PathVariable("id") Long id) {
+        return ResponseDto.of(OrderDto.toDto(orderService.onlyUserFindById(id, SecurityUtils.getCurrentUserId())), "User id: " + SecurityUtils.getCurrentUserId() + ", Get order by id success, id: " + id);
+    }
+
+    @RolesAllowed("ADMINISTRATOR")
+    @Transactional
+    @GetMapping
+    public ResponseDto getAllOrders(Pageable pageable) {
+        return ResponseDto.of(orderService.findAll(pageable).map(OrderDto::toDto), "User id: " + SecurityUtils.getCurrentUserId() + ", Get all orders successfully");
+    }
+
+    @Transactional
+    @GetMapping("user")
+    public ResponseDto getAllOrdersUser(Pageable pageable) {
+        return ResponseDto.of(orderService.onlyUserFindAll(pageable, SecurityUtils.getCurrentUserId()).map(OrderDto::toDto), "User id: " + SecurityUtils.getCurrentUserId() + ", Get all orders user");
     }
 
     @Transactional

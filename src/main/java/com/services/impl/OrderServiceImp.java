@@ -93,6 +93,10 @@ public class OrderServiceImp implements IOrderService {
         Address address = this.addressService.findById(model.getAddressId());
         orderEntity.setAddress(address);
 
+        orderEntity.setMainAddress(address.getProvince().getName() + " " + address.getDistrict().getName() + address.getWard().getName() + " " + address.getStreet());
+        orderEntity.setMainPhone(address.getPhone());
+        orderEntity.setMainReceiver(address.getReceiver());
+
         orderEntity.setTotalNumberProducts(totalNumberProducts);
         orderEntity.setTotalPrices(totalPrices);
         orderEntity.setOrderDetails(orderDetailEntities);
@@ -138,5 +142,15 @@ public class OrderServiceImp implements IOrderService {
             return this.orderRepository.save(orderOrigin);
         }
         throw new RuntimeException("Order can't cancel, id: " + id);
+    }
+
+    @Override
+    public OrderEntity onlyUserFindById(Long id, Long userId) {
+        return this.orderRepository.findByIdAndCreateBy_Id(id, userId).orElseThrow(() -> new RuntimeException("User id: " + userId + ", Order not found, id: " + id));
+    }
+
+    @Override
+    public Page<OrderEntity> onlyUserFindAll(Pageable page, Long userId) {
+        return this.orderRepository.findAllByCreatedBy_Id(page, userId);
     }
 }

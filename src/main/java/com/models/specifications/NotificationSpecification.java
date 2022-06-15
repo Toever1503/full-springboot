@@ -88,7 +88,7 @@ public class NotificationSpecification extends BaseSpecification{
         if(notificationFilter.getCategory()!=null){
             specs.add(byNotificationCategory(notificationFilter.getCategory()));
         }
-        if(notificationFilter.getFromCreatedDate()!=null && notificationFilter.getToCreatedDate()!=null){
+        if(notificationFilter.getFromCreatedDate()!=null || notificationFilter.getToCreatedDate()!=null){
             specs.add(byNotificationDate(notificationFilter.getFromCreatedDate(), notificationFilter.getToCreatedDate()));
         }
 

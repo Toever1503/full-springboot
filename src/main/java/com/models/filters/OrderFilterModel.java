@@ -5,16 +5,19 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.Date;
+import java.util.List;
 
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
 public class OrderFilterModel {
-    private String keyword;
-    private String paymentMethod;
-    private String status;
+    private String userName;
+    private String address;
+    private String note;
+    private List<String> paymentMethods;
+    private List<String> statusList;
     private Date fromCreatedDate;
     private Date toCreatedDate;
-    private Double fromTotalPrices;
-    private Double toTotalPrices;
+    private Double minTotalPrices;
+    private Double maxTotalPrices;
 }
