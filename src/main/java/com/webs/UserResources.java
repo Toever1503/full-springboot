@@ -138,7 +138,7 @@ public class UserResources {
     }
 
     @Transactional(rollbackFor = RuntimeException.class)
-    @PostMapping("get-my-avatar")
+    @GetMapping("get-my-avatar")
     public ResponseDto getMyAvatar() {
         log.info("{} is getting their avatar", SecurityUtils.getCurrentUser().getUsername());
         return ResponseDto.of(SecurityUtils.getCurrentUser().getUser().getAvatar(), "Get my avatar successfully");
