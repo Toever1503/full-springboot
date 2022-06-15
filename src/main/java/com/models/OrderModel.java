@@ -27,6 +27,8 @@ public class OrderModel {
                 .paymentMethod(model.paymentMethod.toString())
                 .note(model.getNote())
                 .status(EStatusOrder.PENDING.name())
+                .COD(null)
+                .transactionNo(null)
                 .build();
     }
 }

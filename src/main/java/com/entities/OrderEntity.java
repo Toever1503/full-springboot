@@ -33,6 +33,17 @@ public class OrderEntity {
     @Column(name = "status")
     private String status;
 
+    @Column(name = "main_address")
+    private String mainAddress;
+    @Column(name = "main_phone")
+    private String mainPhone;
+    @Column(name = "main_receiver")
+    private String mainReceiver;
+    @Column(name = "COD")
+    private String COD;
+    @Column(name = "transaction_no")
+    private String transactionNo;
+
     @CreationTimestamp
     @Column(name = "created_date")
     @Temporal(javax.persistence.TemporalType.TIMESTAMP)
@@ -49,6 +60,8 @@ public class OrderEntity {
     @ManyToOne
     @JoinColumn(name = "created_by")
     private UserEntity createdBy;
+
+
 
     @OneToMany( cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "order_id")

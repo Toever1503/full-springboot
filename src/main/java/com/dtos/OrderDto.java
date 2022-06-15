@@ -3,6 +3,7 @@ package com.dtos;
 import com.entities.OrderEntity;
 import lombok.*;
 
+import javax.persistence.Column;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -24,12 +25,22 @@ public class OrderDto {
     private UserDto createdBy;
     private Date createdDate;
     private Date updatedDate;
+
+    private String mainAddress;
+    private String mainPhone;
+    private String mainReceiver;
+    private String COD;
+
     private List<OrderDetailDto> orderDetails;
 
     public static OrderDto toDto(OrderEntity entity) {
         if(entity == null) return null;
         return OrderDto.builder()
                 .id(entity.getId())
+                .mainAddress(entity.getMainAddress())
+                .mainPhone(entity.getMainPhone())
+                .mainReceiver(entity.getMainReceiver())
+                .COD(entity.getCOD())
                 .uuid(entity.getUuid())
                 .address(AddressDto.toDto(entity.getAddress()))
                 .paymentMethod(entity.getPaymentMethod())
