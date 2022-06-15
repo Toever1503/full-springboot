@@ -1,10 +1,12 @@
 package com.services.impl;
 
 import com.entities.CategoryEntity;
+import com.entities.RoleEntity;
 import com.models.CategoryModel;
 import com.repositories.ICategoryRepository;
 import com.services.ICategoryService;
 import com.utils.ASCIIConverter;
+import com.utils.SecurityUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -33,9 +35,10 @@ public class CategoryServiceImpl implements ICategoryService {
     }
 
     @Override
-    public Page<CategoryEntity> findChildrenById(Long id, Pageable pageable) {
-        return this.categoryRepository.findAllByParentCategoryId(id, pageable);
+    public List<CategoryEntity> findChildrenById(Long id) {
+        return this.categoryRepository.findAllByParentCategoryId(id);
     }
+
 
     @Override
     public CategoryEntity findBySlug(String slug) {
@@ -90,8 +93,8 @@ public class CategoryServiceImpl implements ICategoryService {
 
     @Override
     public boolean deleteById(Long id) {
-        this.categoryRepository.deleteById(id);
-        return true;
+            this.categoryRepository.deleteById(id);
+            return true;
     }
 
     @Override

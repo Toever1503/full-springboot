@@ -39,6 +39,7 @@ public class Address {
     @Column(name = "phone")
     private String phone;
 
-    @OneToMany(mappedBy = "address")
-    private List<OrderEntity> orders;
+    @ManyToOne(targetEntity = UserEntity.class)
+    @JoinColumn(name = "user_id")
+    private UserEntity user;
 }

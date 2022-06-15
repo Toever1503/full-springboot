@@ -3,6 +3,7 @@ package com.webs.exception;
 
 import com.dtos.ResponseDto;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -27,10 +28,19 @@ public class CustomException {
         return new ResponseDto("Miss parameters", "ERROR", errors);
     }
 
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseDto accessDenied(AccessDeniedException ex) {
+        System.out.println("here");
+        ex.printStackTrace();
+        return new ResponseDto(ex.getMessage(), "ERROR", null);
+    }
+
     @ExceptionHandler(RuntimeException.class)
     @ResponseStatus(HttpStatus.EXPECTATION_FAILED)
     public ResponseDto inValidArguments(RuntimeException ex) {
         ex.printStackTrace();
         return new ResponseDto(ex.getMessage(), "ERROR", ex.getMessage());
     }
+
+
 }

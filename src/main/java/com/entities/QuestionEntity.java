@@ -32,12 +32,10 @@ public class QuestionEntity {
     private Date createdDate;
     @Column(name = "reply_content")
     private String replyContent;
-    @Column(name = "reply_file")
-    private String replyFile;
-        @UpdateTimestamp
-        @Column(name = "updated_date")
-        @Temporal(javax.persistence.TemporalType.TIMESTAMP)
-        private Date updatedDate;
+    @UpdateTimestamp
+    @Column(name = "updated_date")
+    @Temporal(javax.persistence.TemporalType.TIMESTAMP)
+    private Date updatedDate;
     @Column(name = "isCompatible")
     private boolean isCompatible;
     @Column(name = "status")
