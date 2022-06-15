@@ -55,7 +55,7 @@ public class NotificationSpecification extends BaseSpecification {
         if (notificationFilter.getContentExcerpt() != null)
             specs.add(like(NotificationEntity_.CONTENT_EXCERPT, notificationFilter.getContentExcerpt()));
 
-        if (!notificationFilter.getStatus().isEmpty())
+        if (notificationFilter.getStatus() != null)
             specs.add(orIn(NotificationEntity_.STATUS, notificationFilter.getStatus().stream().map(s -> (Object) s).collect(Collectors.toList())));
 
         if (notificationFilter.getMinViewed() != null)
@@ -64,7 +64,7 @@ public class NotificationSpecification extends BaseSpecification {
         if (notificationFilter.getMaxViewed() != null)
             specs.add(byMaxNotificationViewed(notificationFilter.getMaxViewed()));
 
-        if (!notificationFilter.getCategory().isEmpty())
+        if (notificationFilter.getCategory()  != null)
             specs.add(orIn(NotificationEntity_.CATEGORY, notificationFilter.getCategory().stream().map(s -> (Object) s).collect(Collectors.toList())));
 
         if (notificationFilter.getFromCreatedDate() != null || notificationFilter.getToCreatedDate() != null)
