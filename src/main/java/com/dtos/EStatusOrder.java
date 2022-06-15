@@ -1,0 +1,5 @@
+package com.dtos;
+
+public enum EStatusOrder {
+    PENDING, COMPLETED, APPROVE, PAID, REJECT, CANCELED, REFUNDING, REFUNDED, DELIVERING
+}
