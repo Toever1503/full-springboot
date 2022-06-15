@@ -9,6 +9,7 @@ import com.models.*;
 import org.springframework.data.domain.Page;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 import java.util.Set;
 
@@ -19,9 +20,10 @@ public interface IUserService extends IBaseService<UserEntity, UserModel, Long>{
 
     boolean forgetPassword( ForgetPasswordModel model);
 
-    boolean changePassword(PasswordModel model);
+    boolean setPassword(PasswordModel model);
+    boolean changePassword(ChangePasswordModel model);
 
-    boolean tokenFilter(String substring, HttpServletRequest req);
+    boolean tokenFilter(String substring, HttpServletRequest req, HttpServletResponse res);
 
     UserEntity getMyProfile();
 

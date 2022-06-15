@@ -15,23 +15,17 @@ import java.util.stream.Collectors;
 @Builder
 public class QuestionResponseDto {
     private Long id;
-    private String category;
+    private QuestionDto questionDto;
     private String replyContent;
-    private List<Object> replyFiles;
     private UserDto userReply;
-    private Date updatedDate;
-    private EStatusQuestion status;
 
     public static QuestionResponseDto toDto(QuestionEntity question) {
         return QuestionResponseDto
                 .builder()
                 .id(question.getId())
-                .category(question.getCategory())
+                .questionDto(QuestionDto.toDto(question))
                 .replyContent(question.getReplyContent())
                 .userReply(UserDto.toDto(question.getAnsweredBy()))
-                .updatedDate(question.getUpdatedDate())
-                .replyFiles(question.getReplyFile() != null ? new JSONObject(question.getReplyFile()).getJSONArray("files").toList() : null)
-                .status(EStatusQuestion.COMPLETED)
                 .build();
     }
 }

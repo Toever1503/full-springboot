@@ -3,6 +3,9 @@ package com.dtos;
 import com.entities.CategoryEntity;
 import lombok.*;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
@@ -13,16 +16,18 @@ public class CategoryDto {
     private String categoryName;
     private String slug;
     private String description;
-    private ParentCategoryDto parentCategory;
+    private CategoryDto parentCategory;
+    private List<CategoryDto> childCategories;
 
-    public static CategoryDto toDto(CategoryEntity entity) {
-        if(entity == null) return null;
+    public static CategoryDto toDto(CategoryEntity entity, boolean wantChild, boolean wantParent) {
+        if (entity == null) return null;
         return CategoryDto.builder()
                 .id(entity.getId())
                 .categoryName(entity.getCategoryName())
                 .slug(entity.getSlug())
                 .description(entity.getDescription())
-                .parentCategory(entity.getParentCategory() == null ? null : ParentCategoryDto.toDto(entity.getParentCategory()))
+                .parentCategory(wantParent ? (entity.getParentCategory() == null ? null : CategoryDto.toDto(entity.getParentCategory(), wantChild, wantParent)) : null)
+                .childCategories(wantChild ? (entity.getChildCategories().isEmpty() ? null : entity.getChildCategories().stream().map(child -> CategoryDto.toDto(child, wantChild, wantParent)).collect(Collectors.toList())) : null)
                 .build();
     }
 }

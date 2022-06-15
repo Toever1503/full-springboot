@@ -1,8 +1,13 @@
 package com.config.jwt;
 
+import com.dtos.ResponseDto;
 import com.services.IUserService;
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authentication.AccountStatusException;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -35,12 +40,18 @@ public class JwtFilter extends OncePerRequestFilter {
             String token = null;
             token = req.getHeader("Authorization");
             System.out.println("token: " + token);
-            if (token == null)
-                // token not valid
-                res.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized! Please login to use this feature!");
-            else {
-                this.userService.tokenFilter(token.substring(7), req);
-                filterChain.doFilter(req, res);
+            if (token == null) {
+                // token null
+                res.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                res.getWriter().println(new JSONObject(new ResponseDto("Unauthorized! Please login to use this feature!", "ERROR", null)));
+            } else {
+                if (this.userService.tokenFilter(token.substring(7), req, res))
+                    filterChain.doFilter(req, res);
+                else {
+                    // token not valid
+                    res.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                    res.getWriter().println(new JSONObject(new ResponseDto("Unauthorized! Token invalid!", "ERROR", null)));
+                }
             }
         }
 

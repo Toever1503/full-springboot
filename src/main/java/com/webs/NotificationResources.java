@@ -34,7 +34,7 @@ public class NotificationResources {
     @Transactional(rollbackFor = RuntimeException.class)
     @PostMapping
     public ResponseDto addNotificationDetail(@Valid NotificationModel model) {
-        log.info("admin {%s} is adding new notification", SecurityUtils.getCurrentUser().getUsername());
+        log.info("admin {} is adding new notification", SecurityUtils.getCurrentUser().getUsername());
         NotificationEntity notificationEntity = this.notificationService.add(model);
         NotificationDetailDto notificationDetailDto = NotificationDetailDto.toDto(notificationEntity);
 
@@ -45,7 +45,7 @@ public class NotificationResources {
     @Transactional(rollbackFor = RuntimeException.class)
     @PutMapping("{id}")
     public ResponseDto updateNotification(@PathVariable Long id,@Valid NotificationModel model) {
-        log.info("admin {%s} is updating notification id: {%d}", SecurityUtils.getCurrentUser().getUsername(), id);
+        log.info("admin {} is updating notification id: {%d}", SecurityUtils.getCurrentUser().getUsername(), id);
         NotificationEntity notificationEntity = this.notificationService.update(model);
         NotificationDetailDto notificationDetailDto = NotificationDetailDto.toDto(notificationEntity);
         return ResponseDto.of(notificationDetailDto, "update notification successfully");
@@ -55,7 +55,7 @@ public class NotificationResources {
     @Transactional(rollbackFor = RuntimeException.class)
     @DeleteMapping("/{id}")
     public ResponseDto deleteNotification(@PathVariable("id") Long id) {
-        log.info("admin {%s} is deleting notification id: {%d}", SecurityUtils.getCurrentUser().getUsername(), id);
+        log.info("admin {} is deleting notification id: {%d}", SecurityUtils.getCurrentUser().getUsername(), id);
         return ResponseDto.of(this.notificationService.deleteById(id), "Deleted notification successfully");
     }
 
@@ -63,14 +63,14 @@ public class NotificationResources {
     @Transactional(rollbackFor = RuntimeException.class)
     @GetMapping
     public ResponseDto getAll(Pageable page) {
-        log.info("admin {%s} is getting all notifications", SecurityUtils.getCurrentUser().getUsername());
+        log.info("admin {} is getting all notifications", SecurityUtils.getCurrentUser().getUsername());
         return ResponseDto.of(this.notificationService.findAll(page).map(NotificationDto::toDto), "Admin get all notifications");
     }
 
     @Transactional(rollbackFor = RuntimeException.class)
     @GetMapping("user/getAll")
     public ResponseDto userGetAll(Pageable page) {
-        log.info("user {%s} is getting all notifications", SecurityUtils.getCurrentUser().getUsername());
+        log.info("user {} is getting all notifications", SecurityUtils.getCurrentUser().getUsername());
         return ResponseDto.of(this.notificationService.userGetAllNotifications(page), "User get all notifications");
     }
 
@@ -79,14 +79,14 @@ public class NotificationResources {
     @Transactional(rollbackFor = RuntimeException.class)
     @GetMapping("{id}")
     public ResponseDto findById(@PathVariable Long id) {
-        log.info("admin {%s} is getting notification id: {%d}", SecurityUtils.getCurrentUser().getUsername(), id);
+        log.info("admin {} is getting notification id: {%d}", SecurityUtils.getCurrentUser().getUsername(), id);
         return ResponseDto.of(NotificationDetailDto.toDto(this.notificationService.findById(id)), "Get notification id: " + id);
     }
 
     @Transactional(rollbackFor = RuntimeException.class)
     @GetMapping("user/{id}")
     public ResponseDto userGetDetailQuestion(@PathVariable Long id) {
-        log.info("user {%s} is getting notification id: {%d}", SecurityUtils.getCurrentUser().getUsername(), id);
+        log.info("user {} is getting notification id: {%d}", SecurityUtils.getCurrentUser().getUsername(), id);
         return ResponseDto.of(NotificationDetailDto.toDto(this.notificationService.findById(id)), "Get notification id: " + id);
     }
 

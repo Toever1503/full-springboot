@@ -32,7 +32,7 @@ public class WebSecurityConfiguration {
             new AntPathRequestMatcher("/users/signup"),
             new AntPathRequestMatcher("/users/login"),
             new AntPathRequestMatcher("/users/forget-password"),
-            new AntPathRequestMatcher("/users/change-password/**"),
+            new AntPathRequestMatcher("/users/set-password/**"),
             new AntPathRequestMatcher("/addresses/provinces"),
             new AntPathRequestMatcher("/addresses/getAllDistrict/**"),
             new AntPathRequestMatcher("/addresses/getAllWards/**"),
@@ -76,10 +76,7 @@ public class WebSecurityConfiguration {
                 .logout().disable();
 
         http.authorizeRequests()
-                .requestMatchers(PRIVATE_URLS).authenticated()
-                .and().exceptionHandling().authenticationEntryPoint((req, res, auth) -> {
-                    res.sendError(401, "You have to login");
-                });
+                .requestMatchers(PRIVATE_URLS).authenticated();
         http.addFilterBefore(new JwtFilter(userService), org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
