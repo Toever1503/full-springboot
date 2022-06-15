@@ -21,6 +21,6 @@ public class TagEntity {
     private String tagName;
     @Column(name = "slug", unique = true)
     private String slug;
-    @ManyToMany
+    @ManyToMany(mappedBy = "tags")
     private Set<ProductEntity> products;
 }
