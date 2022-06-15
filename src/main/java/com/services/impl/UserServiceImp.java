@@ -153,13 +153,13 @@ public class UserServiceImp implements IUserService {
     @Transactional(rollbackFor = RuntimeException.class)
     public boolean signUp(RegisterModel registerModel) {
         UserEntity checkedUser = this.userRepository.findUserEntityByUserNameOrEmail(registerModel.getUserName(), registerModel.getEmail())
-                .orElseThrow(() -> new RuntimeException("User not found"));
-
-        if (checkedUser.getUserName().equalsIgnoreCase(registerModel.getUserName()))
-            throw new RuntimeException("Username has already registered!");
-        else if (checkedUser.getEmail().equalsIgnoreCase(registerModel.getUserName()))
-            throw new RuntimeException("Email has already registered!");
-
+                .orElse(null);
+        if (checkedUser != null) {
+            if (checkedUser.getUserName().equalsIgnoreCase(registerModel.getUserName()))
+                throw new RuntimeException("Username has already registered!");
+            else if (checkedUser.getEmail().equalsIgnoreCase(registerModel.getUserName()))
+                throw new RuntimeException("Email has already registered!");
+        }
         Set<RoleEntity> roleEntitySet = new HashSet<>();
         roleEntitySet.add(roleRepository.findRoleEntityByRoleName(RoleEntity.USER));
         UserEntity user = userRepository.save(UserEntity.builder().userName(registerModel.getUserName()).email(registerModel.getEmail()).code(codeGenerator()).roleEntity(roleEntitySet).status(false).build());
