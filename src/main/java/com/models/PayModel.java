@@ -10,6 +10,6 @@ import lombok.NoArgsConstructor;
 public class PayModel {
     public Long vnp_Ammount;
     public String vnp_OrderInfo;
-    public String vnp_OrderType = "200000";
+    public String vnp_OrderType = "OTHERS";
     public String vnp_TxnRef;
 }

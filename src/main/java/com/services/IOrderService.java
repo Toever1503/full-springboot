@@ -6,4 +6,6 @@ import com.models.OrderModel;
 public interface IOrderService extends IBaseService<OrderEntity, OrderModel, Long> {
     OrderEntity updateStatusOrder(Long id, String status);
     OrderEntity cancelOrder(Long id);
+
+    OrderEntity findByUUID(String uuid);
 }

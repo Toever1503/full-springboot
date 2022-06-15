@@ -33,6 +33,9 @@ public class OrderEntity {
     @Column(name = "status")
     private String status;
 
+    @Column(name = "transaction_no")
+    private String transactionNo;
+
     @CreationTimestamp
     @Column(name = "created_date")
     @Temporal(javax.persistence.TemporalType.TIMESTAMP)

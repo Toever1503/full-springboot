@@ -139,4 +139,9 @@ public class OrderServiceImp implements IOrderService {
         }
         throw new RuntimeException("Order can't cancel, id: " + id);
     }
+
+    @Override
+    public OrderEntity findByUUID(String uuid) {
+        return orderRepository.findByUuid(uuid).orElseThrow(()-> new RuntimeException("Not Found!"));
+    }
 }

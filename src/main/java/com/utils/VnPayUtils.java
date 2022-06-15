@@ -14,8 +14,12 @@ public class VnPayUtils {
     public static String vnp_HashSecret = "HEMVEOBMAWSXSMKKUTEDHPFWEPXSTVRY";
 
     public static String vnp_Url = "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html";
-    public static String vnp_ResUrl = "http://localhost:8081/transaction/payment";
-    public static String vnp_BankCode = "NCB";
+    public static String vnp_ResUrl = "http://localhost:8081/transaction/result";
+
+    //INTCARD, NCB, VNBANK, EXIMBANK, VNPAYQR
+    public static String vnp_BankCode = "VNBANK";
+    //INTCARD, NCB, VNBANK, EXIMBANK, VNPAYQR
+    public static String vnp_OrderType = "OTHERS";
     public static String vnp_CurrCode = "VND";
     //    public static String vnp_IpAddr = "0:0:0:0:0:0:0:1";
     public static String vnp_Locale = "vn";

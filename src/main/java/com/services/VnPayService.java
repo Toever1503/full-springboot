@@ -1,28 +1,43 @@
 package com.services;
 
+import com.dtos.EPaymentMethod;
+import com.dtos.EStatusOrder;
 import com.dtos.PaymentResultDto;
-import com.models.PayModel;
+import com.entities.OrderEntity;
+import com.repositories.IOrderRepository;
+import com.utils.SecurityUtils;
 import com.utils.VnPayUtils;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class VnPayService {
+    final IOrderService orderService;
+    final IOrderRepository orderRepository;
     final String OLD_FORMAT = "yyyyMMddHHmmss";
     final String NEW_FORMAT = "yyyy/MM/dd'T'HH:mm:ss";
-    public String PerformTransaction(PayModel payModel, HttpServletRequest request) throws UnsupportedEncodingException {
-        Calendar cld = Calendar.getInstance(TimeZone.getTimeZone("Etc/GMT+7"));
+    final String ALLOWED_STATUS[] = {"PENDING","APPROVE","PAYING","FAILED"};
+    public VnPayService(IOrderService orderService, IOrderRepository orderRepository) {
+        this.orderService = orderService;
+        this.orderRepository = orderRepository;
+    }
 
+    public String PerformTransaction(Long id, HttpServletRequest request) throws UnsupportedEncodingException {
+        OrderEntity curOrder = orderRepository.findById(id).orElseThrow(()-> new RuntimeException("Not Found"));
+        if(curOrder.getCreatedBy().getId()== SecurityUtils.getCurrentUserId()&& Arrays.stream(ALLOWED_STATUS).filter(s -> s.equals(curOrder.getStatus())).collect(Collectors.toList()).size()>0){
+        Calendar cld = Calendar.getInstance(TimeZone.getTimeZone("Etc/GMT+7"));
+        if(curOrder.getPaymentMethod().equals(EPaymentMethod.CASH.toString()))
+            curOrder.setPaymentMethod(EPaymentMethod.BANK.toString());
         SimpleDateFormat formatter = new SimpleDateFormat(OLD_FORMAT);
         String vnp_CreateDate = formatter.format(cld.getTime());
-
+        //Expire time
         cld.add(Calendar.MINUTE,15);
         String vnp_ExpireDate = formatter.format(cld.getTime());
 
@@ -30,16 +45,16 @@ public class VnPayService {
         vnp_Params.put("vnp_Version",VnPayUtils.vnp_Version);
         vnp_Params.put("vnp_Command",VnPayUtils.vnp_Command);
         vnp_Params.put("vnp_TmnCode",VnPayUtils.vnp_TmnCode);
-        vnp_Params.put("vnp_Amount",String.valueOf(payModel.vnp_Ammount*100));
+        vnp_Params.put("vnp_Amount",String.valueOf(curOrder.getTotalPrices().intValue()*100));
         vnp_Params.put("vnp_BankCode", VnPayUtils.vnp_BankCode);
         vnp_Params.put("vnp_CreateDate", vnp_CreateDate);
         vnp_Params.put("vnp_CurrCode",VnPayUtils.vnp_CurrCode);
         vnp_Params.put("vnp_IpAddr", VnPayUtils.getIpAddress(request));
         vnp_Params.put("vnp_Locale",VnPayUtils.vnp_Locale);
-        vnp_Params.put("vnp_OrderInfo",payModel.vnp_OrderInfo);
-        vnp_Params.put("vnp_OrderType",payModel.vnp_OrderType);
+        vnp_Params.put("vnp_OrderInfo",curOrder.getNote());
+        vnp_Params.put("vnp_OrderType",VnPayUtils.vnp_OrderType);
         vnp_Params.put("vnp_ReturnUrl", VnPayUtils.vnp_ResUrl);
-        vnp_Params.put("vnp_TxnRef",payModel.vnp_TxnRef);
+        vnp_Params.put("vnp_TxnRef",curOrder.getUuid());
         vnp_Params.put("vnp_ExpireDate", vnp_ExpireDate);
 
         List fieldList = new ArrayList(vnp_Params.keySet());
@@ -69,11 +84,16 @@ public class VnPayService {
         }
         String queryUrl = query.toString();
         String vnp_SecureHash = VnPayUtils.hmacSHA512(VnPayUtils.vnp_HashSecret,hashData.toString());
+        curOrder.setStatus(EStatusOrder.PAYING.toString());
+        orderRepository.save(curOrder);
         queryUrl += "&vnp_SecureHash=" + vnp_SecureHash;
         String paymentUrl = VnPayUtils.vnp_Url + "?" + queryUrl;
         return paymentUrl;
+        }
+        else
+        return null;
     }
-    public PaymentResultDto getPaymentUrl(HttpServletResponse response, HttpServletRequest request) throws UnsupportedEncodingException {
+    public PaymentResultDto getTransactionResult(HttpServletRequest request) throws UnsupportedEncodingException {
         try {
 
         /*  IPN URL: Record payment results from VNPAY
@@ -110,14 +130,37 @@ public class VnPayService {
 
             // Check checksum
             String signValue = VnPayUtils.hashAllFields(fields);
+
             if (signValue.equals(vnp_SecureHash)) {
-
-                boolean checkOrderId = true; // vnp_TxnRef exists in your database
-                boolean checkAmount = true; // vnp_Amount is valid (Check vnp_Amount VNPAY returns compared to the
-//                amount of the code (vnp_TxnRef) in the Your database).
-                boolean checkOrderStatus = true; // PaymnentStatus = 0 (pending)
-
-
+                OrderEntity order = new OrderEntity();
+                boolean checkOrderId;
+                if (orderRepository.findByUuid(String.valueOf(fields.get("vnp_TxnRef"))).isPresent()){
+                    order = orderRepository.findByUuid(String.valueOf(fields.get("vnp_TxnRef"))).get();
+                    if(order.getTransactionNo()==null)
+                        checkOrderId = true;
+                    else
+                        checkOrderId = false;
+                }
+                else
+                    checkOrderId = false;
+                // vnp_TxnRef exists in your database
+                boolean checkAmount;
+                if(order.getTotalPrices().intValue() == Integer.parseInt(String.valueOf(fields.get("vnp_Amount")))/100){
+                    checkAmount = true;
+                }else
+                {
+                    checkAmount = false;
+                }
+                // vnp_Amount is valid (Check vnp_Amount VNPAY returns compared to the
+//                amount of the code (vnp_TxnRef) in the Your database)
+                boolean checkOrderStatus; // PaymnentStatus = 0 (pending)
+                OrderEntity finalOrder = order;
+                if(Arrays.stream(ALLOWED_STATUS).anyMatch(s -> s.equals(finalOrder.getStatus()))){
+                    checkOrderStatus = true;
+                }
+                else {
+                    checkOrderStatus = false;
+                }
                 if (checkOrderId) {
                     if (checkAmount) {
                         if (checkOrderStatus) {
@@ -146,25 +189,35 @@ public class VnPayService {
                                 resultDto.setTransactionNo(String.valueOf(fields.get("vnp_TransactionNo")));
 //                                resultDto.set(String.valueOf(fields.get("vnp_TransactionNo")));
                                 resultDto.setStatus("SUCCESS");
+                                order.setTransactionNo(String.valueOf(fields.get("vnp_TransactionNo")));
+                                order.setStatus(EStatusOrder.PAID.toString());
+                                orderRepository.save(order);
+                                System.out.print("{\"RspCode\":\"00\",\"Message\":\"Confirm Success\"}");
                                 return resultDto;
-                                //Here Code update PaymnentStatus = 1 into your Database
+                                //Update DB When success
                             } else {
-
-                                // Here Code update PaymnentStatus = 2 into your Database
+                                orderRepository.changeOrderStatusByID(EStatusOrder.FAILED.toString(), order.getId());
+                                System.out.print("{\"RspCode\":\"00\",\"Message\":\"Confirm Success\"}");
+                                return null;
                             }
-                            System.out.print("{\"RspCode\":\"00\",\"Message\":\"Confirm Success\"}");
                         } else {
-
                             System.out.print("{\"RspCode\":\"02\",\"Message\":\"Order already confirmed\"}");
+                            orderRepository.changeOrderStatusByID(EStatusOrder.FAILED.toString(), order.getId());
+                            return null;
                         }
                     } else {
                         System.out.print("{\"RspCode\":\"04\",\"Message\":\"Invalid Amount\"}");
+                        orderRepository.changeOrderStatusByID(EStatusOrder.FAILED.toString(), order.getId());
+                        return null;
                     }
                 } else {
                     System.out.print("{\"RspCode\":\"01\",\"Message\":\"Order not Found\"}");
+                    orderRepository.changeOrderStatusByID(EStatusOrder.FAILED.toString(), order.getId());
+                    return null;
                 }
             } else {
                 System.out.print("{\"RspCode\":\"97\",\"Message\":\"Invalid Checksum\"}");
+                return null;
             }
         } catch (Exception e) {
             System.out.print("{\"RspCode\":\"99\",\"Message\":\"Unknow error\"}");

@@ -39,7 +39,8 @@ public class WebSecurityConfiguration {
             new AntPathRequestMatcher("/swagger-resources/**"),
             new AntPathRequestMatcher("/swagger-ui/**"),
             new AntPathRequestMatcher("/v2/api-docs"),
-            new AntPathRequestMatcher("/webjars/**")
+            new AntPathRequestMatcher("/webjars/**"),
+            new AntPathRequestMatcher("/transaction/result")
     );
 
     private RequestMatcher PRIVATE_URLS = new NegatedRequestMatcher(PUBLIC_URLS);
