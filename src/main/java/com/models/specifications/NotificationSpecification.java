@@ -46,31 +46,33 @@ public class NotificationSpecification extends BaseSpecification {
     public static Specification<NotificationEntity> filter(NotificationFilter notificationFilter) {
         List<Specification<NotificationEntity>> specs = new ArrayList<>();
 
-        if (notificationFilter.getTitle() != null) {
+        if (notificationFilter.getTitle() != null)
             specs.add(like(NotificationEntity_.TITLE, notificationFilter.getTitle()));
-        }
-        if (notificationFilter.getContent() != null) {
-            specs.add(like(NotificationEntity_.CONTENT, notificationFilter.getContent()));
-        }
-        if (notificationFilter.getContentExcerpt() != null) {
-            specs.add(like(NotificationEntity_.CONTENT_EXCERPT, notificationFilter.getContentExcerpt()));
-        }
-        if (notificationFilter.getStatus() != null) {
-            specs.add(orIn(NotificationEntity_.STATUS, notificationFilter.getStatus().stream().map(s -> (Object) s).collect(Collectors.toList())));
-        }
-        if (notificationFilter.getMinViewed() != null) {
-            specs.add(byMinNotificationViewed(notificationFilter.getMinViewed()));
-        }
-        if (notificationFilter.getMaxViewed() != null) {
-            specs.add(byMaxNotificationViewed(notificationFilter.getMaxViewed()));
-        }
-        if (notificationFilter.getCategory() != null) {
-            specs.add(orIn(NotificationEntity_.CATEGORY, notificationFilter.getCategory().stream().map(s -> (Object) s).collect(Collectors.toList())));
-        }
-        if (notificationFilter.getFromCreatedDate() != null && notificationFilter.getToCreatedDate() != null) {
-            specs.add(byNotificationDate(notificationFilter.getFromCreatedDate(), notificationFilter.getToCreatedDate()));
-        }
 
+        if (notificationFilter.getContent() != null)
+            specs.add(like(NotificationEntity_.CONTENT, notificationFilter.getContent()));
+
+        if (notificationFilter.getContentExcerpt() != null)
+            specs.add(like(NotificationEntity_.CONTENT_EXCERPT, notificationFilter.getContentExcerpt()));
+
+        if (notificationFilter.getStatus() != null)
+            specs.add(orIn(NotificationEntity_.STATUS, notificationFilter.getStatus().stream().map(s -> (Object) s).collect(Collectors.toList())));
+
+        if (notificationFilter.getMinViewed() != null)
+            specs.add(byMinNotificationViewed(notificationFilter.getMinViewed()));
+
+        if (notificationFilter.getMaxViewed() != null)
+            specs.add(byMaxNotificationViewed(notificationFilter.getMaxViewed()));
+
+        if (notificationFilter.getCategory() != null)
+            specs.add(orIn(NotificationEntity_.CATEGORY, notificationFilter.getCategory().stream().map(s -> (Object) s).collect(Collectors.toList())));
+
+        if (notificationFilter.getFromCreatedDate() != null && notificationFilter.getToCreatedDate() != null)
+            specs.add(byNotificationDate(notificationFilter.getFromCreatedDate(), notificationFilter.getToCreatedDate()));
+
+
+        if (notificationFilter.getCreatedBy() != null)
+            specs.add(likeCreatedBy(notificationFilter.getCreatedBy()));
 
 
         Specification<NotificationEntity> finalSpec = null;
