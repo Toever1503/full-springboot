@@ -38,8 +38,8 @@ public class BeanConfiguration {
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/**")
                         .allowedOrigins("http://192.168.1.19:8081",
-                                "http://43.200.3.53",
-                                "http://43.200.3.53:3000",
+                                "http://3.39.232.152",
+                                "http://3.39.232.152:3000",
                                 "http://localhost:8080",
                                 "http://localhost:8081")
                         .allowedOriginPatterns("*.*.*.*:*")

@@ -136,4 +136,11 @@ public class UserResources {
         log.info("{} is filtering user", SecurityUtils.getCurrentUser().getUsername());
         return ResponseDto.of(userService.filter(page, Specification.where(UserSpecification.filter(model))).map(UserDto::toDto), "Filter user successfully");
     }
+
+    @Transactional(rollbackFor = RuntimeException.class)
+    @PostMapping("get-my-avatar")
+    public ResponseDto getMyAvatar() {
+        log.info("{} is getting their avatar", SecurityUtils.getCurrentUser().getUsername());
+        return ResponseDto.of(SecurityUtils.getCurrentUser().getUser().getAvatar(), "Get my avatar successfully");
+    }
 }
