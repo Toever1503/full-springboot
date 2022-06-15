@@ -119,7 +119,7 @@ public class UserResources {
     @Transactional(rollbackFor = RuntimeException.class)
     @PostMapping(value = "/set-password")
     public ResponseDto setPassword(@RequestBody @Valid PasswordModel model) {
-        log.info("user {} is setting new password", SecurityUtils.getCurrentUser().getUsername());
+        log.info("user {} is setting new password");
         return ResponseDto.of(userService.setPassword(model) ? true : null, "Set password successfully");
     }
 
