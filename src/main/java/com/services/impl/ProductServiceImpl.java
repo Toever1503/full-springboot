@@ -76,6 +76,8 @@ public class ProductServiceImpl implements IProductService {
     @Override
     public ProductEntity add(ProductModel model) {
         ProductEntity productEntity = ProductModel.toEntity(model);
+        this.productRepository.findBySlugAndActive(productEntity.getSlug(), true).orElseThrow(() -> new RuntimeException("Product slug already exists: " + productEntity.getSlug()));
+
         productEntity.setTotalQuantity(0);
 
         CategoryEntity category = categoryService.findById(model.getCategoryId());
@@ -126,6 +128,13 @@ public class ProductServiceImpl implements IProductService {
     @Override
     public ProductEntity update(ProductModel model) {
         ProductEntity originProduct = this.findById(model.getId());
+        originProduct.setSlug(model.getSlug() == null ? ASCIIConverter.utf8ToAscii(model.getName()) : ASCIIConverter.utf8ToAscii(model.getSlug()));
+
+        ProductEntity checkedProduct = this.productRepository.findBySlugAndActive(originProduct.getSlug(), true).orElseThrow(() -> new RuntimeException("Product slug already exists: " + originProduct.getSlug()));
+        if (checkedProduct != null && checkedProduct.getId() != originProduct.getId()) {
+            throw new RuntimeException("Product slug already exists: " + originProduct.getSlug());
+        }
+
         final String folder = UserEntity.FOLDER + SecurityUtils.getCurrentUsername() + ProductEntity.FOLDER;
 
         // update total product quantity => don't yet
@@ -135,7 +144,7 @@ public class ProductServiceImpl implements IProductService {
         originProduct.setTotalLike(0);
         originProduct.setTotalReview(0);
         originProduct.setRating(0);
-        originProduct.setSlug(model.getSlug() == null ? ASCIIConverter.utf8ToAscii(model.getName()) : ASCIIConverter.utf8ToAscii(model.getSlug()));
+
         originProduct.setActive(true);
 
         CategoryEntity category = categoryService.findById(model.getCategoryId());
