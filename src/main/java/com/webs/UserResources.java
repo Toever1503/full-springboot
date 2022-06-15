@@ -146,7 +146,7 @@ public class UserResources {
     }
 
     @Transactional
-    @GetMapping("update-profile/avatar")
+    @PutMapping("update-profile/avatar")
     public ResponseDto updateAvatar(@RequestPart MultipartFile avatar){
         log.info("{} is updating their avatar", SecurityUtils.getCurrentUser().getUsername());
         return ResponseDto.of(userService.updateAvatar(avatar), "Update avatar successfully");
