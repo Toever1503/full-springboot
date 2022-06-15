@@ -32,6 +32,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.mail.MessagingException;
 import javax.servlet.http.HttpServletRequest;
@@ -378,5 +379,20 @@ public class UserServiceImp implements IUserService {
             }
         }
         return this.userRepository.save(userEntity);
+    }
+
+    @Override
+    public boolean updateAvatar(MultipartFile avatar) {
+        if (avatar.isEmpty())
+            throw new RuntimeException("Avatar file is empty!");
+        UserEntity userEntity = SecurityUtils.getCurrentUser().getUser();
+        if (userEntity.getAvatar() != null)
+            this.fileUploadProvider.deleteFile(userEntity.getAvatar());
+        try {
+            userEntity.setAvatar(this.fileUploadProvider.uploadFile(UserEntity.FOLDER + userEntity.getUserName() + "/", avatar));
+        } catch (IOException e) {
+            throw new RuntimeException("File Avatar upload error!");
+        }
+        return this.userRepository.save(userEntity) != null;
     }
 }

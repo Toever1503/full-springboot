@@ -17,6 +17,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.security.RolesAllowed;
 import javax.validation.Valid;
@@ -142,5 +143,12 @@ public class UserResources {
     public ResponseDto getMyAvatar() {
         log.info("{} is getting their avatar", SecurityUtils.getCurrentUser().getUsername());
         return ResponseDto.of(SecurityUtils.getCurrentUser().getUser().getAvatar(), "Get my avatar successfully");
+    }
+
+    @Transactional
+    @GetMapping("update-profile/avatar")
+    public ResponseDto updateAvatar(@RequestPart MultipartFile avatar){
+        log.info("{} is updating their avatar", SecurityUtils.getCurrentUser().getUsername());
+        return ResponseDto.of(userService.updateAvatar(avatar), "Update avatar successfully");
     }
 }

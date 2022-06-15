@@ -7,6 +7,7 @@ import com.entities.Address;
 import com.entities.UserEntity;
 import com.models.*;
 import org.springframework.data.domain.Page;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -38,4 +39,6 @@ public interface IUserService extends IBaseService<UserEntity, UserModel, Long>{
     Address updateMyAddress(AddressModel model);
 
     UserEntity updateUserProfile(UserProfileModel model);
+
+    boolean updateAvatar(MultipartFile avatar);
 }
