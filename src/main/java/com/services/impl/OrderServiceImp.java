@@ -146,11 +146,11 @@ public class OrderServiceImp implements IOrderService {
 
     @Override
     public OrderEntity onlyUserFindById(Long id, Long userId) {
-        return this.orderRepository.findByIdAndCreateById(id, userId).orElseThrow(() -> new RuntimeException("User id: " + userId + ", Order not found, id: " + id));
+        return this.orderRepository.findByIdAndCreatedById(id, userId).orElseThrow(() -> new RuntimeException("User id: " + userId + ", Order not found, id: " + id));
     }
 
     @Override
     public Page<OrderEntity> onlyUserFindAll(Pageable page, Long userId) {
-        return this.orderRepository.findAllByCreatedById(page, userId);
+        return this.orderRepository.findAllByCreatedById( userId, page);
     }
 }

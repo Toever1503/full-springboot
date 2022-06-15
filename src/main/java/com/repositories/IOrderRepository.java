@@ -15,5 +15,5 @@ public interface IOrderRepository extends JpaRepository<OrderEntity, Long>, JpaS
     
     Page<OrderEntity> findAllByCreatedById(Long userId, Pageable pageable);
 
-    Optional<OrderEntity> findByIdAndCreateById(Long id, Long userId);
+    Optional<OrderEntity> findByIdAndCreatedById(Long id, Long userId);
 }
