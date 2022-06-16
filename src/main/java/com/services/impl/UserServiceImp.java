@@ -184,7 +184,7 @@ public class UserServiceImp implements IUserService {
         UserEntity user = this.findByUsername(userLogin.getUsername());
         if (user.isLockStatus())
             throw new RuntimeException("User has locked!");
-        else if (user.isStatus())
+        else if (!user.isStatus())
             throw new RuntimeException("User hasn't active!");
         UserDetails userDetail = new CustomUserDetail(user);
         this.authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(userDetail, userLogin.getPassword(), userDetail.getAuthorities()));
