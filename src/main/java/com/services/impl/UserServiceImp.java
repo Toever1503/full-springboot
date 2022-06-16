@@ -153,14 +153,11 @@ public class UserServiceImp implements IUserService {
     @Override
     @Transactional(rollbackFor = RuntimeException.class)
     public boolean signUp(RegisterModel registerModel) {
-        UserEntity checkedUser = this.userRepository.findUserEntityByUserNameOrEmail(registerModel.getUserName(), registerModel.getEmail())
-                .orElse(null);
-        if (checkedUser != null) {
-            if (checkedUser.getUserName().equalsIgnoreCase(registerModel.getUserName()))
-                throw new RuntimeException("Username has already registered!");
-            else if (checkedUser.getEmail().equalsIgnoreCase(registerModel.getUserName()))
-                throw new RuntimeException("Email has already registered!");
-        }
+        if (this.userRepository.findByUserName(registerModel.getUserName()) != null) {
+            throw new RuntimeException("Username has already registered!");
+        } else if (this.userRepository.findByEmail(registerModel.getUserName()) != null)
+            throw new RuntimeException("Email has already registered!");
+
         Set<RoleEntity> roleEntitySet = new HashSet<>();
         roleEntitySet.add(roleRepository.findRoleEntityByRoleName(RoleEntity.USER));
         UserEntity user = userRepository.save(UserEntity.builder().userName(registerModel.getUserName()).email(registerModel.getEmail()).code(codeGenerator()).roleEntity(roleEntitySet).status(false).build());
@@ -184,7 +181,12 @@ public class UserServiceImp implements IUserService {
 
     @Override
     public JwtLoginResponse logIn(JwtUserLoginModel userLogin) {
-        UserDetails userDetail = new CustomUserDetail(this.findByUsername(userLogin.getUsername()));
+        UserEntity user = this.findByUsername(userLogin.getUsername());
+        if (user.isLockStatus())
+            throw new RuntimeException("User has locked!");
+        else if (user.isStatus())
+            throw new RuntimeException("User hasn't active!");
+        UserDetails userDetail = new CustomUserDetail(user);
         this.authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(userDetail, userLogin.getPassword(), userDetail.getAuthorities()));
         long timeValid = userLogin.isRemember() ? 86400 * 7 : 1800l;
         return JwtLoginResponse.builder()

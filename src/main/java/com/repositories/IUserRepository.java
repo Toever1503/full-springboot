@@ -18,10 +18,13 @@ public interface IUserRepository extends JpaRepository<UserEntity,Long>, JpaSpec
     UserEntity findUserEntityByUserName(String username);
 
     Optional<UserEntity> findByMainAddress(Long id);
-    Optional<UserEntity> findUserEntityByUserNameOrEmail(String username, String email);
+    UserEntity findByUserName(String username);
+    UserEntity findByEmail(String email);
     //Get all userId
     @Query("select u.id from UserEntity u")
     List<Long> getAllId();
 
     UserEntity findByPhone(String phone);
+
+    Optional<UserEntity> findUserEntityByUserNameOrEmail(String userName, String userName1);
 }

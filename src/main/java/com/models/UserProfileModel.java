@@ -1,5 +1,6 @@
 package com.models;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
 import org.hibernate.validator.constraints.Length;
@@ -23,6 +24,7 @@ public class UserProfileModel {
     private String password;
 
     @ApiModelProperty(notes = "User birthdate", dataType = "Date", example = "2002-04-29")
+    @JsonFormat(pattern="yyyy-MM-dd")
     private Date birthDate;
 
     @ApiModelProperty(notes = "receiver's phone, phone must format follow vietnam", dataType = "String", example = "0952888888")
