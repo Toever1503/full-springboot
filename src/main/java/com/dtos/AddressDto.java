@@ -25,6 +25,7 @@ public class AddressDto {
     private String phone;
 
     public static AddressDto toDto(Address address) {
+        if(address == null) return  null;
         return AddressDto.builder()
                 .id(address.getId())
                 .province(address.getProvince())

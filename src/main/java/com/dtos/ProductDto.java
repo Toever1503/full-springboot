@@ -48,7 +48,7 @@ public class ProductDto {
         productDto.setAvatar(entity.getImage());
         productDto.setAttachFiles(entity.getAttachFiles() != null ? new JSONObject(entity.getAttachFiles()).getJSONArray("files").toList() : null);
 
-        productDto.setCategory(entity.getCategory() == null ? null : CategoryDto.toDto(entity.getCategory(), false, false));
+        productDto.setCategory(entity.getCategory() == null ? null : CategoryDto.toDto(entity.getCategory(), false));
         productDto.setProductMetas(entity.getProductMetas().isEmpty() ? null : entity.getProductMetas().stream().map(ProductMetaDto::toDto).collect(Collectors.toList()));
         productDto.setOptions(entity.getOptions().isEmpty() ? null : entity.getOptions().stream().map(OptionDto::toDto).collect(Collectors.toList()));
         productDto.setTags(entity.getTags().isEmpty() ? null : entity.getTags().stream().map(TagDto::toTagDto).collect(Collectors.toSet()));

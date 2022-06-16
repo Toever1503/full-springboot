@@ -399,4 +399,18 @@ public class UserServiceImp implements IUserService {
         }
         return this.userRepository.save(userEntity) != null;
     }
+
+    @Override
+    public boolean changeStatus(Long userId) {
+        UserEntity user = this.findById(userId);
+        user.setStatus(!user.isStatus());
+        return this.userRepository.save(user) != null;
+    }
+
+    @Override
+    public boolean changeLockStatus(Long userId) {
+        UserEntity user = this.findById(userId);
+        user.setLockStatus(!user.isLockStatus());
+        return this.userRepository.save(user) != null;
+    }
 }

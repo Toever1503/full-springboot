@@ -39,7 +39,6 @@ public class CategoryServiceImpl implements ICategoryService {
         return this.categoryRepository.findAllByParentCategoryId(id);
     }
 
-
     @Override
     public CategoryEntity findBySlug(String slug) {
         return this.categoryRepository.findBySlug(slug).orElseThrow(() -> new RuntimeException("Category not found" + slug));
@@ -64,7 +63,9 @@ public class CategoryServiceImpl implements ICategoryService {
     @Override
     public CategoryEntity add(CategoryModel model) {
         CategoryEntity categoryEntity = CategoryModel.toEntity(model);
-        if(model.getParentId() != null) { //check if parent id not null
+        if (this.findBySlug(model.getSlug()) != null)
+            throw new RuntimeException("Slug already existed!");
+        if (model.getParentId() != null) { //check if parent id not null
             CategoryEntity parent = this.findById(model.getParentId());
             categoryEntity.setParentCategory(parent);
         }
@@ -78,23 +79,26 @@ public class CategoryServiceImpl implements ICategoryService {
 
     @Override
     public CategoryEntity update(CategoryModel model) {
-        CategoryEntity originCategory = this.categoryRepository.findById(model.getId()).get();
-        if(this.categoryRepository.findById(model.getId()).isPresent()) { //check if category exist
-            originCategory.setCategoryName(model.getCategoryName());
-            originCategory.setSlug(model.getSlug() == null ? ASCIIConverter.utf8ToAscii(model.getCategoryName()) : ASCIIConverter.utf8ToAscii(model.getSlug()));
-            originCategory.setDescription(model.getDescription());
-            if(model.getParentId() != null) {//check if parent id not null
-                originCategory.setParentCategory(this.categoryRepository.findById(model.getParentId()).get());
-            }
-            return this.categoryRepository.save(originCategory);
+        String slug = model.getSlug() == null ? ASCIIConverter.utf8ToAscii(model.getCategoryName()) : ASCIIConverter.utf8ToAscii(model.getSlug());
+        CategoryEntity checkedCategory = this.findBySlug(slug);
+        if (checkedCategory != null && checkedCategory.getId() != model.getId())
+            throw new RuntimeException("Slug already existed!");
+
+        CategoryEntity originCategory = this.findById(model.getId());
+        originCategory.setCategoryName(model.getCategoryName());
+        originCategory.setSlug(slug);
+        originCategory.setDescription(model.getDescription());
+        if (model.getParentId() != null) {//check if parent id not null
+            originCategory.setParentCategory(this.findById(model.getParentId()));
         }
         return this.categoryRepository.save(originCategory);
     }
 
     @Override
     public boolean deleteById(Long id) {
-            this.categoryRepository.deleteById(id);
-            return true;
+        this.categoryRepository.deleteById(id);
+        this.categoryRepository.updateCategoryParent(id);
+        return true;
     }
 
     @Override

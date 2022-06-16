@@ -162,4 +162,18 @@ public class UserResources {
         log.info("{} is updating their avatar", SecurityUtils.getCurrentUser().getUsername());
         return ResponseDto.of(userService.updateAvatar(avatar), "Update avatar");
     }
+
+    @Transactional
+        @PatchMapping("change-status/{id}")
+    public ResponseDto changeStatusUser(@PathVariable Long id) {
+        log.info("admin {} is changing status user", SecurityUtils.getCurrentUser().getUsername());
+        return ResponseDto.of(this.userService.changeStatus(id), "Change user's status");
+    }
+
+    @Transactional
+    @PatchMapping("change-lock-status/{id}")
+    public ResponseDto changeLockStatusUser(@PathVariable Long id) {
+        log.info("admin {} is changing lock status user", SecurityUtils.getCurrentUser().getUsername());
+        return ResponseDto.of(this.userService.changeLockStatus(id), "Change user's lock status");
+    }
 }
