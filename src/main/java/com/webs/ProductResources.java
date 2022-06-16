@@ -35,7 +35,7 @@ public class ProductResources {
                                      @RequestPart("image") MultipartFile image,
                                      @RequestPart(name = "attachFiles[]", required = false) List<MultipartFile> attachFiles) {
         productModel.setId(null);
-//        productModel.setAttachFiles(attachFiles);
+        productModel.setAttachFiles(attachFiles);
         productModel.setImage(image);
         return ResponseDto.of(ProductDto.toDto(productService.add(productModel)), "Create product successfully");
     }
