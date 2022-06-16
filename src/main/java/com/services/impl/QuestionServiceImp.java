@@ -87,9 +87,11 @@ public class QuestionServiceImp implements IQuestionService {
 
     }
 
+
     @Override
     public QuestionEntity update(QuestionModel model) {
         QuestionEntity originalQuestion = this.findById(model.getId());
+
         if(originalQuestion.getCreatedBy().getId() == SecurityUtils.getCurrentUserId()|| SecurityUtils.hasRole(RoleEntity.ADMINISTRATOR)){
             if (originalQuestion.getStatus().equalsIgnoreCase(EStatusQuestion.COMPLETED.name()))
                 throw new RuntimeException("Question is already completed");
@@ -99,9 +101,10 @@ public class QuestionServiceImp implements IQuestionService {
                 originalFile.removeAll(model.getQuestOriginFile());
                 originalFile.forEach(o -> fileUploadProvider.deleteFile(o.toString()));
             }
+
             List<String> uploadedFiles = new ArrayList<String>();
+            uploadedFiles.addAll(model.getQuestOriginFile());
             if (model.getQuestFile() != null) {
-                uploadedFiles.addAll(model.getQuestOriginFile());
                 if (!model.getQuestFile().get(0).getName().isEmpty()) {
                     model.getQuestFile().forEach(multipartFile -> {
                         try {
