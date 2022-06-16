@@ -16,7 +16,7 @@ public class TagDto {
     private String slug;
 
     public static TagDto toTagDto(TagEntity entity){
-        if(entity==null) throw new RuntimeException("tagEntity is null!");
+        if(entity==null) return null;
         TagDto sample = new TagDto();
         sample.setTagName(entity.getTagName());
         sample.setSlug(entity.getSlug());

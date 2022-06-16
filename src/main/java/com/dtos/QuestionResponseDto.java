@@ -20,6 +20,7 @@ public class QuestionResponseDto {
     private UserDto userReply;
 
     public static QuestionResponseDto toDto(QuestionEntity question) {
+        if(question == null) return null;
         return QuestionResponseDto
                 .builder()
                 .id(question.getId())

@@ -30,7 +30,7 @@ public class TotalQuestionDto {
     private String userReply;
 
     public static TotalQuestionDto toTotalQuestionDTO(QuestionEntity entity) {
-        if (entity == null) throw new RuntimeException("Question entity is null!");
+        if (entity == null) return null;
         TotalQuestionDto dto = new TotalQuestionDto();
         dto.setId(entity.getId());
         dto.setCategory(entity.getCategory());
