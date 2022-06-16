@@ -69,12 +69,12 @@ public class NotificationSpecification extends BaseSpecification {
             if (!notificationFilter.getCategory().isEmpty())
                 specs.add(orIn(NotificationEntity_.CATEGORY, notificationFilter.getCategory().stream().map(s -> (Object) s).collect(Collectors.toList())));
 
-        if (notificationFilter.getFromCreatedDate() != null && notificationFilter.getToCreatedDate() != null)
-            specs.add(betweenDate(NotificationEntity_.CREATED_DATE, notificationFilter.getFromCreatedDate(), notificationFilter.getToCreatedDate()));
-        else if (notificationFilter.getFromCreatedDate() != null)
-            specs.add(dateGreaterThanEqual(NotificationEntity_.CREATED_DATE, notificationFilter.getFromCreatedDate()));
-        else if (notificationFilter.getToCreatedDate() != null)
-            specs.add(dateLessThanEqual(NotificationEntity_.CREATED_DATE, notificationFilter.getToCreatedDate()));
+        if (notificationFilter.getMinCreatedDate() != null && notificationFilter.getMaxCreatedDate() != null)
+            specs.add(betweenDate(NotificationEntity_.CREATED_DATE, notificationFilter.getMinCreatedDate(), notificationFilter.getMaxCreatedDate()));
+        else if (notificationFilter.getMinCreatedDate() != null)
+            specs.add(dateGreaterThanEqual(NotificationEntity_.CREATED_DATE, notificationFilter.getMinCreatedDate()));
+        else if (notificationFilter.getMaxCreatedDate() != null)
+            specs.add(dateLessThanEqual(NotificationEntity_.CREATED_DATE, notificationFilter.getMaxCreatedDate()));
 
         if (notificationFilter.getCreatedBy() != null)
             specs.add(likeCreatedBy(notificationFilter.getCreatedBy()));

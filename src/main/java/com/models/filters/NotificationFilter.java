@@ -23,9 +23,9 @@ public class NotificationFilter {
     private List<String> category;
 
     @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
-    private Date fromCreatedDate;
+    private Date minCreatedDate;
     @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
-    private Date toCreatedDate;
+    private Date maxCreatedDate;
     @ApiModelProperty(notes = "User's name created", dataType = "String", example = "shiki")
     String createdBy;
 }
