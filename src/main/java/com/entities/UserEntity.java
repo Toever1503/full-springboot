@@ -32,6 +32,7 @@ public class UserEntity {
     private String phone;
     @Column(name = "sex")
     private String sex;
+    @Temporal(TemporalType.DATE)
     @Column(name = "birth_date")
     private Date birthDate;
     @Column(name = "code")

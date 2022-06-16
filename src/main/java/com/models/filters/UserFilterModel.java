@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.Date;
+import java.util.List;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -21,13 +22,19 @@ public class UserFilterModel {
     @ApiModelProperty(notes = "Search phone which contains", dataType = "String", example = "a")
     private String phone;
     @ApiModelProperty(notes = "Search sex which contains", dataType = "String", example = "a")
-    private String sex;
+    private List<String> sex;
+
+    @ApiModelProperty(notes = "Search status which contains", dataType = "String", example = "a")
+    private List<Boolean> status;
+
+    @ApiModelProperty(notes = "Search lock status which contains", dataType = "String", example = "a")
+    private List<Boolean> lockStatus;
 
     @ApiModelProperty(notes = "Max birthday of user", dataType = "datetime", example = "2022-06-10 09:18:56")
-    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern="yyyy-MM-dd")
     private Date minBirthDay;
     @ApiModelProperty(notes = "Max birthday of user", dataType = "datetime", example = "2022-06-10 09:18:56")
-    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern="yyyy-MM-dd")
     private Date maxBirthDay;
 
     @ApiModelProperty(notes = "Min Created Time of user", dataType = "datetime", example = "2022-06-10 09:18:56")

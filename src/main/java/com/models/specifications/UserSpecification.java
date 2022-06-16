@@ -7,6 +7,7 @@ import org.springframework.data.jpa.domain.Specification;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class UserSpecification extends BaseSpecification {
 
@@ -22,7 +23,11 @@ public class UserSpecification extends BaseSpecification {
         if (filter.getPhone() != null)
             specs.add(like(filter.getPhone(), UserEntity_.PHONE));
         if (filter.getSex() != null)
-            specs.add(like(filter.getSex(), UserEntity_.SEX));
+            specs.add(orIn(UserEntity_.SEX, filter.getSex().stream().map(e -> (Object) e).collect(Collectors.toList())));
+        if (filter.getStatus() != null)
+            specs.add(orIn(UserEntity_.STATUS, filter.getStatus().stream().map(e -> (Object) e).collect(Collectors.toList())));
+        if (filter.getLockStatus() != null)
+            specs.add(orIn(UserEntity_.LOCK_STATUS, filter.getLockStatus().stream().map(e -> (Object) e).collect(Collectors.toList())));
         if (filter.getMaxBirthDay() != null && filter.getMinBirthDay() != null)
             specs.add(betweenDate(UserEntity_.BIRTH_DATE, filter.getMinBirthDay(), filter.getMaxBirthDay()));
         if (filter.getMaxCreatedDate() != null && filter.getMinCreatedDate() != null)
