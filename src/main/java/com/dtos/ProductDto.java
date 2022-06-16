@@ -35,6 +35,7 @@ public class ProductDto {
 
 
     public static ProductDto toDto(ProductEntity entity) {
+        if(entity == null) return null;
         ProductDto productDto = new ProductDto();
         productDto.setId(entity.getId());
         productDto.setName(entity.getName());

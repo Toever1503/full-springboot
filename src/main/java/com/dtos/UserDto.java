@@ -25,6 +25,7 @@ public class UserDto {
     private java.util.Date createdDate;
     private java.util.Date updatedDate;
     public static UserDto toDto(UserEntity userEntity) {
+        if(userEntity == null) return null;
         return UserDto.builder()
                 .id(userEntity.getId())
                 .userName(userEntity.getUserName())

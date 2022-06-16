@@ -15,7 +15,7 @@ public class ProductMetaDto {
     private String metaValue;
 
     public static ProductMetaDto toDto(ProductMetaEntity entity) {
-        if(entity == null) new RuntimeException("ProductMeta is null");
+        if(entity == null) return null;
         return ProductMetaDto.builder()
                 .id(entity.getId())
                 .metaKey(entity.getMetaKey())

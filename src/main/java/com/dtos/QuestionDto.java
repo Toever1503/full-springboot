@@ -26,6 +26,7 @@ public class QuestionDto {
     private String status;
 
     public static QuestionDto toDto(QuestionEntity questionEntity) {
+        if(questionEntity == null) return null;
         return QuestionDto.builder()
                 .id(questionEntity.getId())
                 .category(questionEntity.getCategory())
