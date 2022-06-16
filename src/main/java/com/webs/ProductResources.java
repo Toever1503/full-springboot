@@ -79,12 +79,6 @@ public class ProductResources {
                 .map(ProductDto::toDto), "Filter all products");
     }
 
-    @GetMapping("/slug")
-    @Transactional
-    public ResponseDto getProductBySlug(@RequestParam("slug") String slug) {
-        return ResponseDto.of(ProductDto.toDto(productService.findProductBySlug(slug)), "Get product by slug");
-    }
-
     @GetMapping("/{id}")
     @Transactional
     public ResponseDto getProductById(@PathVariable("id") Long id) {

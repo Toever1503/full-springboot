@@ -2,7 +2,6 @@ package com.models.specifications;
 
 import com.entities.*;
 import com.models.filters.*;
-import lombok.Data;
 import org.springframework.data.jpa.domain.Specification;
 
 import javax.persistence.criteria.*;
@@ -18,8 +17,7 @@ import java.util.List;
 public class ProductSpecification {
     public static Specification<ProductEntity> like(String t) {
         return (root, query, criteriaBuilder) -> criteriaBuilder.or(
-                criteriaBuilder.like(root.get(ProductEntity_.NAME), t),
-                criteriaBuilder.like(root.get(ProductEntity_.SLUG), t)
+                criteriaBuilder.like(root.get(ProductEntity_.NAME), t)
         );
     }
 
@@ -27,9 +25,6 @@ public class ProductSpecification {
         return (root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get(ProductEntity_.NAME), pName);
     }
 
-    public static Specification<ProductEntity> byProductSlug(String pSlug) {
-        return (root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get(ProductEntity_.SLUG), pSlug);
-    }
 
     public static Specification<ProductEntity> byProductActive(Boolean pActive) {
         return (root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get(ProductEntity_.ACTIVE), pActive);
@@ -174,8 +169,7 @@ public class ProductSpecification {
             specifications.add(like(filter.getT()));
         if (filter.getName() != null)
             specifications.add(byProductName(filter.getName()));
-        if (filter.getSlug() != null)
-            specifications.add(byProductSlug(filter.getSlug()));
+
         if (filter.getDate() != null)
             specifications.add(byDate(filter.getDate()));
         if (filter.getPrice() != null)

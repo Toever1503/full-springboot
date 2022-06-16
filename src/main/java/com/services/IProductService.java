@@ -10,8 +10,6 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 
 public interface IProductService extends IBaseService<ProductEntity, ProductModel, Long> {
-    ProductEntity findProductBySlug(String slug);
-
     int likeProduct(Long id);
 
 }

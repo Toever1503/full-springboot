@@ -32,9 +32,8 @@ public class ProductModel {
     private List<MultipartFile> attachFiles;
     @ApiModelProperty(notes = "list link file image old", dataType = "List<String>", example = "[http://abc.jpg, http://def.jpg]")
     private List<String> attachFilesOrigin = new ArrayList<>();
-    @ApiModelProperty(notes = "slug product, can be automatically generated based on the product name or can be entered manually if desired", dataType = "String", example = "product-name")
-    private String slug;
-    @ApiModelProperty(notes = "catego ry Id", dataType = "Long", example = "1")
+
+    @ApiModelProperty(notes = "category Id", dataType = "Long", example = "1")
     @NotNull
     private Long categoryId;
     @ApiModelProperty(notes = "list product metas", dataType = "List<ProductMeta>", example = "Object productMetas")
@@ -59,7 +58,6 @@ public class ProductModel {
                 .totalLike(0)
                 .totalReview(0)
                 .rating(0)
-                .slug(model.getSlug() == null ? ASCIIConverter.utf8ToAscii(model.getName()) : ASCIIConverter.utf8ToAscii(model.getSlug()))
                 .active(true)
                 .build();
     }

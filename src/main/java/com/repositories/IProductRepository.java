@@ -11,8 +11,6 @@ import java.util.Optional;
 @Repository
 public interface IProductRepository extends JpaRepository<ProductEntity, Long>, JpaSpecificationExecutor<ProductEntity> {
 
-    Optional<ProductEntity> findBySlugAndActive(String slug,Boolean active);
-
     Optional<ProductEntity> findByIdAndActive(Long id,Boolean active);
 
 }
