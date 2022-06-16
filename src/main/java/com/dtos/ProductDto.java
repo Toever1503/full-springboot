@@ -28,8 +28,6 @@ public class ProductDto {
     private Integer rating;
     private String avatar;
     private List<Object> attachFiles;
-    private String slug;
-
     private CategoryDto category;
     private List<ProductMetaDto> productMetas;
     private List<OptionDto> options;
@@ -37,6 +35,7 @@ public class ProductDto {
 
 
     public static ProductDto toDto(ProductEntity entity) {
+        if(entity == null) return null;
         ProductDto productDto = new ProductDto();
         productDto.setId(entity.getId());
         productDto.setName(entity.getName());

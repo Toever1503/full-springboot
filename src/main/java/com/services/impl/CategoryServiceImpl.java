@@ -1,27 +1,27 @@
 package com.services.impl;
 
 import com.entities.CategoryEntity;
-import com.entities.RoleEntity;
+import com.entities.ProductEntity;
 import com.models.CategoryModel;
 import com.repositories.ICategoryRepository;
+import com.repositories.IProductRepository;
 import com.services.ICategoryService;
 import com.utils.ASCIIConverter;
-import com.utils.SecurityUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class CategoryServiceImpl implements ICategoryService {
     private final ICategoryRepository categoryRepository;
+    private final IProductRepository productRepository;
 
-    public CategoryServiceImpl(ICategoryRepository categoryRepository) {
+    public CategoryServiceImpl(ICategoryRepository categoryRepository, IProductRepository productRepository) {
         this.categoryRepository = categoryRepository;
+        this.productRepository = productRepository;
     }
 
     @Override

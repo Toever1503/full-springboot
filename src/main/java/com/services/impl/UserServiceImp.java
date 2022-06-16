@@ -142,7 +142,10 @@ public class UserServiceImp implements IUserService {
 
     @Override
     public boolean deleteById(Long id) {
-        return false;
+        UserEntity userEntity = this.findById(id);
+        userEntity.setStatus(false);
+        this.userRepository.save(userEntity);
+        return true;
     }
 
     @Override

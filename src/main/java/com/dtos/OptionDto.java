@@ -17,7 +17,7 @@ public class OptionDto {
     private Double oldPrice;
 
     public static OptionDto toDto(OptionEntity entity) {
-        if(entity == null) new RuntimeException("Product option is null");
+        if(entity == null) return null;
         return OptionDto.builder()
                 .id(entity.getId())
                 .optionName(entity.getOptionName())

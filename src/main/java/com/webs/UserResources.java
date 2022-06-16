@@ -105,6 +105,13 @@ public class UserResources {
             return ResponseDto.of(null, "Delete address");
     }
 
+    @RolesAllowed("ADMINISTRATOR")
+    @Transactional
+    @DeleteMapping("delete-user/{id}")
+    public ResponseDto deleteUser(@PathVariable("id") Long id) {
+        log.info("{} is deleting user id: {%d}", SecurityUtils.getCurrentUser().getUsername(), id);
+        return ResponseDto.of(this.userService.deleteById(id), "Account don't login, account is deleted");
+    }
 
     @Transactional(rollbackFor = RuntimeException.class)
     @PostMapping("/signup")

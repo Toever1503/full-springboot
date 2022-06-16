@@ -31,7 +31,7 @@ public class NotificationDetailDto {
     private String createdBy;
 
     public static NotificationDetailDto toDto(NotificationEntity entity){
-        if(entity == null) throw new RuntimeException("NotificationEntity id " + entity.getId() + " is null");
+        if(entity == null) return null;
         return NotificationDetailDto.builder()
                 .id(entity.getId())
                 .title(entity.getTitle())

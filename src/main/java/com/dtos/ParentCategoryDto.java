@@ -15,6 +15,7 @@ public class ParentCategoryDto {
     private String categoryName;
 
     public static ParentCategoryDto toDto(CategoryEntity entity) {
+        if(entity == null) return null;
         return ParentCategoryDto.builder()
                 .id(entity.getId())
                 .categoryName(entity.getCategoryName())

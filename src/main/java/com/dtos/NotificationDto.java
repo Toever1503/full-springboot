@@ -69,7 +69,7 @@ public class NotificationDto {
     }
 
     public static NotificationDto toDto(NotificationEntity entity) {
-        if (entity == null) throw new RuntimeException("NotificationEntity id " + entity.getId() + " is null");
+        if (entity == null) return null;
         return NotificationDto.builder()
                 .id(entity.getId())
                 .image(entity.getImage())
