@@ -33,16 +33,18 @@ public class ProductResources {
     @PostMapping
     public ResponseDto createProduct(@Valid @RequestPart("product") ProductModel productModel,
                                      @RequestPart("image") MultipartFile image,
-                                     @RequestPart(name = "attachFiles", required = false) List<MultipartFile> attachFiles) {
+                                     @RequestPart(name = "attachFiles[]", required = false) List<MultipartFile> attachFiles) {
         productModel.setId(null);
-        productModel.setAttachFiles(attachFiles);
+//        productModel.setAttachFiles(attachFiles);
         productModel.setImage(image);
         return ResponseDto.of(ProductDto.toDto(productService.add(productModel)), "Create product successfully");
     }
 
     @Transactional(rollbackFor = RuntimeException.class)
     @PutMapping("{id}")
-    public ResponseDto updateProduct(@PathVariable("id") Long id,@Valid @RequestPart("product") ProductModel productModel, @RequestPart("image") MultipartFile image, @RequestPart(name = "attachFiles", required = false) List<MultipartFile> attachFiles) {
+    public ResponseDto updateProduct(@PathVariable("id") Long id,@Valid @RequestPart("product") ProductModel productModel,
+                                     @RequestPart("image") MultipartFile image,
+                                     @RequestPart(name = "attachFiles[]", required = false) List<MultipartFile> attachFiles) {
         productModel.setId(id);
         productModel.setAttachFiles(attachFiles);
         productModel.setImage(image);

@@ -21,6 +21,7 @@ public class UserDto {
     private Date birthDate;
     private boolean status;
     private Long mainAddress;
+    private boolean lockStatus;
     private java.util.Date createdDate;
     private java.util.Date updatedDate;
     public static UserDto toDto(UserEntity userEntity) {
@@ -34,6 +35,7 @@ public class UserDto {
                 .avatar(userEntity.getAvatar())
                 .birthDate(userEntity.getBirthDate())
                 .status(userEntity.isStatus())
+                .lockStatus(userEntity.isLockStatus())
                 .mainAddress(userEntity.getMainAddress())
                 .createdDate(userEntity.getCreatedDate())
                 .updatedDate(userEntity.getUpdatedDate())

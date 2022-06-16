@@ -11,7 +11,6 @@ import com.services.IUserService;
 import com.utils.SecurityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,14 +28,26 @@ import java.util.stream.Collectors;
 public class UserResources {
 
     private final Logger log = LoggerFactory.getLogger(this.getClass());
-    @Autowired
-    IUserService userService;
+    private final IUserService userService;
+
+    public UserResources(IUserService userService) {
+        this.userService = userService;
+    }
+
+
+    @RolesAllowed("ADMINISTRATOR")
+    @Transactional
+    @GetMapping
+    public ResponseDto adminGetAllUser(Pageable page) {
+        log.info("{} is getting all users ", SecurityUtils.getCurrentUser().getUsername());
+        return ResponseDto.of(this.userService.findAll(page).map(UserDto::toDto), "Get all users ");
+    }
 
     @RolesAllowed("ADMINISTRATOR")
     @Transactional(rollbackFor = RuntimeException.class)
     @GetMapping("{id}")
     public ResponseDto getUser(@PathVariable("id") Long id) {
-        log.info("{} is getting detail user id: {%d}", SecurityUtils.getCurrentUser().getUsername(), id);
+        log.info("{} is getting detail user id: {}", SecurityUtils.getCurrentUser().getUsername(), id);
         return ResponseDto.of(UserDto.toDto(this.userService.findById(id)), "Get user id: " + id);
     }
 
@@ -44,7 +55,7 @@ public class UserResources {
     @PutMapping("my-profile/update")
     public ResponseDto updateMyProfile(@Valid UserProfileModel model) {
         log.info("{} is updating my profile", SecurityUtils.getCurrentUser().getUsername());
-        return ResponseDto.of(UserDto.toDto(this.userService.updateUserProfile(model)), "Update my profile successfully");
+        return ResponseDto.of(UserDto.toDto(this.userService.updateUserProfile(model)), "Update my profile");
     }
 
     @Transactional(rollbackFor = RuntimeException.class)
@@ -58,7 +69,7 @@ public class UserResources {
     @GetMapping("my-addresses")
     public ResponseDto getMyAddresses() {
         log.info("{} is getting their addresses", SecurityUtils.getCurrentUser().getUsername());
-        return ResponseDto.of(this.userService.getMyAddresses().stream().map(AddressDto::toDto).collect(Collectors.toList()), "Get all my addresses successfully");
+        return ResponseDto.of(this.userService.getMyAddresses().stream().map(AddressDto::toDto).collect(Collectors.toList()), "Get all my addresses");
     }
 
     @Transactional(rollbackFor = RuntimeException.class)
@@ -66,7 +77,7 @@ public class UserResources {
     public ResponseDto addMyAddress(@Valid @RequestBody AddressModel model) {
         log.info("{} is adding new address", SecurityUtils.getCurrentUser().getUsername());
         model.setId(null);
-        return ResponseDto.of(AddressDto.toDto(this.userService.addMyAddress(model)), "Add new address successfully!");
+        return ResponseDto.of(AddressDto.toDto(this.userService.addMyAddress(model)), "Add new address");
     }
 
     @Transactional(rollbackFor = RuntimeException.class)
@@ -74,14 +85,14 @@ public class UserResources {
     public ResponseDto updateMyAddress(@PathVariable("id") Long id, @Valid @RequestBody AddressModel model) {
         model.setId(id);
         log.info("{} is updating address id: {%d}", SecurityUtils.getCurrentUser().getUsername(), id);
-        return ResponseDto.of(AddressDto.toDto(this.userService.updateMyAddress(model)), "Update address successfully!, ID: " + id);
+        return ResponseDto.of(AddressDto.toDto(this.userService.updateMyAddress(model)), "Update address ID: " + id);
     }
 
     @Transactional(rollbackFor = RuntimeException.class)
     @PatchMapping("my-addresses/main/{id}") // set main address
     public ResponseDto setMainAddress(@PathVariable("id") Long id) {
         log.info("{} is setting main address", SecurityUtils.getCurrentUser().getUsername());
-        return ResponseDto.of(this.userService.setMainAddress(id), "Set main address successfully");
+        return ResponseDto.of(this.userService.setMainAddress(id), "Set main address");
     }
 
     @Transactional(rollbackFor = RuntimeException.class)
@@ -89,9 +100,9 @@ public class UserResources {
     public ResponseDto deleteMyAddress(@PathVariable("id") Long id) {
         log.info("{} is deleting their address id: {%d}", SecurityUtils.getCurrentUser().getUsername(), id);
         if (this.userService.deleteMyAddress(id))
-            return ResponseDto.of(true, "Delete my address successfully");
+            return ResponseDto.of(true, "Delete my address");
         else
-            return ResponseDto.of(null, "Delete address failed! Not your address nor ADMINISTRATOR privilege");
+            return ResponseDto.of(null, "Delete address");
     }
 
 
@@ -99,14 +110,14 @@ public class UserResources {
     @PostMapping("/signup")
     public ResponseDto signUpUser(@RequestBody @Valid RegisterModel model) {
         log.info("{Anonymous} is signing up");
-        return ResponseDto.of(userService.signUp(model), "Signup ");
+        return ResponseDto.of(userService.signUp(model), "Signup");
     }
 
     @Transactional(rollbackFor = RuntimeException.class)
     @PostMapping("/login")
     public ResponseDto loginUser(@RequestBody @Valid JwtUserLoginModel model) {
         log.info("{} is logging in system", model.getUsername());
-        return ResponseDto.of(userService.logIn(model), "Login Success");
+        return ResponseDto.of(userService.logIn(model), "Login");
     }
 
     @Transactional(rollbackFor = RuntimeException.class)
@@ -121,34 +132,34 @@ public class UserResources {
     @PostMapping(value = "/set-password")
     public ResponseDto setPassword(@RequestBody @Valid PasswordModel model) {
         log.info("user {} is setting new password");
-        return ResponseDto.of(userService.setPassword(model) ? true : null, "Set password successfully");
+        return ResponseDto.of(userService.setPassword(model) ? true : null, "Set password");
     }
 
     @Transactional(rollbackFor = RuntimeException.class)
     @PostMapping(value = "/change-password")
     public ResponseDto changePassword(@RequestBody @Valid ChangePasswordModel model) {
         log.info("user {} is changing password", SecurityUtils.getCurrentUser().getUsername());
-        return ResponseDto.of(userService.changePassword(model) ? true : null, "Password change successfully");
+        return ResponseDto.of(userService.changePassword(model) ? true : null, "Password change");
     }
 
     @Transactional(rollbackFor = RuntimeException.class)
     @PostMapping("filter")
     public ResponseDto filterUser(@RequestBody UserFilterModel model, Pageable page) {
         log.info("{} is filtering user", SecurityUtils.getCurrentUser().getUsername());
-        return ResponseDto.of(userService.filter(page, Specification.where(UserSpecification.filter(model))).map(UserDto::toDto), "Filter user successfully");
+        return ResponseDto.of(userService.filter(page, Specification.where(UserSpecification.filter(model))).map(UserDto::toDto), "Filter user");
     }
 
     @Transactional(rollbackFor = RuntimeException.class)
     @GetMapping("get-my-avatar")
     public ResponseDto getMyAvatar() {
         log.info("{} is getting their avatar", SecurityUtils.getCurrentUser().getUsername());
-        return ResponseDto.of(SecurityUtils.getCurrentUser().getUser().getAvatar(), "Get my avatar successfully");
+        return ResponseDto.of(SecurityUtils.getCurrentUser().getUser().getAvatar(), "Get my avatar");
     }
 
     @Transactional
     @PutMapping("update-profile/avatar")
-    public ResponseDto updateAvatar(@RequestPart MultipartFile avatar){
+    public ResponseDto updateAvatar(@RequestPart MultipartFile avatar) {
         log.info("{} is updating their avatar", SecurityUtils.getCurrentUser().getUsername());
-        return ResponseDto.of(userService.updateAvatar(avatar), "Update avatar successfully");
+        return ResponseDto.of(userService.updateAvatar(avatar), "Update avatar");
     }
 }
