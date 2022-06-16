@@ -28,10 +28,6 @@ public class UserProfileModel {
     private Date birthDate;
 
     @ApiModelProperty(notes = "receiver's phone, phone must format follow vietnam", dataType = "String", example = "0952888888")
-    @Pattern(
-            regexp = "(84|0[3|5|7|8|9])+([0-9]{8})\\b",
-            message = "Phone number must be in format: 84xxxxxxxx"
-    )
     private String phone;
 
     @ApiModelProperty(notes = "User Email", dataType = "String", example = "email@gmail.com")
