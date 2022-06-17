@@ -151,7 +151,8 @@ public class OrderServiceImp implements IOrderService {
 
     @Override
     public Page<OrderEntity> onlyUserFindAll(Pageable page, Long userId) {
-        return this.orderRepository.findAllByCreatedById( userId, page);
+        return this.orderRepository.findAllByCreatedById(userId, page);
+    }
     public OrderEntity findByUUID(String uuid) {
         return orderRepository.findByUuid(uuid).orElseThrow(()-> new RuntimeException("Not Found!"));
     }
