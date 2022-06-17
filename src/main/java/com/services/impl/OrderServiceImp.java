@@ -61,13 +61,13 @@ public class OrderServiceImp implements IOrderService {
     @Override
     public OrderEntity add(OrderModel model) {
         OrderEntity orderEntity = OrderModel.toEntity(model);
-      // khi nguoi dung chon san pham va thanh toan thi se luu list san pham chon vao order detail, sau do se xoa nhung san pham da luu vao order detail
+        // khi nguoi dung chon san pham va thanh toan thi se luu list san pham chon vao order detail, sau do se xoa nhung san pham da luu vao order detail
         List<OrderDetailEntity> orderDetailEntities = new ArrayList<>();
-        if(model.getOrderDetailIds() != null){
+        if (model.getOrderDetailIds() != null) {
             model.getOrderDetailIds().stream().forEach(orderDetailId -> {
 
                 CartEntity cart = this.cartService.findById(orderDetailId);
-                if(cart != null){
+                if (cart != null) {
                     OrderDetailEntity orderDetailEntity = OrderDetailEntity.builder()
                             .productId(cart.getProduct().getId())
                             .optionId(cart.getOptionId())
@@ -79,12 +79,12 @@ public class OrderServiceImp implements IOrderService {
                     this.cartService.deleteById(cart.getId());
                 }
             });
-        }else {
+        } else {
             new RuntimeException("List product is null, please select product");
         }
 
-         Double totalPrices = 0.0;
-         Integer totalNumberProducts = 0;
+        Double totalPrices = 0.0;
+        Integer totalNumberProducts = 0;
 
         for (OrderDetailEntity orderDetailEntity : orderDetailEntities) {
             totalNumberProducts += orderDetailEntity.getQuantity();
@@ -94,7 +94,9 @@ public class OrderServiceImp implements IOrderService {
         Address address = this.addressService.findById(model.getAddressId());
         orderEntity.setAddress(address);
 
-        orderEntity.setMainAddress(address.getProvince().getName() + " " + address.getDistrict().getName() + address.getWard().getName() + " " + address.getStreet());
+        StringBuilder strAddress = new StringBuilder(address.getStreet());
+        strAddress.append(", ").append(address.getWard().getName()).append(", ").append(address.getDistrict().getName()).append(", ").append(address.getProvince().getName());
+        orderEntity.setMainAddress(strAddress.toString());
         orderEntity.setMainPhone(address.getPhone());
         orderEntity.setMainReceiver(address.getReceiver());
 
@@ -133,12 +135,12 @@ public class OrderServiceImp implements IOrderService {
     }
 
     @Override
-    public OrderEntity cancelOrder(Long id){
+    public OrderEntity cancelOrder(Long id) {
         OrderEntity orderOrigin = this.findById(id);
-        if(orderOrigin.getStatus().equals(EStatusOrder.PENDING.toString())){
+        if (orderOrigin.getStatus().equals(EStatusOrder.PENDING.toString())) {
             orderOrigin.setStatus(EStatusOrder.CANCELED.name());
             return this.orderRepository.save(orderOrigin);
-        }else if(orderOrigin.getStatus().equals(EStatusOrder.PAID.toString())){
+        } else if (orderOrigin.getStatus().equals(EStatusOrder.PAID.toString())) {
             orderOrigin.setStatus(EStatusOrder.REFUNDING.name());
             return this.orderRepository.save(orderOrigin);
         }
@@ -154,17 +156,18 @@ public class OrderServiceImp implements IOrderService {
     public Page<OrderEntity> onlyUserFindAll(Pageable page, Long userId) {
         return this.orderRepository.findAllByCreatedById(userId, page);
     }
+
     public OrderEntity findByUUID(String uuid) {
-        return orderRepository.findByUuid(uuid).orElseThrow(()-> new RuntimeException("Not Found!"));
+        return orderRepository.findByUuid(uuid).orElseThrow(() -> new RuntimeException("Not Found!"));
     }
 
     @Override
     public String getStatusByID(Long id) {
-        return orderRepository.getStatusByID(id,SecurityUtils.getCurrentUserId()).orElseThrow(()-> new RuntimeException("Order not found!!!"));
+        return orderRepository.getStatusByID(id, SecurityUtils.getCurrentUserId()).orElseThrow(() -> new RuntimeException("Order not found!!!"));
     }
 
     @Override
     public String getUrlByID(Long id) {
-        return orderRepository.getUrlByID(id,SecurityUtils.getCurrentUserId()).orElseThrow(()-> new RuntimeException("Order not found!!!"));
+        return orderRepository.getUrlByID(id, SecurityUtils.getCurrentUserId()).orElseThrow(() -> new RuntimeException("Order not found!!!"));
     }
 }

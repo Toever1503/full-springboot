@@ -16,7 +16,6 @@ import java.util.stream.Collectors;
 public class OrderDto {
     private Long id;
     private String uuid;
-    private AddressDto address;
     private String paymentMethod;
     private String note;
     private Double totalPrices;
@@ -25,24 +24,21 @@ public class OrderDto {
     private UserDto createdBy;
     private Date createdDate;
     private Date updatedDate;
-
-    private String mainAddress;
+    private String address;
     private String mainPhone;
     private String mainReceiver;
-    private String COD;
-
+    private String deliveryCode;
     private List<OrderDetailDto> orderDetails;
 
     public static OrderDto toDto(OrderEntity entity) {
-        if(entity == null) return null;
+        if (entity == null) return null;
         return OrderDto.builder()
                 .id(entity.getId())
-                .mainAddress(entity.getMainAddress())
+                .address(entity.getMainAddress())
                 .mainPhone(entity.getMainPhone())
                 .mainReceiver(entity.getMainReceiver())
-                .COD(entity.getCOD())
+                .deliveryCode(entity.getDeliveryCode())
                 .uuid(entity.getUuid())
-                .address(AddressDto.toDto(entity.getAddress()))
                 .paymentMethod(entity.getPaymentMethod())
                 .note(entity.getNote())
                 .totalPrices(entity.getTotalPrices())

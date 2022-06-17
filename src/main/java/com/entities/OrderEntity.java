@@ -39,8 +39,8 @@ public class OrderEntity {
     private String mainPhone;
     @Column(name = "main_receiver")
     private String mainReceiver;
-    @Column(name = "COD")
-    private String COD;
+    @Column(name = "delivery_code")
+    private String deliveryCode;
     @Column(name = "transaction_no")
     private String transactionNo;
     @Column(name = "redirect_url")
