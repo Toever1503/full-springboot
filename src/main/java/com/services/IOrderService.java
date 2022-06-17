@@ -12,4 +12,7 @@ public interface IOrderService extends IBaseService<OrderEntity, OrderModel, Lon
     Page<OrderEntity> onlyUserFindAll(Pageable page, Long userId);
 
     OrderEntity findByUUID(String uuid);
+    String getStatusByID(Long id);
+
+    String getUrlByID(Long id);
 }

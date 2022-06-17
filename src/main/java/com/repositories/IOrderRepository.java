@@ -29,4 +29,10 @@ public interface IOrderRepository extends JpaRepository<OrderEntity, Long>, JpaS
     @Transactional
     @Query(value = "update tbl_order set status = 'CANCELED' where( id>0 and status = 'PAYING' and (UNIX_TIMESTAMP(updated_date) < UNIX_TIMESTAMP(DATE_ADD(CURRENT_TIMESTAMP(), INTERVAL '7 15' HOUR_MINUTE))))",nativeQuery = true)
     void changeOrderStatusByIDAndTime();
+
+    @Query("select c.status from OrderEntity c where c.id=?1 and c.createdBy.id = ?2")
+    Optional<String> getStatusByID(Long id, Long uid);
+
+    @Query("select c.redirectUrl from OrderEntity c where c.id=?1 and c.createdBy.id = ?2")
+    Optional<String> getUrlByID(Long id, Long uid);
 }
