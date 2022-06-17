@@ -10,4 +10,6 @@ public interface IOrderService extends IBaseService<OrderEntity, OrderModel, Lon
     OrderEntity cancelOrder(Long id);
     OrderEntity onlyUserFindById(Long id, Long userId);
     Page<OrderEntity> onlyUserFindAll(Pageable page, Long userId);
+
+    OrderEntity findByUUID(String uuid);
 }
