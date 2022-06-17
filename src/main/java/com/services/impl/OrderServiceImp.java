@@ -20,6 +20,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class OrderServiceImp implements IOrderService {
@@ -152,5 +153,15 @@ public class OrderServiceImp implements IOrderService {
     @Override
     public Page<OrderEntity> onlyUserFindAll(Pageable page, Long userId) {
         return this.orderRepository.findAllByCreatedById( userId, page);
+    }
+
+    @Override
+    public String getStatusByID(Long id) {
+        return orderRepository.getStatusByID(id,SecurityUtils.getCurrentUserId()).orElseThrow(()-> new RuntimeException("Order not found!!!"));
+    }
+
+    @Override
+    public String getUrlByID(Long id) {
+        return orderRepository.getUrlByID(id,SecurityUtils.getCurrentUserId()).orElseThrow(()-> new RuntimeException("Order not found!!!"));
     }
 }

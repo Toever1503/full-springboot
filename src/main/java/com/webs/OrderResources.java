@@ -72,4 +72,14 @@ public class OrderResources {
     public ResponseDto filter(@RequestBody OrderFilterModel orderFilterModel, Pageable page) {
         return ResponseDto.of(this.orderService.filter(page, Specification.where(OrderSpecification.filter(orderFilterModel))).map(OrderDto::toDto), "Filter success");
     }
+
+    @GetMapping("/check/{id}")
+    public ResponseDto getPayStatus(@PathVariable("id") Long id){
+        return ResponseDto.of(orderService.getStatusByID(id),"Get status");
+    }
+
+    @GetMapping("/redirect/{id}")
+    public ResponseDto getPayUrl(@PathVariable("id") Long id){
+        return ResponseDto.of(orderService.getUrlByID(id),"Get url");
+    }
 }

@@ -43,6 +43,8 @@ public class OrderEntity {
     private String COD;
     @Column(name = "transaction_no")
     private String transactionNo;
+    @Column(name = "redirect_url")
+    private String redirectUrl;
 
     @CreationTimestamp
     @Column(name = "created_date")
