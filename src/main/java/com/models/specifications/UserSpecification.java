@@ -25,9 +25,9 @@ public class UserSpecification extends BaseSpecification {
         if (filter.getSex() != null)
             specs.add(orIn(UserEntity_.SEX, filter.getSex().stream().map(e -> (Object) e).collect(Collectors.toList())));
         if (filter.getStatus() != null)
-            specs.add(orIn(UserEntity_.STATUS, filter.getStatus().stream().map(e -> (Object) e).collect(Collectors.toList())));
+            specs.add(equal(UserEntity_.STATUS, filter.getStatus()));
         if (filter.getLockStatus() != null)
-            specs.add(orIn(UserEntity_.LOCK_STATUS, filter.getLockStatus().stream().map(e -> (Object) e).collect(Collectors.toList())));
+            specs.add(equal(UserEntity_.LOCK_STATUS, filter.getLockStatus()));
         if (filter.getMaxBirthDay() != null && filter.getMinBirthDay() != null)
             specs.add(betweenDate(UserEntity_.BIRTH_DATE, filter.getMinBirthDay(), filter.getMaxBirthDay()));
         if (filter.getMaxCreatedDate() != null && filter.getMinCreatedDate() != null)

@@ -11,12 +11,18 @@ public abstract class BaseSpecification {
         return (root, query, cb) -> cb.like(root.get(field), "%" + q + "%");
     }
 
+    public static Specification equal(String field, Object data) {
+        return (root, query, cb) -> cb.equal(root.get(field), data);
+    }
+
     public static Specification betweenDate(String field, Date minDate, Date maxDate) {
         return (root, query, cb) -> cb.between(root.get(field), minDate, maxDate);
     }
+
     public static Specification dateGreaterThanEqual(String field, Date data) {
         return (root, query, cb) -> cb.greaterThanOrEqualTo(root.get(field), data);
     }
+
     public static Specification dateLessThanEqual(String field, Date data) {
         return (root, query, cb) -> cb.lessThanOrEqualTo(root.get(field), data);
     }

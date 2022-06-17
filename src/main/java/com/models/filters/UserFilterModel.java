@@ -25,10 +25,10 @@ public class UserFilterModel {
     private List<String> sex;
 
     @ApiModelProperty(notes = "Search status which contains", dataType = "String", example = "a")
-    private List<Boolean> status;
+    private Boolean status;
 
     @ApiModelProperty(notes = "Search lock status which contains", dataType = "String", example = "a")
-    private List<Boolean> lockStatus;
+    private Boolean lockStatus;
 
     @ApiModelProperty(notes = "Max birthday of user", dataType = "datetime", example = "2022-06-10 09:18:56")
     @JsonFormat(pattern="yyyy-MM-dd")
