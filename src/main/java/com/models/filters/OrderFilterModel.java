@@ -11,13 +11,18 @@ import java.util.List;
 @NoArgsConstructor
 @Data
 public class OrderFilterModel {
-    private String userName;
+    private String uuid;
+    private String username;
     private String address;
     private String note;
+    private Double minTotalCost;
+    private Double maxTotalCost;
+    private Integer minTotalProducts;
+    private Integer maxTotalProducts;
     private List<String> paymentMethods;
     private List<String> statusList;
-    private Date fromCreatedDate;
-    private Date toCreatedDate;
-    private Double minTotalPrices;
-    private Double maxTotalPrices;
+    private Date minCreatedDate;
+    private Date minUpdatedDate;
+    private Date maxCreatedDate;
+    private Date maxUpdatedDate;
 }

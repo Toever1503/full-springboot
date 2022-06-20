@@ -14,8 +14,8 @@ import javax.persistence.Column;
 @Builder
 public class OrderDetailDto {
     private Long id;
-    private Long productId;
-    private Long optionId;
+    private String productId;
+    private String optionId;
     private Double price;
     private Integer quantity;
 
@@ -23,7 +23,7 @@ public class OrderDetailDto {
         if(entity == null) return null;
         return OrderDetailDto.builder()
                 .id(entity.getId())
-                .productId(entity.getProductId())
+                .productId(entity.getProductId().getName())
                 .optionId(entity.getOptionId())
                 .price(entity.getPrice())
                 .quantity(entity.getQuantity())

@@ -15,10 +15,13 @@ public class OrderDetailEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column(name = "product_id")
-    private Long productId;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "product_id")
+    private ProductEntity productId;
+
     @Column(name = "option_id")
-    private Long optionId;
+    private String optionId;
     @Column(name = "price")
     private Double price;
     @Column(name = "quantity")
