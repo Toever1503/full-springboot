@@ -21,12 +21,12 @@ public class OrderFilterModel {
     private Integer maxTotalProducts;
     private List<String> paymentMethods;
     private List<String> statusList;
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = "YYYY-MM-DD HH:mm:ss")
     private Date minCreatedDate;
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = "YYYY-MM-DD HH:mm:ss")
     private Date minUpdatedDate;
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = "YYYY-MM-DD HH:mm:ss")
     private Date maxCreatedDate;
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = "YYYY-MM-DD HH:mm:ss")
     private Date maxUpdatedDate;
 }
