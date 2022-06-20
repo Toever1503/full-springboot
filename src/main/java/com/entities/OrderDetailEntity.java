@@ -23,4 +23,6 @@ public class OrderDetailEntity {
     private Double price;
     @Column(name = "quantity")
     private Integer quantity;
+    @Column(name = "is_review")
+    private Boolean isReview;
 }

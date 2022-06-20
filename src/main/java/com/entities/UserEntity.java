@@ -81,4 +81,7 @@ public class UserEntity {
     @OneToMany(mappedBy = "createdBy", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderEntity> orderEntity;
 
+    @OneToMany(mappedBy = "createdBy", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ReviewEntity> reviewEntity;
+
 }

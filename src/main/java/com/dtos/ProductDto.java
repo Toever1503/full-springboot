@@ -25,7 +25,7 @@ public class ProductDto {
     private Integer totalQuantity;
     private Integer totalLike;
     private Integer totalReview;
-    private Integer rating;
+    private Float rating;
     private String avatar;
     private List<Object> attachFiles;
     private CategoryDto category;
