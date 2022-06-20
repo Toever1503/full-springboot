@@ -56,7 +56,7 @@ public class OrderResources {
     }
 
     @Transactional
-    @PostMapping("update-status/{id}")
+    @PatchMapping("update-status/{id}")
     public ResponseDto updateStatusOrder(@PathVariable("id") Long id, @RequestParam("status") String status) {
         return ResponseDto.of(OrderDto.toDto(this.orderService.updateStatusOrder(id, status)), "Update status order, id: " + id);
     }

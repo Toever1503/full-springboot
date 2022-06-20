@@ -1,10 +1,7 @@
 package com.services.impl;
 
 import com.dtos.EStatusOrder;
-import com.entities.Address;
-import com.entities.CartEntity;
-import com.entities.OrderDetailEntity;
-import com.entities.OrderEntity;
+import com.entities.*;
 import com.models.OrderModel;
 import com.repositories.IOptionsRepository;
 import com.repositories.IOrderDetailRepository;
@@ -12,6 +9,7 @@ import com.repositories.IOrderRepository;
 import com.services.IAddressService;
 import com.services.ICartService;
 import com.services.IOrderService;
+import com.services.IProductService;
 import com.utils.SecurityUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -20,7 +18,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class OrderServiceImp implements IOrderService {
@@ -29,6 +26,7 @@ public class OrderServiceImp implements IOrderService {
     private final ICartService cartService;
     private final IOptionsRepository optionsRepository;
     private final IAddressService addressService;
+
 
     public OrderServiceImp(IOrderRepository orderRepository, IOrderDetailRepository orderDetailRepository, ICartService cartService, IOptionsRepository optionsRepository, IAddressService addressService) {
         this.orderRepository = orderRepository;
@@ -67,11 +65,12 @@ public class OrderServiceImp implements IOrderService {
             model.getOrderDetailIds().stream().forEach(orderDetailId -> {
 
                 CartEntity cart = this.cartService.findById(orderDetailId);
+                OptionEntity optionId = this.optionsRepository.findById(cart.getOptionId()).get();
                 if (cart != null) {
                     OrderDetailEntity orderDetailEntity = OrderDetailEntity.builder()
-                            .productId(cart.getProduct().getId())
-                            .optionId(cart.getOptionId())
-                            .price(this.optionsRepository.findById(cart.getOptionId()).get().getNewPrice())
+                            .productId(cart.getProduct())
+                            .optionId(optionId.getOptionName())
+                            .price(optionId.getNewPrice())
                             .quantity(cart.getQuantity())
                             .isReview(false)
                             .build();

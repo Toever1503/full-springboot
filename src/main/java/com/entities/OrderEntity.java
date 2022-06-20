@@ -63,8 +63,6 @@ public class OrderEntity {
     @JoinColumn(name = "created_by")
     private UserEntity createdBy;
 
-
-
     @OneToMany( cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "order_id")
     private List<OrderDetailEntity> orderDetails;

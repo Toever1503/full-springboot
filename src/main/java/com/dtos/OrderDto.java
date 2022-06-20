@@ -21,7 +21,7 @@ public class OrderDto {
     private Double totalPrices;
     private Integer totalNumberProducts;
     private String status;
-    private UserDto createdBy;
+    private String createdBy;
     private Date createdDate;
     private Date updatedDate;
     private String address;
@@ -44,7 +44,7 @@ public class OrderDto {
                 .totalPrices(entity.getTotalPrices())
                 .totalNumberProducts(entity.getTotalNumberProducts())
                 .status(entity.getStatus())
-                .createdBy(entity.getCreatedBy() == null ? null : UserDto.toDto(entity.getCreatedBy()))
+                .createdBy(entity.getCreatedBy() == null ? null : entity.getCreatedBy().getUserName())
                 .createdDate(entity.getCreatedDate())
                 .updatedDate(entity.getUpdatedDate())
                 .orderDetails(entity.getOrderDetails() == null ? null : entity.getOrderDetails().stream().map(OrderDetailDto::toDto).collect(Collectors.toList()))
