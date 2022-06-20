@@ -13,6 +13,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.security.RolesAllowed;
+import javax.validation.Valid;
+import javax.validation.constraints.NotBlank;
 
 @RestController
 @RequestMapping("/order")
@@ -55,6 +57,11 @@ public class OrderResources {
         return ResponseDto.of(OrderDto.toDto(orderService.add(orderModel)), "Create order success");
     }
 
+    @Transactional
+    @PatchMapping("update-delivery-code/{id}")
+    public ResponseDto updateDeliveryCode(@PathVariable("id") Long id, @RequestParam(name = "code") @Valid @NotBlank String deliveryCode) {
+        return ResponseDto.of(orderService.updateDeliveryCode(id, deliveryCode), "Update delivery code");
+    }
     @Transactional
     @PatchMapping("update-status/{id}")
     public ResponseDto updateStatusOrder(@PathVariable("id") Long id, @RequestParam("status") String status) {

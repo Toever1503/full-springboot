@@ -169,4 +169,12 @@ public class OrderServiceImp implements IOrderService {
     public String getUrlByID(Long id) {
         return orderRepository.getUrlByID(id, SecurityUtils.getCurrentUserId()).orElseThrow(() -> new RuntimeException("Order not found!!!"));
     }
+
+    @Override
+    public boolean updateDeliveryCode(Long id, String deliveryCode) {
+        OrderEntity orderEntity = this.findById(id);
+        orderEntity.setDeliveryCode(deliveryCode);
+        orderEntity.setStatus(EStatusOrder.DELIVERING.name());
+        return this.orderRepository.save(orderEntity) != null;
+    }
 }

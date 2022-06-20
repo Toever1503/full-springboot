@@ -11,7 +11,6 @@ import java.util.List;
 @NoArgsConstructor
 @Data
 public class OrderFilterModel {
-    private String uuid;
     private String username;
     private String address;
     private String note;

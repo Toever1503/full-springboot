@@ -72,9 +72,6 @@ public class OrderSpecification extends BaseSpecification {
     public static Specification<OrderEntity> filter(OrderFilterModel orderFilterModel) {
         List<Specification<OrderEntity>> specs = new ArrayList<>();
 
-        if (orderFilterModel.getUuid() != null)
-            specs.add(like(OrderEntity_.UUID, orderFilterModel.getUuid()));
-
         if (orderFilterModel.getUsername() != null && !orderFilterModel.getUsername().isEmpty()) {
             specs.add(likeCreatedBy(orderFilterModel.getUsername()));
         }
