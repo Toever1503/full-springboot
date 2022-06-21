@@ -51,7 +51,10 @@ public class VnPayService {
         vnp_Params.put("vnp_CurrCode",VnPayUtils.vnp_CurrCode);
         vnp_Params.put("vnp_IpAddr", VnPayUtils.getIpAddress(request));
         vnp_Params.put("vnp_Locale",VnPayUtils.vnp_Locale);
-        vnp_Params.put("vnp_OrderInfo",curOrder.getNote());
+        if(curOrder.getNote()!=null){
+            vnp_Params.put("vnp_OrderInfo",curOrder.getNote());
+        }else
+            vnp_Params.put("vnp_OrderInfo","Default Order");
         vnp_Params.put("vnp_OrderType",VnPayUtils.vnp_OrderType);
         vnp_Params.put("vnp_ReturnUrl", VnPayUtils.vnp_ResUrl);
         vnp_Params.put("vnp_TxnRef",curOrder.getUuid());
