@@ -55,7 +55,7 @@ public class OrderEntity {
     @Temporal(javax.persistence.TemporalType.TIMESTAMP)
     private Date updatedDate;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "address_id")
     private Address address;
 
