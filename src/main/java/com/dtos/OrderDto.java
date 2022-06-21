@@ -28,7 +28,7 @@ public class OrderDto {
     private String mainPhone;
     private String mainReceiver;
     private String deliveryCode;
-    private String deliveryFee;
+    private Double deliveryFee;
     private List<OrderDetailDto> orderDetails;
 
     public static OrderDto toDto(OrderEntity entity) {
