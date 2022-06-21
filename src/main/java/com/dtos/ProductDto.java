@@ -34,6 +34,7 @@ public class ProductDto {
     private Set<TagDto> tags;
 
 
+
     public static ProductDto toDto(ProductEntity entity) {
         if(entity == null) return null;
         ProductDto productDto = new ProductDto();
