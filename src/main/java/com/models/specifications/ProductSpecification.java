@@ -189,6 +189,8 @@ public class ProductSpecification {
         if (filter.getMetas() != null)
             filter.getMetas().forEach(meta -> specifications.add(byMeta(meta)));
 
+        specifications.add(byActive(true));
+
 
         Specification<ProductEntity> finalSpec = null;
         for (Specification<ProductEntity> s : specifications
