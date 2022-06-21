@@ -2,6 +2,7 @@ package com.models.specifications;
 
 import com.entities.*;
 import com.models.filters.OrderFilterModel;
+import com.utils.SecurityUtils;
 import org.springframework.data.jpa.domain.Specification;
 
 import javax.persistence.criteria.Join;
@@ -72,9 +73,13 @@ public class OrderSpecification extends BaseSpecification {
     public static Specification<OrderEntity> filter(OrderFilterModel orderFilterModel) {
         List<Specification<OrderEntity>> specs = new ArrayList<>();
 
-        if (orderFilterModel.getUsername() != null && !orderFilterModel.getUsername().isEmpty()) {
-            specs.add(likeCreatedBy(orderFilterModel.getUsername()));
-        }
+        if (SecurityUtils.hasRole(RoleEntity.ADMINISTRATOR)) {
+            if (orderFilterModel.getUsername() != null && !orderFilterModel.getUsername().isEmpty()) {
+                specs.add(likeCreatedBy(orderFilterModel.getUsername()));
+            }
+        } else
+            specs.add(likeCreatedBy(SecurityUtils.getCurrentUsername()));
+
         if (orderFilterModel.getAddress() != null && !orderFilterModel.getAddress().isEmpty()) {
             specs.add(like(OrderEntity_.MAIN_ADDRESS, orderFilterModel.getAddress()));
         }
@@ -94,9 +99,9 @@ public class OrderSpecification extends BaseSpecification {
 
         if (orderFilterModel.getMinUpdatedDate() != null && orderFilterModel.getMaxUpdatedDate() != null) {
             specs.add(betweenDate(OrderEntity_.UPDATED_DATE, orderFilterModel.getMinUpdatedDate(), orderFilterModel.getMaxUpdatedDate()));
-        } else if (orderFilterModel.getMinCreatedDate() != null) {
+        } else if (orderFilterModel.getMinUpdatedDate() != null) {
             specs.add(dateGreaterThanEqual(OrderEntity_.UPDATED_DATE, orderFilterModel.getMinUpdatedDate()));
-        } else if (orderFilterModel.getMaxCreatedDate() != null) {
+        } else if (orderFilterModel.getMaxUpdatedDate() != null) {
             specs.add(dateLessThanEqual(OrderEntity_.UPDATED_DATE, orderFilterModel.getMaxUpdatedDate()));
         }
 
