@@ -14,6 +14,7 @@ import java.util.List;
 @Data
 public class OrderFilterModel {
     private String username;
+    private String orderCode;
     private String address;
     private String note;
     private Double minTotalCost;

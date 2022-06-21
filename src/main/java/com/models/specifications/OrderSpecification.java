@@ -80,9 +80,13 @@ public class OrderSpecification extends BaseSpecification {
         } else
             specs.add(likeCreatedBy(SecurityUtils.getCurrentUsername()));
 
+        if (orderFilterModel.getOrderCode() != null)
+            specs.add(like(OrderEntity_.UUID, orderFilterModel.getOrderCode()));
+
         if (orderFilterModel.getAddress() != null && !orderFilterModel.getAddress().isEmpty()) {
             specs.add(like(OrderEntity_.MAIN_ADDRESS, orderFilterModel.getAddress()));
         }
+
         if (orderFilterModel.getNote() != null && !orderFilterModel.getNote().isEmpty()) {
             specs.add(likeNote(orderFilterModel.getNote()));
         }

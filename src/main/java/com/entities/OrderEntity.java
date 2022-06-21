@@ -41,6 +41,10 @@ public class OrderEntity {
     private String mainReceiver;
     @Column(name = "delivery_code")
     private String deliveryCode;
+
+    @Column(name = "delivery_fee")
+    private Double deliveryFee;
+
     @Column(name = "transaction_no")
     private String transactionNo;
     @Column(name = "redirect_url")
