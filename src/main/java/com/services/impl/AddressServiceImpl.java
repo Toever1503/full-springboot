@@ -87,6 +87,7 @@ public class AddressServiceImpl implements IAddressService {
                 .ward(ward)
                 .phone(model.getPhone())
                 .receiver(model.getReceiver())
+                .user(this.userRepository.findById(model.getUserId()).get())
                 .build();
         return addressRepository.save(address);
     }
