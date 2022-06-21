@@ -25,6 +25,10 @@ public class ProductSpecification {
         return (root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get(ProductEntity_.NAME), pName);
     }
 
+    public static Specification<ProductEntity> byActive(boolean active){
+        return (root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get(ProductEntity_.ACTIVE), active);
+    }
+
 
     public static Specification<ProductEntity> byProductActive(Boolean pActive) {
         return (root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get(ProductEntity_.ACTIVE), pActive);
