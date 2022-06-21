@@ -86,7 +86,6 @@ public class OrderSpecification extends BaseSpecification {
         if (orderFilterModel.getAddress() != null && !orderFilterModel.getAddress().isEmpty()) {
             specs.add(like(OrderEntity_.MAIN_ADDRESS, orderFilterModel.getAddress()));
         }
-
         if (orderFilterModel.getNote() != null && !orderFilterModel.getNote().isEmpty()) {
             specs.add(likeNote(orderFilterModel.getNote()));
         }
