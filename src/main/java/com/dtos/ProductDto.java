@@ -32,6 +32,7 @@ public class ProductDto {
     private List<ProductMetaDto> productMetas;
     private List<OptionDto> options;
     private Set<TagDto> tags;
+    private Boolean active;
 
 
     public static ProductDto toDto(ProductEntity entity) {
@@ -45,6 +46,7 @@ public class ProductDto {
         productDto.setTotalReview(entity.getTotalReview());
         productDto.setRating(entity.getRating());
         productDto.setAvatar(entity.getImage());
+        productDto.setActive(entity.getActive());
         productDto.setAttachFiles(entity.getAttachFiles() != null ? new JSONObject(entity.getAttachFiles()).getJSONArray("files").toList() : null);
 
         productDto.setCategory(entity.getCategory() == null ? null : CategoryDto.toDto(entity.getCategory(), false));

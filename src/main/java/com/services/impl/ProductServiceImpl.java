@@ -134,8 +134,6 @@ public class ProductServiceImpl implements IProductService {
         originProduct.setTotalQuantity(0);
         originProduct.setTotalLike(0);
         originProduct.setTotalReview(0);
-        originProduct.setRating(0);
-
         originProduct.setActive(true);
 
         CategoryEntity category = categoryService.findById(model.getCategoryId());

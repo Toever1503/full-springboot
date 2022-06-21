@@ -1,5 +1,5 @@
 package com.dtos;
 
 public enum EStatusReview {
-    PENDING, APPROVED, REJECTED
+    PENDING, APPROVED
 }

@@ -28,4 +28,8 @@ public class OrderDetailEntity {
     private Integer quantity;
     @Column(name = "is_review")
     private Boolean isReview;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "order_id")
+    private OrderEntity order;
 }

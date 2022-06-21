@@ -57,7 +57,7 @@ public class ProductModel {
                 .description(model.getDescription())
                 .totalLike(0)
                 .totalReview(0)
-                .rating(0)
+                .rating(0F)
                 .active(true)
                 .build();
     }

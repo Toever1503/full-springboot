@@ -9,6 +9,12 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface IReviewRepository extends JpaRepository<ReviewEntity, Long> {
     @Modifying
-    @Query(value = "update tbl_review set parent_id = null where parent_id = ?1", nativeQuery = true)
-    void updateReviewParent(Long catId);
+    @Query(value = "DELETE FROM tbl_review WHERE parent_id = ?1", nativeQuery = true)
+    void deleteReviewByParent(Long catId);
+
+    @Modifying
+    @Query(value = "update tbl_product as p\n" +
+            "set rating = (select sum(rv.rating)/count(rv.id) from tbl_review as rv where rv.product_id=?1)\n" +
+            "where p.id=?1", nativeQuery = true)
+    void updateProductRating(Long productId);
 }

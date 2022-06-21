@@ -30,7 +30,7 @@ public class ProductEntity {
     @Column(name = "total_review")
     private Integer totalReview;
     @Column(name = "rating")
-    private float rating;
+    private Float rating;
     @Column(name = "image")
     private String image;
     @Column(name = "attach_files")

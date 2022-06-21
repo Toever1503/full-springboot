@@ -20,20 +20,17 @@ import java.util.List;
 @Setter
 public class ReviewModel {
     private Long id;
-    private Long optionId;
+    private Long orderDetailId;
     private String content;
     private Float rating;
     private List<MultipartFile> attachFiles;
     private List<String> attachFilesOrigin = new ArrayList<>();
     private Long parentId;
-    private Long productId;
-    private Long orderId;
 
     public static ReviewEntity toEntity(ReviewModel model) {
         if(model == null) return null;
         return ReviewEntity.builder()
                 .id(model.getId())
-                .optionId(model.getOptionId())
                 .content(model.getContent())
                 .rating(model.getRating())
                 .isEdit(false)
