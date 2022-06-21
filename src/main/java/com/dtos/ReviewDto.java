@@ -17,7 +17,7 @@ import static com.dtos.QuestionDto.parseJson;
 @Builder
 public class ReviewDto {
     private Long id;
-    private Long optionId;
+    private String optionName;
     private String content;
     private Float rating;
     private List<Object> attachFiles;
@@ -32,7 +32,7 @@ public class ReviewDto {
         if (entity == null) return null;
         return ReviewDto.builder()
                 .id(entity.getId())
-                .optionId(entity.getOptionId())
+                .optionName(entity.getOptionName())
                 .content(entity.getContent())
                 .rating(entity.getRating() == null ? null : entity.getRating())
                 .attachFiles(entity.getAttachFiles() == null ? null : parseJson(entity.getAttachFiles()).getJSONArray("files").toList())

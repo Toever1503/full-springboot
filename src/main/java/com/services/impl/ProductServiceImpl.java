@@ -76,7 +76,7 @@ public class ProductServiceImpl implements IProductService {
     @Override
     public ProductEntity add(ProductModel model) {
         ProductEntity productEntity = ProductModel.toEntity(model);
-        productEntity.setTotalQuantity(0);
+        Integer totalQuantity = 0;
 
         CategoryEntity category = categoryService.findById(model.getCategoryId());
         productEntity.setCategory(category);
@@ -86,6 +86,12 @@ public class ProductServiceImpl implements IProductService {
         List<OptionEntity> options = model.getOptions().stream().map(optionModel -> OptionModel.toEntity(optionModel, null)).collect(Collectors.toList());
         Set<TagEntity> tags = model.getTags().stream().map(tagModel -> TagModel.toEntity(tagModel)).collect(Collectors.toSet());
         productEntity.setOptions(options);
+
+        for (OptionEntity option : options) {
+            totalQuantity += option.getQuantity();
+        }
+        productEntity.setTotalQuantity(totalQuantity);
+
         productEntity.setProductMetas(productMetas);
         productEntity.setTags(tags);
         productEntity.setCreatedBy(SecurityUtils.getCurrentUser().getUser());

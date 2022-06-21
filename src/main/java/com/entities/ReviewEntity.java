@@ -17,8 +17,8 @@ public class ReviewEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column(name = "option_id")
-    private Long optionId;
+    @Column(name = "option_name")
+    private String optionName;
     @Column(name = "content")
     private String content;
     @Column(name = "rating")

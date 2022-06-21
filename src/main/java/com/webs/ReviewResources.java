@@ -69,4 +69,17 @@ public class ReviewResources {
         return ResponseDto.of(ReviewDto.toDto(reviewService.responseReview(reviewAdinModel)), "Review reply successfully");
     }
 
+    @RolesAllowed("ADMINISTRATOR")
+    @Transactional
+    @GetMapping("/all-parent")
+    public ResponseDto getAllParentReviews(Pageable page) {
+        return ResponseDto.of(reviewService.findAllParentReviewIsNull(page).map(ReviewDto::toDto), "Reviews retrieved successfully");
+    }
+
+    @Transactional
+    @GetMapping("/product/{productId}")
+    public ResponseDto getAllParentReviewsByStatusAndProductId(Pageable page, @PathVariable("productId") Long productId) {
+        String status = "APPROVED";
+        return ResponseDto.of(reviewService.findAllParentReviewIsNullAndStatusAndProductId(page, status, productId).map(ReviewDto::toDto), "Reviews retrieved successfully");
+    }
 }

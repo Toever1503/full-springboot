@@ -73,7 +73,7 @@ public class ReviewServiceImpl implements IReviewService {
         OrderDetailEntity orderDetailEntity = this.orderDetailRepository.findById(model.getOrderDetailId()).orElseThrow(() -> new RuntimeException("Order detail not found"));
 
         // kiem tra nguoi dung da mua hang va da nhan hang chua
-        // neu ok thi se set lai createBy, optionId,
+        // neu ok thi se set lai createBy, optionName,
         OrderEntity orderEntity = orderDetailEntity.getOrder();
         if(orderEntity == null) {
             throw new RuntimeException("Order not found");
@@ -81,12 +81,14 @@ public class ReviewServiceImpl implements IReviewService {
             if(orderEntity.getCreatedBy().getId() == SecurityUtils.getCurrentUserId() && orderEntity.getStatus().equals(EStatusOrder.COMPLETED.name())) {
                 reviewEntity.setCreatedBy(SecurityUtils.getCurrentUser().getUser());
 
-                OptionEntity optionEntity = this.optionRepository.findByOptionName(orderDetailEntity.getOptionId());
-                if (optionEntity == null) {
-                    throw new RuntimeException("Option not found");
-                } else {
-                    reviewEntity.setOptionId(optionEntity.getId());
-                }
+                orderDetailEntity.getProductId().getOptions().stream().forEach(option -> {
+                    List<OptionEntity> optionEntities = this.optionRepository.findByOptionName(orderDetailEntity.getOptionId());
+                    optionEntities.stream().forEach(optionEntity -> {
+                        if(optionEntity.getId() == option.getId()) {
+                            reviewEntity.setOptionName(optionEntity.getOptionName());
+                        }
+                    });
+                });
 
                 reviewEntity.setOrderDetail(orderDetailEntity);
 
@@ -142,11 +144,11 @@ public class ReviewServiceImpl implements IReviewService {
             updateReview.setIsEdit(true);
             OrderDetailEntity orderDetailEntity = this.orderDetailRepository.findById(model.getOrderDetailId()).orElseThrow(() -> new RuntimeException("Order detail not found"));
             // set optionId
-            if(this.optionRepository.findByOptionName(orderDetailEntity.getOptionId()) == null || this.optionRepository.findByOptionName(orderDetailEntity.getOptionId()).getId() != originReview.getOptionId()) {
-                throw new RuntimeException("Option not found");
-            }else{
-                updateReview.setOptionId(originReview.getOptionId());
-            }
+            this.optionRepository.findByOptionName(orderDetailEntity.getOptionId()).stream().forEach(optionEntity -> {
+                if(optionEntity.getOptionName().equalsIgnoreCase(originReview.getOptionName())) {
+                    updateReview.setOptionName(optionEntity.getOptionName());
+                }
+            });
             // set product
             if(orderDetailEntity.getProductId().getId() != originReview.getProduct().getId()) {
                 throw new RuntimeException("Product not found");
@@ -216,7 +218,7 @@ public class ReviewServiceImpl implements IReviewService {
             this.reviewRepository.save(parentReview);
             reviewEntity.setParentReview(parentReview);
             reviewEntity.setProduct(parentReview.getProduct());
-            reviewEntity.setOptionId(parentReview.getOptionId());
+            reviewEntity.setOptionName(parentReview.getOptionName());
             reviewEntity.setOrderDetail(parentReview.getOrderDetail());
             // file upload
             String folder = UserEntity.FOLDER + SecurityUtils.getCurrentUsername() + ReviewEntity.FOLDER;
@@ -244,4 +246,15 @@ public class ReviewServiceImpl implements IReviewService {
         reviewEntity.setStatus(status);
         return this.reviewRepository.save(reviewEntity);
     }
+
+    @Override
+    public Page<ReviewEntity> findAllParentReviewIsNull(Pageable page) {
+        return this.reviewRepository.findAllByParentReviewIsNull(page);
+    }
+
+    @Override
+    public Page<ReviewEntity> findAllParentReviewIsNullAndStatusAndProductId(Pageable page, String status, Long productId) {
+        return this.reviewRepository.findAllByParentReviewIsNullAndStatusAndProductId(page, status, productId);
+    }
+
 }
