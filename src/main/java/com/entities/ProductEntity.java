@@ -63,6 +63,7 @@ public class ProductEntity {
 
     @OneToMany( cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "product_id")
+    @OrderBy("newPrice ASC")
     private List<OptionEntity> options;
 
     @ManyToMany(

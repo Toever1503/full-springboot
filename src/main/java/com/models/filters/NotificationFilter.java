@@ -1,6 +1,7 @@
 package com.models.filters;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -22,9 +23,11 @@ public class NotificationFilter {
     private Integer maxViewed;
     private List<String> category;
 
-    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
+    @JsonSerialize(as = Date.class)
+    @JsonFormat(pattern = "yyyy-MM-DD HH:mm:ss")
     private Date minCreatedDate;
-    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
+    @JsonSerialize(as = Date.class)
+    @JsonFormat(pattern = "yyyy-MM-DD HH:mm:ss")
     private Date maxCreatedDate;
     @ApiModelProperty(notes = "User's name created", dataType = "String", example = "shiki")
     String createdBy;

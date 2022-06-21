@@ -13,6 +13,7 @@ import lombok.NoArgsConstructor;
 public class ParentCategoryDto {
     private Long id;
     private String categoryName;
+    private Integer deepLevel;
     private ParentCategoryDto parentCategoryDto;
 
     public static ParentCategoryDto toDto(CategoryEntity entity) {
@@ -20,6 +21,7 @@ public class ParentCategoryDto {
         return ParentCategoryDto.builder()
                 .id(entity.getId())
                 .categoryName(entity.getCategoryName())
+                .deepLevel(entity.getDeepLevel())
                 .parentCategoryDto(ParentCategoryDto.toDto(entity.getParentCategory()))
                 .build();
     }

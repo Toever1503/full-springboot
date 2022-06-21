@@ -12,7 +12,7 @@ import java.util.Date;
 import java.util.List;
 
 public abstract class BaseSpecification {
-    public static Specification like(String q, String field) {
+    public static Specification like(String field, String q) {
         return (root, query, cb) -> cb.like(root.get(field), "%" + q + "%");
     }
 

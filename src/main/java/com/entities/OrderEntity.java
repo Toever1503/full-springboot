@@ -41,6 +41,10 @@ public class OrderEntity {
     private String mainReceiver;
     @Column(name = "delivery_code")
     private String deliveryCode;
+
+    @Column(name = "delivery_fee")
+    private Double deliveryFee;
+
     @Column(name = "transaction_no")
     private String transactionNo;
     @Column(name = "redirect_url")
@@ -55,7 +59,7 @@ public class OrderEntity {
     @Temporal(javax.persistence.TemporalType.TIMESTAMP)
     private Date updatedDate;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "address_id")
     private Address address;
 

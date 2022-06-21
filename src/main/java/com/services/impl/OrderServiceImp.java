@@ -63,7 +63,6 @@ public class OrderServiceImp implements IOrderService {
         List<OrderDetailEntity> orderDetailEntities = new ArrayList<>();
         if (model.getOrderDetailIds() != null) {
             model.getOrderDetailIds().stream().forEach(orderDetailId -> {
-
                 CartEntity cart = this.cartService.findById(orderDetailId);
                 OptionEntity optionId = this.optionsRepository.findById(cart.getOptionId()).get();
                 if (cart != null) {
@@ -89,6 +88,7 @@ public class OrderServiceImp implements IOrderService {
             totalNumberProducts += orderDetailEntity.getQuantity();
             totalPrices += orderDetailEntity.getPrice() * orderDetailEntity.getQuantity();
         }
+        totalPrices += orderEntity.getDeliveryFee();
         // set address user
         Address address = this.addressService.findById(model.getAddressId());
         orderEntity.setAddress(address);
