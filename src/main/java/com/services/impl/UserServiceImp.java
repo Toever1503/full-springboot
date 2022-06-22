@@ -345,9 +345,10 @@ public class UserServiceImp implements IUserService {
         // usercreated id = 1  == 2
         Address oriAddress = this.addressService.findById(model.getId());
         if (oriAddress.getUser().getId() == SecurityUtils.getCurrentUserId() || SecurityUtils.hasRole(RoleEntity.ADMINISTRATOR)) {
+            model.setUserId(oriAddress.getUser().getId());
             return this.addressService.update(model);
-        } else
-            return null;
+        }
+        return null;
 //        UserEntity user = this.findById(SecurityUtils.getCurrentUserId());
 //        if (!addressService.findByUid(SecurityUtils.getCurrentUserId()).stream().anyMatch(a -> a.getId() == model.getId())|| SecurityUtils.hasRole(RoleEntity.ADMINISTRATOR))
 //            throw new RuntimeException("Address not found!, id: " + model.getId());

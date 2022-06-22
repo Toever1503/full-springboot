@@ -18,7 +18,6 @@ import javax.validation.Valid;
 import java.util.List;
 
 
-
 @RestController
 @RequestMapping("/products")
 @Validated
@@ -42,8 +41,8 @@ public class ProductResources {
 
     @Transactional(rollbackFor = RuntimeException.class)
     @PutMapping("{id}")
-    public ResponseDto updateProduct(@PathVariable("id") Long id,@Valid @RequestPart("product") ProductModel productModel,
-                                     @RequestPart("image") MultipartFile image,
+    public ResponseDto updateProduct(@PathVariable("id") Long id, @Valid @RequestPart("product") ProductModel productModel,
+                                     @RequestPart(value = "image", required = false) MultipartFile image,
                                      @RequestPart(name = "attachFiles[]", required = false) List<MultipartFile> attachFiles) {
         productModel.setId(id);
         productModel.setAttachFiles(attachFiles);
@@ -71,7 +70,7 @@ public class ProductResources {
     @GetMapping
     @Transactional
     public ResponseDto getAllProducts(Pageable pageable) {
-        return ResponseDto.of(productService.findAll(pageable).map(ProductDto::toDto), "Get all products");
+        return ResponseDto.of(this.productService.filter(pageable, Specification.where(ProductSpecification.byActive(true))).map(ProductDto::toDto), "Get all products");
     }
 
     @PostMapping("/filter")

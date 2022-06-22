@@ -27,6 +27,8 @@ public class CategoryEntity {
     @Column(name = "total_product")
     private Long totalProduct;
 
+    @Column(name = "deep_level")
+    private Integer deepLevel;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "parent_id")
     private CategoryEntity parentCategory;

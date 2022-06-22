@@ -15,13 +15,13 @@ public class UserSpecification extends BaseSpecification {
     public static Specification<UserEntity> filter(UserFilterModel filter) {
         List<Specification<UserEntity>> specs = new ArrayList<>();
         if (filter.getUsername() != null)
-            specs.add(like(filter.getUsername(), UserEntity_.USER_NAME));
+            specs.add(like(UserEntity_.USER_NAME, filter.getUsername()));
         if (filter.getFullname() != null)
-            specs.add(like(filter.getFullname(), UserEntity_.FULL_NAME));
+            specs.add(like(UserEntity_.FULL_NAME, filter.getFullname()));
         if (filter.getEmail() != null)
-            specs.add(like(filter.getEmail(), UserEntity_.EMAIL));
+            specs.add(like(UserEntity_.EMAIL, filter.getEmail()));
         if (filter.getPhone() != null)
-            specs.add(like(filter.getPhone(), UserEntity_.PHONE));
+            specs.add(like(UserEntity_.PHONE, filter.getPhone()));
         if (filter.getSex() != null)
             specs.add(orIn(UserEntity_.SEX, filter.getSex().stream().map(e -> (Object) e).collect(Collectors.toList())));
         if (filter.getStatus() != null)

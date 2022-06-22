@@ -63,11 +63,13 @@ public class CategoryServiceImpl implements ICategoryService {
     @Override
     public CategoryEntity add(CategoryModel model) {
         CategoryEntity categoryEntity = CategoryModel.toEntity(model);
+        categoryEntity.setDeepLevel(0);
         if (this.findBySlug(model.getSlug()) != null)
             throw new RuntimeException("Slug already existed!");
         if (model.getParentId() != null) { //check if parent id not null
             CategoryEntity parent = this.findById(model.getParentId());
             categoryEntity.setParentCategory(parent);
+            categoryEntity.setDeepLevel(parent.getDeepLevel() + 1);
         }
         return this.categoryRepository.save(categoryEntity);
     }
@@ -88,8 +90,10 @@ public class CategoryServiceImpl implements ICategoryService {
         originCategory.setCategoryName(model.getCategoryName());
         originCategory.setSlug(slug);
         originCategory.setDescription(model.getDescription());
-        if (model.getParentId() != null) {//check if parent id not null
-            originCategory.setParentCategory(this.findById(model.getParentId()));
+        if (model.getParentId() != null) {//check if parent id not null\
+            CategoryEntity parentCategory = this.findById(model.getParentId());
+            originCategory.setParentCategory(parentCategory);
+            originCategory.setDeepLevel(parentCategory.getDeepLevel() + 1);
         }
         return this.categoryRepository.save(originCategory);
     }

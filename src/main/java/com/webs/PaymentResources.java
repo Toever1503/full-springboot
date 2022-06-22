@@ -17,10 +17,10 @@ public class PaymentResources {
         this.vnPayService = vnPayService;
     }
 
-    @PostMapping("/checkout/{id}")
-    public ResponseDto sendPayRequest(HttpServletRequest request, @PathVariable("id") Long id){
+    @PostMapping("/checkout")
+    public ResponseDto sendPayRequest(HttpServletRequest request, @RequestParam("id") Long id, @RequestParam("url") String url){
         try {
-            return ResponseDto.of(vnPayService.PerformTransaction(id,request),"Send pay request");
+            return ResponseDto.of(vnPayService.PerformTransaction(id,request,url),"Send pay request");
         } catch (UnsupportedEncodingException e) {
             throw new RuntimeException(e);
         }

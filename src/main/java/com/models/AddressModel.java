@@ -50,4 +50,6 @@ public class AddressModel {
     )
     private String phone;
 
+    private Long userId;
+
 }

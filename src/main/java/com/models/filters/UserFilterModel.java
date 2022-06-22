@@ -1,6 +1,7 @@
 package com.models.filters;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -38,16 +39,20 @@ public class UserFilterModel {
     private Date maxBirthDay;
 
     @ApiModelProperty(notes = "Min Created Time of user", dataType = "datetime", example = "2022-06-10 09:18:56")
-    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
+    @JsonSerialize(as = Date.class)
+    @JsonFormat(pattern = "yyyy-MM-DD HH:mm:ss")
     private Date minCreatedDate;
     @ApiModelProperty(notes = "Max Created Time of user", dataType = "datetime", example = "2022-06-10 09:18:56")
-    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
+    @JsonSerialize(as = Date.class)
+    @JsonFormat(pattern = "yyyy-MM-DD HH:mm:ss")
     private Date maxCreatedDate;
 
     @ApiModelProperty(notes = "Min Updated Time of user", dataType = "datetime", example = "2022-06-10 09:18:56")
-    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
+    @JsonSerialize(as = Date.class)
+    @JsonFormat(pattern = "yyyy-MM-DD HH:mm:ss")
     private Date minUpdatedDate;
     @ApiModelProperty(notes = "Max Updated Time of user", dataType = "datetime", example = "2022-06-10 09:18:56")
-    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
+    @JsonSerialize(as = Date.class)
+    @JsonFormat(pattern = "yyyy-MM-DD HH:mm:ss")
     private Date maxUpdatedDate;
 }
