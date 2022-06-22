@@ -2,6 +2,7 @@ package com.dtos;
 
 import com.entities.ReviewEntity;
 import lombok.*;
+import org.json.JSONObject;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
@@ -37,7 +38,7 @@ public class ReviewDto {
                 .optionName(entity.getOptionName())
                 .content(entity.getContent())
                 .rating(entity.getRating() == null ? null : entity.getRating())
-                .attachFiles(entity.getAttachFiles() == null ? null : parseJson(entity.getAttachFiles()).getJSONArray("files").toList())
+                .attachFiles(entity.getAttachFiles() != null ? new JSONObject(entity.getAttachFiles()).getJSONArray("files").toList() : null)
                 .createdDate(entity.getCreatedDate())
                 .updatedDate(entity.getUpdatedDate())
                 .isEdit(entity.getIsEdit())
