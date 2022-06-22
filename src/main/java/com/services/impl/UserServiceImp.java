@@ -158,7 +158,8 @@ public class UserServiceImp implements IUserService {
     public boolean signUp(RegisterModel registerModel) {
         if (this.userRepository.findByUserName(registerModel.getUserName()) != null) {
             throw new RuntimeException("Username has already registered!");
-        } else if (this.userRepository.findByEmail(registerModel.getUserName()) != null)
+        }
+        if (this.userRepository.findByEmail(registerModel.getEmail()) != null)
             throw new RuntimeException("Email has already registered!");
 
         Set<RoleEntity> roleEntitySet = new HashSet<>();
