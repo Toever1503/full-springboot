@@ -35,7 +35,6 @@ public class ProductDto {
     private Boolean active;
 
 
-
     public static ProductDto toDto(ProductEntity entity) {
         if(entity == null) return null;
         ProductDto productDto = new ProductDto();
