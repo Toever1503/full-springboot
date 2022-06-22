@@ -99,4 +99,10 @@ public class ReviewResources {
         Page<ReviewEntity> reviewEntities = reviewService.filter(page, Specification.where(ReviewSpecification.filter(model)));
         return ResponseDto.of(reviewEntities.map(ReviewDto::toDto), "Get question by filter successfully");
     }
+
+    @Transactional
+    @GetMapping("/reply/{id}")
+    public ResponseDto getReplyByParentId(@PathVariable("id") Long parentId, Pageable pageable){
+        return ResponseDto.of(this.reviewService.findAllByParentId(parentId, pageable), "Get all review by parent review id: " + parentId);
+    }
 }

@@ -10,4 +10,5 @@ public interface IReviewService extends IBaseService<ReviewEntity, ReviewModel, 
     ReviewEntity updateStatus(Long id, String status);
     Page<ReviewEntity> findAllParentReviewIsNull( Pageable page);
     Page<ReviewEntity> findAllParentReviewIsNullAndStatusAndProductId(Pageable page, String status, Long productId);
+    Page<ReviewEntity> findAllByParentId(Long id, Pageable pageable);
 }

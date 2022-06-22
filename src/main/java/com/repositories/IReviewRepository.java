@@ -24,4 +24,7 @@ public interface IReviewRepository extends JpaRepository<ReviewEntity, Long>, Jp
     Page<ReviewEntity> findAllByParentReviewIsNull(Pageable page);
 
     Page<ReviewEntity> findAllByParentReviewIsNullAndStatusAndProductId(Pageable page, String status, Long productId);
+
+    @Query(value = "SELECT * FROM tbl_review where parent_id = ?1", nativeQuery = true)
+    Page<ReviewEntity> findReviewEntityByParentReview(Long id, Pageable pageable);
 }

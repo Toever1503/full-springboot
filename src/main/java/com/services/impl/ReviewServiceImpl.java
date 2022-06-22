@@ -257,4 +257,9 @@ public class ReviewServiceImpl implements IReviewService {
         return this.reviewRepository.findAllByParentReviewIsNullAndStatusAndProductId(page, status, productId);
     }
 
+    @Override
+    public Page<ReviewEntity> findAllByParentId(Long id, Pageable pageable) {
+        return this.reviewRepository.findReviewEntityByParentReview(id, pageable);
+    }
+
 }
