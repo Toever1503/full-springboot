@@ -7,6 +7,4 @@ import org.springframework.data.jpa.repository.Query;
 import java.util.List;
 
 public interface IOrderDetailRepository extends JpaRepository<OrderDetailEntity, Long> {
-    @Query()
-    List<OrderDetailEntity> orderSuccess();
 }
