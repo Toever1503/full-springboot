@@ -18,6 +18,7 @@ public class OrderDetailDto {
     private Double price;
     private Integer quantity;
     private ProductDto product;
+
     public static OrderDetailDto toDto(OrderDetailEntity entity) {
         if(entity == null) return null;
         return OrderDetailDto.builder()
