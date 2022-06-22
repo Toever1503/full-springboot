@@ -22,7 +22,7 @@ public class ReviewEntity {
     @Column(name = "content")
     private String content;
     @Column(name = "rating")
-    private Float rating;
+    private String rating;
 
     @CreationTimestamp
     @Temporal(TemporalType.TIMESTAMP)

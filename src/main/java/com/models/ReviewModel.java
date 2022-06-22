@@ -22,7 +22,7 @@ public class ReviewModel {
     private Long id;
     private Long orderDetailId;
     private String content;
-    private Float rating;
+    private String rating;
     private List<MultipartFile> attachFiles;
         private List<String> attachFilesOrigin = new ArrayList<>();
     private Long parentId;

@@ -1,6 +1,7 @@
 package com.services.impl;
 
 import com.entities.CartEntity;
+import com.entities.OptionEntity;
 import com.entities.ProductEntity;
 import com.entities.UserEntity;
 import com.models.CartModel;
@@ -50,22 +51,22 @@ public class CartServiceImp implements ICartService {
 
     @Override
     public CartEntity add(CartModel model) {
-        ProductEntity productEntity = this.productService.findById(model.getProductId());
         // check product exist
+        ProductEntity productEntity = this.productService.findById(model.getProductId());
+        // check product exist into cart by product id and option id
         CartEntity cartOrigin = this.cartRepository.findAllByProductIdAndOptionId(model.getProductId(), model.getOptionId());
         if(cartOrigin != null){
-            cartOrigin.setQuantity(cartOrigin.getQuantity() + model.getQuantity());
-            return this.cartRepository.save(cartOrigin);
+            if(cartOrigin.getUser().getId() == SecurityUtils.getCurrentUserId()) {
+                cartOrigin.setQuantity(cartOrigin.getQuantity() + model.getQuantity());
+                return this.cartRepository.save(cartOrigin);
+            }
         }
 
         CartEntity cart = CartModel.toEntity(model);
         // check option in product or not ?
-        productEntity.getOptions().stream().forEach(option -> {
-            if (option.getId() == (model.getOptionId())) {
-                cart.setOptionId(model.getOptionId());
-            }
-        });
-        if(cart.getOptionId() == null) {
+        if(productEntity.getOptions().stream().anyMatch(option -> option.getId().equals(model.getOptionId()))) {
+            cart.setOptionId(model.getOptionId());
+        }else{
             throw new RuntimeException("Option not found, id: " + model.getOptionId());
         }
 

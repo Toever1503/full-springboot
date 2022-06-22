@@ -20,7 +20,7 @@ public class ReviewDto {
     private Long id;
     private String optionName;
     private String content;
-    private Float rating;
+    private String rating;
     private List<Object> attachFiles;
     private Date createdDate;
     private Date updatedDate;
