@@ -5,6 +5,10 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
 
+import javax.swing.text.html.Option;
+import java.util.List;
+
 @Repository
 public interface IOptionsRepository extends JpaRepository<OptionEntity, Long>, JpaSpecificationExecutor<OptionEntity> {
+    List<OptionEntity> findByOptionName(String optionName);
 }

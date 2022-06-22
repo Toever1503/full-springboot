@@ -71,6 +71,7 @@ public class OrderServiceImp implements IOrderService {
                             .optionId(optionId.getOptionName())
                             .price(optionId.getNewPrice())
                             .quantity(cart.getQuantity())
+                            .isReview(false)
                             .build();
                     orderDetailEntity = this.orderDetailRepository.save(orderDetailEntity);
                     orderDetailEntities.add(orderDetailEntity);
