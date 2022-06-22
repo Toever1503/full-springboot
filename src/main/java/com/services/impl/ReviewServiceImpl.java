@@ -58,7 +58,7 @@ public class ReviewServiceImpl implements IReviewService {
 
     @Override
     public Page<ReviewEntity> filter(Pageable page, Specification<ReviewEntity> specs) {
-        return null;
+        return this.reviewRepository.findAll(specs, page);
     }
 
     @Override

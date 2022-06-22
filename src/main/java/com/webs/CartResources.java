@@ -27,7 +27,7 @@ public class CartResources {
     @Transactional
     @GetMapping
     public ResponseDto getAllCarts(Pageable pageable) {
-        return ResponseDto.of(this.cartService.findAll(pageable).map(CartDto::toDto), "Get all carts successfully");
+        return ResponseDto.of(this.cartService.findAllByUserId(pageable).map(CartDto::toDto), "Get all carts successfully");
     }
 
     @Transactional

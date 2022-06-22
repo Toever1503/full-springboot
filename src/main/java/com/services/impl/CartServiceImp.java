@@ -95,6 +95,11 @@ public class CartServiceImp implements ICartService {
     }
 
     @Override
+    public Page<CartEntity> findAllByUserId(Pageable pageable) {
+        return this.cartRepository.findAllByUserId(SecurityUtils.getCurrentUserId(), pageable);
+    }
+
+    @Override
     public boolean deleteById(Long id) {
         this.cartRepository.deleteById(id);
         return true;
@@ -105,4 +110,6 @@ public class CartServiceImp implements ICartService {
         ids.stream().forEach(id -> this.deleteById(id));
         return true;
     }
+
+
 }

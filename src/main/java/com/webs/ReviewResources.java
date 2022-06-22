@@ -4,17 +4,26 @@ import com.dtos.ResponseDto;
 import com.dtos.ReviewDto;
 import com.entities.ReviewEntity;
 import com.models.ReviewModel;
+import com.models.filters.ReviewFilterModel;
+import com.models.specifications.ReviewSpecification;
 import com.services.IReviewService;
+import com.utils.SecurityUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.security.RolesAllowed;
+import javax.validation.Valid;
 
 @RestController
 @RequestMapping("/reviews")
 public class ReviewResources {
     final private IReviewService reviewService;
+    private final Logger log = LoggerFactory.getLogger(this.getClass());
 
     public ReviewResources(IReviewService reviewService) {
         this.reviewService = reviewService;
@@ -81,5 +90,13 @@ public class ReviewResources {
     public ResponseDto getAllParentReviewsByStatusAndProductId(Pageable page, @PathVariable("productId") Long productId) {
         String status = "APPROVED";
         return ResponseDto.of(reviewService.findAllParentReviewIsNullAndStatusAndProductId(page, status, productId).map(ReviewDto::toDto), "Reviews retrieved successfully");
+    }
+
+    @Transactional(rollbackFor = RuntimeException.class)
+    @PostMapping("filter")
+    public ResponseDto filter(@Valid @RequestBody ReviewFilterModel model, Pageable page) {
+        log.info("{} is filtering question", SecurityUtils.getCurrentUser().getUsername());
+        Page<ReviewEntity> reviewEntities = reviewService.filter(page, Specification.where(ReviewSpecification.filter(model)));
+        return ResponseDto.of(reviewEntities.map(ReviewDto::toDto), "Get question by filter successfully");
     }
 }
