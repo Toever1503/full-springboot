@@ -27,6 +27,7 @@ public class ReviewDto {
     private Long parentId;
     private ProductDto product;
     private OrderDetailDto orderDetail;
+    private UserDto createdBy;
 
     public static ReviewDto toDto(ReviewEntity entity) {
         if (entity == null) return null;
@@ -42,6 +43,7 @@ public class ReviewDto {
                 .parentId(entity.getParentReview() == null ? null : entity.getParentReview().getId())
                 .product(ProductDto.toDto(entity.getProduct()))
                 .orderDetail(OrderDetailDto.toDto(entity.getOrderDetail()))
+                .createdBy(UserDto.toDto(entity.getCreatedBy()))
                 .build();
     }
 }
