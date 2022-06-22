@@ -370,8 +370,8 @@ public class UserServiceImp implements IUserService {
                     throw new RuntimeException("Phone number already exists!");
                 }
             }
-            if (!model.getPhone().matches("(84|0[3|5|7|8|9])+([0-9]{8})\\\\b"))
-                throw new RuntimeException("Phone number must be in format: 84xxxxxxxx!");
+//            if (!model.getPhone().matches("(84|0[3|5|7|8|9])+([0-9]{8})\\\\b"))
+//                throw new RuntimeException("Phone number must be in format: 84xxxxxxxx!");
             userEntity.setPhone(model.getPhone());
         }
 
