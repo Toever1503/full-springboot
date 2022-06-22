@@ -28,6 +28,7 @@ public class OrderDto {
     private String mainPhone;
     private String mainReceiver;
     private String deliveryCode;
+    private Double deliveryFee;
     private List<OrderDetailDto> orderDetails;
 
     public static OrderDto toDto(OrderEntity entity) {
@@ -41,6 +42,7 @@ public class OrderDto {
                 .uuid(entity.getUuid())
                 .paymentMethod(entity.getPaymentMethod())
                 .note(entity.getNote())
+                .deliveryFee(entity.getDeliveryFee())
                 .totalPrices(entity.getTotalPrices())
                 .totalNumberProducts(entity.getTotalNumberProducts())
                 .status(entity.getStatus())

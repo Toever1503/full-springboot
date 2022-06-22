@@ -20,6 +20,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.security.RolesAllowed;
 import javax.validation.Valid;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestController
@@ -69,7 +71,10 @@ public class UserResources {
     @GetMapping("my-addresses")
     public ResponseDto getMyAddresses() {
         log.info("{} is getting their addresses", SecurityUtils.getCurrentUser().getUsername());
-        return ResponseDto.of(this.userService.getMyAddresses().stream().map(AddressDto::toDto).collect(Collectors.toList()), "Get all my addresses");
+        Map<String, Object> map = new HashMap<>();
+        map.put("addresses", this.userService.getMyAddresses().stream().map(AddressDto::toDto).collect(Collectors.toList()));
+        map.put("mainAddress", SecurityUtils.getCurrentUser().getUser().getMainAddress());
+        return ResponseDto.of(map, "Get all my addresses");
     }
 
     @Transactional(rollbackFor = RuntimeException.class)
@@ -171,7 +176,7 @@ public class UserResources {
     }
 
     @Transactional
-        @PatchMapping("change-status/{id}")
+    @PatchMapping("change-status/{id}")
     public ResponseDto changeStatusUser(@PathVariable Long id) {
         log.info("admin {} is changing status user", SecurityUtils.getCurrentUser().getUsername());
         return ResponseDto.of(this.userService.changeStatus(id), "Change user's status");

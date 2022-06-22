@@ -63,7 +63,6 @@ public class OrderServiceImp implements IOrderService {
         List<OrderDetailEntity> orderDetailEntities = new ArrayList<>();
         if (model.getOrderDetailIds() != null) {
             model.getOrderDetailIds().stream().forEach(orderDetailId -> {
-
                 CartEntity cart = this.cartService.findById(orderDetailId);
                 OptionEntity optionId = this.optionsRepository.findById(cart.getOptionId()).get();
                 if (cart != null) {
@@ -90,6 +89,7 @@ public class OrderServiceImp implements IOrderService {
             totalNumberProducts += orderDetailEntity.getQuantity();
             totalPrices += orderDetailEntity.getPrice() * orderDetailEntity.getQuantity();
         }
+        totalPrices += orderEntity.getDeliveryFee();
         // set address user
         Address address = this.addressService.findById(model.getAddressId());
         orderEntity.setAddress(address);
@@ -169,5 +169,13 @@ public class OrderServiceImp implements IOrderService {
     @Override
     public String getUrlByID(Long id) {
         return orderRepository.getUrlByID(id, SecurityUtils.getCurrentUserId()).orElseThrow(() -> new RuntimeException("Order not found!!!"));
+    }
+
+    @Override
+    public boolean updateDeliveryCode(Long id, String deliveryCode) {
+        OrderEntity orderEntity = this.findById(id);
+        orderEntity.setDeliveryCode(deliveryCode);
+        orderEntity.setStatus(EStatusOrder.DELIVERING.name());
+        return this.orderRepository.save(orderEntity) != null;
     }
 }

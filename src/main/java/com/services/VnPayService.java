@@ -29,7 +29,7 @@ public class VnPayService {
         this.orderRepository = orderRepository;
     }
 
-    public String PerformTransaction(Long id, HttpServletRequest request) throws UnsupportedEncodingException {
+    public String PerformTransaction(Long id, HttpServletRequest request, String url) throws UnsupportedEncodingException {
         OrderEntity curOrder = orderRepository.findById(id).orElseThrow(()-> new RuntimeException("Not Found"));
         if(curOrder.getCreatedBy().getId()== SecurityUtils.getCurrentUserId()&& Arrays.stream(ALLOWED_STATUS).filter(s -> s.equals(curOrder.getStatus())).collect(Collectors.toList()).size()>0){
         Calendar cld = Calendar.getInstance(TimeZone.getTimeZone("Etc/GMT+7"));
@@ -51,7 +51,10 @@ public class VnPayService {
         vnp_Params.put("vnp_CurrCode",VnPayUtils.vnp_CurrCode);
         vnp_Params.put("vnp_IpAddr", VnPayUtils.getIpAddress(request));
         vnp_Params.put("vnp_Locale",VnPayUtils.vnp_Locale);
-        vnp_Params.put("vnp_OrderInfo",curOrder.getNote());
+        if(curOrder.getNote()!=null){
+            vnp_Params.put("vnp_OrderInfo",curOrder.getNote());
+        }else
+            vnp_Params.put("vnp_OrderInfo","Default Order");
         vnp_Params.put("vnp_OrderType",VnPayUtils.vnp_OrderType);
         vnp_Params.put("vnp_ReturnUrl", VnPayUtils.vnp_ResUrl);
         vnp_Params.put("vnp_TxnRef",curOrder.getUuid());
@@ -85,6 +88,7 @@ public class VnPayService {
         String queryUrl = query.toString();
         String vnp_SecureHash = VnPayUtils.hmacSHA512(VnPayUtils.vnp_HashSecret,hashData.toString());
         curOrder.setStatus(EStatusOrder.PAYING.toString());
+        curOrder.setRedirectUrl(url);
         orderRepository.save(curOrder);
         queryUrl += "&vnp_SecureHash=" + vnp_SecureHash;
         String paymentUrl = VnPayUtils.vnp_Url + "?" + queryUrl;

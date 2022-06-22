@@ -1,5 +1,6 @@
 package com.webs;
 
+import com.dtos.AddressDto;
 import com.dtos.ResponseDto;
 import com.models.AddressModel;
 import com.services.IAddressService;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.security.RolesAllowed;
 import javax.validation.Valid;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("addresses")
@@ -25,27 +27,27 @@ public class AddressResources {
     @GetMapping
     @Transactional(rollbackFor = RuntimeException.class)
     public ResponseDto getAll(Pageable page) {
-        return ResponseDto.of(addressService.findAll(page), "Get all addresses successfully");
+        return ResponseDto.of(addressService.findAll(page).stream().map(AddressDto::toDto).collect(Collectors.toList()), "Get all addresses successfully");
     }
 
     @GetMapping("/{id}")
     @Transactional(rollbackFor = RuntimeException.class)
     public ResponseDto getById(@PathVariable("id") Long id) {
-        return ResponseDto.of(addressService.findById(id), "Get address by id successfully");
+        return ResponseDto.of(AddressDto.toDto(addressService.findById(id)), "Get address by id successfully");
     }
 
     @PostMapping
     @Transactional(rollbackFor = RuntimeException.class)
     public ResponseDto add(@Valid @RequestBody AddressModel model) {
         model.setId(null);
-        return ResponseDto.of(addressService.add(model), "Address add success");
+        return ResponseDto.of(AddressDto.toDto(addressService.add(model)), "Address add success");
     }
 
     @PutMapping("{id}")
     @Transactional(rollbackFor = RuntimeException.class)
     public ResponseDto update(@PathVariable long id, @Valid @RequestBody AddressModel model) {
         model.setId(id);
-        return ResponseDto.of(addressService.update(model), "Address update success");
+        return ResponseDto.of(AddressDto.toDto(addressService.update(model)), "Address update success");
     }
 
     @DeleteMapping("/{id}")

@@ -15,4 +15,6 @@ public interface IOrderService extends IBaseService<OrderEntity, OrderModel, Lon
     String getStatusByID(Long id);
 
     String getUrlByID(Long id);
+
+    boolean updateDeliveryCode(Long id, String deliveryCode);
 }
