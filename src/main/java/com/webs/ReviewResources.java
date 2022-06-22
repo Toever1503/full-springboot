@@ -103,6 +103,6 @@ public class ReviewResources {
     @Transactional
     @GetMapping("/reply/{id}")
     public ResponseDto getReplyByParentId(@PathVariable("id") Long parentId, Pageable pageable){
-        return ResponseDto.of(this.reviewService.findAllByParentId(parentId, pageable), "Get all review by parent review id: " + parentId);
+        return ResponseDto.of(this.reviewService.findAllByParentId(parentId, pageable).map(ReviewDto::toDto), "Get all review by parent review id: " + parentId);
     }
 }
