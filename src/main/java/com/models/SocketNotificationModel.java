@@ -17,6 +17,7 @@ public class SocketNotificationModel {
     private Long id;
     private String title;
     private String contentExcerpt;
+    private ENotificationCategory category;
     private String url;
 
     public static NotificationEntity toEntity(SocketNotificationModel model) {
@@ -24,6 +25,7 @@ public class SocketNotificationModel {
         return NotificationEntity.builder()
                 .title(model.getTitle())
                 .contentExcerpt(model.getContentExcerpt())
+                .category(model.getCategory().name())
                 .url(model.getUrl())
                 .build();
     }

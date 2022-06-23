@@ -73,4 +73,5 @@ public class OrderEntity {
 
     public static String ORDER_DETAIL_URL = "http://localhost:8080/order-detail/";
     public static String ORDER_URL = "http://localhost:8080/order-detail/";
+    public static String ADMIN_ORDER_URL = "http://localhost:8080/order-detail/";
 }

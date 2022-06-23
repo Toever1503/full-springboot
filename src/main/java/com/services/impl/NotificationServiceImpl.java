@@ -223,7 +223,6 @@ public class NotificationServiceImpl implements INotificationService {
         new Thread(() -> {
             NotificationEntity entity = SocketNotificationModel.toEntity(model);
             entity.setStatus(ENotificationStatus.POSTED.name());
-            entity.setCategory(ENotificationCategory.SYSTEM.name());
             entity.setCreatedBy(SecurityUtils.getCurrentUser().getUser());
             entity = this.notificationRepository.save(entity);
             this.saveUserNotification(entity.getId(), userId);
@@ -237,7 +236,6 @@ public class NotificationServiceImpl implements INotificationService {
         new Thread(() -> {
             NotificationEntity entity = SocketNotificationModel.toEntity(model);
             entity.setStatus(ENotificationStatus.POSTED.name());
-            entity.setCategory(ENotificationCategory.SYSTEM.name());
             entity.setCreatedBy(SecurityUtils.getCurrentUser().getUser());
             entity = this.notificationRepository.save(entity);
             this.saveUserNotification(entity.getId(), this.userRepository.getAllId());

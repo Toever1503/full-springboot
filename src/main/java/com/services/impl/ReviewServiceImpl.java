@@ -1,17 +1,13 @@
 package com.services.impl;
 
+import com.dtos.ENotificationCategory;
 import com.dtos.EStatusOrder;
 import com.dtos.EStatusReview;
 import com.entities.*;
 import com.models.ReviewModel;
-import com.repositories.IOptionsRepository;
-import com.repositories.IOrderDetailRepository;
-import com.repositories.IProductRepository;
-import com.repositories.IReviewRepository;
-import com.services.IOrderService;
-import com.services.IProductService;
-import com.services.IReviewService;
-import com.services.ISocketService;
+import com.models.SocketNotificationModel;
+import com.repositories.*;
+import com.services.*;
 import com.utils.FileUploadProvider;
 import com.utils.SecurityUtils;
 import org.json.JSONObject;
@@ -36,9 +32,11 @@ public class ReviewServiceImpl implements IReviewService {
     final IProductService productService;
     final IProductRepository productRepository;
     final IOptionsRepository optionRepository;
-    final ISocketService socketService;
+    final ISocketService socketService; // REMOVE THIS LINE LATER
+    private final INotificationService notificationService;
+    private final IUserRepository userRepository;
 
-    public ReviewServiceImpl(IReviewRepository reviewRepository, FileUploadProvider fileUploadProvider, IOrderService orderService, IOrderDetailRepository orderDetailRepository, IProductService productService, IProductRepository productRepository, IOptionsRepository optionRepository, ISocketService socketService) {
+    public ReviewServiceImpl(IReviewRepository reviewRepository, FileUploadProvider fileUploadProvider, IOrderService orderService, IOrderDetailRepository orderDetailRepository, IProductService productService, IProductRepository productRepository, IOptionsRepository optionRepository, ISocketService socketService, INotificationService notificationService, IUserRepository userRepository) {
         this.reviewRepository = reviewRepository;
         this.fileUploadProvider = fileUploadProvider;
         this.orderService = orderService;
@@ -47,6 +45,8 @@ public class ReviewServiceImpl implements IReviewService {
         this.productRepository = productRepository;
         this.optionRepository = optionRepository;
         this.socketService = socketService;
+        this.notificationService = notificationService;
+        this.userRepository = userRepository;
     }
 
     @Override
@@ -78,16 +78,16 @@ public class ReviewServiceImpl implements IReviewService {
         // kiem tra nguoi dung da mua hang va da nhan hang chua
         // neu ok thi se set lai createBy, optionName,
         OrderEntity orderEntity = orderDetailEntity.getOrder();
-        if(orderEntity == null) {
+        if (orderEntity == null) {
             throw new RuntimeException("Order not found");
-        }else{
-            if(orderEntity.getCreatedBy().getId() == SecurityUtils.getCurrentUserId() && orderEntity.getStatus().equals(EStatusOrder.COMPLETED.name())) {
+        } else {
+            if (orderEntity.getCreatedBy().getId() == SecurityUtils.getCurrentUserId() && orderEntity.getStatus().equals(EStatusOrder.COMPLETED.name())) {
                 reviewEntity.setCreatedBy(SecurityUtils.getCurrentUser().getUser());
 
                 orderDetailEntity.getProductId().getOptions().stream().forEach(option -> {
                     List<OptionEntity> optionEntities = this.optionRepository.findByOptionName(orderDetailEntity.getOptionId());
                     optionEntities.stream().forEach(optionEntity -> {
-                        if(optionEntity.getId() == option.getId()) {
+                        if (optionEntity.getId() == option.getId()) {
                             reviewEntity.setOptionName(optionEntity.getOptionName());
                         }
                     });
@@ -112,17 +112,18 @@ public class ReviewServiceImpl implements IReviewService {
                     JSONObject jsonObject = new JSONObject(Map.of("files", filePaths));
                     reviewEntity.setAttachFiles(jsonObject.toString());
                 }
-            }else {
+            } else {
                 throw new RuntimeException("You can not review this order, because you have not received it yet");
             }
         }
         ReviewEntity review = this.reviewRepository.save(reviewEntity);
-//        socketService.sendReviewNotificationForSingleUser(review,review.getCreatedBy().getId(),"reviewduocghinhan.com","Danh gia san pham "+ orderDetailEntity.getOptionId() +"da duoc ghi lai");
         // set lai gia tri isReview cho orderDetail
         orderDetailEntity.setIsReview(true);
         this.orderDetailRepository.save(orderDetailEntity);
         // update gia tri rating cho product
         this.reviewRepository.updateProductRating(review.getProduct().getId());
+        notificationService.addForSpecificUser(new SocketNotificationModel(null, SecurityUtils.getCurrentUsername() + " đã đánh giá cho sản phẩm!", "", ENotificationCategory.REVIEW, ReviewEntity.ADMIN_REVIEW_URL), this.userRepository.getAllIdsByRole(RoleEntity.ADMINISTRATOR));
+
         return review;
     }
 
@@ -143,20 +144,20 @@ public class ReviewServiceImpl implements IReviewService {
         ReviewEntity updateReview = ReviewModel.toEntity(model);
         updateReview.setParentReview(null);
 
-        if(originReview.getStatus().equalsIgnoreCase(EStatusReview.PENDING.name()) && originReview.getCreatedBy().getId() == SecurityUtils.getCurrentUserId()) {
+        if (originReview.getStatus().equalsIgnoreCase(EStatusReview.PENDING.name()) && originReview.getCreatedBy().getId() == SecurityUtils.getCurrentUserId()) {
             updateReview.setCreatedBy(SecurityUtils.getCurrentUser().getUser());
             updateReview.setIsEdit(true);
             OrderDetailEntity orderDetailEntity = this.orderDetailRepository.findById(model.getOrderDetailId()).orElseThrow(() -> new RuntimeException("Order detail not found"));
             // set optionId
             this.optionRepository.findByOptionName(orderDetailEntity.getOptionId()).stream().forEach(optionEntity -> {
-                if(optionEntity.getOptionName().equalsIgnoreCase(originReview.getOptionName())) {
+                if (optionEntity.getOptionName().equalsIgnoreCase(originReview.getOptionName())) {
                     updateReview.setOptionName(optionEntity.getOptionName());
                 }
             });
             // set product
-            if(orderDetailEntity.getProductId().getId() != originReview.getProduct().getId()) {
+            if (orderDetailEntity.getProductId().getId() != originReview.getProduct().getId()) {
                 throw new RuntimeException("Product not found");
-            }else{
+            } else {
                 updateReview.setProduct(originReview.getProduct());
             }
             updateReview.setOrderDetail(orderDetailEntity);
@@ -186,13 +187,12 @@ public class ReviewServiceImpl implements IReviewService {
                 }
             }
             updateReview.setAttachFiles(uploadedFiles.isEmpty() ? null : (new JSONObject(Map.of("files", uploadedFiles)).toString()));
-        }
-        else {
+        } else {
             throw new RuntimeException("You can not update this review, because you have not created it yet or replyed it");
         }
         ReviewEntity reviewUpdate = this.reviewRepository.save(updateReview);
-//        socketService.sendReviewNotificationForSingleUser(reviewUpdate,reviewUpdate.getCreatedBy().getId(),"reviewduocghinhan.com","Danh gia san pham: "+reviewUpdate.getProduct().getName()+" da duoc cap nhat");
         this.reviewRepository.updateProductRating(reviewUpdate.getProduct().getId());
+        notificationService.addForSpecificUser(new SocketNotificationModel(null, SecurityUtils.getCurrentUsername() + " đã chỉnh sửa lại đánh giá cho sản phẩm!", "", ENotificationCategory.REVIEW, ReviewEntity.ADMIN_REVIEW_URL), this.userRepository.getAllIdsByRole(RoleEntity.ADMINISTRATOR));
         return reviewUpdate;
     }
 
@@ -200,7 +200,6 @@ public class ReviewServiceImpl implements IReviewService {
     public boolean deleteById(Long id) {
         ReviewEntity review = this.findById(id);
         this.reviewRepository.deleteById(id);
-//        socketService.sendReviewNotificationForSingleUser(review,review.getCreatedBy().getId(),"reviewduocghinhan.com","Danh gia san pham: "+review.getProduct().getName()+" da duoc xoa: ");
         this.reviewRepository.deleteReviewByParent(id);
         return true;
     }
@@ -216,8 +215,8 @@ public class ReviewServiceImpl implements IReviewService {
         reviewEntity.setCreatedBy(SecurityUtils.getCurrentUser().getUser());
         reviewEntity.setRating(null);
         reviewEntity.setStatus(EStatusReview.APPROVED.name());
-        if(model.getParentId() != null) {
-            if(model.getOrderDetailId() != this.findById(model.getParentId()).getOrderDetail().getId()) {
+        if (model.getParentId() != null) {
+            if (model.getOrderDetailId() != this.findById(model.getParentId()).getOrderDetail().getId()) {
                 throw new RuntimeException("Order detail not found");
             }
             ReviewEntity parentReview = this.findById(model.getParentId());
@@ -241,14 +240,14 @@ public class ReviewServiceImpl implements IReviewService {
                 JSONObject jsonObject = new JSONObject(Map.of("files", filePaths));
                 reviewEntity.setAttachFiles(jsonObject.toString());
             }
-        }else{
+        } else {
             throw new RuntimeException("Parent review not found");
         }
-
+        notificationService.addForSpecificUser(new SocketNotificationModel(null, "Admin đã phản hồi lại đánh giá của bạn!", "", ENotificationCategory.REVIEW, ReviewEntity.ADMIN_REVIEW_URL), List.of(reviewEntity.getCreatedBy().getId()));
         return this.reviewRepository.save(reviewEntity);
     }
 
-    public ReviewEntity updateStatus(Long id, String status){
+    public ReviewEntity updateStatus(Long id, String status) {
         ReviewEntity reviewEntity = this.findById(id);
         reviewEntity.setStatus(status);
         return this.reviewRepository.save(reviewEntity);
