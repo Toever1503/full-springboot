@@ -67,11 +67,7 @@ public class CategoryServiceImpl implements ICategoryService {
         if (this.categoryRepository.findBySlug(model.getSlug()).isPresent())
             throw new RuntimeException("Slug already existed!");
 
-        if (model.getParentId() != null) { //check if parent id not null
-            CategoryEntity parent = this.findById(model.getParentId());
-            categoryEntity.setParentCategory(parent);
-            categoryEntity.setDeepLevel(parent.getDeepLevel() + 1);
-        }
+        this.saveParentCategory(categoryEntity, model.getParentId());
         return this.categoryRepository.save(categoryEntity);
     }
 
@@ -92,12 +88,18 @@ public class CategoryServiceImpl implements ICategoryService {
         originCategory.setCategoryName(model.getCategoryName());
         originCategory.setSlug(slug);
         originCategory.setDescription(model.getDescription());
-        if (model.getParentId() != null) {//check if parent id not null\
-            CategoryEntity parentCategory = this.findById(model.getParentId());
-            originCategory.setParentCategory(parentCategory);
-            originCategory.setDeepLevel(parentCategory.getDeepLevel() + 1);
-        }
+        this.saveParentCategory(originCategory, model.getParentId());
         return this.categoryRepository.save(originCategory);
+    }
+
+    private void saveParentCategory(CategoryEntity entity, Long parentId) {
+        if (parentId != null) { //check if parent id not null\
+            CategoryEntity parentCategory = this.findById(parentId);
+            if (parentCategory.getDeepLevel() >= 3)
+                throw new RuntimeException("Parent category is too deep!");
+            entity.setParentCategory(parentCategory);
+            entity.setDeepLevel(parentCategory.getDeepLevel() + 1);
+        }
     }
 
     @Override
