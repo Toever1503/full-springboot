@@ -198,10 +198,11 @@ public class VnPayService {
                                 resultDto.setTransactionNo(String.valueOf(fields.get("vnp_TransactionNo")));
 //                                resultDto.set(String.valueOf(fields.get("vnp_TransactionNo")));
                                 resultDto.setStatus("SUCCESS");
+                                resultDto.setUrl(order.getRedirectUrl());
                                 order.setTransactionNo(String.valueOf(fields.get("vnp_TransactionNo")));
                                 order.setStatus(EStatusOrder.PAID.toString());
                                 orderRepository.save(order);
-                                this.notificationService.addForSpecificUser(SocketNotificationModel.builder().category(ENotificationCategory.ORDER).title("Don hang #".concat(order.getUuid()).concat(" da duoc thanh toan")).contentExcerpt("").url(OrderEntity.ORDER_URL).build(),List.of(order.getCreatedBy().getId()));
+                                this.notificationService.addForSpecificUser(SocketNotificationModel.builder().category(ENotificationCategory.ORDER).title("Don hang #".concat(order.getUuid()).concat(" da duoc thanh toan")).contentExcerpt("").url(resultDto.getUrl()).build(),List.of(order.getCreatedBy().getId()));
 //                                socketService.sendOrderNotificationForSingleUser(orderRepository.save(order),order.getCreatedBy().getId(),"abcdef.com.vn", "Don hang da duoc thanh toan: ");
                                 System.out.print("{\"RspCode\":\"00\",\"Message\":\"Confirm Success\"}");
                                 return resultDto;
@@ -236,6 +237,7 @@ public class VnPayService {
 
             }
         } catch (Exception e) {
+            e.printStackTrace();
             System.out.print("{\"RspCode\":\"99\",\"Message\":\"Unknow error\"}");
             return null;
         }

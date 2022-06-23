@@ -20,10 +20,14 @@ import org.json.JSONObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -223,7 +227,11 @@ public class NotificationServiceImpl implements INotificationService {
         new Thread(() -> {
             NotificationEntity entity = SocketNotificationModel.toEntity(model);
             entity.setStatus(ENotificationStatus.POSTED.name());
-            entity.setCreatedBy(SecurityUtils.getCurrentUser().getUser());
+            Object auth = SecurityContextHolder.getContext().getAuthentication();
+            if (auth!=null)
+                entity.setCreatedBy(SecurityUtils.getCurrentUser().getUser());
+            else
+                entity.setCreatedBy(this.userService.findById(19l));
             entity = this.notificationRepository.save(entity);
             this.saveUserNotification(entity.getId(), userId);
             this.socketService.sendNotificationForSpecificUser(SocketNotificationModel.toModel(entity), userId);

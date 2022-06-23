@@ -107,7 +107,7 @@ public class UserServiceImp implements IUserService {
 
     @Override
     public UserEntity findById(Long id) {
-        logger.info("{} finding user id: {%d}", SecurityUtils.getCurrentUsername(), id);
+//        logger.info("{} finding user id: {%d}", SecurityUtils.getCurrentUsername(), id);
         return userRepository.findById(id).orElseThrow(() -> new RuntimeException("Not found user id: " + id));
     }
 

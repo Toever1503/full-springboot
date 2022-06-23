@@ -20,4 +20,5 @@ public class PaymentResultDto {
     private String orderInfo;
     private String transactionNo;
     private String status;
+    private String url;
 }
