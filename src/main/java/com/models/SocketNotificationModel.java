@@ -22,6 +22,7 @@ public class SocketNotificationModel {
     private ENotificationCategory category;
     private String url;
     private Date createdDate;
+    private boolean read;
 
     public SocketNotificationModel(Long id, String title, String contentExcerpt, ENotificationCategory category, String url) {
         this.id = id;
@@ -48,6 +49,7 @@ public class SocketNotificationModel {
                 .contentExcerpt(entity.getContentExcerpt())
                 .url(entity.getUrl())
                 .createdDate(entity.getCreatedDate())
+                .read(false)
                 .build();
     }
 }
