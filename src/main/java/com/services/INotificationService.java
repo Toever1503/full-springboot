@@ -11,7 +11,9 @@ import org.springframework.data.jpa.repository.Query;
 import java.util.List;
 
 public interface INotificationService extends IBaseService<NotificationEntity, NotificationModel, Long> {
-     Page<NotificationDto> userGetAllNotifications(Pageable page);
+    Page<NotificationDto> userGetAllNotifications(Pageable page);
+
+    NotificationEntity addForSpecificUser(NotificationModel model, Long userId, String url);
 
     boolean increaseView(long id);
 

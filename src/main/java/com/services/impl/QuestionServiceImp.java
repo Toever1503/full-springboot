@@ -8,6 +8,7 @@ import com.models.QuestionModel;
 import com.models.QuestionResponseModel;
 import com.repositories.IQuestionRepository;
 import com.services.IQuestionService;
+import com.services.ISocketService;
 import com.services.IUserService;
 import com.services.MailService;
 import com.utils.FileUploadProvider;
@@ -20,7 +21,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.mail.MessagingException;
-import javax.management.relation.Role;
 import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -30,12 +30,14 @@ public class QuestionServiceImp implements IQuestionService {
     final IQuestionRepository questionRepository;
     final IUserService userService;
     final FileUploadProvider fileUploadProvider;
+    final ISocketService socketService;
     final MailService mailService;
 
-    public QuestionServiceImp(IQuestionRepository questionRepository, IUserService userService, FileUploadProvider fileUploadProvider, MailService mailService) {
+    public QuestionServiceImp(IQuestionRepository questionRepository, IUserService userService, FileUploadProvider fileUploadProvider, ISocketService socketService, MailService mailService) {
         this.questionRepository = questionRepository;
         this.userService = userService;
         this.fileUploadProvider = fileUploadProvider;
+        this.socketService = socketService;
         this.mailService = mailService;
     }
 
@@ -78,6 +80,7 @@ public class QuestionServiceImp implements IQuestionService {
         }
         questionEntity.setStatus(EStatusQuestion.PENDING.name());
         questionEntity.setCreatedBy(SecurityUtils.getCurrentUser().getUser());
+        socketService.sendQuestionNotificationForSingleUser(questionEntity,questionEntity.getCreatedBy().getId(),"created.com.vn", "Cau hoi da duoc gui len thanh cong: ");
         return this.questionRepository.save(questionEntity);
     }
 
@@ -121,6 +124,7 @@ public class QuestionServiceImp implements IQuestionService {
             originalQuestion.setCreatedBy(userEntity);
             originalQuestion.setTitle(model.getTitle());
             originalQuestion.setQuestContent(model.getQuestContent());
+            socketService.sendQuestionNotificationForSingleUser(originalQuestion,originalQuestion.getCreatedBy().getId(),"editted.com.vn","Cau hoi da duoc cap nhat: ");
             return this.questionRepository.save(originalQuestion);
         }
         else
@@ -135,6 +139,7 @@ public class QuestionServiceImp implements IQuestionService {
             if (questionEntity.getQuestFile() != null) {
                 new JSONObject(questionEntity.getQuestFile()).getJSONArray("files").toList().forEach(u -> fileUploadProvider.deleteFile(u.toString()));
             }
+            socketService.sendQuestionNotificationForSingleUser(questionEntity,questionEntity.getCreatedBy().getId(),"answered.com.vn","Cau hoi da bi xoa: ");
             questionRepository.deleteById(id);
             return true;
         }
@@ -174,6 +179,7 @@ public class QuestionServiceImp implements IQuestionService {
         question.setStatus(EStatusQuestion.COMPLETED.toString());
         question = questionRepository.save(question);
         notifyUser(model.getUrl(), question);
+        socketService.sendQuestionNotificationForSingleUser(question,question.getCreatedBy().getId(), model.getUrl(), "Cau hoi da duoc giai dap: ");
         return question;
     }
 

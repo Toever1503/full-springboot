@@ -3,6 +3,7 @@ package com.webs;
 import com.dtos.ResponseDto;
 import com.services.VnPayService;
 import org.joda.time.DateTime;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
@@ -17,6 +18,7 @@ public class PaymentResources {
         this.vnPayService = vnPayService;
     }
 
+    @Transactional
     @PostMapping("/checkout")
     public ResponseDto sendPayRequest(HttpServletRequest request, @RequestParam("id") Long id, @RequestParam("url") String url){
         try {
@@ -25,6 +27,7 @@ public class PaymentResources {
             throw new RuntimeException(e);
         }
     }
+    @Transactional
     @GetMapping("/result")
     public ResponseDto getPayResult(HttpServletRequest request) throws UnsupportedEncodingException {
         System.out.println(DateTime.now());

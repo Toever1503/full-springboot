@@ -7,6 +7,7 @@ import com.models.QuestionModel;
 import com.models.QuestionResponseModel;
 import com.models.specifications.QuestionSpecification;
 import com.services.IQuestionService;
+import com.services.ISocketService;
 import com.utils.SecurityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,8 +47,10 @@ public class QuestionResources {
         }
         if (count > 3)
             return ResponseDto.of(null, "Failed! , Max image count is 3 per question");
-        else
-            return ResponseDto.of(TotalQuestionDto.toTotalQuestionDTO(questionService.answerQuestion(qid, model)), "Answered");
+        else{
+            QuestionEntity question = questionService.answerQuestion(qid, model);
+            return ResponseDto.of(TotalQuestionDto.toTotalQuestionDTO(question), "Answered");
+        }
     }
 
     @Transactional(rollbackFor = RuntimeException.class)

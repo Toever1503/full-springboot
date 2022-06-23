@@ -6,10 +6,7 @@ import com.models.OrderModel;
 import com.repositories.IOptionsRepository;
 import com.repositories.IOrderDetailRepository;
 import com.repositories.IOrderRepository;
-import com.services.IAddressService;
-import com.services.ICartService;
-import com.services.IOrderService;
-import com.services.IProductService;
+import com.services.*;
 import com.utils.SecurityUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -26,14 +23,16 @@ public class OrderServiceImp implements IOrderService {
     private final ICartService cartService;
     private final IOptionsRepository optionsRepository;
     private final IAddressService addressService;
+    private final ISocketService socketService;
 
 
-    public OrderServiceImp(IOrderRepository orderRepository, IOrderDetailRepository orderDetailRepository, ICartService cartService, IOptionsRepository optionsRepository, IAddressService addressService) {
+    public OrderServiceImp(IOrderRepository orderRepository, IOrderDetailRepository orderDetailRepository, ICartService cartService, IOptionsRepository optionsRepository, IAddressService addressService, ISocketService socketService) {
         this.orderRepository = orderRepository;
         this.orderDetailRepository = orderDetailRepository;
         this.cartService = cartService;
         this.optionsRepository = optionsRepository;
         this.addressService = addressService;
+        this.socketService = socketService;
     }
 
     @Override
@@ -104,6 +103,7 @@ public class OrderServiceImp implements IOrderService {
         orderEntity.setTotalPrices(totalPrices);
         orderEntity.setOrderDetails(orderDetailEntities);
         orderEntity.setCreatedBy(SecurityUtils.getCurrentUser().getUser());
+        socketService.sendOrderNotificationForSingleUser(orderEntity,orderEntity.getCreatedBy().getId(),"abcd.com","Don hang da duoc tao: ");
         return this.orderRepository.save(orderEntity);
     }
 
@@ -131,6 +131,7 @@ public class OrderServiceImp implements IOrderService {
     public OrderEntity updateStatusOrder(Long id, String status) {
         OrderEntity orderOrigin = this.findById(id);
         orderOrigin.setStatus(status);
+        socketService.sendOrderNotificationForSingleUser(orderOrigin,orderOrigin.getCreatedBy().getId(),"abcd.com", "Don hang da duoc cap nhat: ");
         return this.orderRepository.save(orderOrigin);
     }
 
@@ -139,9 +140,11 @@ public class OrderServiceImp implements IOrderService {
         OrderEntity orderOrigin = this.findById(id);
         if (orderOrigin.getStatus().equals(EStatusOrder.PENDING.toString())) {
             orderOrigin.setStatus(EStatusOrder.CANCELED.name());
+            socketService.sendOrderNotificationForSingleUser(orderOrigin,orderOrigin.getCreatedBy().getId(),"abcd.com", "Don hang da bi huy");
             return this.orderRepository.save(orderOrigin);
         } else if (orderOrigin.getStatus().equals(EStatusOrder.PAID.toString())) {
             orderOrigin.setStatus(EStatusOrder.REFUNDING.name());
+            socketService.sendOrderNotificationForSingleUser(orderOrigin,orderOrigin.getCreatedBy().getId(),"abcd.com", "Don hang da bi huy");
             return this.orderRepository.save(orderOrigin);
         }
         throw new RuntimeException("Order can't cancel, id: " + id);
@@ -172,10 +175,11 @@ public class OrderServiceImp implements IOrderService {
     }
 
     @Override
-    public boolean updateDeliveryCode(Long id, String deliveryCode) {
+    public OrderEntity updateDeliveryCode(Long id, String deliveryCode) {
         OrderEntity orderEntity = this.findById(id);
         orderEntity.setDeliveryCode(deliveryCode);
         orderEntity.setStatus(EStatusOrder.DELIVERING.name());
-        return this.orderRepository.save(orderEntity) != null;
+        socketService.sendOrderNotificationForSingleUser(orderEntity,orderEntity.getCreatedBy().getId(),"abcd.com", "Da cap nhat ma van chuyen cho don hang: ");
+        return this.orderRepository.save(orderEntity);
     }
 }

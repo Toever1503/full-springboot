@@ -193,6 +193,14 @@ public class ProductSpecification {
 
 
         Specification<ProductEntity> finalSpec = null;
+        if (filter.getCategorySlugs() != null){
+            if(finalSpec == null) {
+                finalSpec = byCategory(filter.getCategorySlugs());
+            }
+//            } else {
+//                finalSpec.or(byCategory(filter.getCategorySlugs()));
+//            }
+        }
         for (Specification<ProductEntity> s : specifications
         ) {
             if (finalSpec == null) {
@@ -200,13 +208,7 @@ public class ProductSpecification {
             } else
                 finalSpec = finalSpec.and(s);
         }
-        if (filter.getCategorySlugs() != null){
-            if(finalSpec == null) {
-                finalSpec = byCategory(filter.getCategorySlugs());
-            } else {
-                finalSpec.or(byCategory(filter.getCategorySlugs()));
-            }
-        }
+
 
 
 
