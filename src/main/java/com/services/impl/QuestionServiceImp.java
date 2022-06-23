@@ -80,7 +80,7 @@ public class QuestionServiceImp implements IQuestionService {
         }
         questionEntity.setStatus(EStatusQuestion.PENDING.name());
         questionEntity.setCreatedBy(SecurityUtils.getCurrentUser().getUser());
-        socketService.sendQuestionNotificationForSingleUser(questionEntity,questionEntity.getCreatedBy().getId(),"created.com.vn", "Cau hoi da duoc gui len thanh cong: ");
+//        socketService.sendQuestionNotificationForSingleUser(questionEntity,questionEntity.getCreatedBy().getId(),"created.com.vn", "Cau hoi da duoc gui len thanh cong: ");
         return this.questionRepository.save(questionEntity);
     }
 
@@ -124,7 +124,7 @@ public class QuestionServiceImp implements IQuestionService {
             originalQuestion.setCreatedBy(userEntity);
             originalQuestion.setTitle(model.getTitle());
             originalQuestion.setQuestContent(model.getQuestContent());
-            socketService.sendQuestionNotificationForSingleUser(originalQuestion,originalQuestion.getCreatedBy().getId(),"editted.com.vn","Cau hoi da duoc cap nhat: ");
+//            socketService.sendQuestionNotificationForSingleUser(originalQuestion,originalQuestion.getCreatedBy().getId(),"editted.com.vn","Cau hoi da duoc cap nhat: ");
             return this.questionRepository.save(originalQuestion);
         }
         else
@@ -139,7 +139,7 @@ public class QuestionServiceImp implements IQuestionService {
             if (questionEntity.getQuestFile() != null) {
                 new JSONObject(questionEntity.getQuestFile()).getJSONArray("files").toList().forEach(u -> fileUploadProvider.deleteFile(u.toString()));
             }
-            socketService.sendQuestionNotificationForSingleUser(questionEntity,questionEntity.getCreatedBy().getId(),"answered.com.vn","Cau hoi da bi xoa: ");
+//            socketService.sendQuestionNotificationForSingleUser(questionEntity,questionEntity.getCreatedBy().getId(),"answered.com.vn","Cau hoi da bi xoa: ");
             questionRepository.deleteById(id);
             return true;
         }
@@ -179,7 +179,7 @@ public class QuestionServiceImp implements IQuestionService {
         question.setStatus(EStatusQuestion.COMPLETED.toString());
         question = questionRepository.save(question);
         notifyUser(model.getUrl(), question);
-        socketService.sendQuestionNotificationForSingleUser(question,question.getCreatedBy().getId(), model.getUrl(), "Cau hoi da duoc giai dap: ");
+//        socketService.sendQuestionNotificationForSingleUser(question,question.getCreatedBy().getId(), model.getUrl(), "Cau hoi da duoc giai dap: ");
         return question;
     }
 

@@ -92,7 +92,7 @@ public class VnPayService {
         String vnp_SecureHash = VnPayUtils.hmacSHA512(VnPayUtils.vnp_HashSecret,hashData.toString());
         curOrder.setStatus(EStatusOrder.PAYING.toString());
         curOrder.setRedirectUrl(url);
-        socketService.sendOrderNotificationForSingleUser(orderRepository.save(curOrder),curOrder.getCreatedBy().getId(),"abcdef.com.vn", "Don hang dang trong qua trinh thanh toan: ");
+//        socketService.sendOrderNotificationForSingleUser(orderRepository.save(curOrder),curOrder.getCreatedBy().getId(),"abcdef.com.vn", "Don hang dang trong qua trinh thanh toan: ");
         queryUrl += "&vnp_SecureHash=" + vnp_SecureHash;
         String paymentUrl = VnPayUtils.vnp_Url + "?" + queryUrl;
         return paymentUrl;
@@ -198,7 +198,7 @@ public class VnPayService {
                                 resultDto.setStatus("SUCCESS");
                                 order.setTransactionNo(String.valueOf(fields.get("vnp_TransactionNo")));
                                 order.setStatus(EStatusOrder.PAID.toString());
-                                socketService.sendOrderNotificationForSingleUser(orderRepository.save(order),order.getCreatedBy().getId(),"abcdef.com.vn", "Don hang da duoc thanh toan: ");
+//                                socketService.sendOrderNotificationForSingleUser(orderRepository.save(order),order.getCreatedBy().getId(),"abcdef.com.vn", "Don hang da duoc thanh toan: ");
                                 System.out.print("{\"RspCode\":\"00\",\"Message\":\"Confirm Success\"}");
                                 return resultDto;
                                 //Update DB When success
@@ -210,19 +210,19 @@ public class VnPayService {
                         } else {
                             System.out.print("{\"RspCode\":\"02\",\"Message\":\"Order already confirmed\"}");
                             orderRepository.changeOrderStatusByID(EStatusOrder.FAILED.toString(), order.getId());
-                            socketService.sendOrderNotificationForSingleUser(order,order.getCreatedBy().getId(),"asdas.com.vn","Thanh toan that bai! Don hang: ");
+//                            socketService.sendOrderNotificationForSingleUser(order,order.getCreatedBy().getId(),"asdas.com.vn","Thanh toan that bai! Don hang: ");
                             return null;
                         }
                     } else {
                         System.out.print("{\"RspCode\":\"04\",\"Message\":\"Invalid Amount\"}");
                         orderRepository.changeOrderStatusByID(EStatusOrder.FAILED.toString(), order.getId());
-                        socketService.sendOrderNotificationForSingleUser(order,order.getCreatedBy().getId(),"asdas.com.vn", "Thanh toan that bai! Don hang: ");
+//                        socketService.sendOrderNotificationForSingleUser(order,order.getCreatedBy().getId(),"asdas.com.vn", "Thanh toan that bai! Don hang: ");
                         return null;
                     }
                 } else {
                     System.out.print("{\"RspCode\":\"01\",\"Message\":\"Order not Found\"}");
                     orderRepository.changeOrderStatusByID(EStatusOrder.FAILED.toString(), order.getId());
-                    socketService.sendOrderNotificationForSingleUser(order,order.getCreatedBy().getId(),"asdas.com.vn", "Thanh toan that bai! Don hang: ");
+//                    socketService.sendOrderNotificationForSingleUser(order,order.getCreatedBy().getId(),"asdas.com.vn", "Thanh toan that bai! Don hang: ");
                     return null;
                 }
             } else {

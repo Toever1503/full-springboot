@@ -117,7 +117,7 @@ public class ReviewServiceImpl implements IReviewService {
             }
         }
         ReviewEntity review = this.reviewRepository.save(reviewEntity);
-        socketService.sendReviewNotificationForSingleUser(review,review.getCreatedBy().getId(),"reviewduocghinhan.com","Danh gia san pham "+ orderDetailEntity.getOptionId() +"da duoc ghi lai");
+//        socketService.sendReviewNotificationForSingleUser(review,review.getCreatedBy().getId(),"reviewduocghinhan.com","Danh gia san pham "+ orderDetailEntity.getOptionId() +"da duoc ghi lai");
         // set lai gia tri isReview cho orderDetail
         orderDetailEntity.setIsReview(true);
         this.orderDetailRepository.save(orderDetailEntity);
@@ -191,7 +191,7 @@ public class ReviewServiceImpl implements IReviewService {
             throw new RuntimeException("You can not update this review, because you have not created it yet or replyed it");
         }
         ReviewEntity reviewUpdate = this.reviewRepository.save(updateReview);
-        socketService.sendReviewNotificationForSingleUser(reviewUpdate,reviewUpdate.getCreatedBy().getId(),"reviewduocghinhan.com","Danh gia san pham: "+reviewUpdate.getProduct().getName()+" da duoc cap nhat");
+//        socketService.sendReviewNotificationForSingleUser(reviewUpdate,reviewUpdate.getCreatedBy().getId(),"reviewduocghinhan.com","Danh gia san pham: "+reviewUpdate.getProduct().getName()+" da duoc cap nhat");
         this.reviewRepository.updateProductRating(reviewUpdate.getProduct().getId());
         return reviewUpdate;
     }
@@ -200,7 +200,7 @@ public class ReviewServiceImpl implements IReviewService {
     public boolean deleteById(Long id) {
         ReviewEntity review = this.findById(id);
         this.reviewRepository.deleteById(id);
-        socketService.sendReviewNotificationForSingleUser(review,review.getCreatedBy().getId(),"reviewduocghinhan.com","Danh gia san pham: "+review.getProduct().getName()+" da duoc xoa: ");
+//        socketService.sendReviewNotificationForSingleUser(review,review.getCreatedBy().getId(),"reviewduocghinhan.com","Danh gia san pham: "+review.getProduct().getName()+" da duoc xoa: ");
         this.reviewRepository.deleteReviewByParent(id);
         return true;
     }

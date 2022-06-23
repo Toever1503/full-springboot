@@ -5,13 +5,14 @@ import com.dtos.ENotificationStatus;
 import com.dtos.NotificationDto;
 import com.entities.NotificationEntity;
 import com.entities.NotificationUser;
-import com.entities.RoleEntity;
 import com.entities.UserEntity;
 import com.models.NotificationModel;
+import com.models.SocketNotificationModel;
 import com.repositories.INotificationRepository;
 import com.repositories.INotificationUserRepository;
 import com.repositories.IUserRepository;
 import com.services.INotificationService;
+import com.services.ISocketService;
 import com.services.IUserService;
 import com.utils.FileUploadProvider;
 import com.utils.SecurityUtils;
@@ -38,13 +39,15 @@ public class NotificationServiceImpl implements INotificationService {
     private final IUserService userService;
     private final INotificationUserRepository notificationUserRepository;
     private final IUserRepository userRepository;
+    private final ISocketService socketService;
 
-    public NotificationServiceImpl(INotificationRepository notificationRepository, FileUploadProvider fileUploadProvider, IUserService userService, INotificationUserRepository notificationUserRepository, IUserRepository userRepository) {
+    public NotificationServiceImpl(INotificationRepository notificationRepository, FileUploadProvider fileUploadProvider, IUserService userService, INotificationUserRepository notificationUserRepository, IUserRepository userRepository, ISocketService socketService) {
         this.notificationRepository = notificationRepository;
         this.fileUploadProvider = fileUploadProvider;
         this.userService = userService;
         this.notificationUserRepository = notificationUserRepository;
         this.userRepository = userRepository;
+        this.socketService = socketService;
     }
 
     @Override
@@ -97,20 +100,23 @@ public class NotificationServiceImpl implements INotificationService {
 
         UserEntity userEntity = userService.findById(SecurityUtils.getCurrentUserId());
         notificationEntity.setCreatedBy(userEntity);
-        if(model.getUrl()!=null){
+        if (model.getUrl() != null) {
             notificationEntity.setUrl(model.getUrl());
         }
         notificationEntity = this.notificationRepository.save(notificationEntity);
-        final long notificationId = notificationEntity.getId();
+        this.saveUserNotification(notificationEntity.getId(), this.userRepository.getAllId());
+        this.socketService.sendNotificationForAllUser(SocketNotificationModel.toModel(notificationEntity));
+        return notificationEntity;
+    }
+
+    public void saveUserNotification(Long noId, List<Long> userIds) {
         this.notificationUserRepository.saveAll(
-                this.userRepository.getAllId().stream().map(id -> NotificationUser.builder()
+                userIds.stream().map(uId -> NotificationUser.builder()
                         .isRead(false)
-                        .notificationId(notificationId)
-                        .userId(id)
+                        .notificationId(noId)
+                        .userId(uId)
                         .build()).collect(Collectors.toList())
         );
-
-        return notificationEntity;
     }
 
     @Override
@@ -213,19 +219,30 @@ public class NotificationServiceImpl implements INotificationService {
     }
 
     @Override
-    public NotificationEntity addForSpecificUser(NotificationModel model, Long userId, String url) {
-        NotificationEntity entity = NotificationModel.toEntity(model);
-        entity.setStatus(ENotificationStatus.POSTED.name());
-        entity.setCategory(ENotificationCategory.SYSTEM.name());
-        entity.setCreatedBy(SecurityUtils.getCurrentUser().getUser());
-        entity.setUrl(url);
-        entity = this.notificationRepository.save(entity);
-        this.notificationUserRepository.save(NotificationUser.builder()
-                .isRead(false)
-                .notificationId(entity.getId())
-                .userId(userId)
-                .build());
-        return entity;
+    public void addForSpecificUser(SocketNotificationModel model, List<Long> userId) {
+        new Thread(() -> {
+            NotificationEntity entity = SocketNotificationModel.toEntity(model);
+            entity.setStatus(ENotificationStatus.POSTED.name());
+            entity.setCategory(ENotificationCategory.SYSTEM.name());
+            entity.setCreatedBy(SecurityUtils.getCurrentUser().getUser());
+            entity = this.notificationRepository.save(entity);
+            this.saveUserNotification(entity.getId(), userId);
+            this.socketService.sendNotificationForSpecificUser(SocketNotificationModel.toModel(entity), userId);
+        }).run();
+    }
+
+
+    @Override
+    public void addSocketNotificationForAll(SocketNotificationModel model) {
+        new Thread(() -> {
+            NotificationEntity entity = SocketNotificationModel.toEntity(model);
+            entity.setStatus(ENotificationStatus.POSTED.name());
+            entity.setCategory(ENotificationCategory.SYSTEM.name());
+            entity.setCreatedBy(SecurityUtils.getCurrentUser().getUser());
+            entity = this.notificationRepository.save(entity);
+            this.saveUserNotification(entity.getId(), this.userRepository.getAllId());
+            this.socketService.sendNotificationForAllUser(SocketNotificationModel.toModel(entity));
+        }).run();
     }
 
     @Override

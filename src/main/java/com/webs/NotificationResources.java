@@ -38,8 +38,8 @@ public class NotificationResources {
     @PostMapping
     public ResponseDto addNotificationDetail(@Valid NotificationModel model) {
         log.info("admin {} is adding new notification", SecurityUtils.getCurrentUser().getUsername());
-        NotificationEntity notificationEntity = socketService.sendNotificationForAllUser(model,"abcdefgh.com");
-        NotificationDetailDto notificationDetailDto = NotificationDetailDto.toDto(notificationEntity);
+//        NotificationEntity notificationEntity = socketService.sendNotificationForAllUser(model,"abcdefgh.com");
+        NotificationDetailDto notificationDetailDto = NotificationDetailDto.toDto(this.notificationService.add(model));
         return ResponseDto.of(notificationDetailDto, "Added notification successfully");
     }
 

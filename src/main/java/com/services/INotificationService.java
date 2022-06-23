@@ -3,17 +3,17 @@ package com.services;
 import com.dtos.NotificationDto;
 import com.entities.NotificationEntity;
 import com.models.NotificationModel;
+import com.models.SocketNotificationModel;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.domain.Specification;
-import org.springframework.data.jpa.repository.Query;
-
 import java.util.List;
 
 public interface INotificationService extends IBaseService<NotificationEntity, NotificationModel, Long> {
     Page<NotificationDto> userGetAllNotifications(Pageable page);
 
-    NotificationEntity addForSpecificUser(NotificationModel model, Long userId, String url);
+    void addForSpecificUser(SocketNotificationModel model,  List<Long> userId);
+
+    void addSocketNotificationForAll(SocketNotificationModel model);
 
     boolean increaseView(long id);
 

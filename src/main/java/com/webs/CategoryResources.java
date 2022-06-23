@@ -76,7 +76,7 @@ public class CategoryResources {
     @Transactional(rollbackFor = RuntimeException.class)
     @GetMapping("/slug/{slug}")
     public ResponseDto findBySlug(@PathVariable String slug) {
-        return ResponseDto.of(CategoryDto.toDto(categoryService.findBySlug(slug), false), "get category by slug success");
+        return ResponseDto.of(CategoryDto.toDto(categoryService.findBySlug(slug), true), "get category by slug success");
     }
 
     @Transactional(rollbackFor = RuntimeException.class)

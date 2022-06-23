@@ -83,8 +83,9 @@ public class CategoryServiceImpl implements ICategoryService {
     public CategoryEntity update(CategoryModel model) {
         String slug = model.getSlug() == null ? ASCIIConverter.utf8ToAscii(model.getCategoryName()) : ASCIIConverter.utf8ToAscii(model.getSlug());
         CategoryEntity checkedCategory = this.findBySlug(slug);
-        if (checkedCategory != null && checkedCategory.getId() != model.getId())
-            throw new RuntimeException("Slug already existed!");
+        if (checkedCategory != null)
+            if (!checkedCategory.getId().equals(model.getId()))
+                throw new RuntimeException("Slug already existed!");
 
         CategoryEntity originCategory = this.findById(model.getId());
         originCategory.setCategoryName(model.getCategoryName());

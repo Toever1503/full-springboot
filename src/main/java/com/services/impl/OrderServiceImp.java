@@ -103,7 +103,7 @@ public class OrderServiceImp implements IOrderService {
         orderEntity.setTotalPrices(totalPrices);
         orderEntity.setOrderDetails(orderDetailEntities);
         orderEntity.setCreatedBy(SecurityUtils.getCurrentUser().getUser());
-        socketService.sendOrderNotificationForSingleUser(orderEntity,orderEntity.getCreatedBy().getId(),"abcd.com","Don hang da duoc tao: ");
+//        socketService.sendOrderNotificationForSingleUser(orderEntity,orderEntity.getCreatedBy().getId(),"abcd.com","Don hang da duoc tao: ");
         return this.orderRepository.save(orderEntity);
     }
 
@@ -131,7 +131,7 @@ public class OrderServiceImp implements IOrderService {
     public OrderEntity updateStatusOrder(Long id, String status) {
         OrderEntity orderOrigin = this.findById(id);
         orderOrigin.setStatus(status);
-        socketService.sendOrderNotificationForSingleUser(orderOrigin,orderOrigin.getCreatedBy().getId(),"abcd.com", "Don hang da duoc cap nhat: ");
+//        socketService.sendOrderNotificationForSingleUser(orderOrigin,orderOrigin.getCreatedBy().getId(),"abcd.com", "Don hang da duoc cap nhat: ");
         return this.orderRepository.save(orderOrigin);
     }
 
@@ -140,11 +140,11 @@ public class OrderServiceImp implements IOrderService {
         OrderEntity orderOrigin = this.findById(id);
         if (orderOrigin.getStatus().equals(EStatusOrder.PENDING.toString())) {
             orderOrigin.setStatus(EStatusOrder.CANCELED.name());
-            socketService.sendOrderNotificationForSingleUser(orderOrigin,orderOrigin.getCreatedBy().getId(),"abcd.com", "Don hang da bi huy");
+//            socketService.sendOrderNotificationForSingleUser(orderOrigin,orderOrigin.getCreatedBy().getId(),"abcd.com", "Don hang da bi huy");
             return this.orderRepository.save(orderOrigin);
         } else if (orderOrigin.getStatus().equals(EStatusOrder.PAID.toString())) {
             orderOrigin.setStatus(EStatusOrder.REFUNDING.name());
-            socketService.sendOrderNotificationForSingleUser(orderOrigin,orderOrigin.getCreatedBy().getId(),"abcd.com", "Don hang da bi huy");
+//            socketService.sendOrderNotificationForSingleUser(orderOrigin,orderOrigin.getCreatedBy().getId(),"abcd.com", "Don hang da bi huy");
             return this.orderRepository.save(orderOrigin);
         }
         throw new RuntimeException("Order can't cancel, id: " + id);
@@ -179,7 +179,7 @@ public class OrderServiceImp implements IOrderService {
         OrderEntity orderEntity = this.findById(id);
         orderEntity.setDeliveryCode(deliveryCode);
         orderEntity.setStatus(EStatusOrder.DELIVERING.name());
-        socketService.sendOrderNotificationForSingleUser(orderEntity,orderEntity.getCreatedBy().getId(),"abcd.com", "Da cap nhat ma van chuyen cho don hang: ");
+//        socketService.sendOrderNotificationForSingleUser(orderEntity,orderEntity.getCreatedBy().getId(),"abcd.com", "Da cap nhat ma van chuyen cho don hang: ");
         return this.orderRepository.save(orderEntity);
     }
 }

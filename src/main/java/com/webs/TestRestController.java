@@ -52,15 +52,16 @@ public class TestRestController {
     @Transactional
     @PostMapping("publish-notification")
     public void pub(@Valid NotificationModel model) {
-        SocketMessage socketMessage = new SocketMessage("publish", null, "notification", SendTo.USER, Set.of(1l));
-        socketHandler.publishNotification(socketMessage, this.notificationService.addForSpecificUser(model, 1l, "localhost:210949124"));
+//        SocketMessage socketMessage = new SocketMessage("publish", null, "notification", SendTo.USER, Set.of(1l));
+//        socketHandler.publishNotification(socketMessage, this.notificationService.addForSpecificUser(model, 1l, "localhost:210949124"));
+
     }
 
     @Transactional
     @PostMapping("publish-notification-all")
     public void pub(@Valid NotificationModel model, @RequestParam("uid") Long uid) {
-        SocketMessage socketMessage = new SocketMessage("publish", null, "notification", SendTo.ALL, Set.of(1l, 19l, 25l));
-        socketHandler.publishNotification(socketMessage, this.notificationService.add(model));
+//        SocketMessage socketMessage = new SocketMessage("publish", null, "notification", SendTo.ALL, Set.of(1l, 19l, 25l));
+//        socketHandler.publishNotification(socketMessage, this.notificationService.add(model));
     }
 
 }

@@ -5,10 +5,6 @@ import com.services.IUserService;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.authentication.AccountStatusException;
-import org.springframework.security.core.AuthenticationException;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import javax.servlet.FilterChain;
@@ -28,7 +24,6 @@ public class JwtFilter extends OncePerRequestFilter {
 
     //Filter jw token
     @Override
-    @Transactional
     protected void doFilterInternal(HttpServletRequest req, HttpServletResponse res, FilterChain filterChain) throws ServletException, IOException {
         log.info("JwtFilter is checking");
         //If request method is options, do filter
@@ -37,8 +32,7 @@ public class JwtFilter extends OncePerRequestFilter {
         }
         //if not, checking token and do filter afterward
         else {
-            String token = null;
-            token = req.getHeader("Authorization");
+            String token = req.getHeader("Authorization");
             System.out.println("token: " + token);
             if (token == null) {
                 // token null

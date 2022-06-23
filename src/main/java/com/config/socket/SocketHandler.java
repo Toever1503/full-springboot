@@ -4,6 +4,7 @@ import com.dtos.NotificationDto;
 import com.dtos.SocketDtos.NotificationSocketDto;
 import com.entities.NotificationEntity;
 import com.google.gson.Gson;
+import com.models.SocketNotificationModel;
 import com.models.sockets.MessageData;
 import com.models.sockets.SendTo;
 import com.models.sockets.SocketMessage;
@@ -24,8 +25,6 @@ import java.util.stream.Collectors;
 
 @Component
 public class SocketHandler implements WebSocketHandler {
-    @Autowired
-    INotificationService notificationService;
     public static ConcurrentHashMap<Long, WebSocketSession> userSessions = new ConcurrentHashMap<>();
 
     @Override
@@ -143,8 +142,7 @@ public class SocketHandler implements WebSocketHandler {
 
     private void publishMessage(SocketMessage socketMessage, WebSocketMessage<?> message) throws IOException {
         List<WebSocketSession> sendSessions = new ArrayList<>();
-        for (Long uid : socketMessage.getUidSet()
-        ) {
+        for (Long uid : socketMessage.getUidSet()) {
             List<String> topics = (List<String>) userSessions.get(uid).getAttributes().get("topics");
             if (topics.contains(socketMessage.getTopic())) {
                 sendSessions.add(userSessions.get(uid));
@@ -175,13 +173,19 @@ public class SocketHandler implements WebSocketHandler {
     public void publishNotification(SocketMessage socketMessage, NotificationEntity notification) {
         NotificationSocketMessage notificationSocketMessage = new NotificationSocketMessage(socketMessage.getTopic(), NotificationSocketDto.toNotificationSocketDto(notification));
         String data = new JSONObject(notificationSocketMessage).toString();
-
         WebSocketMessage mss = new TextMessage(data);
         if (socketMessage.getSendTo().equals(SendTo.ALL))
             userSessions.forEachValue(10l, s -> this.sendMessage(s, mss));
         else {
             socketMessage.getUidSet().forEach(uId -> this.sendMessage(userSessions.get(uId), mss));
         }
+    }
+    public void publishNotification(SocketNotificationModel notification, List<Long> uIds) {
+        NotificationSocketMessage notificationSocketMessage = new NotificationSocketMessage("notification", notification);
+        WebSocketMessage mss = new TextMessage(new JSONObject(notificationSocketMessage).toString());
+        if (uIds == null)
+            userSessions.forEachValue(10l, s -> this.sendMessage(s, mss));
+        else uIds.forEach(uId -> this.sendMessage(userSessions.get(uId), mss));
     }
 
     private void sendMessage(WebSocketSession session, WebSocketMessage<?> mss) {
