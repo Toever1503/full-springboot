@@ -64,8 +64,9 @@ public class CategoryServiceImpl implements ICategoryService {
     public CategoryEntity add(CategoryModel model) {
         CategoryEntity categoryEntity = CategoryModel.toEntity(model);
         categoryEntity.setDeepLevel(0);
-        if (this.findBySlug(model.getSlug()) != null)
+        if (this.categoryRepository.findBySlug(model.getSlug()).isPresent())
             throw new RuntimeException("Slug already existed!");
+
         if (model.getParentId() != null) { //check if parent id not null
             CategoryEntity parent = this.findById(model.getParentId());
             categoryEntity.setParentCategory(parent);
@@ -82,7 +83,7 @@ public class CategoryServiceImpl implements ICategoryService {
     @Override
     public CategoryEntity update(CategoryModel model) {
         String slug = model.getSlug() == null ? ASCIIConverter.utf8ToAscii(model.getCategoryName()) : ASCIIConverter.utf8ToAscii(model.getSlug());
-        CategoryEntity checkedCategory = this.findBySlug(slug);
+        CategoryEntity checkedCategory = this.categoryRepository.findBySlug(slug).orElse(null);
         if (checkedCategory != null)
             if (!checkedCategory.getId().equals(model.getId()))
                 throw new RuntimeException("Slug already existed!");
