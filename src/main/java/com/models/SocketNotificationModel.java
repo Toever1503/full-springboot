@@ -32,6 +32,8 @@ public class SocketNotificationModel {
         this.url = url;
     }
 
+
+
     public static NotificationEntity toEntity(SocketNotificationModel model) {
         if (model == null) throw new RuntimeException("SocketNotificationModel is null");
         return NotificationEntity.builder()
