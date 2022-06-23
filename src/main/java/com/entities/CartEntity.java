@@ -10,7 +10,7 @@ import javax.persistence.*;
 @Getter
 @Entity
 @Builder
-@Table(name = "tbl_cart")
+@Table(name = "tbl_cart",  uniqueConstraints = { @UniqueConstraint(columnNames = { "option_id", "user_id", "product_id" }) })
 public class CartEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

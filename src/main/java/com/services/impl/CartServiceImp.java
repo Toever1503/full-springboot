@@ -5,7 +5,9 @@ import com.entities.OptionEntity;
 import com.entities.ProductEntity;
 import com.entities.UserEntity;
 import com.models.CartModel;
+import com.models.ChangeOptionProductModel;
 import com.repositories.ICartRepository;
+import com.repositories.IOptionsRepository;
 import com.services.ICartService;
 import com.services.IProductService;
 import com.services.IUserService;
@@ -22,11 +24,13 @@ public class CartServiceImp implements ICartService {
     private final ICartRepository cartRepository;
     private final IProductService productService;
     private final IUserService userService;
+    private final IOptionsRepository optionsRepository;
 
-    public CartServiceImp(ICartRepository cartRepository, IProductService productService, IUserService userService) {
+    public CartServiceImp(ICartRepository cartRepository, IProductService productService, IUserService userService, IOptionsRepository optionsRepository) {
         this.cartRepository = cartRepository;
         this.productService = productService;
         this.userService = userService;
+        this.optionsRepository = optionsRepository;
     }
 
     @Override
@@ -98,6 +102,21 @@ public class CartServiceImp implements ICartService {
     @Override
     public Page<CartEntity> findAllByUserId(Pageable pageable) {
         return this.cartRepository.findAllByUserId(SecurityUtils.getCurrentUserId(), pageable);
+    }
+
+    @Override
+    public CartEntity updateOptionProduct(Long id, ChangeOptionProductModel model) {
+        CartEntity cartEntity = this.findById(id);
+        if(SecurityUtils.getCurrentUserId().equals(cartEntity.getUser().getId())) {
+            ProductEntity product = this.productService.findById(model.getProductId());
+            if(product.getOptions().stream().anyMatch(option1 -> option1.getId().equals(model.getOptionId()))) {
+                cartEntity.setOptionId(model.getOptionId());
+                return this.cartRepository.save(cartEntity);
+            }else {
+                throw new RuntimeException("Option not found, id: " + model.getOptionId());
+            }
+        }
+       throw new RuntimeException("You are not owner of this cart");
     }
 
     @Override
