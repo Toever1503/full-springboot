@@ -3,6 +3,7 @@ package com.services.impl;
 import com.dtos.EStatusOrder;
 import com.entities.*;
 import com.models.OrderModel;
+import com.models.SocketNotificationModel;
 import com.repositories.IOptionsRepository;
 import com.repositories.IOrderDetailRepository;
 import com.repositories.IOrderRepository;
@@ -23,16 +24,18 @@ public class OrderServiceImp implements IOrderService {
     private final ICartService cartService;
     private final IOptionsRepository optionsRepository;
     private final IAddressService addressService;
-    private final ISocketService socketService;
+    private final ISocketService socketService; // remove this line later
+    private final INotificationService notificationService;
 
 
-    public OrderServiceImp(IOrderRepository orderRepository, IOrderDetailRepository orderDetailRepository, ICartService cartService, IOptionsRepository optionsRepository, IAddressService addressService, ISocketService socketService) {
+    public OrderServiceImp(IOrderRepository orderRepository, IOrderDetailRepository orderDetailRepository, ICartService cartService, IOptionsRepository optionsRepository, IAddressService addressService, ISocketService socketService, INotificationService notificationService) {
         this.orderRepository = orderRepository;
         this.orderDetailRepository = orderDetailRepository;
         this.cartService = cartService;
         this.optionsRepository = optionsRepository;
         this.addressService = addressService;
         this.socketService = socketService;
+        this.notificationService = notificationService;
     }
 
     @Override
@@ -179,7 +182,7 @@ public class OrderServiceImp implements IOrderService {
         OrderEntity orderEntity = this.findById(id);
         orderEntity.setDeliveryCode(deliveryCode);
         orderEntity.setStatus(EStatusOrder.DELIVERING.name());
-//        socketService.sendOrderNotificationForSingleUser(orderEntity,orderEntity.getCreatedBy().getId(),"abcd.com", "Da cap nhat ma van chuyen cho don hang: ");
+        this.notificationService.addForSpecificUser(new SocketNotificationModel(null, "Don hang ".concat(orderEntity.getUuid().concat("da duoc cap nhat ma van chuyen!")), "", OrderEntity.ORDER_DETAIL_URL), List.of(orderEntity.getCreatedBy().getId()));
         return this.orderRepository.save(orderEntity);
     }
 }
