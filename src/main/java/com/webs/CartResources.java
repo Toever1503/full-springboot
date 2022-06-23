@@ -3,6 +3,7 @@ package com.webs;
 import com.dtos.CartDto;
 import com.dtos.ResponseDto;
 import com.models.CartModel;
+import com.models.ChangeOptionProductModel;
 import com.repositories.IOptionsRepository;
 import com.services.ICartService;
 import org.springframework.data.domain.Pageable;
@@ -46,6 +47,12 @@ public class CartResources {
     @PatchMapping("{id}")
     public ResponseDto updateQuantityProduct(@RequestParam("quantity") @Valid @Min(1) Integer quantity, @PathVariable("id") Long id) {
         return ResponseDto.of(CartDto.toDto(this.cartService.updateQuantityProduct(id, quantity)), "updated quantity product in cart successfully");
+    }
+
+    @Transactional
+    @PatchMapping("/change-option/{id}")
+    public ResponseDto updateOptionProduct(@PathVariable("id") Long id, @RequestBody ChangeOptionProductModel model) {
+        return ResponseDto.of(CartDto.toDto(this.cartService.updateOptionProduct(id, model)), "updated option product in cart successfully");
     }
 
     @Transactional
