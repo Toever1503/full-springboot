@@ -18,6 +18,7 @@ public class OrderDetailDto {
     private Double price;
     private Integer quantity;
     private ProductDto product;
+    private Boolean isReview;
 
     public static OrderDetailDto toDto(OrderDetailEntity entity) {
         if(entity == null) return null;
@@ -26,6 +27,7 @@ public class OrderDetailDto {
                 .optionId(entity.getOptionId())
                 .price(entity.getPrice())
                 .quantity(entity.getQuantity())
+                .isReview(entity.getIsReview())
                 .product(ProductDto.toDto(entity.getProductId()))
                 .build();
     }
