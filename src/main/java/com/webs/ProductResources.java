@@ -67,7 +67,7 @@ public class ProductResources {
         }
     }
 
-    @GetMapping
+    @GetMapping("/get-all")
     @Transactional
     public ResponseDto getAllProducts(Pageable pageable) {
         return ResponseDto.of(this.productService.filter(pageable, Specification.where(ProductSpecification.byActive(true))).map(ProductDto::toDto), "Get all products");

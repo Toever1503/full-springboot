@@ -42,7 +42,8 @@ public class WebSecurityConfiguration {
             new AntPathRequestMatcher("/v2/api-docs"),
             new AntPathRequestMatcher("/webjars/**"),
             new AntPathRequestMatcher("/transaction/result"),
-            new AntPathRequestMatcher("/categories/all-parent-categories")
+            new AntPathRequestMatcher("/categories/all-parent-categories"),
+            new AntPathRequestMatcher("/products/get-all")
     );
 
     private RequestMatcher PRIVATE_URLS = new NegatedRequestMatcher(PUBLIC_URLS);
