@@ -17,6 +17,9 @@ public interface ICategoryRepository extends JpaRepository<CategoryEntity, Long>
 
     Optional<CategoryEntity> findBySlug(String slug);
 
+    @Query("SELECT c FROM CategoryEntity c ORDER BY c.id DESC")
+    List<CategoryEntity> findAlLS();
+
     @Modifying
     @Query(value = "update tbl_category set parent_id = null where parent_id = ?1", nativeQuery = true)
     void updateCategoryParent(Long catId);

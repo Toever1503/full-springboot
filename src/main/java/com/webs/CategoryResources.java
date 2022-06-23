@@ -90,4 +90,5 @@ public class CategoryResources {
     public ResponseDto getAllCategories() {
         return ResponseDto.of(this.categoryService.findAll().stream().map(c -> CategoryDto.toDto(c, false)).collect(Collectors.toList()), "get all categories success");
     }
+
 }
