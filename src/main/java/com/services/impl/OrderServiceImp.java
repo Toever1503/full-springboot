@@ -26,18 +26,16 @@ public class OrderServiceImp implements IOrderService {
     private final ICartService cartService;
     private final IOptionsRepository optionsRepository;
     private final IAddressService addressService;
-    private final ISocketService socketService; // remove this line later
     private final INotificationService notificationService;
     private final IUserRepository userRepository;
 
 
-    public OrderServiceImp(IOrderRepository orderRepository, IOrderDetailRepository orderDetailRepository, ICartService cartService, IOptionsRepository optionsRepository, IAddressService addressService, ISocketService socketService, INotificationService notificationService, IUserRepository userRepository) {
+    public OrderServiceImp(IOrderRepository orderRepository, IOrderDetailRepository orderDetailRepository, ICartService cartService, IOptionsRepository optionsRepository, IAddressService addressService, INotificationService notificationService, IUserRepository userRepository) {
         this.orderRepository = orderRepository;
         this.orderDetailRepository = orderDetailRepository;
         this.cartService = cartService;
         this.optionsRepository = optionsRepository;
         this.addressService = addressService;
-        this.socketService = socketService;
         this.notificationService = notificationService;
         this.userRepository = userRepository;
     }

@@ -14,7 +14,7 @@ public class VnPayUtils {
     public static String vnp_HashSecret = "HEMVEOBMAWSXSMKKUTEDHPFWEPXSTVRY";
 
     public static String vnp_Url = "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html";
-    public static String vnp_ResUrl = "http://3.38.125.53:8081/transaction/result";
+    public static String vnp_ResUrl = "http://localhost:8081/transaction/result";
 
     //INTCARD, NCB, VNBANK, EXIMBANK, VNPAYQR
     public static String vnp_BankCode = "VNBANK";
