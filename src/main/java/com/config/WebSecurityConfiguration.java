@@ -41,7 +41,7 @@ public class WebSecurityConfiguration {
             new AntPathRequestMatcher("/swagger-ui/**"),
             new AntPathRequestMatcher("/v2/api-docs"),
             new AntPathRequestMatcher("/webjars/**"),
-            new AntPathRequestMatcher("/transaction/result"),
+            new AntPathRequestMatcher("/transaction/result**"),
             new AntPathRequestMatcher("/categories/all-parent-categories"),
             new AntPathRequestMatcher("/products/get-all"),
             new AntPathRequestMatcher("/products/get-by-id/**"),
