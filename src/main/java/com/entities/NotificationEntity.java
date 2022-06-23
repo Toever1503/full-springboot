@@ -46,7 +46,8 @@ public class NotificationEntity {
     private Integer viewed;
     @Column(name = "is_edit")
     private Boolean isEdit;
-
+    @Column(name = "url")
+    private String url;
     public static Integer limitEditCount = 3;
     @Column(name = "count_edit")
     private Integer countEdit;

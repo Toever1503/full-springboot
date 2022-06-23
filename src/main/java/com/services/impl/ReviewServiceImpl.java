@@ -11,6 +11,7 @@ import com.repositories.IReviewRepository;
 import com.services.IOrderService;
 import com.services.IProductService;
 import com.services.IReviewService;
+import com.services.ISocketService;
 import com.utils.FileUploadProvider;
 import com.utils.SecurityUtils;
 import org.json.JSONObject;
@@ -35,8 +36,9 @@ public class ReviewServiceImpl implements IReviewService {
     final IProductService productService;
     final IProductRepository productRepository;
     final IOptionsRepository optionRepository;
+    final ISocketService socketService;
 
-    public ReviewServiceImpl(IReviewRepository reviewRepository, FileUploadProvider fileUploadProvider, IOrderService orderService, IOrderDetailRepository orderDetailRepository, IProductService productService, IProductRepository productRepository, IOptionsRepository optionRepository) {
+    public ReviewServiceImpl(IReviewRepository reviewRepository, FileUploadProvider fileUploadProvider, IOrderService orderService, IOrderDetailRepository orderDetailRepository, IProductService productService, IProductRepository productRepository, IOptionsRepository optionRepository, ISocketService socketService) {
         this.reviewRepository = reviewRepository;
         this.fileUploadProvider = fileUploadProvider;
         this.orderService = orderService;
@@ -44,6 +46,7 @@ public class ReviewServiceImpl implements IReviewService {
         this.productService = productService;
         this.productRepository = productRepository;
         this.optionRepository = optionRepository;
+        this.socketService = socketService;
     }
 
     @Override
@@ -114,6 +117,7 @@ public class ReviewServiceImpl implements IReviewService {
             }
         }
         ReviewEntity review = this.reviewRepository.save(reviewEntity);
+        socketService.sendReviewNotificationForSingleUser(review,review.getCreatedBy().getId(),"reviewduocghinhan.com","Danh gia san pham "+ orderDetailEntity.getOptionId() +"da duoc ghi lai");
         // set lai gia tri isReview cho orderDetail
         orderDetailEntity.setIsReview(true);
         this.orderDetailRepository.save(orderDetailEntity);
@@ -187,13 +191,16 @@ public class ReviewServiceImpl implements IReviewService {
             throw new RuntimeException("You can not update this review, because you have not created it yet or replyed it");
         }
         ReviewEntity reviewUpdate = this.reviewRepository.save(updateReview);
+        socketService.sendReviewNotificationForSingleUser(reviewUpdate,reviewUpdate.getCreatedBy().getId(),"reviewduocghinhan.com","Danh gia san pham: "+reviewUpdate.getProduct().getName()+" da duoc cap nhat");
         this.reviewRepository.updateProductRating(reviewUpdate.getProduct().getId());
         return reviewUpdate;
     }
 
     @Override
     public boolean deleteById(Long id) {
+        ReviewEntity review = this.findById(id);
         this.reviewRepository.deleteById(id);
+        socketService.sendReviewNotificationForSingleUser(review,review.getCreatedBy().getId(),"reviewduocghinhan.com","Danh gia san pham: "+review.getProduct().getName()+" da duoc xoa: ");
         this.reviewRepository.deleteReviewByParent(id);
         return true;
     }

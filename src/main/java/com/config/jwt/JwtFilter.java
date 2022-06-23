@@ -32,7 +32,7 @@ public class JwtFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest req, HttpServletResponse res, FilterChain filterChain) throws ServletException, IOException {
         log.info("JwtFilter is checking");
         //If request method is options, do filter
-        if (req.getMethod().equalsIgnoreCase("OPTIONS")) {
+        if (req.getMethod().equalsIgnoreCase("OPTIONS") || req.getServletPath().equals("/socket")) {
             filterChain.doFilter(req, res);
         }
         //if not, checking token and do filter afterward

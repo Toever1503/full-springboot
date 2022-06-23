@@ -6,6 +6,7 @@ import com.models.NotificationModel;
 import com.models.filters.NotificationFilter;
 import com.models.specifications.NotificationSpecification;
 import com.services.INotificationService;
+import com.services.ISocketService;
 import com.utils.SecurityUtils;
 import io.swagger.annotations.*;
 import org.slf4j.Logger;
@@ -24,10 +25,12 @@ import javax.validation.Valid;
 @Validated
 public class NotificationResources {
     private final INotificationService notificationService;
+    private final ISocketService socketService;
     private final Logger log = LoggerFactory.getLogger(this.getClass());
 
-    public NotificationResources(INotificationService notificationService) {
+    public NotificationResources(INotificationService notificationService, ISocketService socketService) {
         this.notificationService = notificationService;
+        this.socketService = socketService;
     }
 
     @RolesAllowed("ADMINISTRATOR")
@@ -35,9 +38,8 @@ public class NotificationResources {
     @PostMapping
     public ResponseDto addNotificationDetail(@Valid NotificationModel model) {
         log.info("admin {} is adding new notification", SecurityUtils.getCurrentUser().getUsername());
-        NotificationEntity notificationEntity = this.notificationService.add(model);
+        NotificationEntity notificationEntity = socketService.sendNotificationForAllUser(model,"abcdefgh.com");
         NotificationDetailDto notificationDetailDto = NotificationDetailDto.toDto(notificationEntity);
-
         return ResponseDto.of(notificationDetailDto, "Added notification successfully");
     }
 

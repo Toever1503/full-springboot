@@ -30,7 +30,7 @@ public class NotificationModel {
     @NotNull
     @NotBlank
     private String title;
-    @ApiModelProperty(notes = "content", dataType = "String", example = "content")
+        @ApiModelProperty(notes = "content", dataType = "String", example = "content")
     @NotNull
     @NotBlank
     private String content;
@@ -42,6 +42,8 @@ public class NotificationModel {
     private List<String> attachFilesOrigin = new ArrayList<>();
     @ApiModelProperty(notes = "number of people viewed", dataType = "Integer", example = "1")
     private Integer viewed;
+    @ApiModelProperty(notes = "Url point to notification detail", dataType = "String", example = "http://ijustansweredyourquestionhere.com")
+    private String url;
     @ApiModelProperty(notes = "Notification is edit ?", dataType = "Boolean", example = "true")
     private Boolean isEdit;
     @ApiModelProperty(notes = "status Notification", dataType = "Enum", example = "PENDING, POSTED,FUTURE")
@@ -59,6 +61,7 @@ public class NotificationModel {
                 .content(model.getContent())
                 .contentExcerpt(model.getContentExcerpt())
                 .viewed(0)
+                .url(model.getUrl())
                 .isEdit(false)
                 .countEdit(0)
                 .status(model.getStatus().name())

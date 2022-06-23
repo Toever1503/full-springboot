@@ -3,6 +3,7 @@ package com.config;
 
 import com.config.jwt.JwtAuthenticationProvider;
 import com.config.jwt.JwtFilter;
+import com.config.socket.SocketFilter;
 import com.services.IUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -79,7 +80,8 @@ public class WebSecurityConfiguration {
 
         http.authorizeRequests()
                 .requestMatchers(PRIVATE_URLS).authenticated();
-        http.addFilterBefore(new JwtFilter(userService), org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter.class);
+        http.addFilterBefore(new JwtFilter(this.userService), org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter.class);
+        http.addFilterBefore(new SocketFilter(this.userService),JwtFilter.class);
         return http.build();
     }
 

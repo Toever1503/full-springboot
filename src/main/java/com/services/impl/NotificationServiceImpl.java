@@ -1,5 +1,7 @@
 package com.services.impl;
 
+import com.dtos.ENotificationCategory;
+import com.dtos.ENotificationStatus;
 import com.dtos.NotificationDto;
 import com.entities.NotificationEntity;
 import com.entities.NotificationUser;
@@ -95,6 +97,9 @@ public class NotificationServiceImpl implements INotificationService {
 
         UserEntity userEntity = userService.findById(SecurityUtils.getCurrentUserId());
         notificationEntity.setCreatedBy(userEntity);
+        if(model.getUrl()!=null){
+            notificationEntity.setUrl(model.getUrl());
+        }
         notificationEntity = this.notificationRepository.save(notificationEntity);
         final long notificationId = notificationEntity.getId();
         this.notificationUserRepository.saveAll(
@@ -185,16 +190,16 @@ public class NotificationServiceImpl implements INotificationService {
     @Override
     public boolean deleteById(Long id) {
         NotificationEntity notificationEntity = this.findById(id);
-            if (notificationEntity.getAttachFiles() != null) {
-                new JSONObject(notificationEntity.getAttachFiles()).getJSONArray("files").toList().forEach(u -> fileUploadProvider.deleteFile(u.toString()));
-            }
+        if (notificationEntity.getAttachFiles() != null) {
+            new JSONObject(notificationEntity.getAttachFiles()).getJSONArray("files").toList().forEach(u -> fileUploadProvider.deleteFile(u.toString()));
+        }
 
-            if (notificationEntity.getImage() != null) {
-                fileUploadProvider.deleteFile(notificationEntity.getImage());
-            }
-            this.notificationUserRepository.deleteAllByNotificationId(id);
-            this.notificationRepository.deleteById(id);
-            return true;
+        if (notificationEntity.getImage() != null) {
+            fileUploadProvider.deleteFile(notificationEntity.getImage());
+        }
+        this.notificationUserRepository.deleteAllByNotificationId(id);
+        this.notificationRepository.deleteById(id);
+        return true;
     }
 
     @Override
@@ -205,6 +210,22 @@ public class NotificationServiceImpl implements INotificationService {
     @Override
     public Page<NotificationDto> userGetAllNotifications(Pageable page) {
         return this.notificationRepository.userGetAllNotifications(SecurityUtils.getCurrentUserId(), "POSTED", page);
+    }
+
+    @Override
+    public NotificationEntity addForSpecificUser(NotificationModel model, Long userId, String url) {
+        NotificationEntity entity = NotificationModel.toEntity(model);
+        entity.setStatus(ENotificationStatus.POSTED.name());
+        entity.setCategory(ENotificationCategory.SYSTEM.name());
+        entity.setCreatedBy(SecurityUtils.getCurrentUser().getUser());
+        entity.setUrl(url);
+        entity = this.notificationRepository.save(entity);
+        this.notificationUserRepository.save(NotificationUser.builder()
+                .isRead(false)
+                .notificationId(entity.getId())
+                .userId(userId)
+                .build());
+        return entity;
     }
 
     @Override

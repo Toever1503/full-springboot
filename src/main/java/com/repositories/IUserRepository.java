@@ -19,6 +19,7 @@ public interface IUserRepository extends JpaRepository<UserEntity,Long>, JpaSpec
 
     Optional<UserEntity> findByMainAddress(Long id);
     UserEntity findByUserName(String username);
+
     UserEntity findByEmail(String email);
     //Get all userId
     @Query("select u.id from UserEntity u")

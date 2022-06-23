@@ -2,10 +2,12 @@ package com.webs;
 
 import com.dtos.OrderDto;
 import com.dtos.ResponseDto;
+import com.entities.OrderEntity;
 import com.models.OrderModel;
 import com.models.filters.OrderFilterModel;
 import com.models.specifications.OrderSpecification;
 import com.services.IOrderService;
+import com.services.ISocketService;
 import com.utils.SecurityUtils;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -20,6 +22,7 @@ import javax.validation.constraints.NotBlank;
 @RequestMapping("/order")
 public class OrderResources {
     private final IOrderService orderService;
+
 
     public OrderResources(IOrderService orderService) {
         this.orderService = orderService;
@@ -54,24 +57,28 @@ public class OrderResources {
     @Transactional
     @PostMapping
     public ResponseDto createOrder(@RequestBody OrderModel orderModel) {
-        return ResponseDto.of(OrderDto.toDto(orderService.add(orderModel)), "Create order success");
+        OrderEntity order =  orderService.add(orderModel);
+        return ResponseDto.of(OrderDto.toDto(order), "Create order success");
     }
 
     @Transactional
     @PatchMapping("update-delivery-code/{id}")
     public ResponseDto updateDeliveryCode(@PathVariable("id") Long id, @RequestParam(name = "code") @Valid @NotBlank String deliveryCode) {
-        return ResponseDto.of(orderService.updateDeliveryCode(id, deliveryCode), "Update delivery code");
+        OrderEntity order = orderService.updateDeliveryCode(id, deliveryCode);
+        return ResponseDto.of(OrderDto.toDto(order), "Update delivery code");
     }
     @Transactional
     @PatchMapping("update-status/{id}")
     public ResponseDto updateStatusOrder(@PathVariable("id") Long id, @RequestParam("status") String status) {
-        return ResponseDto.of(OrderDto.toDto(this.orderService.updateStatusOrder(id, status)), "Update status order, id: " + id);
+        OrderEntity order = this.orderService.updateStatusOrder(id, status);
+        return ResponseDto.of(OrderDto.toDto(order), "Update status order, id: " + id);
     }
 
     @Transactional
     @DeleteMapping("/{id}")
     public ResponseDto deleteOrder(@PathVariable("id") Long id) {
-        return ResponseDto.of(OrderDto.toDto(orderService.cancelOrder(id)), "Delete order id: " + id);
+        OrderEntity order = this.orderService.cancelOrder(id);
+        return ResponseDto.of(OrderDto.toDto(order), "Delete order id: " + id);
     }
 
     @Transactional
