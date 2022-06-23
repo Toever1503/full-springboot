@@ -80,7 +80,7 @@ public class ProductResources {
                 .map(ProductDto::toDto), "Filter all products");
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/get-by-id/{id}")
     @Transactional
     public ResponseDto getProductById(@PathVariable("id") Long id) {
         return ResponseDto.of(ProductDto.toDto(productService.findById(id)), "Get product by id");
