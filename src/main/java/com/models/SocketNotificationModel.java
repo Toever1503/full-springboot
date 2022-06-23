@@ -9,6 +9,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.Date;
+
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
@@ -17,13 +19,27 @@ public class SocketNotificationModel {
     private Long id;
     private String title;
     private String contentExcerpt;
+    private ENotificationCategory category;
     private String url;
+    private Date createdDate;
+    private boolean read;
+
+    public SocketNotificationModel(Long id, String title, String contentExcerpt, ENotificationCategory category, String url) {
+        this.id = id;
+        this.title = title;
+        this.contentExcerpt = contentExcerpt;
+        this.category = category;
+        this.url = url;
+    }
+
+
 
     public static NotificationEntity toEntity(SocketNotificationModel model) {
         if (model == null) throw new RuntimeException("SocketNotificationModel is null");
         return NotificationEntity.builder()
                 .title(model.getTitle())
                 .contentExcerpt(model.getContentExcerpt())
+                .category(model.getCategory().name())
                 .url(model.getUrl())
                 .build();
     }
@@ -34,6 +50,8 @@ public class SocketNotificationModel {
                 .title(entity.getTitle())
                 .contentExcerpt(entity.getContentExcerpt())
                 .url(entity.getUrl())
+                .createdDate(entity.getCreatedDate())
+                .read(false)
                 .build();
     }
 }

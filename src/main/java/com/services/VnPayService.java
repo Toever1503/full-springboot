@@ -1,15 +1,18 @@
 package com.services;
 
+import com.dtos.ENotificationCategory;
 import com.dtos.EPaymentMethod;
 import com.dtos.EStatusOrder;
 import com.dtos.PaymentResultDto;
 import com.entities.OrderEntity;
+import com.models.SocketNotificationModel;
 import com.repositories.IOrderRepository;
 import com.utils.SecurityUtils;
 import com.utils.VnPayUtils;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -19,16 +22,14 @@ import java.util.stream.Collectors;
 
 @Service
 public class VnPayService {
-    final IOrderService orderService;
     final IOrderRepository orderRepository;
-    final ISocketService socketService;
+    final INotificationService notificationService;
     final String OLD_FORMAT = "yyyyMMddHHmmss";
     final String NEW_FORMAT = "yyyy/MM/dd'T'HH:mm:ss";
     final String ALLOWED_STATUS[] = {"PENDING","APPROVE","PAYING","FAILED"};
-    public VnPayService(IOrderService orderService, IOrderRepository orderRepository, ISocketService socketService) {
-        this.orderService = orderService;
+    public VnPayService(IOrderRepository orderRepository, INotificationService notificationService) {
         this.orderRepository = orderRepository;
-        this.socketService = socketService;
+        this.notificationService = notificationService;
     }
 
     public String PerformTransaction(Long id, HttpServletRequest request, String url) throws UnsupportedEncodingException {
@@ -92,7 +93,8 @@ public class VnPayService {
         String vnp_SecureHash = VnPayUtils.hmacSHA512(VnPayUtils.vnp_HashSecret,hashData.toString());
         curOrder.setStatus(EStatusOrder.PAYING.toString());
         curOrder.setRedirectUrl(url);
-//        socketService.sendOrderNotificationForSingleUser(orderRepository.save(curOrder),curOrder.getCreatedBy().getId(),"abcdef.com.vn", "Don hang dang trong qua trinh thanh toan: ");
+        orderRepository.save(curOrder);
+        this.notificationService.addForSpecificUser(SocketNotificationModel.builder().category(ENotificationCategory.ORDER).title("Don hang #".concat(curOrder.getUuid()).concat(" dang duoc thanh toan")).contentExcerpt("").url(OrderEntity.ORDER_URL).build(),List.of(curOrder.getCreatedBy().getId()));
         queryUrl += "&vnp_SecureHash=" + vnp_SecureHash;
         String paymentUrl = VnPayUtils.vnp_Url + "?" + queryUrl;
         return paymentUrl;
@@ -100,7 +102,7 @@ public class VnPayService {
         else
         return null;
     }
-    public PaymentResultDto getTransactionResult(HttpServletRequest request) throws UnsupportedEncodingException {
+    public PaymentResultDto getTransactionResult(HttpServletRequest request, HttpServletResponse response) throws UnsupportedEncodingException {
         try {
 
         /*  IPN URL: Record payment results from VNPAY
@@ -196,42 +198,48 @@ public class VnPayService {
                                 resultDto.setTransactionNo(String.valueOf(fields.get("vnp_TransactionNo")));
 //                                resultDto.set(String.valueOf(fields.get("vnp_TransactionNo")));
                                 resultDto.setStatus("SUCCESS");
+                                resultDto.setUrl(order.getRedirectUrl());
                                 order.setTransactionNo(String.valueOf(fields.get("vnp_TransactionNo")));
                                 order.setStatus(EStatusOrder.PAID.toString());
+                                orderRepository.save(order);
+                                this.notificationService.addForSpecificUser(SocketNotificationModel.builder().category(ENotificationCategory.ORDER).title("Don hang #".concat(order.getUuid()).concat(" da duoc thanh toan")).contentExcerpt("").url(resultDto.getUrl()).build(),List.of(order.getCreatedBy().getId()));
 //                                socketService.sendOrderNotificationForSingleUser(orderRepository.save(order),order.getCreatedBy().getId(),"abcdef.com.vn", "Don hang da duoc thanh toan: ");
                                 System.out.print("{\"RspCode\":\"00\",\"Message\":\"Confirm Success\"}");
                                 return resultDto;
                                 //Update DB When success
                             } else {
                                 orderRepository.changeOrderStatusByID(EStatusOrder.FAILED.toString(), order.getId());
+                                this.notificationService.addForSpecificUser(SocketNotificationModel.builder().category(ENotificationCategory.ORDER).title("Don hang #".concat(order.getUuid()).concat(" thanh toan that bai")).contentExcerpt("").url(OrderEntity.ORDER_URL).build(),List.of(order.getCreatedBy().getId()));
                                 System.out.print("{\"RspCode\":\"00\",\"Message\":\"Confirm Success\"}");
                                 return null;
                             }
                         } else {
                             System.out.print("{\"RspCode\":\"02\",\"Message\":\"Order already confirmed\"}");
                             orderRepository.changeOrderStatusByID(EStatusOrder.FAILED.toString(), order.getId());
-//                            socketService.sendOrderNotificationForSingleUser(order,order.getCreatedBy().getId(),"asdas.com.vn","Thanh toan that bai! Don hang: ");
+                            this.notificationService.addForSpecificUser(SocketNotificationModel.builder().category(ENotificationCategory.ORDER).title("Don hang #".concat(order.getUuid()).concat(" thanh toan that bai")).contentExcerpt("").url(OrderEntity.ORDER_URL).build(),List.of(order.getCreatedBy().getId()));
                             return null;
                         }
                     } else {
                         System.out.print("{\"RspCode\":\"04\",\"Message\":\"Invalid Amount\"}");
                         orderRepository.changeOrderStatusByID(EStatusOrder.FAILED.toString(), order.getId());
-//                        socketService.sendOrderNotificationForSingleUser(order,order.getCreatedBy().getId(),"asdas.com.vn", "Thanh toan that bai! Don hang: ");
+                        this.notificationService.addForSpecificUser(SocketNotificationModel.builder().category(ENotificationCategory.ORDER).title("Don hang #".concat(order.getUuid()).concat(" thanh toan that bai")).contentExcerpt("").url(OrderEntity.ORDER_URL).build(),List.of(order.getCreatedBy().getId()));
                         return null;
                     }
                 } else {
                     System.out.print("{\"RspCode\":\"01\",\"Message\":\"Order not Found\"}");
                     orderRepository.changeOrderStatusByID(EStatusOrder.FAILED.toString(), order.getId());
-//                    socketService.sendOrderNotificationForSingleUser(order,order.getCreatedBy().getId(),"asdas.com.vn", "Thanh toan that bai! Don hang: ");
+                    this.notificationService.addForSpecificUser(SocketNotificationModel.builder().category(ENotificationCategory.ORDER).title("Don hang #".concat(order.getUuid()).concat(" thanh toan that bai")).contentExcerpt("").url(OrderEntity.ORDER_URL).build(),List.of(order.getCreatedBy().getId()));
                     return null;
                 }
             } else {
                 System.out.print("{\"RspCode\":\"97\",\"Message\":\"Invalid Checksum\"}");
                 return null;
+
             }
         } catch (Exception e) {
+            e.printStackTrace();
             System.out.print("{\"RspCode\":\"99\",\"Message\":\"Unknow error\"}");
+            return null;
         }
-        return null;
     }
 }

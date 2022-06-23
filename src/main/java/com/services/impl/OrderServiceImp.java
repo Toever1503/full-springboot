@@ -1,11 +1,14 @@
 package com.services.impl;
 
+import com.dtos.ENotificationCategory;
 import com.dtos.EStatusOrder;
 import com.entities.*;
 import com.models.OrderModel;
+import com.models.SocketNotificationModel;
 import com.repositories.IOptionsRepository;
 import com.repositories.IOrderDetailRepository;
 import com.repositories.IOrderRepository;
+import com.repositories.IUserRepository;
 import com.services.*;
 import com.utils.SecurityUtils;
 import org.springframework.data.domain.Page;
@@ -23,16 +26,18 @@ public class OrderServiceImp implements IOrderService {
     private final ICartService cartService;
     private final IOptionsRepository optionsRepository;
     private final IAddressService addressService;
-    private final ISocketService socketService;
+    private final INotificationService notificationService;
+    private final IUserRepository userRepository;
 
 
-    public OrderServiceImp(IOrderRepository orderRepository, IOrderDetailRepository orderDetailRepository, ICartService cartService, IOptionsRepository optionsRepository, IAddressService addressService, ISocketService socketService) {
+    public OrderServiceImp(IOrderRepository orderRepository, IOrderDetailRepository orderDetailRepository, ICartService cartService, IOptionsRepository optionsRepository, IAddressService addressService, INotificationService notificationService, IUserRepository userRepository) {
         this.orderRepository = orderRepository;
         this.orderDetailRepository = orderDetailRepository;
         this.cartService = cartService;
         this.optionsRepository = optionsRepository;
         this.addressService = addressService;
-        this.socketService = socketService;
+        this.notificationService = notificationService;
+        this.userRepository = userRepository;
     }
 
     @Override
@@ -103,7 +108,8 @@ public class OrderServiceImp implements IOrderService {
         orderEntity.setTotalPrices(totalPrices);
         orderEntity.setOrderDetails(orderDetailEntities);
         orderEntity.setCreatedBy(SecurityUtils.getCurrentUser().getUser());
-//        socketService.sendOrderNotificationForSingleUser(orderEntity,orderEntity.getCreatedBy().getId(),"abcd.com","Don hang da duoc tao: ");
+
+        this.notificationService.addForSpecificUser(new SocketNotificationModel(null, "Bạn có đơn hàng mới!, #".concat(orderEntity.getUuid()), "", ENotificationCategory.ORDER,OrderEntity.ADMIN_ORDER_URL), this.userRepository.getAllIdsByRole(RoleEntity.ADMINISTRATOR));
         return this.orderRepository.save(orderEntity);
     }
 
@@ -132,6 +138,7 @@ public class OrderServiceImp implements IOrderService {
         OrderEntity orderOrigin = this.findById(id);
         orderOrigin.setStatus(status);
 //        socketService.sendOrderNotificationForSingleUser(orderOrigin,orderOrigin.getCreatedBy().getId(),"abcd.com", "Don hang da duoc cap nhat: ");
+        this.notificationService.addForSpecificUser(new SocketNotificationModel(null, "Đơn hàng ".concat(orderOrigin.getUuid().concat("đã được cập nhật!")), "Đơn hàng ".concat(" đã được chuyển trạng thái ".concat(status)), ENotificationCategory.ORDER, OrderEntity.ORDER_URL), List.of(orderOrigin.getCreatedBy().getId()));
         return this.orderRepository.save(orderOrigin);
     }
 
@@ -140,11 +147,13 @@ public class OrderServiceImp implements IOrderService {
         OrderEntity orderOrigin = this.findById(id);
         if (orderOrigin.getStatus().equals(EStatusOrder.PENDING.toString())) {
             orderOrigin.setStatus(EStatusOrder.CANCELED.name());
-//            socketService.sendOrderNotificationForSingleUser(orderOrigin,orderOrigin.getCreatedBy().getId(),"abcd.com", "Don hang da bi huy");
+            if (SecurityUtils.hasRole(RoleEntity.ADMINISTRATOR))
+                this.notificationService.addForSpecificUser(new SocketNotificationModel(null, "Đơn hàng ".concat(orderOrigin.getUuid().concat("đã bị hủy!")), "",ENotificationCategory.ORDER, OrderEntity.ORDER_URL), List.of(orderOrigin.getCreatedBy().getId()));
             return this.orderRepository.save(orderOrigin);
         } else if (orderOrigin.getStatus().equals(EStatusOrder.PAID.toString())) {
             orderOrigin.setStatus(EStatusOrder.REFUNDING.name());
-//            socketService.sendOrderNotificationForSingleUser(orderOrigin,orderOrigin.getCreatedBy().getId(),"abcd.com", "Don hang da bi huy");
+            if (SecurityUtils.hasRole(RoleEntity.ADMINISTRATOR))
+                this.notificationService.addForSpecificUser(new SocketNotificationModel(null, "Đơn hàng ".concat(orderOrigin.getUuid().concat("đã bị hủy!")), "",ENotificationCategory.ORDER, OrderEntity.ORDER_URL), List.of(orderOrigin.getCreatedBy().getId()));
             return this.orderRepository.save(orderOrigin);
         }
         throw new RuntimeException("Order can't cancel, id: " + id);
@@ -179,7 +188,7 @@ public class OrderServiceImp implements IOrderService {
         OrderEntity orderEntity = this.findById(id);
         orderEntity.setDeliveryCode(deliveryCode);
         orderEntity.setStatus(EStatusOrder.DELIVERING.name());
-//        socketService.sendOrderNotificationForSingleUser(orderEntity,orderEntity.getCreatedBy().getId(),"abcd.com", "Da cap nhat ma van chuyen cho don hang: ");
+        this.notificationService.addForSpecificUser(new SocketNotificationModel(null, "Đơn hàng ".concat(orderEntity.getUuid().concat("đã được cập nhật!")), "Đơn hàng ".concat(orderEntity.getUuid().concat("đã được cập nhật mã vận chuyển!")), ENotificationCategory.ORDER, OrderEntity.ORDER_DETAIL_URL), List.of(orderEntity.getCreatedBy().getId()));
         return this.orderRepository.save(orderEntity);
     }
 }

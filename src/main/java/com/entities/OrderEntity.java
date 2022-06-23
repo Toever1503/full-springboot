@@ -70,4 +70,8 @@ public class OrderEntity {
     @OneToMany( cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "order_id")
     private List<OrderDetailEntity> orderDetails;
+
+    public static String ORDER_DETAIL_URL = "http://localhost:8080/order-detail/";
+    public static String ORDER_URL = "http://localhost:8080/order-detail/";
+    public static String ADMIN_ORDER_URL = "http://localhost:8080/order-detail/";
 }

@@ -58,6 +58,8 @@ public class ReviewEntity {
     @JoinColumn(name = "order_detail_id")
     private OrderDetailEntity orderDetail;
 
-    public static String FOLDER = "/review/";
+    public static final String FOLDER = "/review/";
+    public static final String REVIEW_URL = "/review/";
+    public static final String ADMIN_REVIEW_URL = "/review/";
 
 }

@@ -52,4 +52,5 @@ public class QuestionEntity {
     private Integer limitEditMin;
 
     public static final String FOLDER = "/question/";
+    public static final String QUESTION_URL = "/question";
 }

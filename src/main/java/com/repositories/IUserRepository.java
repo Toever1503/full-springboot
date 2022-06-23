@@ -12,20 +12,25 @@ import java.util.Optional;
 import java.util.Set;
 
 
-public interface IUserRepository extends JpaRepository<UserEntity,Long>, JpaSpecificationExecutor<UserEntity> {
+public interface IUserRepository extends JpaRepository<UserEntity, Long>, JpaSpecificationExecutor<UserEntity> {
     UserEntity findUserEntityByEmail(String email);
 
     UserEntity findUserEntityByUserName(String username);
 
     Optional<UserEntity> findByMainAddress(Long id);
+
     UserEntity findByUserName(String username);
 
     UserEntity findByEmail(String email);
+
     //Get all userId
     @Query("select u.id from UserEntity u")
     List<Long> getAllId();
 
     UserEntity findByPhone(String phone);
+
+    @Query(value = "select u.id tbl_user as u join user_role as ur on ur.user_id=u.id join tbl_role as r on r.id = ur.role_id where r.role_name = ?1", nativeQuery = true)
+    List<Long> getAllIdsByRole(String role);
 
     Optional<UserEntity> findUserEntityByUserNameOrEmail(String userName, String userName1);
 }

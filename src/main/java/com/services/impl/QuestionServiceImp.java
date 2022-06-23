@@ -1,16 +1,16 @@
 package com.services.impl;
 
+import com.dtos.ENotificationCategory;
 import com.dtos.EStatusQuestion;
 import com.entities.QuestionEntity;
 import com.entities.RoleEntity;
 import com.entities.UserEntity;
 import com.models.QuestionModel;
 import com.models.QuestionResponseModel;
+import com.models.SocketNotificationModel;
 import com.repositories.IQuestionRepository;
-import com.services.IQuestionService;
-import com.services.ISocketService;
-import com.services.IUserService;
-import com.services.MailService;
+import com.repositories.IUserRepository;
+import com.services.*;
 import com.utils.FileUploadProvider;
 import com.utils.SecurityUtils;
 import org.json.JSONObject;
@@ -30,14 +30,19 @@ public class QuestionServiceImp implements IQuestionService {
     final IQuestionRepository questionRepository;
     final IUserService userService;
     final FileUploadProvider fileUploadProvider;
-    final ISocketService socketService;
+    final ISocketService socketService; // remove this line later
+    final INotificationService notificationService;
+
+    private final IUserRepository userRepository;
     final MailService mailService;
 
-    public QuestionServiceImp(IQuestionRepository questionRepository, IUserService userService, FileUploadProvider fileUploadProvider, ISocketService socketService, MailService mailService) {
+    public QuestionServiceImp(IQuestionRepository questionRepository, IUserService userService, FileUploadProvider fileUploadProvider, ISocketService socketService, INotificationService notificationService, IUserRepository userRepository, MailService mailService) {
         this.questionRepository = questionRepository;
         this.userService = userService;
         this.fileUploadProvider = fileUploadProvider;
         this.socketService = socketService;
+        this.notificationService = notificationService;
+        this.userRepository = userRepository;
         this.mailService = mailService;
     }
 
@@ -80,7 +85,7 @@ public class QuestionServiceImp implements IQuestionService {
         }
         questionEntity.setStatus(EStatusQuestion.PENDING.name());
         questionEntity.setCreatedBy(SecurityUtils.getCurrentUser().getUser());
-//        socketService.sendQuestionNotificationForSingleUser(questionEntity,questionEntity.getCreatedBy().getId(),"created.com.vn", "Cau hoi da duoc gui len thanh cong: ");
+        notificationService.addForSpecificUser(new SocketNotificationModel(null, "Bạn có câu hỏi mới!", "", ENotificationCategory.QUESTION,QuestionEntity.QUESTION_URL), this.userRepository.getAllIdsByRole(RoleEntity.ADMINISTRATOR));
         return this.questionRepository.save(questionEntity);
     }
 
@@ -124,7 +129,6 @@ public class QuestionServiceImp implements IQuestionService {
             originalQuestion.setCreatedBy(userEntity);
             originalQuestion.setTitle(model.getTitle());
             originalQuestion.setQuestContent(model.getQuestContent());
-//            socketService.sendQuestionNotificationForSingleUser(originalQuestion,originalQuestion.getCreatedBy().getId(),"editted.com.vn","Cau hoi da duoc cap nhat: ");
             return this.questionRepository.save(originalQuestion);
         }
         else
@@ -139,7 +143,6 @@ public class QuestionServiceImp implements IQuestionService {
             if (questionEntity.getQuestFile() != null) {
                 new JSONObject(questionEntity.getQuestFile()).getJSONArray("files").toList().forEach(u -> fileUploadProvider.deleteFile(u.toString()));
             }
-//            socketService.sendQuestionNotificationForSingleUser(questionEntity,questionEntity.getCreatedBy().getId(),"answered.com.vn","Cau hoi da bi xoa: ");
             questionRepository.deleteById(id);
             return true;
         }
@@ -179,7 +182,7 @@ public class QuestionServiceImp implements IQuestionService {
         question.setStatus(EStatusQuestion.COMPLETED.toString());
         question = questionRepository.save(question);
         notifyUser(model.getUrl(), question);
-//        socketService.sendQuestionNotificationForSingleUser(question,question.getCreatedBy().getId(), model.getUrl(), "Cau hoi da duoc giai dap: ");
+        notificationService.addForSpecificUser(new SocketNotificationModel(null, "Admin đã phản hồi lại câu hỏi của bạn!", "", ENotificationCategory.QUESTION, QuestionEntity.QUESTION_URL), List.of(question.getCreatedBy().getId()));
         return question;
     }
 
