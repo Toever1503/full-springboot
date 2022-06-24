@@ -32,7 +32,7 @@ public class CategoryResources {
     }
 
     @Transactional(rollbackFor = RuntimeException.class)
-    @GetMapping("/{id}")
+    @GetMapping("/get-by-id/{id}")
     public ResponseDto findById(@PathVariable("id") Long id) {
         return ResponseDto.of(CategoryDto.toDto(categoryService.findById(id), false), "get category success");
     }
