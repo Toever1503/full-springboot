@@ -48,7 +48,7 @@ public class VnPayService {
         vnp_Params.put("vnp_Version",VnPayUtils.vnp_Version);
         vnp_Params.put("vnp_Command",VnPayUtils.vnp_Command);
         vnp_Params.put("vnp_TmnCode",VnPayUtils.vnp_TmnCode);
-        vnp_Params.put("vnp_Amount",String.valueOf(curOrder.getTotalPrices().intValue()*100));
+        vnp_Params.put("vnp_Amount",String.valueOf(curOrder.getTotalPrices().longValue()*100));
         vnp_Params.put("vnp_BankCode", VnPayUtils.vnp_BankCode);
         vnp_Params.put("vnp_CreateDate", vnp_CreateDate);
         vnp_Params.put("vnp_CurrCode",VnPayUtils.vnp_CurrCode);
