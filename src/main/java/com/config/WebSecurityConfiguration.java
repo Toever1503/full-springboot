@@ -43,10 +43,13 @@ public class WebSecurityConfiguration {
             new AntPathRequestMatcher("/webjars/**"),
 
             new AntPathRequestMatcher("/transaction/result**"),
-            new AntPathRequestMatcher("/categories/all-parent-categories"),
             new AntPathRequestMatcher("/products/get-all"),
             new AntPathRequestMatcher("/products/get-by-id/**"),
+            new AntPathRequestMatcher("/categories/all-parent-categories"),
             new AntPathRequestMatcher("/categories/slug/**"),
+            new AntPathRequestMatcher("/categories/get-all-categories"),
+            new AntPathRequestMatcher("/categories/get-by-id/**"),
+            new AntPathRequestMatcher("/categories/**/children"),
             new AntPathRequestMatcher("/reviews/product/**"),
             new AntPathRequestMatcher("/reviews/filter", "POST"),
             new AntPathRequestMatcher("/reviews/reply/**", "GET")
