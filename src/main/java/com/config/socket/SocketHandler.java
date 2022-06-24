@@ -1,5 +1,6 @@
 package com.config.socket;
 
+import com.config.socket.exception.ChatRoomException;
 import com.dtos.NotificationDto;
 import com.dtos.SocketDtos.NotificationSocketDto;
 import com.entities.NotificationEntity;
@@ -101,7 +102,11 @@ public class SocketHandler implements WebSocketHandler {
 
     @Override
     public void handleTransportError(WebSocketSession session, Throwable exception) throws Exception {
-
+        if (exception.getClass().getClass().equals(ChatRoomException.class)) {
+            ChatRoomException chatRoomException = (ChatRoomException) exception;
+            TextMessage message = new TextMessage(chatRoomException.toJson());
+            session.sendMessage(message);
+        }
     }
 
     @Override
@@ -180,6 +185,7 @@ public class SocketHandler implements WebSocketHandler {
             socketMessage.getUidSet().forEach(uId -> this.sendMessage(userSessions.get(uId), mss));
         }
     }
+
     public void publishNotification(SocketNotificationModel notification, List<Long> uIds) {
         NotificationSocketMessage notificationSocketMessage = new NotificationSocketMessage("notification", notification);
         WebSocketMessage mss = new TextMessage(new JSONObject(notificationSocketMessage).toString());
