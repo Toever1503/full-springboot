@@ -81,7 +81,7 @@ public class ReviewServiceImpl implements IReviewService {
         if (orderEntity == null) {
             throw new RuntimeException("Order not found");
         } else {
-            if (orderEntity.getCreatedBy().getId() == SecurityUtils.getCurrentUserId() && orderEntity.getStatus().equals(EStatusOrder.COMPLETED.name())) {
+            if (orderEntity.getCreatedBy().getId().equals(SecurityUtils.getCurrentUserId()) && orderEntity.getStatus().equals(EStatusOrder.COMPLETED.name())) {
                 reviewEntity.setCreatedBy(SecurityUtils.getCurrentUser().getUser());
 
                 orderDetailEntity.getProductId().getOptions().stream().forEach(option -> {
