@@ -21,8 +21,8 @@ public class WebSocketConfig implements WebSocketConfigurer {
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
         registry.addHandler(socketHandler, "/socket")
                 .setAllowedOrigins("http://localhost:8080",
-                        "http://13.124.42.111",
-                        "http://13.124.42.111:3000",
+                        "http://3.39.194.216",
+                        "http://3.39.194.216:3000",
                         "http://192.168.1.44:8080",
                         "http://192.168.1.44:8081");
     }
