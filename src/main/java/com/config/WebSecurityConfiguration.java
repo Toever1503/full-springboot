@@ -45,6 +45,8 @@ public class WebSecurityConfiguration {
             new AntPathRequestMatcher("/transaction/result**"),
             new AntPathRequestMatcher("/products/get-all"),
             new AntPathRequestMatcher("/products/get-by-id/**"),
+            new AntPathRequestMatcher("/products/filter"),
+
             new AntPathRequestMatcher("/categories/all-parent-categories"),
             new AntPathRequestMatcher("/categories/slug/**"),
             new AntPathRequestMatcher("/categories/get-all-categories"),
