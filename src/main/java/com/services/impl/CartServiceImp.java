@@ -60,7 +60,7 @@ public class CartServiceImp implements ICartService {
         // check product exist into cart by product id and option id
         CartEntity cartOrigin = this.cartRepository.findAllByProductIdAndOptionId(model.getProductId(), model.getOptionId());
         if(cartOrigin != null){
-            if(cartOrigin.getUser().getId() == SecurityUtils.getCurrentUserId()) {
+            if(cartOrigin.getUser().getId().equals(SecurityUtils.getCurrentUserId())) {
                 cartOrigin.setQuantity(cartOrigin.getQuantity() + model.getQuantity());
                 return this.cartRepository.save(cartOrigin);
             }

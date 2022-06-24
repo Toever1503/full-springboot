@@ -81,13 +81,13 @@ public class ReviewServiceImpl implements IReviewService {
         if (orderEntity == null) {
             throw new RuntimeException("Order not found");
         } else {
-            if (orderEntity.getCreatedBy().getId() == SecurityUtils.getCurrentUserId() && orderEntity.getStatus().equals(EStatusOrder.COMPLETED.name())) {
+            if (orderEntity.getCreatedBy().getId().equals(SecurityUtils.getCurrentUserId()) && orderEntity.getStatus().equals(EStatusOrder.COMPLETED.name())) {
                 reviewEntity.setCreatedBy(SecurityUtils.getCurrentUser().getUser());
 
                 orderDetailEntity.getProductId().getOptions().stream().forEach(option -> {
                     List<OptionEntity> optionEntities = this.optionRepository.findByOptionName(orderDetailEntity.getOptionId());
                     optionEntities.stream().forEach(optionEntity -> {
-                        if (optionEntity.getId() == option.getId()) {
+                        if (optionEntity.getId().equals(option.getId())) {
                             reviewEntity.setOptionName(optionEntity.getOptionName());
                         }
                     });
@@ -144,7 +144,7 @@ public class ReviewServiceImpl implements IReviewService {
         ReviewEntity updateReview = ReviewModel.toEntity(model);
         updateReview.setParentReview(null);
 
-        if (originReview.getStatus().equalsIgnoreCase(EStatusReview.PENDING.name()) && originReview.getCreatedBy().getId() == SecurityUtils.getCurrentUserId()) {
+        if (originReview.getStatus().equalsIgnoreCase(EStatusReview.PENDING.name()) && originReview.getCreatedBy().getId().equals(SecurityUtils.getCurrentUserId())) {
             updateReview.setCreatedBy(SecurityUtils.getCurrentUser().getUser());
             updateReview.setIsEdit(true);
             OrderDetailEntity orderDetailEntity = this.orderDetailRepository.findById(model.getOrderDetailId()).orElseThrow(() -> new RuntimeException("Order detail not found"));
