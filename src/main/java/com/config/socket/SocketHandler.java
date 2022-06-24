@@ -189,10 +189,12 @@ public class SocketHandler implements WebSocketHandler {
     }
 
     private void sendMessage(WebSocketSession session, WebSocketMessage<?> mss) {
-        try {
-            session.sendMessage(mss);
-        } catch (IOException e) {
-            e.printStackTrace();
+        if(session != null){
+            try {
+                session.sendMessage(mss);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 
