@@ -49,7 +49,7 @@ public class WebSecurityConfiguration {
             new AntPathRequestMatcher("/categories/slug/**"),
             new AntPathRequestMatcher("/reviews/product/**"),
             new AntPathRequestMatcher("/reviews/filter", "POST"),
-            new AntPathRequestMatcher("/reviews/reply/**")
+            new AntPathRequestMatcher("/reviews/reply/**", "GET")
     );
 
     private RequestMatcher PRIVATE_URLS = new NegatedRequestMatcher(PUBLIC_URLS);
