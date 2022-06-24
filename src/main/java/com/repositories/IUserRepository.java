@@ -29,7 +29,7 @@ public interface IUserRepository extends JpaRepository<UserEntity, Long>, JpaSpe
 
     UserEntity findByPhone(String phone);
 
-    @Query(value = "select u.id tbl_user as u join user_role as ur on ur.user_id=u.id join tbl_role as r on r.id = ur.role_id where r.role_name = ?1", nativeQuery = true)
+    @Query(value = "select u.id from tbl_user as u join user_role as ur on ur.user_id=u.id join tbl_role as r on r.role_id = ur.role_id  where r.role_name = ?1", nativeQuery = true)
     List<Long> getAllIdsByRole(String role);
 
     Optional<UserEntity> findUserEntityByUserNameOrEmail(String userName, String userName1);
