@@ -100,7 +100,7 @@ public class QuestionServiceImp implements IQuestionService {
     public QuestionEntity update(QuestionModel model) {
         QuestionEntity originalQuestion = this.findById(model.getId());
 
-        if(originalQuestion.getCreatedBy().getId() == SecurityUtils.getCurrentUserId()|| SecurityUtils.hasRole(RoleEntity.ADMINISTRATOR)){
+        if(originalQuestion.getCreatedBy().getId().equals(SecurityUtils.getCurrentUserId()) || SecurityUtils.hasRole(RoleEntity.ADMINISTRATOR)){
             if (originalQuestion.getStatus().equalsIgnoreCase(EStatusQuestion.COMPLETED.name()))
                 throw new RuntimeException("Question is already completed");
 
@@ -139,7 +139,7 @@ public class QuestionServiceImp implements IQuestionService {
     @Override
     public boolean deleteById(Long id) {
         QuestionEntity questionEntity = this.findById(id);
-        if(questionEntity.getCreatedBy().getId()==SecurityUtils.getCurrentUserId()||SecurityUtils.hasRole(RoleEntity.ADMINISTRATOR)){
+        if(questionEntity.getCreatedBy().getId().equals(SecurityUtils.getCurrentUserId()) || SecurityUtils.hasRole(RoleEntity.ADMINISTRATOR)){
             if (questionEntity.getQuestFile() != null) {
                 new JSONObject(questionEntity.getQuestFile()).getJSONArray("files").toList().forEach(u -> fileUploadProvider.deleteFile(u.toString()));
             }

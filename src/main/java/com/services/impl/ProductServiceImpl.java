@@ -200,7 +200,7 @@ public class ProductServiceImpl implements IProductService {
     @Override
     public boolean deleteById(Long id) {
         ProductEntity productEntity = this.findById(id);
-        if (productEntity.getCreatedBy().getId() == SecurityUtils.getCurrentUserId() || SecurityUtils.hasRole(RoleEntity.ADMINISTRATOR)) {
+        if (productEntity.getCreatedBy().getId().equals(SecurityUtils.getCurrentUserId()) || SecurityUtils.hasRole(RoleEntity.ADMINISTRATOR)) {
             productEntity.setActive(false);
             this.productRepository.save(productEntity);
             return true;

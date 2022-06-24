@@ -326,7 +326,7 @@ public class UserServiceImp implements IUserService {
     @Override
     public boolean setMainAddress(Long id) {
         UserEntity user = this.findById(SecurityUtils.getCurrentUserId());
-        if (this.addressService.findById(id).getUser().getId() == user.getId() || SecurityUtils.hasRole(RoleEntity.ADMINISTRATOR)) {
+        if (this.addressService.findById(id).getUser().getId().equals(user.getId()) || SecurityUtils.hasRole(RoleEntity.ADMINISTRATOR)) {
             user.setMainAddress(id);
             this.userRepository.save(user);
             return true;
@@ -347,7 +347,7 @@ public class UserServiceImp implements IUserService {
         // id 2 want edit address, check
         // usercreated id = 1  == 2
         Address oriAddress = this.addressService.findById(model.getId());
-        if (oriAddress.getUser().getId() == SecurityUtils.getCurrentUserId() || SecurityUtils.hasRole(RoleEntity.ADMINISTRATOR)) {
+        if (oriAddress.getUser().getId().equals(SecurityUtils.getCurrentUserId()) || SecurityUtils.hasRole(RoleEntity.ADMINISTRATOR)) {
             model.setUserId(oriAddress.getUser().getId());
             return this.addressService.update(model);
         }

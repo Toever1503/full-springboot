@@ -94,7 +94,7 @@ public class AddressServiceImpl implements IAddressService {
 
     @Override
     public boolean deleteById(Long id) {
-        if(this.findById(id).getUser().getId()== SecurityUtils.getCurrentUserId()) {
+        if(this.findById(id).getUser().getId().equals(SecurityUtils.getCurrentUserId())) {
             UserEntity currentUser = SecurityUtils.getCurrentUser().getUser();
             if(Objects.equals(currentUser.getMainAddress(), id)){
                 currentUser.setMainAddress(null);
