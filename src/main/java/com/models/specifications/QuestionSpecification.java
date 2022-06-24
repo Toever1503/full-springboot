@@ -17,7 +17,7 @@ public class QuestionSpecification extends BaseSpecification {
     public static Specification likeCreatedBy(String createdBy) {
         return (root, query, cb) -> {
             Join<QuestionEntity, UserEntity> join = root.join(QuestionEntity_.createdBy);
-            return cb.or(cb.like(join.get(UserEntity_.USER_NAME), createdBy), cb.like(join.get(UserEntity_.FULL_NAME), createdBy));
+            return cb.or(cb.like(join.get(UserEntity_.USER_NAME),"%" + createdBy + "%"), cb.like(join.get(UserEntity_.FULL_NAME),"%" + createdBy + "%"));
         };
     }
 

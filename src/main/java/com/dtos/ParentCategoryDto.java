@@ -14,7 +14,8 @@ public class ParentCategoryDto {
     private Long id;
     private String categoryName;
     private Integer deepLevel;
-    private ParentCategoryDto parentCategoryDto;
+    private String slug;
+    private ParentCategoryDto parentCategory;
 
     public static ParentCategoryDto toDto(CategoryEntity entity) {
         if (entity == null) return null;
@@ -22,7 +23,8 @@ public class ParentCategoryDto {
                 .id(entity.getId())
                 .categoryName(entity.getCategoryName())
                 .deepLevel(entity.getDeepLevel())
-                .parentCategoryDto(ParentCategoryDto.toDto(entity.getParentCategory()))
+                .parentCategory(ParentCategoryDto.toDto(entity.getParentCategory()))
+                .slug(entity.getSlug())
                 .build();
     }
 }
