@@ -63,6 +63,8 @@ public class NotificationEntity {
     @JoinColumn(name = "user_id")
     private UserEntity createdBy;
 
+
+    // this field use to separate notification for normal and socket
     @Column(name = "is_just_notice")
     private Boolean isJustNotice;
 }
