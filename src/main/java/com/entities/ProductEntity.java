@@ -75,6 +75,18 @@ public class ProductEntity {
     @OrderBy("price ASC")
     private List<ProductSkuEntity> skus;
 
+    // use to check whether product is use variation or not
+    @Column(name = "is_use_variation")
+    private Boolean isUseVariation;
+
+    // only for none variation product
+    @Column(name = "price")
+    private Double price;
+
+    // only for none variation product
+    @Column(name = "discount")
+    private Integer discount;
+
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ProductVariationEntity> variations;
 

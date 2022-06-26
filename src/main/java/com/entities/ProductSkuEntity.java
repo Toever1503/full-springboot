@@ -38,6 +38,9 @@ public class ProductSkuEntity {
     @Column(name = "image")
     private String image;
 
+    @Column(name = "inventoryQuantity")
+    private Integer inventoryQuantity;
+
     /*
      * we don't join table because we don't know how many variation values will be there for a product sku. so we use skuCode instead
      */

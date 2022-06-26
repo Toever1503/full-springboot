@@ -1,16 +1,22 @@
 package com.entities;
 
 import lombok.*;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.*;
+import java.util.Date;
+import java.util.List;
 
+
+/*
+ * we need cart detail to group product sku
+ */
 @AllArgsConstructor
 @NoArgsConstructor
-@Setter
-@Getter
+@Data
 @Entity
 @Builder
-@Table(name = "tbl_cart", uniqueConstraints = {@UniqueConstraint(columnNames = {"sku_id", "user_id", "cart_id"})})
+@Table(name = "tbl_cart")
 public class CartEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -18,12 +24,17 @@ public class CartEntity {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "sku_id")
-    @OrderBy("product.id ASC") // sort by product id ASC
-    private ProductSkuEntity sku;
+    @JoinColumn(name = "product_id")
+    private ProductEntity product;
 
-    @Column(name = "quantity")
-    private Integer quantity;
+    @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OrderBy("updatedDate desc")
+    private List<CartDetailEntity> cartDetails;
+
+    @UpdateTimestamp
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "updatedDate") // use updatedDate to sort the latest product sku which added to cart
+    private Date updatedDate;
 
     @ManyToOne
     @JoinColumn(name = "user_id")
