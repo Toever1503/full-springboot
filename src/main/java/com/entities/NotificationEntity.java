@@ -21,6 +21,7 @@ public class NotificationEntity {
     public static final String FOLDER = "notification/";
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "notification_id")
     private Long id;
     @Column(name = "image")
     private String image;
@@ -58,8 +59,10 @@ public class NotificationEntity {
     @Temporal(javax.persistence.TemporalType.TIMESTAMP)
     @Column(name = "future_date")
     private Date futureDate;
-
     @ManyToOne
     @JoinColumn(name = "user_id")
     private UserEntity createdBy;
+
+    @Column(name = "is_just_notice")
+    private Boolean isJustNotice;
 }

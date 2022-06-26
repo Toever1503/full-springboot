@@ -18,18 +18,22 @@ import java.util.List;
 public class OrderEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "order_id")
     private Long id;
     @Column(name = "order_code", unique = true)
     private String uuid;
 
     @Column(name = "payment_method")
     private String paymentMethod;
+
     @Column(name = "note")
     private String note;
     @Column(name = "total_prices")
     private Double totalPrices;
+
     @Column(name = "total_products")
     private Integer totalNumberProducts;
+
     @Column(name = "status")
     private String status;
 
@@ -47,6 +51,7 @@ public class OrderEntity {
 
     @Column(name = "transaction_no")
     private String transactionNo;
+
     @Column(name = "redirect_url")
     private String redirectUrl;
 
@@ -54,6 +59,7 @@ public class OrderEntity {
     @Column(name = "created_date")
     @Temporal(javax.persistence.TemporalType.TIMESTAMP)
     private Date createdDate;
+
     @UpdateTimestamp
     @Column(name = "updated_date")
     @Temporal(javax.persistence.TemporalType.TIMESTAMP)

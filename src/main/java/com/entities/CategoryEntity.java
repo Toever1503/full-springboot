@@ -17,6 +17,7 @@ import java.util.List;
 public class CategoryEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "category_id")
     private Long id;
     @Column(name = "category_name")
     private String categoryName;
@@ -29,6 +30,10 @@ public class CategoryEntity {
 
     @Column(name = "deep_level")
     private Integer deepLevel;
+
+    @Column(name = "type")
+    private String type;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "parent_id")
     private CategoryEntity parentCategory;
@@ -36,6 +41,4 @@ public class CategoryEntity {
     @OneToMany(mappedBy = "parentCategory", fetch = FetchType.LAZY)
     private List<CategoryEntity> childCategories;
 
-    @OneToMany(mappedBy = "category")
-    private List<ProductEntity> products;
 }

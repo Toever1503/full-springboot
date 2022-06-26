@@ -18,6 +18,7 @@ import java.util.Set;
 public class ProductEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "product_id")
     private Long id;
     @Column(name = "name")
     private String name;
@@ -36,8 +37,13 @@ public class ProductEntity {
     @Column(name = "attach_files")
     private String attachFiles;
 
-    @Column(name = "active")
-    private Boolean active;
+
+    /*
+     * soft delete
+     * range: draft, published, deleted
+     */
+    @Column(name = "status")
+    private String status;
 
     @ManyToOne
     @JoinColumn(name = "user_id")
@@ -57,24 +63,28 @@ public class ProductEntity {
     @JoinColumn(name = "category_id")
     private CategoryEntity category;
 
+    @ManyToOne
+    @JoinColumn(name = "industry_id")
+    private CategoryEntity industryId;
+
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "product_id")
     private List<ProductMetaEntity> productMetas;
 
-    @OneToMany( cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "product_id")
-    @OrderBy("newPrice ASC")
-    private List<OptionEntity> options;
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OrderBy("price ASC")
+    private List<ProductSkuEntity> skus;
+
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ProductVariationEntity> variations;
 
     @ManyToMany(
             cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.DETACH})
     @JoinTable(name = "tbl_tag_products",
-            joinColumns = @JoinColumn(name="products_id"),
-            inverseJoinColumns = @JoinColumn(name="tags_id")
+            joinColumns = @JoinColumn(name = "products_id"),
+            inverseJoinColumns = @JoinColumn(name = "tags_id")
     )
     private Set<TagEntity> tags;
-
-
 
     public static String FOLDER = "/product/";
 }

@@ -1,5 +1,6 @@
 package com.entities;
 
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -12,19 +13,17 @@ import javax.persistence.*;
 @Data
 @Builder
 @Entity
-@Table(name = "tbl_user_like_product")
-public class UserLikeProductEntity {
+@Table(name = "tbl_product_variation_values")
+public class ProductVariationValueEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "user_like_product_id")
+    @Column(name = "variation_value_id")
     private Long id;
 
-    @Column(name = "user_id")
-    private Long userId;
+    @Column(name = "value")
+    private String value;
 
-    @Column(name = "product_id")
-    private Long productId;
-
-    @Column(name = " is_like")
-    private Boolean isLike;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "variation_id")
+    private ProductVariationEntity variation;
 }

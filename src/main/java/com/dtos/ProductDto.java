@@ -1,11 +1,6 @@
 package com.dtos;
 
-import com.entities.OptionEntity;
 import com.entities.ProductEntity;
-import com.entities.ProductMetaEntity;
-import com.models.OptionModel;
-import com.models.ProductMetaModel;
-import com.models.TagModel;
 import lombok.*;
 import org.json.JSONObject;
 
@@ -30,7 +25,6 @@ public class ProductDto {
     private List<Object> attachFiles;
     private CategoryDto category;
     private List<ProductMetaDto> productMetas;
-    private List<OptionDto> options;
     private Set<TagDto> tags;
     private Boolean active;
 
@@ -46,12 +40,10 @@ public class ProductDto {
         productDto.setTotalReview(entity.getTotalReview());
         productDto.setRating(entity.getRating());
         productDto.setAvatar(entity.getImage());
-        productDto.setActive(entity.getActive());
         productDto.setAttachFiles(entity.getAttachFiles() != null ? new JSONObject(entity.getAttachFiles()).getJSONArray("files").toList() : null);
 
         productDto.setCategory(entity.getCategory() == null ? null : CategoryDto.toDto(entity.getCategory(), false));
         productDto.setProductMetas(entity.getProductMetas().isEmpty() ? null : entity.getProductMetas().stream().map(ProductMetaDto::toDto).collect(Collectors.toList()));
-        productDto.setOptions(entity.getOptions().isEmpty() ? null : entity.getOptions().stream().map(OptionDto::toDto).collect(Collectors.toList()));
         productDto.setTags(entity.getTags().isEmpty() ? null : entity.getTags().stream().map(TagDto::toTagDto).collect(Collectors.toSet()));
         return productDto;
     }

@@ -39,8 +39,6 @@ public class ProductModel {
     @ApiModelProperty(notes = "list product metas", dataType = "List<ProductMeta>", example = "Object productMetas")
     private List<ProductMetaModel> productMetas;
 
-    @ApiModelProperty(notes = "list product options", dataType = "List<Option>", example = "Object product Options")
-    private List<OptionModel> options;
 
     @ApiModelProperty(notes = "list product tag", dataType = "List<Tag>", example = "Object product tag")
     private List<TagModel> tags;
@@ -58,7 +56,6 @@ public class ProductModel {
                 .totalLike(0)
                 .totalReview(0)
                 .rating(0F)
-                .active(true)
                 .build();
     }
 }

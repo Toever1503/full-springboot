@@ -16,13 +16,14 @@ import javax.persistence.*;
 public class ProductMetaEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "product_meta_id")
     private Long id;
     @Column(name = "meta_key")
     private String metaKey;
     @Column(name = "meta_value")
     private String metaValue;
 
-//    @ManyToOne
+    //    @ManyToOne
     @Column(name = "product_id")
     private Long productId;
 }

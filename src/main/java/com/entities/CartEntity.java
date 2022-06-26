@@ -10,19 +10,20 @@ import javax.persistence.*;
 @Getter
 @Entity
 @Builder
-@Table(name = "tbl_cart",  uniqueConstraints = { @UniqueConstraint(columnNames = { "option_id", "user_id", "product_id" }) })
+@Table(name = "tbl_cart", uniqueConstraints = {@UniqueConstraint(columnNames = {"sku_id", "user_id", "cart_id"})})
 public class CartEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "cart_id")
     private Long id;
-    @Column(name = "option_id")
-    private Long optionId;
-    @Column(name = "quantity")
-    private Integer quantity;
 
     @ManyToOne
-    @JoinColumn(name = "product_id")
-    private ProductEntity product;
+    @JoinColumn(name = "sku_id")
+    @OrderBy("product.id ASC") // sort by product id ASC
+    private ProductSkuEntity sku;
+
+    @Column(name = "quantity")
+    private Integer quantity;
 
     @ManyToOne
     @JoinColumn(name = "user_id")

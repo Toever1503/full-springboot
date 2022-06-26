@@ -17,6 +17,7 @@ import java.util.Date;
 public class QuestionEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "question_id")
     private Long id;
     @Column(name = "category")
     private String category;

@@ -25,14 +25,7 @@ public class ProductSpecification {
         return (root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get(ProductEntity_.NAME), pName);
     }
 
-    public static Specification<ProductEntity> byActive(boolean active){
-        return (root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get(ProductEntity_.ACTIVE), active);
-    }
 
-
-    public static Specification<ProductEntity> byProductActive(Boolean pActive) {
-        return (root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get(ProductEntity_.ACTIVE), pActive);
-    }
     public static Specification<ProductEntity> byDate(DateFilterModel date) {
         return ((root, query, criteriaBuilder) -> {
             if(date.getMaxDate()!=null){
@@ -129,24 +122,6 @@ public class ProductSpecification {
         });
     }
 
-    public static Specification<ProductEntity> byPrice(PriceFilterModel price) {
-        return ((root, query, criteriaBuilder) -> {
-            Join<ProductEntity, OptionEntity> metaEntityRoot = root.join(ProductEntity_.OPTIONS);
-            if(price.getMinPrice()!=null && price.getMaxPrice()!=null){
-                return metaEntityRoot.on(criteriaBuilder.between(metaEntityRoot.get(OptionEntity_.NEW_PRICE),price.getMinPrice(),price.getMaxPrice()))
-                        .getOn();
-            }
-            else if(price.getMaxPrice()!=null){
-                return metaEntityRoot.on(criteriaBuilder.lessThanOrEqualTo(metaEntityRoot.get(OptionEntity_.NEW_PRICE),price.getMaxPrice()))
-                        .getOn();
-            }else if(price.getMinPrice()!=null){
-                return metaEntityRoot.on(criteriaBuilder.greaterThanOrEqualTo(metaEntityRoot.get(OptionEntity_.NEW_PRICE),price.getMinPrice()))
-                        .getOn();
-            }else {
-                return null;
-            }
-        });
-    }
 //    public static Specification<ProductEntity> byMaxPrice(Double maxPrice) {
 //        return ((root, query, criteriaBuilder) -> {
 //            Join<ProductEntity, OptionEntity> metaEntityRoot = root.join(OptionEntity_.PRODUCT_ID);
@@ -176,8 +151,7 @@ public class ProductSpecification {
 
         if (filter.getDate() != null)
             specifications.add(byDate(filter.getDate()));
-        if (filter.getPrice() != null)
-            specifications.add(byPrice(filter.getPrice()));
+
         if (filter.getLikeFilterModel() != null)
             specifications.add(byLike(filter.getLikeFilterModel()));
         if (filter.getReviewFilterModel() != null)
@@ -188,9 +162,6 @@ public class ProductSpecification {
             specifications.add(byMetaKey(filter.getMetaKey()));
         if (filter.getMetas() != null)
             filter.getMetas().forEach(meta -> specifications.add(byMeta(meta)));
-
-        specifications.add(byActive(true));
-
 
         Specification<ProductEntity> finalSpec = null;
         if (filter.getCategorySlugs() != null){

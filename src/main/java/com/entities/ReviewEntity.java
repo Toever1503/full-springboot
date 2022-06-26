@@ -16,6 +16,7 @@ import java.util.List;
 public class ReviewEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "review_id")
     private Long id;
     @Column(name = "option_name")
     private String optionName;

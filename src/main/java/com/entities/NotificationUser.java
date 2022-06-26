@@ -16,6 +16,7 @@ import javax.persistence.*;
 public class NotificationUser {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "notification_user_id")
     private Long id;
     @Column(name = "is_read")
     private Boolean isRead;
