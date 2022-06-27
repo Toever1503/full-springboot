@@ -61,15 +61,19 @@ public class CartServiceImpl implements ICartService {
 
         CartDetailEntity cartDetailEntity = cart.getCartDetails().stream().filter(cd -> cd.getSku().getId().equals(model.getSkuId())).findFirst().orElse(null);
 
-        if (cartDetailEntity == null) {
-            cartDetailEntity = CartDetailEntity.builder()
-                    .sku(productSkuEntity)
-                    .quantity(model.getQuantity())
-                    .cart(cart)
-                    .build();
-            cart.getCartDetails().add(cartDetailEntity);
-        } else {
-            cartDetailEntity.setQuantity(cartDetailEntity.getQuantity() + model.getQuantity());
+        if(productSkuEntity.getProduct().getId().equals(model.getProductId())) {
+            if (cartDetailEntity == null) {
+                cartDetailEntity = CartDetailEntity.builder()
+                        .sku(productSkuEntity)
+                        .quantity(model.getQuantity())
+                        .cart(cart)
+                        .build();
+                cart.getCartDetails().add(cartDetailEntity);
+            } else {
+                cartDetailEntity.setQuantity(cartDetailEntity.getQuantity() + model.getQuantity());
+            }
+        }else {
+            throw new RuntimeException("Product sku not found");
         }
 
         return this.cartRepository.save(cart);
