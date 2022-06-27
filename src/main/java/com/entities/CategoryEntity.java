@@ -38,6 +38,10 @@ public class CategoryEntity {
     @JoinColumn(name = "parent_id")
     private CategoryEntity parentCategory;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "industry_id")
+    private CategoryEntity industry;
+
     @OneToMany(mappedBy = "parentCategory", fetch = FetchType.LAZY)
     private List<CategoryEntity> childCategories;
 

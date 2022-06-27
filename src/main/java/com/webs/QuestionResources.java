@@ -35,7 +35,7 @@ public class QuestionResources {
     }
 
     @RolesAllowed("ADMINISTRATOR")
-    @Transactional(rollbackFor = RuntimeException.class)
+    @Transactional
     @PatchMapping("/answer/{qid}")
     public ResponseDto answerQuestion(@PathVariable("qid") @Valid Long qid, @Valid QuestionResponseModel model) {
         log.info("admin {} is answering question id: {%d}", SecurityUtils.getCurrentUser().getUsername(), qid);
@@ -53,28 +53,28 @@ public class QuestionResources {
         }
     }
 
-    @Transactional(rollbackFor = RuntimeException.class)
+    @Transactional
     @GetMapping("/user")
     public ResponseDto getAllMyQuestion(Pageable pageable) {
         log.info("user {} is getting all their question", SecurityUtils.getCurrentUser().getUsername());
         return ResponseDto.of(questionService.getAllMyQuestion(pageable).map(QuestionDto::toDto), "Get all my question");
     }
 
-    @Transactional(rollbackFor = RuntimeException.class)
+    @Transactional
     @GetMapping("/asked/user")
     public ResponseDto getAllAskedUser() {
         log.info("user {} is creating ask question", SecurityUtils.getCurrentUser().getUsername());
         return ResponseDto.of(questionService.getAllAskedUser(), "Get all asked user");
     }
 
-    @Transactional(rollbackFor = RuntimeException.class) // will need review later
+    @Transactional // will need review later
     @GetMapping("/user/answered")
     public ResponseDto getAllMyAnsweredQuestion(Pageable pageable) {
         log.info("admin {} is answering question id", SecurityUtils.getCurrentUser().getUsername());
         return ResponseDto.of(questionService.getAllMyAnsweredQuestion(pageable).map(TotalQuestionDto::toTotalQuestionDTO), "Get all my answered question");
     }
 
-    @Transactional(rollbackFor = RuntimeException.class) // will need review later
+    @Transactional // will need review later
     @GetMapping("/user/answered/{uid}")
     public ResponseDto getAllAnsweredQuestionByUID(@PathVariable("uid") @Valid Long uid, Pageable pageable) {
         return ResponseDto.of(questionService.getAllQuestionAnsweredByID(uid, pageable).map(TotalQuestionDto::toTotalQuestionDTO), "Get all answered question by user id");
@@ -83,7 +83,7 @@ public class QuestionResources {
 
     @RolesAllowed("ADMINISTRATOR")
     @GetMapping
-    @Transactional(rollbackFor = RuntimeException.class)
+    @Transactional
     public ResponseDto getQuestions(Pageable pageable) {
         log.info("admin {} is getting all question", SecurityUtils.getCurrentUser().getUsername());
         return ResponseDto.of(questionService.findAll(pageable).map(TotalQuestionDto::toTotalQuestionDTO), "Get questions successfully");
@@ -91,34 +91,34 @@ public class QuestionResources {
 
     @RolesAllowed("ADMINISTRATOR")
     @GetMapping("/category")
-    @Transactional(rollbackFor = RuntimeException.class)
+    @Transactional
     public ResponseDto getQuestions(@RequestParam("category") EStatusQuestion category, Pageable pageable) {
         log.info("admin {} is getting question by category", SecurityUtils.getCurrentUser().getUsername());
         return ResponseDto.of(questionService.getAllQuestionByCategory(category.name(), pageable).map(QuestionDto::toDto), "Admin Get questions by category successfully");
     }
 
     @GetMapping("/user/category")
-    @Transactional(rollbackFor = RuntimeException.class)
+    @Transactional
     public ResponseDto userGetQuestionsByCategory(@RequestParam("category") EStatusQuestion category, Pageable pageable) {
         log.info("user {} is getting question by category", SecurityUtils.getCurrentUser().getUsername());
         return ResponseDto.of(questionService.userGetAllQuestionByCategory(category.name(), pageable).map(QuestionDto::toDto), "Admin Get questions by category successfully");
     }
 
-    @Transactional(rollbackFor = RuntimeException.class)
+    @Transactional
     @GetMapping("/{id}")
     public ResponseDto findById(@PathVariable Long id) {
         log.info("admin {} is getting detail question id", SecurityUtils.getCurrentUser().getUsername());
         return ResponseDto.of(TotalQuestionDto.toTotalQuestionDTO(questionService.findById(id)), "Get question by id successfully");
     }
 
-    @Transactional(rollbackFor = RuntimeException.class)
+    @Transactional
     @GetMapping("user/{id}")
     public ResponseDto userGetDetailQuestion(@PathVariable Long id) {
         log.info("user {} is getting detail question id", SecurityUtils.getCurrentUser().getUsername());
         return ResponseDto.of(QuestionResponseDto.toDto(questionService.getQuestionByIdAndUserId(id, SecurityUtils.getCurrentUserId())), "Get question by id successfully");
     }
 
-    @Transactional(rollbackFor = RuntimeException.class)
+    @Transactional
     @PostMapping
     public ResponseDto addQuestion(@Valid QuestionModel questionModel) {
         log.info("admin {} is adding question", SecurityUtils.getCurrentUser().getUsername());
@@ -133,7 +133,7 @@ public class QuestionResources {
         return ResponseDto.of(questionDto, "Add question successfully");
     }
 
-    @Transactional(rollbackFor = RuntimeException.class)
+    @Transactional
     @PutMapping("{id}")
     public ResponseDto updateQuestion(@PathVariable Long id, @Valid QuestionModel questionModel) {
         log.info("admin {} is updating question", SecurityUtils.getCurrentUser().getUsername());
@@ -149,21 +149,21 @@ public class QuestionResources {
         return ResponseDto.of(questionDto, "Question updated successfully");
     }
 
-    @Transactional(rollbackFor = RuntimeException.class)
+    @Transactional
     @DeleteMapping("/{id}")
     public ResponseDto deleteQuestion(@PathVariable("id") Long id) {
         log.info("admin {} is deleting question id", SecurityUtils.getCurrentUser().getUsername());
         return ResponseDto.of(questionService.deleteById(id), "Question deleted successfully");
     }
 
-    @Transactional(rollbackFor = RuntimeException.class)
+    @Transactional
     @DeleteMapping("/delete-list")
     public ResponseDto DeleteQuestions(@RequestBody List<Long> ids) {
         log.info("admin {} is deleting questions by id list {}", SecurityUtils.getCurrentUser().getUsername(), ids.toString());
         return ResponseDto.of(questionService.deleteByIds(ids), "Questions deleted successfully");
     }
 
-    @Transactional(rollbackFor = RuntimeException.class)
+    @Transactional
     @PostMapping("filter")
     public ResponseDto filter(@Valid @RequestBody QuestionFilterModel model, Pageable page) {
         log.info("{} is filtering question", SecurityUtils.getCurrentUser().getUsername());

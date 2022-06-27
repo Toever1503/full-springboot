@@ -23,7 +23,6 @@ public class ProductMetaEntity {
     @Column(name = "meta_value")
     private String metaValue;
 
-    //    @ManyToOne
     @Column(name = "product_id")
     private Long productId;
 }

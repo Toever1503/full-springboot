@@ -24,7 +24,7 @@ public class ProductSkuEntity {
     /*
      *  SKU code compile from variation values id, separated by dash (-). For examples: 1-2-4-5-6-7
      * each variation value id is separated by dash (-). For examples: 1-2-4-5-6-7
-     * here is pattern for SKU code: [1-9]+-([1-9]+-)+[1-9]+
+     * here is pattern for SKU code: ([1-9]+)|([1-9]+-([1-9]+-)+[1-9]+)
      */
     @Column(name = "sku_code")
     private String skuCode;
@@ -40,6 +40,8 @@ public class ProductSkuEntity {
 
     @Column(name = "inventoryQuantity")
     private Integer inventoryQuantity;
+
+    public static final String SKU_CODE_PATTERN = "([1-9]+)|([1-9]+-([1-9]+-)+[1-9]+)";
 
     /*
      * we don't join table because we don't know how many variation values will be there for a product sku. so we use skuCode instead

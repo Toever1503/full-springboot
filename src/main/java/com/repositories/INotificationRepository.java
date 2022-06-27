@@ -21,7 +21,7 @@ public interface INotificationRepository extends JpaRepository<NotificationEntit
     //Update future notification posts native query
     @Query(value = "update tbl_notification set status = 'POSTED' where( id>0 and status = 'FUTURE' and (UNIX_TIMESTAMP(future_date)) < UNIX_TIMESTAMP(DATE_ADD(CURRENT_TIMESTAMP(), INTERVAL '0 7' DAY_HOUR)))", nativeQuery = true)
     @Modifying
-   @Transactional(rollbackFor = RuntimeException.class)
+   @Transactional
     void postCronNotifications();
 
     //Get all user's notification by userId and notification status

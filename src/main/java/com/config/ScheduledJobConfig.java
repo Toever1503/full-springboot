@@ -20,6 +20,7 @@ public class ScheduledJobConfig {
 
     @Scheduled(cron = "0 0 12 * * *")
     public void updateOrderPayStatus(){
-        orderRepository.changeOrderStatusByIDAndTime();
+        // later
+//        orderRepository.changeOrderStatusByIDAndTime();
     }
 }

@@ -11,24 +11,20 @@ import java.util.stream.Collectors;
 @Builder
 @Getter
 @Setter
-public class CategoryDto {
+public class IndustryDto {
     private Long id;
-    private String categoryName;
+    private String industryName;
     private String slug;
     private String description;
-    private ParentCategoryDto parentCategory;
     private List<CategoryDto> childCategories;
-    private Integer deepLevel;
 
-    public static CategoryDto toDto(CategoryEntity entity, boolean wantChild) {
+    public static IndustryDto toDto(CategoryEntity entity, boolean wantChild) {
         if (entity == null) return null;
-        return CategoryDto.builder()
+        return IndustryDto.builder()
                 .id(entity.getId())
-                .categoryName(entity.getCategoryName())
+                .industryName(entity.getCategoryName())
                 .slug(entity.getSlug())
                 .description(entity.getDescription())
-                .deepLevel(entity.getDeepLevel())
-                .parentCategory(entity.getParentCategory() == null ? null : ParentCategoryDto.toDto(entity.getParentCategory()))
                 .childCategories(wantChild == true ? (entity.getChildCategories() == null ? null : entity.getChildCategories().stream().map(child -> CategoryDto.toDto(child, wantChild)).collect(Collectors.toList())) : null)
                 .build();
     }
