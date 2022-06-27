@@ -3,6 +3,7 @@ package com.webs;
 import com.dtos.CartDto;
 import com.dtos.ResponseDto;
 import com.models.CartModel;
+import com.models.ChangeOptionModel;
 import com.services.ICartService;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
@@ -38,14 +39,14 @@ public class CartResources {
     }
 
     @Transactional
-    @PutMapping("sku/{id}")
-    public ResponseDto editSku(@PathVariable Long id, @RequestBody CartModel cartModel) {
-        cartModel.setId(id);
-        return ResponseDto.of(CartDto.toDto(cartService.editSku(cartModel)), "Edit Sku in Cart");
+    @PutMapping("change-option/{id}")
+    public ResponseDto editSku(@PathVariable Long id, @RequestBody ChangeOptionModel changeOptionModel) {
+        changeOptionModel.setId(id);
+        return ResponseDto.of(CartDto.toDto(cartService.changeOption(changeOptionModel)), "Edit Sku in Cart");
     }
 
     @Transactional
-    @PutMapping("quantity/{id}")
+    @PutMapping("change-quantity/{id}")
     public ResponseDto editQuantity(@PathVariable Long id, @RequestBody CartModel cartModel) {
         cartModel.setId(id);
         return ResponseDto.of(CartDto.toDto(cartService.editQuantity(cartModel)), "Edit quantity in Cart");

@@ -18,8 +18,8 @@ public class ScheduledJobConfig {
         notificationRepository.postCronNotifications();
     }
 
-    @Scheduled(cron = "0 0 12 * * *")
-    public void updateOrderPayStatus(){
-        orderRepository.changeOrderStatusByIDAndTime();
-    }
+//    @Scheduled(cron = "0 0 12 * * *")
+//    public void updateOrderPayStatus(){
+//        orderRepository.changeOrderStatusByIDAndTime();
+//    }
 }

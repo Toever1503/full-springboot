@@ -2,6 +2,7 @@ package com.services.impl;
 
 import com.entities.*;
 import com.models.CartModel;
+import com.models.ChangeOptionModel;
 import com.repositories.ICartDetailRepository;
 import com.repositories.ICartRepository;
 import com.repositories.IProductRepository;
@@ -61,7 +62,10 @@ public class CartServiceImpl implements ICartService {
 
         CartDetailEntity cartDetailEntity = cart.getCartDetails().stream().filter(cd -> cd.getSku().getId().equals(model.getSkuId())).findFirst().orElse(null);
 
-        if(productSkuEntity.getProduct().getId().equals(model.getProductId())) {
+        if (productSkuEntity.getProduct().getId().equals(model.getProductId())) {
+            if (model.getQuantity() > productSkuEntity.getInventoryQuantity()) {
+                throw new RuntimeException("Product quantity is not enough");
+            }
             if (cartDetailEntity == null) {
                 cartDetailEntity = CartDetailEntity.builder()
                         .sku(productSkuEntity)
@@ -71,8 +75,11 @@ public class CartServiceImpl implements ICartService {
                 cart.getCartDetails().add(cartDetailEntity);
             } else {
                 cartDetailEntity.setQuantity(cartDetailEntity.getQuantity() + model.getQuantity());
+                if (cartDetailEntity.getQuantity() > productSkuEntity.getInventoryQuantity()) {
+                    throw new RuntimeException("Product quantity is not enough");
+                }
             }
-        }else {
+        } else {
             throw new RuntimeException("Product sku not found");
         }
 
@@ -92,9 +99,13 @@ public class CartServiceImpl implements ICartService {
     @Override
     public boolean deleteById(Long id) {
         CartEntity originCart = this.findById(id);
-        originCart.getCartDetails().forEach(cd -> this.cartDetailRepository.delete(cd));
-        this.cartRepository.deleteById(id);
-        return true;
+        if (originCart.getUser().getId().equals(SecurityUtils.getCurrentUser().getUser().getId())) {
+            originCart.getCartDetails().forEach(cd -> this.cartDetailRepository.delete(cd));
+            this.cartRepository.deleteById(id);
+            return true;
+        } else {
+            throw new RuntimeException("You are not allowed to delete this cart");
+        }
     }
 
     @Override
@@ -103,29 +114,66 @@ public class CartServiceImpl implements ICartService {
     }
 
     @Override
-    public CartEntity editSku(CartModel model) {
+    public CartEntity changeOption(ChangeOptionModel model) {
         CartEntity originCart = this.findById(model.getId());
-        originCart.getCartDetails().stream().filter(cd -> cd.getSku().getId().equals(model.getSkuId())).findFirst().ifPresent(cd -> {
-            cd.setSku(this.productSkuRepository.findById(model.getSkuId()).orElseThrow(() -> new RuntimeException("Product sku not found")));
-        });
-        return this.cartRepository.save(originCart);
+
+        if (originCart.getUser().getId().equals(SecurityUtils.getCurrentUser().getUser().getId())) {
+            // check cart co product hay khong ?
+            if (originCart.getProduct().getId().equals(model.getProductId())) {
+                // check xem trong cart co option nay hay khong ? neu co thi se xoa sku cu va set quantity option cu co trong cart = cu + quantity option moi
+                CartDetailEntity checkedCart = originCart.getCartDetails().stream().filter(cd -> cd.getSku().getId().equals(model.getSkuIdNew())).findFirst().orElse(null);
+                if (checkedCart != null) {
+                    checkedCart.setQuantity(model.getQuantity() + checkedCart.getQuantity());
+                    if (checkedCart.getQuantity() > checkedCart.getSku().getInventoryQuantity()) {
+                        throw new RuntimeException("Product quantity is not enough");
+                    }
+                    originCart.getCartDetails().removeIf(cd -> cd.getSku().getId().equals(model.getSkuIdOld()));
+                } else {
+                    // neu khong co thi se them option moi vao cart neu nhu option do thuoc product do va xoa option cu
+                    this.productSkuRepository.findByProduct_Id(model.getProductId()).forEach(sku -> {
+                        if (sku.getId().equals(model.getSkuIdNew())) {
+                            originCart.getCartDetails().add(CartDetailEntity.builder()
+                                    .sku(sku)
+                                    .quantity(model.getQuantity() > sku.getInventoryQuantity() ? sku.getInventoryQuantity() : model.getQuantity())
+                                    .cart(originCart)
+                                    .build());
+                        }
+                    });
+                    originCart.getCartDetails().removeIf(cd -> cd.getSku().getId().equals(model.getSkuIdOld()));
+                }
+            } else {
+                throw new RuntimeException("Product not found");
+            }
+            return this.cartRepository.save(originCart);
+        } else {
+            throw new RuntimeException("You are not allowed to change this cart");
+        }
+
     }
 
     @Override
     public CartEntity editQuantity(CartModel model) {
         CartEntity originCart = this.findById(model.getId());
-        originCart.getCartDetails().stream().filter(cd -> cd.getSku().getId().equals(model.getSkuId())).findFirst().ifPresent(cd -> {
-            cd.setQuantity(model.getQuantity());
-        });
-        return this.cartRepository.save(originCart);
-    }
 
-    public static void main(String[] args) {
-        CartModel model = new CartModel();
-        model.setId(1L);
-        model.setSkuId(1L);
-        model.setQuantity(1);
-        model.setProductId(1L);
-        System.out.println(model.toString() + "o o o ");
+        if (originCart.getUser().getId().equals(SecurityUtils.getCurrentUser().getUser().getId())) {
+            if (originCart.getProduct().getId().equals(model.getProductId())) {
+                if (originCart.getProduct().getSkus().stream().filter(sku -> sku.getId().equals(model.getSkuId())).findFirst().orElse(null) == null) {
+                    throw new RuntimeException("Product sku not found");
+                }
+                originCart.getCartDetails().stream().filter(cd -> cd.getSku().getId().equals(model.getSkuId())).findFirst().ifPresent(cd -> {
+                    if (model.getQuantity() > cd.getSku().getInventoryQuantity()) {
+                        throw new RuntimeException("Product quantity is not enough");
+                    }
+                    cd.setQuantity(model.getQuantity());
+                    this.cartDetailRepository.save(cd);
+                });
+            } else {
+                throw new RuntimeException("Product not found");
+            }
+            return this.cartRepository.save(originCart);
+        } else {
+            throw new RuntimeException("You are not allowed to change this cart");
+        }
+
     }
 }
