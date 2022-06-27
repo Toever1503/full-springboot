@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.Part;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -45,6 +46,23 @@ public class FileUploadProvider {
             while (true) {
                 checkFileName.setLength(0);
                 checkFileName.append(folder).append(i++).append(file.getOriginalFilename());
+                if (!isFileExist(file.toString()))
+                    break;
+            }
+        }
+        String filePath = checkFileName.toString();
+        s3Client.putObject(this.bucket, filePath, file.getInputStream(), null);
+        return bucketEndpoint + filePath;
+    }
+
+    public String uploadFile(String folder, Part file) throws IOException {
+        StringBuilder checkFileName = new StringBuilder(folder);
+        checkFileName.append(file.getSubmittedFileName());
+        if (isFileExist(checkFileName.toString())) { //Check if file exist, make a copy with increase prefix
+            int i = 1;
+            while (true) {
+                checkFileName.setLength(0);
+                checkFileName.append(folder).append(i++).append(file.getSubmittedFileName());
                 if (!isFileExist(file.toString()))
                     break;
             }

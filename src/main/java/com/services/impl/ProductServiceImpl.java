@@ -13,12 +13,15 @@ import com.services.IProductService;
 import com.utils.FileUploadProvider;
 import com.utils.SecurityUtils;
 import org.json.JSONObject;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -32,6 +35,7 @@ public class ProductServiceImpl implements IProductService {
     private final IProductRepository productRepository;
 
     private final IProductVariationRepository productVariationRepository;
+    private final IProductVariationValueRepository productVariationValueRepository;
     private final IProductSkuEntityRepository productSkuEntityRepository;
 
     private final ICategoryService categoryService;
@@ -40,12 +44,14 @@ public class ProductServiceImpl implements IProductService {
 
     public ProductServiceImpl(IProductRepository productRepository,
                               IProductVariationRepository productVariationRepository,
+                              IProductVariationValueRepository productVariationValueRepository,
                               IProductSkuEntityRepository productSkuEntityRepository,
                               ICategoryService categoryService,
                               FileUploadProvider fileUploadProvider,
                               IUserLikeProductRepository userLikeProductRepository) {
         this.productRepository = productRepository;
         this.productVariationRepository = productVariationRepository;
+        this.productVariationValueRepository = productVariationValueRepository;
         this.productSkuEntityRepository = productSkuEntityRepository;
         this.categoryService = categoryService;
         this.fileUploadProvider = fileUploadProvider;
@@ -237,31 +243,48 @@ public class ProductServiceImpl implements IProductService {
     @Override
     public List<ProductVariationEntity> saveVariations(Long productId, List<ProductVariationModel> models) {
         ProductEntity entity = this.findById(productId);
+        if (!entity.getIsUseVariation())
+            throw new RuntimeException("Product is not use variation, id: ".concat(entity.getId().toString()));
         return this.productVariationRepository.saveAll(models.stream().map(variation -> ProductVariationModel.toEntity(variation, entity)).collect(Collectors.toList()));
     }
 
     @Override
-    public List<ProductSkuEntity> saveSkus(Long productId, List<ProductSkuModel> models) {
+    public List<ProductSkuEntity> saveSkus(HttpServletRequest req, Long productId, List<ProductSkuModel> models) throws RuntimeException {
         final ProductEntity entity = this.findById(productId);
+
 
         //separate 2 type: variation and not have variation
         final String folder = this.getProductFolder(entity.getId());
-        return this.productSkuEntityRepository.saveAll(models.stream()
+        return models.stream()
                 .map(sku -> {
                     ProductSkuEntity skuEntity = ProductSkuModel.toEntity(sku, entity, entity.getIsUseVariation());
-                    if (sku.getImage() != null) {
+                    if (sku.getImageParameter() != null) {
                         String filePath;
                         try {
                             fileUploadProvider.deleteFile(sku.getOriginImage());
-                            filePath = fileUploadProvider.uploadFile(folder, sku.getImage());
+                            filePath = fileUploadProvider.uploadFile(folder, req.getPart(sku.getImageParameter()));
                             skuEntity.setImage(filePath);
                         } catch (IOException e) {
                             e.printStackTrace();
+                        } catch (ServletException e) {
+                            throw new RuntimeException(e);
                         }
                     }
-                    return skuEntity;
+                    int size = productVariationValueRepository.checkVariationValueExist(sku.getVariationValues()).size();
+                    if (size != sku.getVariationValues().size())
+                        throw new RuntimeException("variation values not enough, expected " + size);
+                    try {
+                        return saveSku(skuEntity);
+                    } catch (Exception e) {
+                        System.out.println("=============exception");
+                        throw new RuntimeException("Duplicate skuCode: " + skuEntity.getSkuCode().concat(", product id: ".concat(entity.getId().toString().concat(". please check again!"))));
+                    }
                 })
-                .collect(Collectors.toList()));
+                .collect(Collectors.toList());
+    }
+
+    private ProductSkuEntity saveSku(ProductSkuEntity entity) {
+        return this.productSkuEntityRepository.save(entity);
     }
 
 }

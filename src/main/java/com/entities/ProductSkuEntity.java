@@ -9,7 +9,7 @@ import javax.persistence.*;
 @Data
 @Builder
 @Entity
-@Table(name = "tbl_product_skus")
+@Table(name = "tbl_product_skus", uniqueConstraints = {@UniqueConstraint(columnNames = {"product_id", "sku_code"})})
 public class ProductSkuEntity {
 
     @Id
@@ -18,13 +18,13 @@ public class ProductSkuEntity {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "product_id")
+    @JoinColumn(name = "product_id", nullable = false)
     private ProductEntity product;
 
     /*
      *  SKU code compile from variation values id, separated by dash (-). For examples: 1-2-4-5-6-7
      * each variation value id is separated by dash (-). For examples: 1-2-4-5-6-7
-     * here is pattern for SKU code: ([1-9]+)|([1-9]+-([1-9]+-)+[1-9]+)
+     * here is pattern for SKU code: ([1-9]+)|([1-9]+-([1-9]+-)+[1-9]+) , (\d+)|((\d+-)+\d+)
      */
     @Column(name = "sku_code")
     private String skuCode;
@@ -41,7 +41,7 @@ public class ProductSkuEntity {
     @Column(name = "inventoryQuantity")
     private Integer inventoryQuantity;
 
-    public static final String SKU_CODE_PATTERN = "([1-9]+)|([1-9]+-([1-9]+-)+[1-9]+)";
+    public static final String SKU_CODE_PATTERN = "(\\d+)|((\\d+-)+\\d+)";
 
     /*
      * we don't join table because we don't know how many variation values will be there for a product sku. so we use skuCode instead

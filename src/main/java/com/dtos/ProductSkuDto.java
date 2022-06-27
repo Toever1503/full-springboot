@@ -18,6 +18,7 @@ public class ProductSkuDto {
     private Double price;
     private Integer discount; // similar with old price and new price. range from 1-100 percent.
     private String image;
+    private String skudCode;
     private Integer inventoryQuantity;
 
     public static ProductSkuDto toDto(ProductSkuEntity entity) {
@@ -25,6 +26,7 @@ public class ProductSkuDto {
         return ProductSkuDto.builder()
                 .id(entity.getId())
                 .price(entity.getPrice())
+                .skudCode(entity.getSkuCode())
                 .discount(entity.getDiscount())
                 .image(entity.getImage())
                 .inventoryQuantity(entity.getInventoryQuantity())

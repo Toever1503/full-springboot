@@ -27,7 +27,7 @@ public class ProductSkuModel {
     private Double price;
     private Integer discount; // similar with old price and new price. range from 1-100 percent.
 
-    private MultipartFile image;
+    private String imageParameter;
 
     private String originImage;
 
@@ -43,7 +43,7 @@ public class ProductSkuModel {
         // check and handle sku code
         if (isVariation && model.variationValues.isEmpty())
             throw new RuntimeException("Product is using variation and sku model not have any variation value. Please check again!");
-        else {
+        else if (isVariation && !model.variationValues.isEmpty()) {
             skuCode = model.variationValues.stream().map(n -> n.toString()).reduce((str1, str2) -> str1.concat("-".concat(str2))).orElse(null);
             if (!skuCode.matches(ProductSkuEntity.SKU_CODE_PATTERN))
                 throw new RuntimeException("Generated skuCode is invalid: ".concat(skuCode).concat(". Please check again!"));
@@ -62,18 +62,14 @@ public class ProductSkuModel {
     }
 
     public static void main(String[] args) {
-        boolean is = false;
-        List<Long> ls = new ArrayList<>();
+        List<Long> ids = new ArrayList<>();
+        ids.add(91l);
+        ids.add(22l);
+        ids.add(3l);
+//        ids.add(35l);
+        String code = ids.stream().map(n -> n.toString()).reduce((str1, str2) -> str1.concat("-".concat(str2))).orElse(null);
 
-        System.out.println(is && ls.isEmpty());
-//        List<Long> ids = new ArrayList<>();
-//        ids.add(91l);
-////        ids.add(22l);
-////        ids.add(3l);
-////        ids.add(35l);
-//        String code = ids.stream().map(n -> n.toString()).reduce((str1, str2) -> str1.concat("-".concat(str2))).orElse(null);
-//
-//        System.out.println("code: " + code);
-//        System.out.println("is match: " + code.matches("([1-9]+)|([1-9]+-([1-9]+-)+[1-9]+)"));
+        System.out.println("code: " + code);
+        System.out.println("is match: " + code.matches("(\\d+)|((\\d+-)+\\d+)"));
     }
 }

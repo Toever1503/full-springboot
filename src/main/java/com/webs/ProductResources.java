@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.util.List;
 
@@ -35,14 +36,14 @@ public class ProductResources {
 
     @Transactional
     @PostMapping("variations/{productId}")
-    public ResponseDto saveVariations(@PathVariable Long productId, @Valid List<ProductVariationModel> models) {
+    public ResponseDto saveVariations(@PathVariable Long productId, @RequestBody @Valid List<ProductVariationModel> models) {
         return ResponseDto.of(this.productService.saveVariations(productId, models).stream().map(ProductVariationDto::toDto), "Save variations for product id: ".concat(productId.toString()));
     }
 
     @Transactional
     @PostMapping("skus/{productId}")
-    public ResponseDto saveSkus(@PathVariable Long productId, @Valid List<ProductSkuModel> models) {
-        return ResponseDto.of(this.productService.saveSkus(productId, models).stream().map(ProductSkuDto::toDto), "Save skus for product id: ".concat(productId.toString()));
+    public ResponseDto saveSkus(@PathVariable Long productId, @Valid @RequestPart("skus") List<ProductSkuModel> models, HttpServletRequest req) {
+        return ResponseDto.of(this.productService.saveSkus(req, productId, models).stream().map(ProductSkuDto::toDto), "Save skus for product id: ".concat(productId.toString()));
     }
 
     @Transactional
