@@ -44,12 +44,12 @@ public class CartResources {
         return ResponseDto.of(CartDto.toDto(cartService.editSku(cartModel)), "Edit Sku in Cart");
     }
 
-    @Transactional
-    @PutMapping("{id}")
-    public ResponseDto editQuantity(@PathVariable Long id, @RequestBody CartModel cartModel) {
-        cartModel.setId(id);
-        return ResponseDto.of(CartDto.toDto(cartService.editQuantity(cartModel)), "Edit quantity in Cart");
-    }
+//    @Transactional
+//    @PutMapping("{id}")
+//    public ResponseDto editQuantity(@PathVariable Long id, @RequestBody CartModel cartModel) {
+//        cartModel.setId(id);
+//        return ResponseDto.of(CartDto.toDto(cartService.editQuantity(cartModel)), "Edit quantity in Cart");
+//    }
 
     @Transactional
     @DeleteMapping("{id}")

@@ -56,7 +56,7 @@ public class CartServiceImpl implements ICartService {
         UserEntity userEntity = SecurityUtils.getCurrentUser().getUser();
         ProductSkuEntity productSkuEntity = this.productSkuRepository.findById(model.getSkuId()).orElseThrow(() -> new RuntimeException("Product sku not found"));
 
-        CartEntity cart = this.cartRepository.findByProductEntityIdAndUserEntityId(model.getProductId(), userEntity.getId())
+        CartEntity cart = this.cartRepository.findByProduct_IdAndUser_Id(model.getProductId(), userEntity.getId())
                 .orElse(CartEntity.builder().product(productEntity).user(userEntity).cartDetails(new ArrayList<>()).build());
 
         CartDetailEntity cartDetailEntity = cart.getCartDetails().stream().filter(cd -> cd.getSku().getId().equals(model.getSkuId())).findFirst().orElse(null);
