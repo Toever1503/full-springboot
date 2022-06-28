@@ -38,7 +38,7 @@ public class CartServiceImpl implements ICartService {
 
     @Override
     public Page<CartEntity> findAll(Pageable page) {
-        return this.cartRepository.findAll(page);
+        return this.cartRepository.findAllByUser_Id(SecurityUtils.getCurrentUserId(), page);
     }
 
     @Override
@@ -48,7 +48,7 @@ public class CartServiceImpl implements ICartService {
 
     @Override
     public CartEntity findById(Long id) {
-        return this.cartRepository.findById(id).orElseThrow(() -> new RuntimeException("Cart not found"));
+        return this.cartRepository.findByUser_IdAndId(SecurityUtils.getCurrentUserId(), id).orElseThrow(() -> new RuntimeException("Cart not found"));
     }
 
     @Override
@@ -175,5 +175,20 @@ public class CartServiceImpl implements ICartService {
             throw new RuntimeException("You are not allowed to change this cart");
         }
 
+    }
+
+    @Override
+    public Boolean removeCartByIdCartAndIdSku(Long idCart, Long idSku) {
+        CartEntity originCart = this.findById(idCart);
+        if (originCart.getUser().getId().equals(SecurityUtils.getCurrentUser().getUser().getId())) {
+            CartDetailEntity cartDetailEntity = this.cartDetailRepository.findCartDetailEntityByCart_IdAndSku_Id(idCart, idSku).orElseThrow(() -> new RuntimeException("Cart detail not found"));
+            originCart.getCartDetails().remove(cartDetailEntity);
+            if(originCart.getCartDetails().size() == 0) {
+                this.cartRepository.deleteById(idCart);
+            }
+            return true;
+        } else {
+            throw new RuntimeException("You are not allowed to change this cart");
+        }
     }
 }

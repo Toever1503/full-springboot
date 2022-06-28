@@ -10,8 +10,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
+import javax.annotation.security.RolesAllowed;
+
 @RestController
-@RequestMapping("/cart")
+@RequestMapping("/carts")
 public class CartResources {
     final private ICartService cartService;
 
@@ -42,19 +44,25 @@ public class CartResources {
     @PutMapping("change-option/{id}")
     public ResponseDto editSku(@PathVariable Long id, @RequestBody ChangeOptionModel changeOptionModel) {
         changeOptionModel.setId(id);
-        return ResponseDto.of(CartDto.toDto(cartService.changeOption(changeOptionModel)), "Edit Sku in Cart");
+        return ResponseDto.of(CartDto.toDto(cartService.changeOption(changeOptionModel)), "Edit Sku in Cart, id: " + id);
     }
 
     @Transactional
     @PutMapping("change-quantity/{id}")
     public ResponseDto editQuantity(@PathVariable Long id, @RequestBody CartModel cartModel) {
         cartModel.setId(id);
-        return ResponseDto.of(CartDto.toDto(cartService.editQuantity(cartModel)), "Edit quantity in Cart");
+        return ResponseDto.of(CartDto.toDto(cartService.editQuantity(cartModel)), "Edit quantity in Cart, id: " + id);
     }
 
     @Transactional
     @DeleteMapping("{id}")
     public ResponseDto deleteCart(@PathVariable Long id) {
-        return ResponseDto.of(cartService.deleteById(id), "Delete Cart");
+        return ResponseDto.of(cartService.deleteById(id), "Delete Cart id: " + id);
+    }
+
+    @Transactional
+    @DeleteMapping("sku/{idCart}/{idSku}")
+    public ResponseDto deleteCartByIdProductAndIdSku(@PathVariable("idCart") Long idCart, @PathVariable("idSku") Long idSku) {
+        return ResponseDto.of(cartService.removeCartByIdCartAndIdSku(idCart, idSku), "Delete Cart by idCart: " + idCart + " and idSku: " + idSku);
     }
 }
