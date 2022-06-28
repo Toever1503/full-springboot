@@ -13,12 +13,14 @@ import lombok.NoArgsConstructor;
 public class ProductVariationValueDto {
     private Long variationValueId;
     private String value;
+    private Boolean ísChecked;
 
     public static ProductVariationValueDto toDto(ProductVariationValueEntity entity) {
         if (entity == null) return null;
         return ProductVariationValueDto.builder()
                 .variationValueId(entity.getId())
                 .value(entity.getValue())
+                .ísChecked(false)
                 .build();
     }
 }
