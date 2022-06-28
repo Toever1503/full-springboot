@@ -18,7 +18,8 @@ public class OrderModel {
     private Long addressId;
     private EPaymentMethod paymentMethod;
     private String note;
-    private List<Long> orderDetailIds;
+    private List<Long> cartDetailIds;
+
 
     public static OrderEntity toEntity(OrderModel model) {
         if (model == null) return null;

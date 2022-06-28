@@ -58,7 +58,7 @@ public class OrderResources {
     @PostMapping
     public ResponseDto createOrder(@RequestBody OrderModel orderModel) {
         OrderEntity order =  orderService.add(orderModel);
-        return ResponseDto.of(OrderDto.toDto(order), "Create order success");
+        return ResponseDto.of(OrderDto.toDto(order), "Create order");
     }
 
     @Transactional

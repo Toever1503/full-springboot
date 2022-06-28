@@ -1,14 +1,8 @@
 package com.models;
 
-import com.entities.Address;
-import com.entities.District;
-import com.entities.Province;
-import com.entities.Ward;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
 
-import javax.persistence.Column;
-import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;

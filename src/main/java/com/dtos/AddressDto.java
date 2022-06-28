@@ -1,6 +1,6 @@
 package com.dtos;
 
-import com.entities.Address;
+import com.entities.AddressEntity;
 import com.entities.District;
 import com.entities.Province;
 import com.entities.Ward;
@@ -24,16 +24,16 @@ public class AddressDto {
     private String receiver;
     private String phone;
 
-    public static AddressDto toDto(Address address) {
-        if(address == null) return  null;
+    public static AddressDto toDto(AddressEntity addressEntity) {
+        if(addressEntity == null) return  null;
         return AddressDto.builder()
-                .id(address.getId())
-                .province(address.getProvince())
-                .district(address.getDistrict())
-                .ward(address.getWard())
-                .street(address.getStreet())
-                .receiver(address.getReceiver())
-                .phone(address.getPhone())
+                .id(addressEntity.getId())
+                .province(addressEntity.getProvince())
+                .district(addressEntity.getDistrict())
+                .ward(addressEntity.getWard())
+                .street(addressEntity.getStreet())
+                .receiver(addressEntity.getReceiver())
+                .phone(addressEntity.getPhone())
                 .build();
     }
 }

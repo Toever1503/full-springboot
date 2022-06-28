@@ -2,16 +2,13 @@ package com.services;
 
 import com.config.jwt.JwtLoginResponse;
 import com.config.jwt.JwtUserLoginModel;
-import com.dtos.AddressDto;
-import com.entities.Address;
+import com.entities.AddressEntity;
 import com.entities.UserEntity;
 import com.models.*;
-import org.springframework.data.domain.Page;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.List;
 import java.util.Set;
 
 public interface IUserService extends IBaseService<UserEntity, UserModel, Long>{
@@ -28,15 +25,15 @@ public interface IUserService extends IBaseService<UserEntity, UserModel, Long>{
 
     UserEntity getMyProfile();
 
-    Set<Address> getMyAddresses();
+    Set<AddressEntity> getMyAddresses();
 
     boolean deleteMyAddress(Long id);
 
     boolean setMainAddress(Long id);
 
-    Address addMyAddress(AddressModel model);
+    AddressEntity addMyAddress(AddressModel model);
 
-    Address updateMyAddress(AddressModel model);
+    AddressEntity updateMyAddress(AddressModel model);
 
     UserEntity updateUserProfile(UserProfileModel model);
 
