@@ -56,7 +56,7 @@ public class IndustryResources {
     @GetMapping
     public ResponseDto getAllByPage() {
         List<CategoryEntity> categoryEntities = this.categoryService.findAll(Specification.where(CategorySpecification.byType(ECategoryType.INDUSTRY)));
-        return ResponseDto.of(categoryEntities.stream().map(c -> CategoryDto.toDto(c, false)), "Get all industries");
+        return ResponseDto.of(categoryEntities.stream().map(c -> IndustryDto.toDto(c, false)), "Get all industries");
     }
 
     @Transactional
