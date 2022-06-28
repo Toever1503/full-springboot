@@ -2,8 +2,9 @@ package com.repositories;
 
 import com.entities.CartDetailEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
 
-@Repository
-public interface ICartDetailRepository extends JpaRepository<CartDetailEntity,Long> {
+import java.util.Optional;
+
+public interface ICartDetailRepository extends JpaRepository<CartDetailEntity, Long> {
+    Optional<CartDetailEntity> findCartDetailEntityByCart_IdAndSku_Id(Long cartId, Long skuId);
 }
