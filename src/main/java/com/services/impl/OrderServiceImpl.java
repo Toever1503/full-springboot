@@ -99,7 +99,7 @@ public class OrderServiceImpl implements IOrderService {
         order.setTotalPrices(totalPrices.get()+order.getDeliveryFee());
         order.setTotalNumberProducts(totalProducts.get());
         order.setOrderDetails(orderDetailEntities);
-//        cartRepository.deleteAllByCartDetails_Empty();
+        cartRepository.deleteAllByCartDetails_Empty();
         return orderRepository.save(order);
     }
 
