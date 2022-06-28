@@ -44,8 +44,12 @@ public class NotificationServiceImpl implements INotificationService {
     private final INotificationUserRepository notificationUserRepository;
     private final IUserRepository userRepository;
     private final ISocketService socketService;
-
-    public NotificationServiceImpl(INotificationRepository notificationRepository, FileUploadProvider fileUploadProvider, IUserService userService, INotificationUserRepository notificationUserRepository, IUserRepository userRepository, ISocketService socketService) {
+    public NotificationServiceImpl(INotificationRepository notificationRepository,
+                                   FileUploadProvider fileUploadProvider,
+                                   IUserService userService,
+                                   INotificationUserRepository notificationUserRepository,
+                                   IUserRepository userRepository,
+                                   ISocketService socketService) {
         this.notificationRepository = notificationRepository;
         this.fileUploadProvider = fileUploadProvider;
         this.userService = userService;
