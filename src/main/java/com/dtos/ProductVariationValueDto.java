@@ -1,10 +1,12 @@
 package com.dtos;
 
 import com.entities.ProductVariationValueEntity;
+import com.google.gson.Gson;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.json.JSONObject;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -22,5 +24,9 @@ public class ProductVariationValueDto {
                 .value(entity.getValue())
                 .isChecked(false)
                 .build();
+    }
+
+    public static void main(String[] args) {
+        Gson s = new Gson();
     }
 }
