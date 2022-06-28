@@ -20,8 +20,6 @@ public class TagEntity {
     private Long id;
     @Column(name ="tag_name")
     private String tagName;
-    @Column(name = "slug", unique = true)
-    private String slug;
     @ManyToMany(mappedBy = "tags")
     private Set<ProductEntity> products;
 }

@@ -152,7 +152,7 @@ public class UserServiceImp implements IUserService {
     }
 
     @Override
-    @Transactional(rollbackFor = RuntimeException.class)
+    @Transactional
     public boolean signUp(RegisterModel registerModel) {
         if (this.userRepository.findByUserName(registerModel.getUserName()) != null) {
             throw new RuntimeException("Username has already registered!");
@@ -211,7 +211,7 @@ public class UserServiceImp implements IUserService {
     }
 
     @Override
-    @Transactional(rollbackFor = RuntimeException.class)
+    @Transactional
     public boolean forgetPassword(ForgetPasswordModel model) {
         UserEntity user = this.findByUsername(model.getUserName());
         user.setCode(codeGenerator());
@@ -260,7 +260,7 @@ public class UserServiceImp implements IUserService {
     }
 
     // Token filter, check token is valid and set to context
-    @Transactional(rollbackFor = RuntimeException.class)
+    @Transactional
     public boolean tokenFilter(String token, HttpServletRequest req, HttpServletResponse res) {
         try {
             String username = this.jwtProvider.getUsernameFromToken(token);

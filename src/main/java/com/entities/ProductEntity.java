@@ -1,8 +1,10 @@
 package com.entities;
 
+import com.utils.SecurityUtils;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.hibernate.annotations.Where;
 
 import javax.persistence.*;
 import java.util.List;
@@ -45,7 +47,7 @@ public class ProductEntity {
     private String status;
 
     @ManyToOne
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "user_id", nullable = false)
     private UserEntity createdBy;
 
     @CreationTimestamp
@@ -59,12 +61,12 @@ public class ProductEntity {
     private java.util.Date updatedDate;
 
     @ManyToOne
-    @JoinColumn(name = "category_id")
+    @JoinColumn(name = "category_id", nullable = false)
     private CategoryEntity category;
 
     @ManyToOne
-    @JoinColumn(name = "industry_id")
-    private CategoryEntity industryId;
+    @JoinColumn(name = "industry_id", nullable = false)
+    private CategoryEntity industry;
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "product_id")
