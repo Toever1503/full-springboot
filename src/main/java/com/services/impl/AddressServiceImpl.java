@@ -33,31 +33,31 @@ public class AddressServiceImpl implements IAddressService {
     }
 
     @Override
-    public List<Address> findAll() {
+    public List<AddressEntity> findAll() {
         return null;
     }
 
     @Override
-    public Page<Address> findAll(Pageable page) {
+    public Page<AddressEntity> findAll(Pageable page) {
         return this.addressRepository.findAll(page);
     }
 
     @Override
-    public Page<Address> filter(Pageable page, Specification<Address> specs) {
+    public Page<AddressEntity> filter(Pageable page, Specification<AddressEntity> specs) {
         return null;
     }
 
     @Override
-    public Address findById(Long id) {
+    public AddressEntity findById(Long id) {
         return addressRepository.findById(id).orElseThrow(() -> new RuntimeException("Address not found"));
     }
 
     @Override
-    public Address add(AddressModel model) {
+    public AddressEntity add(AddressModel model) {
         Province province = provinceRepository.findById(model.getProvinceId()).orElseThrow(() -> new RuntimeException("Province not found, id: " + model.getProvinceId()));
         District district = districtRepository.findById(model.getDistrictId()).orElseThrow(() -> new RuntimeException("District not found, id: " + model.getDistrictId()));
         Ward ward = wardRepository.findById(model.getWardId()).orElseThrow(() -> new RuntimeException("Ward not found, id: " + model.getWardId()));
-        Address address = Address.builder()
+        AddressEntity addressEntity = AddressEntity.builder()
                 .street(model.getStreet())
                 .province(province)
                 .district(district)
@@ -66,20 +66,20 @@ public class AddressServiceImpl implements IAddressService {
                 .receiver(model.getReceiver())
                 .user(SecurityUtils.getCurrentUser().getUser())
                 .build();
-        return addressRepository.save(address);
+        return addressRepository.save(addressEntity);
     }
 
     @Override
-    public List<Address> add(List<AddressModel> model) {
+    public List<AddressEntity> add(List<AddressModel> model) {
         return model.stream().map(this::add).collect(Collectors.toList());
     }
 
     @Override
-    public Address update(AddressModel model) {
+    public AddressEntity update(AddressModel model) {
         Province province = provinceRepository.findById(model.getProvinceId()).orElseThrow(() -> new RuntimeException("Province not found, id: " + model.getProvinceId()));
         District district = districtRepository.findById(model.getDistrictId()).orElseThrow(() -> new RuntimeException("District not found, id: " + model.getDistrictId()));
         Ward ward = wardRepository.findById(model.getWardId()).orElseThrow(() -> new RuntimeException("Ward not found, id: " + model.getWardId()));
-        Address address = Address.builder()
+        AddressEntity addressEntity = AddressEntity.builder()
                 .id(model.getId())
                 .street(model.getStreet())
                 .province(province)
@@ -89,7 +89,7 @@ public class AddressServiceImpl implements IAddressService {
                 .receiver(model.getReceiver())
                 .user(this.userRepository.findById(model.getUserId()).get())
                 .build();
-        return addressRepository.save(address);
+        return addressRepository.save(addressEntity);
     }
 
     @Override
@@ -136,7 +136,7 @@ public class AddressServiceImpl implements IAddressService {
     }
 
     @Override
-    public Set<Address> findByUid(Long id) {
+    public Set<AddressEntity> findByUid(Long id) {
         return addressRepository.findAllByUser_Id(id);
     }
 }
