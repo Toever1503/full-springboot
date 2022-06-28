@@ -67,7 +67,7 @@ public class OrderEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "address_id")
-    private Address address;
+    private AddressEntity addressEntity;
 
     @ManyToOne
     @JoinColumn(name = "created_by")

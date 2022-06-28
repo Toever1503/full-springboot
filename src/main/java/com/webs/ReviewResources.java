@@ -92,7 +92,7 @@ public class ReviewResources {
         return ResponseDto.of(reviewService.findAllParentReviewIsNullAndStatusAndProductId(page, status, productId).map(ReviewDto::toDto), "Reviews retrieved successfully");
     }
 
-    @Transactional(rollbackFor = RuntimeException.class)
+    @Transactional
     @PostMapping("filter")
     public ResponseDto filter(@Valid @RequestBody ReviewFilterModel model, Pageable page) {
         Page<ReviewEntity> reviewEntities = reviewService.filter(page, Specification.where(ReviewSpecification.filter(model)));

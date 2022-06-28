@@ -3,7 +3,7 @@ package com.services.impl;
 import com.config.jwt.JwtLoginResponse;
 import com.config.jwt.JwtProvider;
 import com.config.jwt.JwtUserLoginModel;
-import com.entities.Address;
+import com.entities.AddressEntity;
 import com.entities.RoleEntity;
 import com.entities.UserEntity;
 import com.models.*;
@@ -25,7 +25,6 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -38,8 +37,6 @@ import javax.mail.MessagingException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.security.Principal;
-import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -101,6 +98,11 @@ public class UserServiceImp implements IUserService {
     }
 
     @Override
+    public List<UserEntity> findAll(Specification<UserEntity> specs) {
+        return null;
+    }
+
+    @Override
     public Page<UserEntity> filter(Pageable page, Specification<UserEntity> specs) {
         return this.userRepository.findAll(specs, page);
     }
@@ -155,7 +157,7 @@ public class UserServiceImp implements IUserService {
     }
 
     @Override
-    @Transactional(rollbackFor = RuntimeException.class)
+    @Transactional
     public boolean signUp(RegisterModel registerModel) {
         if (this.userRepository.findByUserName(registerModel.getUserName()) != null) {
             throw new RuntimeException("Username has already registered!");
@@ -214,7 +216,7 @@ public class UserServiceImp implements IUserService {
     }
 
     @Override
-    @Transactional(rollbackFor = RuntimeException.class)
+    @Transactional
     public boolean forgetPassword(ForgetPasswordModel model) {
         UserEntity user = this.findByUsername(model.getUserName());
         user.setCode(codeGenerator());
@@ -263,7 +265,7 @@ public class UserServiceImp implements IUserService {
     }
 
     // Token filter, check token is valid and set to context
-    @Transactional(rollbackFor = RuntimeException.class)
+    @Transactional
     public boolean tokenFilter(String token, HttpServletRequest req, HttpServletResponse res) {
         try {
             String username = this.jwtProvider.getUsernameFromToken(token);
@@ -285,7 +287,7 @@ public class UserServiceImp implements IUserService {
     }
 
     @Override
-    public Set<Address> getMyAddresses() {
+    public Set<AddressEntity> getMyAddresses() {
         return this.addressService.findByUid(SecurityUtils.getCurrentUserId());
     }
 
@@ -337,18 +339,18 @@ public class UserServiceImp implements IUserService {
     }
 
     @Override
-    public Address addMyAddress(AddressModel model) {
-        Address address = this.addressService.add(model);
-        return address;
+    public AddressEntity addMyAddress(AddressModel model) {
+        AddressEntity addressEntity = this.addressService.add(model);
+        return addressEntity;
     }
 
     @Override
-    public Address updateMyAddress(AddressModel model) {
+    public AddressEntity updateMyAddress(AddressModel model) {
         // id 2 want edit address, check
         // usercreated id = 1  == 2
-        Address oriAddress = this.addressService.findById(model.getId());
-        if (oriAddress.getUser().getId().equals(SecurityUtils.getCurrentUserId()) || SecurityUtils.hasRole(RoleEntity.ADMINISTRATOR)) {
-            model.setUserId(oriAddress.getUser().getId());
+        AddressEntity oriAddressEntity = this.addressService.findById(model.getId());
+        if (oriAddressEntity.getUser().getId().equals(SecurityUtils.getCurrentUserId()) || SecurityUtils.hasRole(RoleEntity.ADMINISTRATOR)) {
+            model.setUserId(oriAddressEntity.getUser().getId());
             return this.addressService.update(model);
         }
         return null;

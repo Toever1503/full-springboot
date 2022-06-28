@@ -13,13 +13,11 @@ import lombok.NoArgsConstructor;
 public class TagDto {
     private Long id;
     private String tagName;
-    private String slug;
 
     public static TagDto toTagDto(TagEntity entity) {
         if (entity == null) return null;
         TagDto sample = new TagDto();
         sample.setTagName(entity.getTagName());
-        sample.setSlug(entity.getSlug());
         sample.setId(entity.getId());
         return sample;
     }

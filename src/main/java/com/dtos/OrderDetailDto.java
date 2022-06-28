@@ -16,6 +16,7 @@ public class OrderDetailDto {
     private Long id;
     private Double price;
     private Integer quantity;
+    private String optionName;
     private ProductDto product;
     private Boolean isReview;
 

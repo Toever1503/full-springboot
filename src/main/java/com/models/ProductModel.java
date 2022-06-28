@@ -1,4 +1,6 @@
 package com.models;
+
+import com.dtos.EProductStatus;
 import com.entities.ProductEntity;
 import com.utils.ASCIIConverter;
 import io.swagger.annotations.ApiModelProperty;
@@ -9,12 +11,12 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-@Getter
-@Setter
+@Data
 public class ProductModel {
     @ApiModelProperty(notes = "Product ID", dataType = "Long", example = "1")
     private Long id;
@@ -36,26 +38,41 @@ public class ProductModel {
     @ApiModelProperty(notes = "category Id", dataType = "Long", example = "1")
     @NotNull
     private Long categoryId;
+
+    @ApiModelProperty(notes = "industry Id", dataType = "Long", example = "1")
+    @NotNull
+    private Long industryId;
+
     @ApiModelProperty(notes = "list product metas", dataType = "List<ProductMeta>", example = "Object productMetas")
     private List<ProductMetaModel> productMetas;
 
-
     @ApiModelProperty(notes = "list product tag", dataType = "List<Tag>", example = "Object product tag")
     private List<TagModel> tags;
+
+    @ApiModelProperty(notes = "product status: PUBLISHED, DRAFTED, DELETED", dataType = "String", example = "PUBLISHED")
+    @NotNull
+    private EProductStatus status;
+
+    @ApiModelProperty(notes = "whether product use variation or not", dataType = "Boolean", example = "true")
+    @NotNull
+    private Boolean isUseVariation;
 
     public void setAttachFiles(List<MultipartFile> attachFiles) {
         this.attachFiles = attachFiles;
     }
 
-    public static ProductEntity toEntity(ProductModel model){
-        if(model == null) new RuntimeException("ProductModel is null");
-        return ProductEntity.builder()
+    public static ProductEntity toEntity(ProductModel model) {
+        if (model == null) new RuntimeException("ProductModel is null");
+        ProductEntity entity = ProductEntity.builder()
                 .id(model.getId())
                 .name(model.getName())
+                .status(model.getStatus().name())
                 .description(model.getDescription())
-                .totalLike(0)
-                .totalReview(0)
-                .rating(0F)
+                .isUseVariation(model.getIsUseVariation())
                 .build();
+        if (model.getTags() != null)
+            if (!model.getTags().isEmpty())
+                entity.setTags(model.tags.stream().map(TagModel::toEntity).collect(Collectors.toSet()));
+        return entity;
     }
 }

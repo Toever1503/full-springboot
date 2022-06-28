@@ -29,7 +29,7 @@ public class CategoryDto {
                 .description(entity.getDescription())
                 .deepLevel(entity.getDeepLevel())
                 .parentCategory(entity.getParentCategory() == null ? null : ParentCategoryDto.toDto(entity.getParentCategory()))
-                .childCategories(wantChild == true ? (entity.getChildCategories().isEmpty() ? null : entity.getChildCategories().stream().map(child -> CategoryDto.toDto(child, wantChild)).collect(Collectors.toList())) : null)
+                .childCategories(wantChild == true ? (entity.getChildCategories() == null ? null : entity.getChildCategories().stream().map(child -> CategoryDto.toDto(child, wantChild)).collect(Collectors.toList())) : null)
                 .build();
     }
 }

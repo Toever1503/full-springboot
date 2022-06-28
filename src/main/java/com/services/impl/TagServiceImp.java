@@ -32,6 +32,11 @@ public class TagServiceImp implements ITagService {
     }
 
     @Override
+    public List<TagEntity> findAll(Specification<TagEntity> specs) {
+        return null;
+    }
+
+    @Override
     public Page<TagEntity> filter(Pageable page, Specification<TagEntity> specs) {
         return null;
     }
@@ -45,7 +50,6 @@ public class TagServiceImp implements ITagService {
     public TagEntity add(TagModel model) {
         TagEntity tag = TagEntity.builder()
                 .tagName(model.getTagName())
-                .slug(model.getSlug() == null ? ASCIIConverter.utf8ToAscii(model.getTagName()) : ASCIIConverter.utf8ToAscii(model.getSlug()))
                 .build();
         return tagRepository.save(tag);
     }
@@ -59,7 +63,6 @@ public class TagServiceImp implements ITagService {
     public TagEntity update(TagModel model) {
         TagEntity tag = this.findById(model.getId());
         tag.setTagName(model.getTagName());
-        tag.setSlug(model.getSlug() == null ? ASCIIConverter.utf8ToAscii(model.getTagName()) : ASCIIConverter.utf8ToAscii(model.getSlug()));
         return tagRepository.save(tag);
     }
 
@@ -78,10 +81,6 @@ public class TagServiceImp implements ITagService {
         return true;
     }
 
-    @Override
-    public TagEntity findBySlug(String slug) {
-        return tagRepository.findFirstBySlug(slug);
-    }
 
     @Override
     public Page<TagEntity> search(String q, Pageable page) {

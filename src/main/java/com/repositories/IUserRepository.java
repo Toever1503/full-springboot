@@ -1,15 +1,12 @@
 package com.repositories;
 
-import com.entities.Address;
 import com.entities.UserEntity;
-import org.apache.catalina.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 
 public interface IUserRepository extends JpaRepository<UserEntity, Long>, JpaSpecificationExecutor<UserEntity> {

@@ -30,6 +30,8 @@ public class CategoryModel {
 
     @ApiModelProperty(notes = "Category Id parent", dataType = "Long", example = "1")
     private Long parentId;
+    @ApiModelProperty(notes = "Industry Id", dataType = "Long", example = "1")
+    private Long industryId;
 
     public static CategoryEntity toEntity(CategoryModel model) {
         if(model == null) return null;
