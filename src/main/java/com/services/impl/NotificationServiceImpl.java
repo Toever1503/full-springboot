@@ -69,6 +69,11 @@ public class NotificationServiceImpl implements INotificationService {
     }
 
     @Override
+    public List<NotificationEntity> findAll(Specification<NotificationEntity> specs) {
+        return null;
+    }
+
+    @Override
     public Page<NotificationEntity> filter(Pageable page, Specification<NotificationEntity> specs) {
         return notificationRepository.findAll(specs, page);
     }

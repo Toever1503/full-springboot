@@ -57,6 +57,11 @@ public class QuestionServiceImp implements IQuestionService {
     }
 
     @Override
+    public List<QuestionEntity> findAll(Specification<QuestionEntity> specs) {
+        return null;
+    }
+
+    @Override
     public Page<QuestionEntity> filter(Pageable page, Specification<QuestionEntity> specs) {
         return this.questionRepository.findAll(specs, page);
     }

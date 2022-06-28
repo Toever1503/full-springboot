@@ -43,6 +43,11 @@ public class AddressServiceImpl implements IAddressService {
     }
 
     @Override
+    public List<AddressEntity> findAll(Specification<AddressEntity> specs) {
+        return null;
+    }
+
+    @Override
     public Page<AddressEntity> filter(Pageable page, Specification<AddressEntity> specs) {
         return null;
     }

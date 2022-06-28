@@ -42,6 +42,11 @@ public class CartServiceImpl implements ICartService {
     }
 
     @Override
+    public List<CartEntity> findAll(Specification<CartEntity> specs) {
+        return null;
+    }
+
+    @Override
     public Page<CartEntity> filter(Pageable page, Specification<CartEntity> specs) {
         return null;
     }

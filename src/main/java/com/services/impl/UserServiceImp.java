@@ -98,6 +98,11 @@ public class UserServiceImp implements IUserService {
     }
 
     @Override
+    public List<UserEntity> findAll(Specification<UserEntity> specs) {
+        return null;
+    }
+
+    @Override
     public Page<UserEntity> filter(Pageable page, Specification<UserEntity> specs) {
         return this.userRepository.findAll(specs, page);
     }

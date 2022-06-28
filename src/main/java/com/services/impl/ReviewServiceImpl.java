@@ -23,6 +23,11 @@ public class ReviewServiceImpl implements IReviewService {
     }
 
     @Override
+    public List<ReviewEntity> findAll(Specification<ReviewEntity> specs) {
+        return null;
+    }
+
+    @Override
     public Page<ReviewEntity> filter(Pageable page, Specification<ReviewEntity> specs) {
         return null;
     }

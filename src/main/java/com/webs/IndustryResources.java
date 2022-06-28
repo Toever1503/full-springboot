@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.List;
 
 
 @RestController
@@ -53,9 +54,9 @@ public class IndustryResources {
 
     @Transactional
     @GetMapping
-    public ResponseDto getAll(Pageable page) {
-        Page<CategoryEntity> categoryEntities = this.categoryService.filter(page, Specification.where(CategorySpecification.byType(ECategoryType.INDUSTRY)));
-        return ResponseDto.of(categoryEntities.map(c -> CategoryDto.toDto(c, false)), "Get all industries");
+    public ResponseDto getAllByPage(Pageable page) {
+        List<CategoryEntity> categoryEntities = this.categoryService.findAll(Specification.where(CategorySpecification.byType(ECategoryType.INDUSTRY)));
+        return ResponseDto.of(categoryEntities.stream().map(c -> CategoryDto.toDto(c, false)), "Get all industries");
     }
 
     @Transactional

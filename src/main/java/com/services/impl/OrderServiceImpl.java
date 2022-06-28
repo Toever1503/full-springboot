@@ -43,6 +43,11 @@ public class OrderServiceImpl implements IOrderService {
     }
 
     @Override
+    public List<OrderEntity> findAll(Specification<OrderEntity> specs) {
+        return null;
+    }
+
+    @Override
     public Page<OrderEntity> filter(Pageable page, Specification<OrderEntity> specs) {
         return orderRepository.findAll(specs,page);
     }

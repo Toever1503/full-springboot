@@ -32,6 +32,11 @@ public class TagServiceImp implements ITagService {
     }
 
     @Override
+    public List<TagEntity> findAll(Specification<TagEntity> specs) {
+        return null;
+    }
+
+    @Override
     public Page<TagEntity> filter(Pageable page, Specification<TagEntity> specs) {
         return null;
     }

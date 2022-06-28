@@ -36,6 +36,11 @@ public class CategoryServiceImpl implements ICategoryService {
     }
 
     @Override
+    public List<CategoryEntity> findAll(Specification<CategoryEntity> specs) {
+        return null;
+    }
+
+    @Override
     public List<CategoryEntity> findChildrenById(Long id) {
         return this.categoryRepository.findAllByParentCategoryIdAndType(id, ECategoryType.CATEGORY.name());
     }

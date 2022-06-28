@@ -11,6 +11,7 @@ public interface IBaseService<T, M, K> {
     List<T> findAll();
 
     Page<T> findAll(Pageable page);
+    List<T> findAll(Specification<T> specs);
 
     Page<T> filter(Pageable page, Specification<T> specs);
 
