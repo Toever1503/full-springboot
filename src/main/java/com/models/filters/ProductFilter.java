@@ -16,6 +16,7 @@ public class ProductFilter {
     private DateFilterModel date;
     private PriceFilterModel price;
     private List<String> categorySlugs;
+    private List<VariationModelFilter> variations;
     private LikeFilterModel likeFilterModel;
     private ReviewFilterModel reviewFilterModel;
     private RatingFilterModel ratingFilterModel;

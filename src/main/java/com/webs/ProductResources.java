@@ -8,7 +8,10 @@ import com.dtos.ResponseDto;
 import com.models.ProductModel;
 import com.models.ProductSkuModel;
 import com.models.ProductVariationModel;
+import com.models.filters.ProductFilter;
+import com.models.specifications.ProductSpecification;
 import com.services.IProductService;
+import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -16,6 +19,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RequestMapping("products")
 @RestController
@@ -66,6 +70,12 @@ public class ProductResources {
         productModel.setAttachFiles(attachFiles);
         productModel.setImage(image);
         return ResponseDto.of(ProductDto.toDto(productService.update(productModel)), "Update product successfully");
+    }
+
+    @Transactional
+    @PostMapping("/filter")
+    public ResponseDto filterProduct(@RequestBody @Valid ProductFilter productFilter, Pageable pageable){
+        return ResponseDto.of(productService.filter(pageable, ProductSpecification.filter(productFilter)).stream().map(ProductDto::toDto), "Filter product");
     }
 
 
