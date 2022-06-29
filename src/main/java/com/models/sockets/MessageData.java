@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import org.springframework.web.socket.WebSocketMessage;
 
 import java.sql.Timestamp;
+import java.util.Date;
 
 
 @Data
@@ -17,4 +18,5 @@ public class MessageData{
     private Long id;
     private String messageContent;
     private Boolean messageStatus;
+    private Date createdDate;
 }

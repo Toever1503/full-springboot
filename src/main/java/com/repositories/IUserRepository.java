@@ -30,4 +30,6 @@ public interface IUserRepository extends JpaRepository<UserEntity, Long>, JpaSpe
     List<Long> getAllIdsByRole(String role);
 
     Optional<UserEntity> findUserEntityByUserNameOrEmail(String userName, String userName1);
+
+    Optional<List<UserEntity>> findAllByIdIsIn(List<Long> ids);
 }
