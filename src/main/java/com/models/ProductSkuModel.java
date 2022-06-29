@@ -2,16 +2,12 @@ package com.models;
 
 import com.entities.ProductEntity;
 import com.entities.ProductSkuEntity;
-import com.utils.FileUploadProvider;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.web.multipart.MultipartFile;
 
-import javax.persistence.Column;
 import javax.validation.constraints.NotNull;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -36,6 +32,9 @@ public class ProductSkuModel {
 
     private List<Long> variationValues = new ArrayList<>();
 
+    private Boolean isValid = false;
+    private Integer variationSize = 0;
+
     public static ProductSkuEntity toEntity(ProductSkuModel model, ProductEntity product, boolean isVariation) {
         if (model == null) throw new RuntimeException("Sku model is null");
         String skuCode = null;
@@ -56,6 +55,8 @@ public class ProductSkuModel {
                 .discount(model.discount == null ? 0 : model.discount)
                 .inventoryQuantity(model.inventoryQuantity)
                 .skuCode(skuCode)
+                .isValid(model.isValid)
+                .variationSize(model.variationSize)
                 .build();
 
         return sku;

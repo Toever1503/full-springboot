@@ -42,7 +42,10 @@ public class ProductSkuEntity {
     private Integer inventoryQuantity;
 
     @Column(name = "is_valid")
-    private Boolean isValid = true;
+    private Boolean isValid;
+
+    @Column(name = "variation_size")
+    private Integer variationSize;
 
     public static final String SKU_CODE_PATTERN = "(\\d+)|((\\d+-)+\\d+)";
 

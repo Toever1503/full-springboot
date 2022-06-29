@@ -5,6 +5,7 @@ import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.hibernate.annotations.Where;
+import org.hibernate.annotations.WhereJoinTable;
 
 import javax.persistence.*;
 import java.util.List;
@@ -38,7 +39,6 @@ public class ProductEntity {
     private String image;
     @Column(name = "attach_files")
     private String attachFiles;
-
     /*
      * soft delete
      * range: draft, published, deleted

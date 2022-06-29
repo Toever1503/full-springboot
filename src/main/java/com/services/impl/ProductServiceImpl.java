@@ -256,40 +256,42 @@ public class ProductServiceImpl implements IProductService {
     @Override
     public List<ProductSkuEntity> saveSkus(HttpServletRequest req, Long productId, List<ProductSkuModel> models) throws RuntimeException {
         final ProductEntity entity = this.findById(productId);
-
-
         //separate 2 type: variation and not have variation
         final String folder = this.getProductFolder(entity.getId());
-        return models.stream()
-                .map(sku -> {
-                    ProductSkuEntity skuEntity = ProductSkuModel.toEntity(sku, entity, entity.getIsUseVariation());
-                    if (sku.getImageParameter() != null) {
-                        String filePath;
-                        try {
-                            fileUploadProvider.deleteFile(sku.getOriginImage());
-                            filePath = fileUploadProvider.uploadFile(folder, req.getPart(sku.getImageParameter()));
-                            skuEntity.setImage(filePath);
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        } catch (ServletException e) {
-                            throw new RuntimeException(e);
-                        }
-                    }
-                    int size = productVariationValueRepository.checkVariationValueExist(sku.getVariationValues()).size();
-                    if (size != sku.getVariationValues().size())
-                        throw new RuntimeException("variation values not enough, expected " + size);
-                    try {
-                        return saveSku(skuEntity);
-                    } catch (Exception e) {
-                        System.out.println("=============exception");
-                        throw new RuntimeException("Duplicate skuCode: " + skuEntity.getSkuCode().concat(", product id: ".concat(entity.getId().toString().concat(". please check again!"))));
-                    }
-                })
-                .collect(Collectors.toList());
+        if (entity.getIsUseVariation())
+            return models.stream()
+                    .map(sku -> saveSku(entity, folder, sku, req))
+                    .collect(Collectors.toList());
+        else {
+            return List.of(saveSku(entity, folder, models.get(0), req));
+        }
     }
 
-    private ProductSkuEntity saveSku(ProductSkuEntity entity) {
-        return this.productSkuEntityRepository.save(entity);
+    private ProductSkuEntity saveSku(ProductEntity entity, String folder, ProductSkuModel model, HttpServletRequest req) {
+        ProductSkuEntity skuEntity = ProductSkuModel.toEntity(model, entity, entity.getIsUseVariation());
+        if (model.getImageParameter() != null) {
+            String filePath;
+            try {
+                fileUploadProvider.deleteFile(model.getOriginImage());
+                filePath = fileUploadProvider.uploadFile(folder, req.getPart(model.getImageParameter()));
+                skuEntity.setImage(filePath);
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (ServletException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        int size = productVariationValueRepository.checkVariationValueExist(model.getVariationValues()).size();
+        if (size != model.getVariationValues().size())
+            throw new RuntimeException("variation values not enough, expected " + size);
+        try {
+            skuEntity.setIsValid(true);
+            skuEntity.setVariationSize(size);
+            return this.productSkuEntityRepository.save(skuEntity);
+        } catch (Exception e) {
+            System.out.println("=============exception");
+            throw new RuntimeException("Duplicate skuCode: " + skuEntity.getSkuCode().concat(", product id: ".concat(entity.getId().toString().concat(". please check again!"))));
+        }
     }
 
 }

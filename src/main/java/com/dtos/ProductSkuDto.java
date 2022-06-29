@@ -21,6 +21,8 @@ public class ProductSkuDto {
     private String skuCode;
     private Integer inventoryQuantity;
 
+    private Boolean isValid;
+
     public static ProductSkuDto toDto(ProductSkuEntity entity) {
         if (entity == null) return null;
         return ProductSkuDto.builder()
@@ -30,6 +32,7 @@ public class ProductSkuDto {
                 .discount(entity.getDiscount())
                 .image(entity.getImage())
                 .inventoryQuantity(entity.getInventoryQuantity())
+                .isValid(entity.getIsValid())
                 .build();
     }
 }
