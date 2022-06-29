@@ -1,5 +1,6 @@
 package com.models.sockets;
 
+import com.sun.mail.imap.protocol.UIDSet;
 import lombok.*;
 
 import java.util.List;
@@ -14,6 +15,6 @@ public class SocketMessage {
     private String action;
     private MessageData messageData;
     private String topic;
-    private SendTo sendTo;
+    private Long sendTo;
     private Set<Long> uidSet;
 }
