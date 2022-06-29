@@ -1,24 +1,12 @@
 package com.services.impl;
 
 import com.config.socket.SocketHandler;
-import com.dtos.ENotificationCategory;
-import com.dtos.ENotificationStatus;
-import com.entities.NotificationEntity;
-import com.entities.OrderEntity;
-import com.entities.QuestionEntity;
-import com.entities.ReviewEntity;
-import com.models.NotificationModel;
-import com.models.OrderModel;
 import com.models.SocketNotificationModel;
-import com.models.sockets.SendTo;
-import com.models.sockets.SocketMessage;
-import com.services.INotificationService;
 import com.services.ISocketService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Set;
 
 @Service
 public class SocketServiceImp implements ISocketService {

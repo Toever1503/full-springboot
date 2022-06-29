@@ -18,17 +18,22 @@ import java.util.List;
 public class ChatModel {
     private List<WebSocketSession> persons;
     private Date createdDate;
+
+    private Date updatedDate;
     private String roomId;
     private boolean isMultiple;
+
 
     public ChatModel(WebSocketSession person, String roomId, boolean isMultiple) {
         this.persons = new ArrayList<>();
         this.persons.add(person);
         this.createdDate = Calendar.getInstance().getTime();
+        this.roomId = roomId;
         this.isMultiple = isMultiple;
     }
 
-    public void sendMessage(WebSocketSession session, WebSocketMessage<TextMessage> message) {
+    public void sendMessage(WebSocketSession session, WebSocketMessage<?> message) {
+        this.updatedDate = Calendar.getInstance().getTime();
         for (WebSocketSession person : persons) {
             if (person.getId().equals(session.getId()))
                 continue;
@@ -46,9 +51,14 @@ public class ChatModel {
         else {
             if (this.persons.size() < 2) {
                 this.persons.add(session);
+            }else {
+                throw new ChatRoomException("chat", this.roomId, "Room is full");
             }
-            throw new ChatRoomException("chat", this.roomId, "Room is full");
         }
+    }
+
+    public boolean hasPersons(int size) {
+        return this.persons.size() == size;
     }
 
 }
