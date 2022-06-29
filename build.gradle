@@ -60,6 +60,9 @@ dependencies {
     // https://mvnrepository.com/artifact/org.hibernate.orm/hibernate-jpamodelgen
     compileOnly 'org.hibernate:hibernate-jpamodelgen'
     annotationProcessor('org.hibernate:hibernate-jpamodelgen')
+    // https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-data-elasticsearch
+    implementation group: 'org.springframework.boot', name: 'spring-boot-starter-data-elasticsearch', version: '2.7.1'
+
 }
 
 tasks.named('test') {

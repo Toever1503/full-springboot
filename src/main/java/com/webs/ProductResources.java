@@ -1,6 +1,7 @@
 package com.webs;
 
 
+import com.config.elasticsearch.ERepositories.EProductRepository;
 import com.dtos.ProductDto;
 import com.dtos.ProductSkuDto;
 import com.dtos.ProductVariationDto;
@@ -22,16 +23,19 @@ import java.util.List;
 public class ProductResources {
 
     private final IProductService productService;
+    private final EProductRepository eProductRepository;
 
 
-    public ProductResources(IProductService productService) {
+    public ProductResources(IProductService productService, EProductRepository eProductRepository) {
         this.productService = productService;
+        this.eProductRepository = eProductRepository;
     }
 
     @Transactional
     @GetMapping("{id}")
     public ResponseDto findProductById(@PathVariable Long id) {
-        return ResponseDto.of(ProductDto.toDto(this.productService.findById(id)), "Get product id: ".concat(id.toString()));
+        ProductDto dto = eProductRepository.save(ProductDto.toDto(this.productService.findById(id)));
+        return ResponseDto.of(dto, "Get product id: ".concat(id.toString()));
     }
 
     @Transactional

@@ -1,9 +1,13 @@
 package com.dtos;
 
+import com.config.elasticsearch.ElasticsearchIndices;
 import com.entities.ProductEntity;
-import io.swagger.models.auth.In;
 import lombok.*;
 import org.json.JSONObject;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.elasticsearch.annotations.Document;
+import org.springframework.data.elasticsearch.annotations.Field;
+import org.springframework.data.elasticsearch.annotations.FieldType;
 
 import java.util.List;
 import java.util.Set;
@@ -13,24 +17,59 @@ import java.util.stream.Collectors;
 @NoArgsConstructor
 @Builder
 @Data
+
+//for elasticsearch
+@Document(indexName = ElasticsearchIndices.PRODUCT_INDEX)
 public class ProductDto {
+    @Id
     private Long id;
+
+    @Field(type = FieldType.Text, name = "name")
     private String name;
+
+    @Field(type = FieldType.Text, name = "description")
     private String description;
+
+    @Field(type = FieldType.Integer, name = "totalQuantity")
     private Integer totalQuantity;
+
+    @Field(type = FieldType.Integer, name = "totalLike")
     private Integer totalLike;
+
+    @Field(type = FieldType.Integer, name = "totalReview")
     private Integer totalReview;
+
+    @Field(type = FieldType.Float, name = "rating")
     private Float rating;
+
+    @Field(type = FieldType.Text, name = "image")
     private String image;
+
+    @Field(type = FieldType.Object, name = "attachFiles")
     private List<Object> attachFiles;
+
+    @Field(type = FieldType.Object, name = "category")
     private CategoryDto category;
+
+    @Field(type = FieldType.Object, name = "industry")
     private IndustryDto industry;
+
+    @Field(type = FieldType.Object, name = "productMetas")
     private List<ProductMetaDto> productMetas;
+
+    @Field(type = FieldType.Object, name = "tags")
     private Set<TagDto> tags;
+
+    @Field(type = FieldType.Keyword, name = "status")
     private String status;
+
+    @Field(type = FieldType.Keyword, name = "isUseVariation")
     private Boolean isUseVariation;
 
+    @Field(type = FieldType.Object, name = "variations")
     private List<ProductVariationDto> variations;
+
+    @Field(type = FieldType.Object, name = "skus")
     private List<ProductSkuDto> skus;
 
 
