@@ -17,8 +17,8 @@ public interface IReviewRepository extends JpaRepository<ReviewEntity, Long>, Jp
 
     @Modifying
     @Query(value = "update tbl_product as p\n" +
-            "set rating = (select sum(rv.rating)/count(rv.id) from tbl_review as rv where rv.product_id=?1 and parent_id is null)\n" +
-            "where p.id=?1", nativeQuery = true)
+            "set rating = (select sum(rv.rating)/count(rv.review_id) from tbl_review as rv where rv.product_id=?1 and parent_id is null)\n" +
+            "where p.product_id=?1", nativeQuery = true)
     void updateProductRating(Long productId);
 
     Page<ReviewEntity> findAllByParentReviewIsNull(Pageable page);

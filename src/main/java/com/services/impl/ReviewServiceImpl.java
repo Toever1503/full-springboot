@@ -8,7 +8,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
-import java.util.Arrays;
 import java.util.List;
 
 import com.dtos.ENotificationCategory;
@@ -26,7 +25,6 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 
 @Service
@@ -90,7 +88,6 @@ public class ReviewServiceImpl implements IReviewService {
         reviewEntity.setParentReview(null);
         OrderDetailEntity orderDetailEntity = this.orderDetailRepository.findById(model.getOrderDetailId()).orElseThrow(() -> new RuntimeException("Order detail not found"));
 
-        // file, optionName, creatBy, orderDetailId, product
         // kiem tra nguoi dung da mua hang va da nhan hang chua
         // neu ok thi se set lai createBy, optionName,
         OrderEntity orderEntity = orderDetailEntity.getOrder();
@@ -101,15 +98,10 @@ public class ReviewServiceImpl implements IReviewService {
                 reviewEntity.setCreatedBy(SecurityUtils.getCurrentUser().getUser());
 
                 // set optionName
-                orderDetailEntity.getProductId().getSkus().stream().forEach(sku -> {
-                    ProductSkuEntity skuEntity = this.productSkuRepository.findById(sku.getId()).orElseThrow(() -> new RuntimeException("Product sku not found"));
-                    String skuCode = skuEntity.getSkuCode();
-                    String[] variationValueStrings = skuCode.split("-");
-                    Long[] variationValueIds = Arrays.stream(variationValueStrings).map(Long::parseLong).toArray(Long[]::new);
-                    List<ProductVariationValueEntity> variationValueEntities = Arrays.stream(variationValueIds).map(id -> this.productVariationValueRepository.findById(id).orElseThrow(() -> new RuntimeException("Product variation value not found"))).collect(Collectors.toList());
+               String optionName = orderDetailEntity.getSku().getOptionName();
+                reviewEntity.setOptionName(optionName);
 
-                });
-
+                //set orderDetail
                 reviewEntity.setOrderDetail(orderDetailEntity);
 
                 // set product, ten dat la productId nhung thuc te la product
@@ -138,7 +130,7 @@ public class ReviewServiceImpl implements IReviewService {
         // set lai gia tri isReview cho orderDetail
         orderDetailEntity.setIsReview(true);
         this.orderDetailRepository.save(orderDetailEntity);
-        // update gia tri rating cho product
+        // update rating of product
         this.reviewRepository.updateProductRating(review.getProduct().getId());
         notificationService.addForSpecificUser(new SocketNotificationModel(null, SecurityUtils.getCurrentUsername() + " đã đánh giá cho sản phẩm!", "", ENotificationCategory.REVIEW, ReviewEntity.ADMIN_REVIEW_URL), this.userRepository.getAllIdsByRole(RoleEntity.ADMINISTRATOR));
 
@@ -166,8 +158,9 @@ public class ReviewServiceImpl implements IReviewService {
             updateReview.setCreatedBy(SecurityUtils.getCurrentUser().getUser());
             updateReview.setIsEdit(true);
             OrderDetailEntity orderDetailEntity = this.orderDetailRepository.findById(model.getOrderDetailId()).orElseThrow(() -> new RuntimeException("Order detail not found"));
-            // set optionId
-
+            // set optionName
+            String optionName = orderDetailEntity.getSku().getOptionName();
+            updateReview.setOptionName(optionName);
 
             // set product
             if (orderDetailEntity.getProductId().getId() != originReview.getProduct().getId()) {
@@ -177,7 +170,6 @@ public class ReviewServiceImpl implements IReviewService {
             }
             updateReview.setOrderDetail(orderDetailEntity);
 
-            // upload file
             //delete file into s3
             List<Object> originalFile;
             if (originReview.getAttachFiles() != null) {
@@ -203,8 +195,9 @@ public class ReviewServiceImpl implements IReviewService {
             }
             updateReview.setAttachFiles(uploadedFiles.isEmpty() ? null : (new JSONObject(Map.of("files", uploadedFiles)).toString()));
         } else {
-            throw new RuntimeException("You can not update this review, because you have not created it yet or replyed it");
+            throw new RuntimeException("You can not update this review, because you have not created it yet");
         }
+        // update rating of product
         ReviewEntity reviewUpdate = this.reviewRepository.save(updateReview);
         this.reviewRepository.updateProductRating(reviewUpdate.getProduct().getId());
         notificationService.addForSpecificUser(new SocketNotificationModel(null, SecurityUtils.getCurrentUsername() + " đã chỉnh sửa lại đánh giá cho sản phẩm!", "", ENotificationCategory.REVIEW, ReviewEntity.ADMIN_REVIEW_URL), this.userRepository.getAllIdsByRole(RoleEntity.ADMINISTRATOR));
@@ -214,8 +207,9 @@ public class ReviewServiceImpl implements IReviewService {
     @Override
     public boolean deleteById(Long id) {
         ReviewEntity review = this.findById(id);
-        this.reviewRepository.deleteById(id);
         this.reviewRepository.deleteReviewByParent(id);
+        this.reviewRepository.deleteById(id);
+        this.reviewRepository.updateProductRating(review.getProduct().getId());
         return true;
     }
 
@@ -283,12 +277,4 @@ public class ReviewServiceImpl implements IReviewService {
         return this.reviewRepository.findReviewEntityByParentReview(id, pageable);
     }
 
-    public static void main(String[] args) {
-        String a = "1-2-3-4";
-        String[] b = a.split("-");
-        for (String c : b) {
-            System.out.println(c);
-        }
-
-    }
 }
