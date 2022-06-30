@@ -1,11 +1,12 @@
 package com.webs;
 
 
-import com.config.elasticsearch.ERepositories.EProductRepository;
+import com.config.elasticsearch.ERepositories.IEProductRepository;
 import com.dtos.ProductDto;
 import com.dtos.ProductSkuDto;
 import com.dtos.ProductVariationDto;
 import com.dtos.ResponseDto;
+import com.entities.ProductEntity;
 import com.models.ProductModel;
 import com.models.ProductSkuModel;
 import com.models.ProductVariationModel;
@@ -23,10 +24,10 @@ import java.util.List;
 public class ProductResources {
 
     private final IProductService productService;
-    private final EProductRepository eProductRepository;
+    private final IEProductRepository eProductRepository;
 
 
-    public ProductResources(IProductService productService, EProductRepository eProductRepository) {
+    public ProductResources(IProductService productService, IEProductRepository eProductRepository) {
         this.productService = productService;
         this.eProductRepository = eProductRepository;
     }
@@ -58,7 +59,15 @@ public class ProductResources {
         productModel.setId(null);
         productModel.setAttachFiles(attachFiles);
         productModel.setImage(image);
-        return ResponseDto.of(ProductDto.toDto(productService.add(productModel)), "Create product successfully");
+        return ResponseDto.of(this.saveOnElasticsearch(productService.add(productModel)), "Create product successfully");
+    }
+
+    private ProductDto saveOnElasticsearch(ProductEntity productEntity) {
+        try {
+            return eProductRepository.save(ProductDto.toDto(productEntity));
+        } catch (Exception e) {
+            throw new RuntimeException("Error occurred when saving product on elasticsearch");
+        }
     }
 
     @Transactional
@@ -69,7 +78,7 @@ public class ProductResources {
         productModel.setId(id);
         productModel.setAttachFiles(attachFiles);
         productModel.setImage(image);
-        return ResponseDto.of(ProductDto.toDto(productService.update(productModel)), "Update product successfully");
+        return ResponseDto.of(this.saveOnElasticsearch(productService.update(productModel)), "Update product successfully");
     }
 
 

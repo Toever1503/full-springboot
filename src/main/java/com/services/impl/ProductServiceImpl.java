@@ -1,7 +1,9 @@
 package com.services.impl;
 
+import com.config.elasticsearch.ERepositories.IEProductRepository;
 import com.dtos.ECategoryType;
 import com.dtos.EProductStatus;
+import com.dtos.ProductDto;
 import com.entities.*;
 import com.models.ProductMetaModel;
 import com.models.ProductModel;
@@ -13,7 +15,6 @@ import com.services.IProductService;
 import com.utils.FileUploadProvider;
 import com.utils.SecurityUtils;
 import org.json.JSONObject;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -33,7 +34,6 @@ import java.util.stream.Collectors;
 public class ProductServiceImpl implements IProductService {
 
     private final IProductRepository productRepository;
-
     private final IProductVariationRepository productVariationRepository;
     private final IProductVariationValueRepository productVariationValueRepository;
     private final IProductSkuEntityRepository productSkuEntityRepository;
@@ -41,6 +41,7 @@ public class ProductServiceImpl implements IProductService {
     private final ICategoryService categoryService;
     private final FileUploadProvider fileUploadProvider;
     private final IUserLikeProductRepository userLikeProductRepository;
+
 
     public ProductServiceImpl(IProductRepository productRepository,
                               IProductVariationRepository productVariationRepository,
@@ -243,6 +244,11 @@ public class ProductServiceImpl implements IProductService {
             return 1;
         }
 
+    }
+
+    @Override
+    public ProductDto saveOnElasticsearch(ProductEntity productEntity) {
+        return null;
     }
 
     @Override
