@@ -281,12 +281,14 @@ public class ProductServiceImpl implements IProductService {
                 throw new RuntimeException(e);
             }
         }
-        int size = productVariationValueRepository.checkVariationValueExist(model.getVariationValues()).size();
-        if (size != model.getVariationValues().size())
-            throw new RuntimeException("variation values not enough, expected " + size);
+        List<ProductVariationValueEntity> values = productVariationValueRepository.checkVariationValueExist(model.getVariationValues());
+        if (values.size() != model.getVariationValues().size())
+            throw new RuntimeException("variation values not enough, expected " + values.size());
         try {
+            skuEntity.setOptionName(values.stream().map(v -> v.getVariation().getVariationName().concat(" ".concat(v.getValue())))
+                    .collect(Collectors.joining(", ")));
             skuEntity.setIsValid(true);
-            skuEntity.setVariationSize(size);
+            skuEntity.setVariationSize(values.size());
             return this.productSkuEntityRepository.save(skuEntity);
         } catch (Exception e) {
             System.out.println("=============exception");

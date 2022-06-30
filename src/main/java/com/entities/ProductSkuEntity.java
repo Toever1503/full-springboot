@@ -47,6 +47,9 @@ public class ProductSkuEntity {
     @Column(name = "variation_size")
     private Integer variationSize;
 
+    @Column(name = "option_name")
+    private String optionName;
+
     public static final String SKU_CODE_PATTERN = "(\\d+)|((\\d+-)+\\d+)";
 
     /*
