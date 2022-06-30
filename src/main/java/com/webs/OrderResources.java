@@ -4,6 +4,7 @@ import com.dtos.OrderDto;
 import com.dtos.ResponseDto;
 import com.entities.OrderEntity;
 import com.models.OrderModel;
+import com.models.ReportModel;
 import com.models.filters.OrderFilterModel;
 import com.models.specifications.OrderSpecification;
 import com.services.IOrderService;
@@ -87,13 +88,22 @@ public class OrderResources {
         return ResponseDto.of(this.orderService.filter(page, Specification.where(OrderSpecification.filter(orderFilterModel))).map(OrderDto::toDto), "Filter success");
     }
 
+    @Transactional
     @GetMapping("/check/{id}")
     public ResponseDto getPayStatus(@PathVariable("id") Long id){
         return ResponseDto.of(orderService.getStatusByID(id),"Get status");
     }
 
+    @Transactional
     @GetMapping("/redirect/{id}")
     public ResponseDto getPayUrl(@PathVariable("id") Long id){
         return ResponseDto.of(orderService.getUrlByID(id),"Get url");
+    }
+
+    @RolesAllowed("ADMINISTRATOR")
+    @Transactional
+    @GetMapping("/quantityProduct")
+    public ResponseDto getQuantityProduct(@RequestBody ReportModel reportModel){
+        return ResponseDto.of(this.orderService.getQuantityProductByStatusAndTime(reportModel.getStatus(), reportModel.getTime_from(), reportModel.getTime_to()),"Get quantity product");
     }
 }

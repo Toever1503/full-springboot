@@ -13,6 +13,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
@@ -186,5 +187,11 @@ public class OrderServiceImpl implements IOrderService {
         OrderEntity order = this.findById(id);
         order.setDeliveryCode(deliveryCode);
         return orderRepository.save(order);
+    }
+
+    @Override
+    public Integer getQuantityProductByStatusAndTime(String status_order, Date time_from, Date time_to) {
+        Integer totalQuantityProductInTime = this.orderDetailRepository.getQuantityProductByStatusAndTime(status_order, time_from, time_to).stream().mapToInt(Integer::intValue).sum();
+        return totalQuantityProductInTime;
     }
 }
