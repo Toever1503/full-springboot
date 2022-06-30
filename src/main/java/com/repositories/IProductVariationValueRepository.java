@@ -9,6 +9,6 @@ import java.util.List;
 
 public interface IProductVariationValueRepository extends JpaRepository<ProductVariationValueEntity, Long>, JpaSpecificationExecutor<ProductVariationValueEntity> {
 
-    @Query("select pv.id from ProductVariationValueEntity pv where pv.id in ?1")
-    List<Long> checkVariationValueExist(List<Long> variation);
+    @Query("select pv from ProductVariationValueEntity pv where pv.id in ?1")
+    List<ProductVariationValueEntity> checkVariationValueExist(List<Long> variation);
 }
