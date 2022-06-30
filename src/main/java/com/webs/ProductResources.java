@@ -7,17 +7,25 @@ import com.dtos.ProductSkuDto;
 import com.dtos.ProductVariationDto;
 import com.dtos.ResponseDto;
 import com.entities.ProductEntity;
+import com.entities.RoleEntity;
 import com.models.ProductModel;
 import com.models.ProductSkuModel;
 import com.models.ProductVariationModel;
 import com.services.IProductService;
+import io.swagger.v3.oas.annotations.Operation;
+import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.annotation.security.RolesAllowed;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @RequestMapping("products")
 @RestController
@@ -32,11 +40,15 @@ public class ProductResources {
         this.eProductRepository = eProductRepository;
     }
 
-    @Transactional
+    @GetMapping
+    public ResponseDto getAll(Pageable page) {
+        return ResponseDto.of(productService.findAllDto(page), "Get all products");
+    }
+
+
     @GetMapping("{id}")
-    public ResponseDto findProductById(@PathVariable Long id) {
-        ProductDto dto = eProductRepository.save(ProductDto.toDto(this.productService.findById(id)));
-        return ResponseDto.of(dto, "Get product id: ".concat(id.toString()));
+    public ResponseDto findProductById(@PathVariable Long id, Pageable page) {
+        return ResponseDto.of(this.productService.findDetailProductById(page, id), "Get product id: ".concat(id.toString()));
     }
 
     @Transactional
@@ -73,5 +85,17 @@ public class ProductResources {
         return ResponseDto.of(this.productService.saveDtoOnElasticsearch(productService.update(productModel)), "Update product successfully");
     }
 
+    @RolesAllowed(RoleEntity.ADMINISTRATOR)
+    @Transactional
+    @GetMapping("refreshData")
+    @Operation(summary = "resync data on database to  elasticsearch")
+    public String refreshElasticsearch() {
+        return "Ok";
+    }
+
+    @GetMapping("_search")
+    private ResponseDto search(@RequestParam @Valid @NotBlank @NotNull String q, Pageable page) {
+        return ResponseDto.of(this.productService.search(page, q), "Search product");
+    }
 
 }

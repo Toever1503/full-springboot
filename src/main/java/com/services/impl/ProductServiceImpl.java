@@ -1,6 +1,7 @@
 package com.services.impl;
 
 import com.config.elasticsearch.ERepositories.IEProductRepository;
+import com.dtos.DetailProductDto;
 import com.dtos.ECategoryType;
 import com.dtos.EProductStatus;
 import com.dtos.ProductDto;
@@ -9,6 +10,7 @@ import com.models.ProductMetaModel;
 import com.models.ProductModel;
 import com.models.ProductSkuModel;
 import com.models.ProductVariationModel;
+import com.models.filters.ProductDtoFilter;
 import com.repositories.*;
 import com.services.ICategoryService;
 import com.services.IProductService;
@@ -17,14 +19,19 @@ import com.utils.SecurityUtils;
 import org.json.JSONObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.elasticsearch.core.SearchHitsImpl;
+import org.springframework.data.elasticsearch.core.SearchPage;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.data.querydsl.QuerydslPredicateExecutor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -64,7 +71,7 @@ public class ProductServiceImpl implements IProductService {
 
     @Override
     public List<ProductEntity> findAll() {
-        return null;
+        return this.productRepository.findAll();
     }
 
     @Override
@@ -258,6 +265,16 @@ public class ProductServiceImpl implements IProductService {
         }
     }
 
+    @Override
+    public Page<ProductDto> findAllDto(Pageable page) {
+        return this.eProductRepository.findAll(page);
+    }
+
+    @Override
+    public ProductDto findDtoById(Long id) {
+        return this.eProductRepository.findById(id).orElseThrow(() -> new RuntimeException("Cannot found product id: ".concat(id.toString())));
+    }
+
 
     @Override
     public ProductEntity saveVariations(Long productId, List<ProductVariationModel> models) {
@@ -281,6 +298,29 @@ public class ProductServiceImpl implements IProductService {
             entity.setSkus(List.of(saveSku(entity, folder, models.get(0), req)));
         }
         return entity;
+    }
+
+    @Override
+    public Page<ProductDto> search(Pageable page, String q) {
+//        QuerydslPredicateExecutor
+
+        return this.eProductRepository.findByNameLike(q, page);
+    }
+
+    @Override
+    public Page<ProductDto> filterSearch(Pageable page, ProductDtoFilter q) {
+//        SearchPage
+        return null;
+    }
+
+    @Override
+    public DetailProductDto findDetailProductById(Pageable similarPage, Long id) {
+        ProductDto productDto = this.findDtoById(id);
+        String[] fields = Arrays.stream(productDto.getClass().getDeclaredFields()).map(Field::getName).toArray(String[]::new);
+        return DetailProductDto.builder()
+                .data(productDto)
+                .similarProducts(this.eProductRepository.searchSimilar(productDto, fields, similarPage))
+                .build();
     }
 
     private ProductSkuEntity saveSku(ProductEntity entity, String folder, ProductSkuModel model, HttpServletRequest req) {
