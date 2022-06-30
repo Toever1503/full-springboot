@@ -28,6 +28,6 @@ public class ProductVariationEntity {
     @JoinColumn(name = "product_id")
     private ProductEntity product;
 
-    @OneToMany(mappedBy = "variation", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "variation", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<ProductVariationValueEntity> variationValues;
 }

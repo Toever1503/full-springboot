@@ -2,12 +2,13 @@ package com.entities;
 
 import com.utils.SecurityUtils;
 import lombok.*;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
-import org.hibernate.annotations.Where;
-import org.hibernate.annotations.WhereJoinTable;
+import org.hibernate.annotations.*;
 
 import javax.persistence.*;
+import javax.persistence.CascadeType;
+import javax.persistence.Entity;
+import javax.persistence.OrderBy;
+import javax.persistence.Table;
 import java.util.List;
 import java.util.Set;
 
@@ -46,7 +47,7 @@ public class ProductEntity {
     @Column(name = "status")
     private String status;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private UserEntity createdBy;
 
@@ -60,19 +61,19 @@ public class ProductEntity {
     @Column(name = "updated_Date")
     private java.util.Date updatedDate;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id", nullable = false)
     private CategoryEntity category;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "industry_id", nullable = false)
     private CategoryEntity industry;
 
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id")
     private List<ProductMetaEntity> productMetas;
 
-    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @OrderBy("price ASC")
     private List<ProductSkuEntity> skus;
 
@@ -80,15 +81,11 @@ public class ProductEntity {
     @Column(name = "is_use_variation")
     private Boolean isUseVariation;
 
-    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<ProductVariationEntity> variations;
 
-    @ManyToMany(
+    @ManyToMany(mappedBy = "products", fetch = FetchType.LAZY,
             cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.DETACH})
-    @JoinTable(name = "tbl_tag_products",
-            joinColumns = @JoinColumn(name = "products_id"),
-            inverseJoinColumns = @JoinColumn(name = "tags_id")
-    )
     private Set<TagEntity> tags;
 
     public static String FOLDER = "/product/";

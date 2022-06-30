@@ -13,7 +13,6 @@ import com.services.IProductService;
 import com.utils.FileUploadProvider;
 import com.utils.SecurityUtils;
 import org.json.JSONObject;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -60,7 +59,7 @@ public class ProductServiceImpl implements IProductService {
 
     @Override
     public List<ProductEntity> findAll() {
-        return null;
+        return this.productRepository.findAll();
     }
 
     @Override

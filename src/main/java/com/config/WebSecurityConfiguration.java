@@ -10,6 +10,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.core.annotation.Order;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.access.intercept.AbstractSecurityInterceptor;
 import org.springframework.security.access.intercept.aopalliance.MethodSecurityInterceptor;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -43,15 +44,11 @@ public class WebSecurityConfiguration {
             new AntPathRequestMatcher("/webjars/**"),
 
             new AntPathRequestMatcher("/transaction/result**"),
-            new AntPathRequestMatcher("/products/get-all"),
-            new AntPathRequestMatcher("/products/get-by-id/**"),
+            new AntPathRequestMatcher("/products/**", HttpMethod.GET.name()),
             new AntPathRequestMatcher("/products/filter"),
 
-            new AntPathRequestMatcher("/categories/all-parent-categories"),
-            new AntPathRequestMatcher("/categories/slug/**"),
-            new AntPathRequestMatcher("/categories/get-all-categories"),
-            new AntPathRequestMatcher("/categories/get-by-id/**"),
-            new AntPathRequestMatcher("/categories/**/children"),
+            new AntPathRequestMatcher("/industries/**", HttpMethod.GET.name()),
+            new AntPathRequestMatcher("/categories/**", HttpMethod.GET.name()),
             new AntPathRequestMatcher("/reviews/product/**"),
             new AntPathRequestMatcher("/reviews/filter", "POST"),
             new AntPathRequestMatcher("/reviews/reply/**", "GET")

@@ -45,19 +45,18 @@ public class ProductDto {
     @Field(type = FieldType.Text, name = "image")
     private String image;
 
-    @Field(type = FieldType.Object, name = "attachFiles")
     private List<Object> attachFiles;
 
-    @Field(type = FieldType.Object, name = "category")
+    @Field(type = FieldType.Object, name = "category", storeNullValue = true)
     private CategoryDto category;
 
-    @Field(type = FieldType.Object, name = "industry")
+    @Field(type = FieldType.Object, name = "industry", storeNullValue = true)
     private IndustryDto industry;
 
-    @Field(type = FieldType.Object, name = "productMetas")
+    @Field(type = FieldType.Nested, name = "productMetas", storeNullValue = true)
     private List<ProductMetaDto> productMetas;
 
-    @Field(type = FieldType.Object, name = "tags")
+    @Field(type = FieldType.Nested, name = "tags", storeNullValue = true)
     private Set<TagDto> tags;
 
     @Field(type = FieldType.Keyword, name = "status")
@@ -66,11 +65,13 @@ public class ProductDto {
     @Field(type = FieldType.Keyword, name = "isUseVariation")
     private Boolean isUseVariation;
 
-    @Field(type = FieldType.Object, name = "variations")
+    @Field(type = FieldType.Nested, name = "variations", storeNullValue = true)
     private List<ProductVariationDto> variations;
 
-    @Field(type = FieldType.Object, name = "skus")
+    @Field(type = FieldType.Nested, name = "skus", storeNullValue = true)
     private List<ProductSkuDto> skus;
+
+
 
 
     public static ProductDto toDto(ProductEntity entity) {
@@ -87,12 +88,11 @@ public class ProductDto {
         productDto.setStatus(entity.getStatus());
         productDto.setIsUseVariation(entity.getIsUseVariation());
 
-        productDto.setAttachFiles(entity.getAttachFiles() != null ? new JSONObject(entity.getAttachFiles()).getJSONArray("files").toList() : null);
+        productDto.setAttachFiles(entity.getAttachFiles() != null ? new JSONObject(entity.getAttachFiles()).getJSONArray("files").toList() : List.of());
         productDto.setCategory(entity.getCategory() == null ? null : CategoryDto.toDto(entity.getCategory(), false));
         productDto.setIndustry(entity.getIndustry() == null ? null : IndustryDto.toDto(entity.getIndustry(), false));
         productDto.setProductMetas(entity.getProductMetas() == null ? null : entity.getProductMetas().stream().map(ProductMetaDto::toDto).collect(Collectors.toList()));
         productDto.setTags(entity.getTags() == null ? null : entity.getTags().stream().map(TagDto::toTagDto).collect(Collectors.toSet()));
-
 
         productDto.setVariations(entity.getVariations() == null ? null : entity.getVariations().stream().map(ProductVariationDto::toDto).collect(Collectors.toList()));
         productDto.setSkus(entity.getSkus() == null ? null : entity.getSkus().stream().map(ProductSkuDto::toDto).collect(Collectors.toList()));
