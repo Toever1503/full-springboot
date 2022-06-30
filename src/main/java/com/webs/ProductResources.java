@@ -42,13 +42,13 @@ public class ProductResources {
     @Transactional
     @PostMapping("variations/{productId}")
     public ResponseDto saveVariations(@PathVariable Long productId, @RequestBody @Valid List<ProductVariationModel> models) {
-        return ResponseDto.of(this.productService.saveVariations(productId, models).stream().map(ProductVariationDto::toDto), "Save variations for product id: ".concat(productId.toString()));
+        return ResponseDto.of(this.productService.saveDtoOnElasticsearch(this.productService.saveVariations(productId, models)).getVariations(), "Save variations for product id: ".concat(productId.toString()));
     }
 
     @Transactional
     @PostMapping("skus/{productId}")
     public ResponseDto saveSkus(@PathVariable Long productId, @Valid @RequestPart("skus") List<ProductSkuModel> models, HttpServletRequest req) {
-        return ResponseDto.of(this.productService.saveSkus(req, productId, models).stream().map(ProductSkuDto::toDto), "Save skus for product id: ".concat(productId.toString()));
+        return ResponseDto.of(this.productService.saveDtoOnElasticsearch(this.productService.saveSkus(req, productId, models)).getSkus(), "Save skus for product id: ".concat(productId.toString()));
     }
 
     @Transactional
@@ -59,15 +59,7 @@ public class ProductResources {
         productModel.setId(null);
         productModel.setAttachFiles(attachFiles);
         productModel.setImage(image);
-        return ResponseDto.of(this.saveOnElasticsearch(productService.add(productModel)), "Create product successfully");
-    }
-
-    private ProductDto saveOnElasticsearch(ProductEntity productEntity) {
-        try {
-            return eProductRepository.save(ProductDto.toDto(productEntity));
-        } catch (Exception e) {
-            throw new RuntimeException("Error occurred when saving product on elasticsearch");
-        }
+        return ResponseDto.of(this.productService.saveDtoOnElasticsearch(productService.add(productModel)), "Create product successfully");
     }
 
     @Transactional
@@ -78,7 +70,7 @@ public class ProductResources {
         productModel.setId(id);
         productModel.setAttachFiles(attachFiles);
         productModel.setImage(image);
-        return ResponseDto.of(this.saveOnElasticsearch(productService.update(productModel)), "Update product successfully");
+        return ResponseDto.of(this.productService.saveDtoOnElasticsearch(productService.update(productModel)), "Update product successfully");
     }
 
 

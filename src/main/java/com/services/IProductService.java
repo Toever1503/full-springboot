@@ -14,8 +14,9 @@ import java.util.List;
 public interface IProductService extends IBaseService<ProductEntity, ProductModel, Long> {
     int likeProduct(Long id);
 
-    ProductDto saveOnElasticsearch(ProductEntity productEntity);
-    List<ProductVariationEntity> saveVariations(Long productId, List<ProductVariationModel> models);
+    ProductDto saveDtoOnElasticsearch(ProductEntity productEntity);
 
-    List<ProductSkuEntity> saveSkus(HttpServletRequest req, Long productId, List<ProductSkuModel> models);
+    ProductEntity saveVariations(Long productId, List<ProductVariationModel> models);
+
+    ProductEntity saveSkus(HttpServletRequest req, Long productId, List<ProductSkuModel> models);
 }

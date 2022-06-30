@@ -34,6 +34,7 @@ import java.util.stream.Collectors;
 public class ProductServiceImpl implements IProductService {
 
     private final IProductRepository productRepository;
+    private final IEProductRepository eProductRepository;
     private final IProductVariationRepository productVariationRepository;
     private final IProductVariationValueRepository productVariationValueRepository;
     private final IProductSkuEntityRepository productSkuEntityRepository;
@@ -44,6 +45,7 @@ public class ProductServiceImpl implements IProductService {
 
 
     public ProductServiceImpl(IProductRepository productRepository,
+                              IEProductRepository eProductRepository,
                               IProductVariationRepository productVariationRepository,
                               IProductVariationValueRepository productVariationValueRepository,
                               IProductSkuEntityRepository productSkuEntityRepository,
@@ -51,6 +53,7 @@ public class ProductServiceImpl implements IProductService {
                               FileUploadProvider fileUploadProvider,
                               IUserLikeProductRepository userLikeProductRepository) {
         this.productRepository = productRepository;
+        this.eProductRepository = eProductRepository;
         this.productVariationRepository = productVariationRepository;
         this.productVariationValueRepository = productVariationValueRepository;
         this.productSkuEntityRepository = productSkuEntityRepository;
@@ -247,30 +250,37 @@ public class ProductServiceImpl implements IProductService {
     }
 
     @Override
-    public ProductDto saveOnElasticsearch(ProductEntity productEntity) {
-        return null;
+    public ProductDto saveDtoOnElasticsearch(ProductEntity productEntity) {
+        try {
+            return eProductRepository.save(ProductDto.toDto(productEntity));
+        } catch (Exception e) {
+            throw new RuntimeException("Error occurred when saving product on elasticsearch");
+        }
     }
 
+
     @Override
-    public List<ProductVariationEntity> saveVariations(Long productId, List<ProductVariationModel> models) {
+    public ProductEntity saveVariations(Long productId, List<ProductVariationModel> models) {
         ProductEntity entity = this.findById(productId);
         if (!entity.getIsUseVariation())
             throw new RuntimeException("Product is not use variation, id: ".concat(entity.getId().toString()));
-        return this.productVariationRepository.saveAll(models.stream().map(variation -> ProductVariationModel.toEntity(variation, entity)).collect(Collectors.toList()));
+        entity.setVariations(this.productVariationRepository.saveAll(models.stream().map(variation -> ProductVariationModel.toEntity(variation, entity)).collect(Collectors.toList())));
+        return entity;
     }
 
     @Override
-    public List<ProductSkuEntity> saveSkus(HttpServletRequest req, Long productId, List<ProductSkuModel> models) throws RuntimeException {
+    public ProductEntity saveSkus(HttpServletRequest req, Long productId, List<ProductSkuModel> models) throws RuntimeException {
         final ProductEntity entity = this.findById(productId);
         //separate 2 type: variation and not have variation
         final String folder = this.getProductFolder(entity.getId());
-        if (entity.getIsUseVariation())
-            return models.stream()
+        if (entity.getIsUseVariation()) {
+            entity.setSkus(models.stream()
                     .map(sku -> saveSku(entity, folder, sku, req))
-                    .collect(Collectors.toList());
-        else {
-            return List.of(saveSku(entity, folder, models.get(0), req));
+                    .collect(Collectors.toList()));
+        } else {
+            entity.setSkus(List.of(saveSku(entity, folder, models.get(0), req)));
         }
+        return entity;
     }
 
     private ProductSkuEntity saveSku(ProductEntity entity, String folder, ProductSkuModel model, HttpServletRequest req) {
