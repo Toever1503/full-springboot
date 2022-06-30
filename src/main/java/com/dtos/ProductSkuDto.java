@@ -23,6 +23,8 @@ public class ProductSkuDto {
 
     private Boolean isValid;
 
+    private String optionName;
+
     public static ProductSkuDto toDto(ProductSkuEntity entity) {
         if (entity == null) return null;
         return ProductSkuDto.builder()
@@ -33,6 +35,7 @@ public class ProductSkuDto {
                 .image(entity.getImage())
                 .inventoryQuantity(entity.getInventoryQuantity())
                 .isValid(entity.getIsValid())
+                .optionName(entity.getOptionName())
                 .build();
     }
 }
