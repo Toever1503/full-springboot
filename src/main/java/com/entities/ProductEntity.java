@@ -47,7 +47,7 @@ public class ProductEntity {
     @Column(name = "status")
     private String status;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private UserEntity createdBy;
 
@@ -61,11 +61,11 @@ public class ProductEntity {
     @Column(name = "updated_Date")
     private java.util.Date updatedDate;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id", nullable = false)
     private CategoryEntity category;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "industry_id", nullable = false)
     private CategoryEntity industry;
 

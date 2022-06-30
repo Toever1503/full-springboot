@@ -29,6 +29,7 @@ import java.util.stream.Collectors;
 
 @RequestMapping("products")
 @RestController
+@Transactional
 public class ProductResources {
 
     private final IProductService productService;
@@ -50,6 +51,16 @@ public class ProductResources {
     public ResponseDto findProductById(@PathVariable Long id, Pageable page) {
         return ResponseDto.of(this.productService.findDetailProductById(page, id), "Get product id: ".concat(id.toString()));
     }
+
+    @Transactional
+    @GetMapping("id/{id}")
+    public ResponseDto findById(@PathVariable Long id) {
+        Page<ProductEntity> ps = this.productService.findAll(PageRequest.of(0, 20));
+//        Hibernate.initialize(ps);
+//        ProductDto dto = eProductRepository.findById(id).orElseThrow(() -> new RuntimeException("Product not found"));
+        return ResponseDto.of(ps.map(ProductDto::toDto), "Get all products");
+    }
+
 
     @Transactional
     @PostMapping("variations/{productId}")

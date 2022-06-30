@@ -10,6 +10,7 @@ import org.apache.http.message.BasicHeader;
 import org.elasticsearch.client.RestClient;
 import org.elasticsearch.client.RestClientBuilder;
 import org.elasticsearch.client.RestHighLevelClient;
+import org.elasticsearch.client.RestHighLevelClientBuilder;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -39,15 +40,21 @@ public class ElasticsearchConfiguration {
 
 //        final CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
 //        credentialsProvider.setCredentials(AuthScope.ANY, new UsernamePasswordCredentials(userName, password));
-
-        RestClientBuilder builder = RestClient.builder(new HttpHost(host, port, protocol))
+//        RestClientBuilder builder = RestClient.builder(new HttpHost(host, port, protocol))
 //                .setHttpClientConfigCallback(httpClientBuilder -> httpClientBuilder.setDefaultCredentialsProvider(credentialsProvider))
-                .setDefaultHeaders(compatibilityHeaders());
+//                .setDefaultHeaders(compatibilityHeaders());
+//        return new RestHighLevelClient(builder);
 
-        return new RestHighLevelClient(builder);
+        RestClient httpClient = RestClient.builder(
+                new HttpHost(host, port, protocol)
+        ).build();
+        RestHighLevelClient hlrc = new RestHighLevelClientBuilder(httpClient)
+                .setApiCompatibilityMode(true)
+                .build();
+        return hlrc;
     }
 
-    private Header[] compatibilityHeaders() {
-        return new Header[]{new BasicHeader(HttpHeaders.ACCEPT, "application/vnd.elasticsearch+json;compatible-with=7"), new BasicHeader(HttpHeaders.CONTENT_TYPE, "application/vnd.elasticsearch+json;compatible-with=7")};
-    }
+//    private Header[] compatibilityHeaders() {
+//        return new Header[]{new BasicHeader(HttpHeaders.ACCEPT, "application/vnd.elasticsearch+json;compatible-with=7"), new BasicHeader(HttpHeaders.CONTENT_TYPE, "application/vnd.elasticsearch+json;compatible-with=7")};
+//    }
 }
