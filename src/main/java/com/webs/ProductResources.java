@@ -9,6 +9,7 @@ import com.models.ProductModel;
 import com.models.ProductSkuModel;
 import com.models.ProductVariationModel;
 import com.services.IProductService;
+import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -26,6 +27,12 @@ public class ProductResources {
 
     public ProductResources(IProductService productService) {
         this.productService = productService;
+    }
+
+    @Transactional
+    @GetMapping
+    public ResponseDto getAllProducts(Pageable pageable) {
+        return ResponseDto.of(this.productService.findAll(pageable), "Get all products");
     }
 
     @Transactional
