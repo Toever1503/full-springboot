@@ -24,7 +24,7 @@ public class ReviewModel {
     private String content;
     private String rating;
     private List<MultipartFile> attachFiles;
-        private List<String> attachFilesOrigin = new ArrayList<>();
+    private List<String> attachFilesOrigin = new ArrayList<>();
     private Long parentId;
 
     public static ReviewEntity toEntity(ReviewModel model) {

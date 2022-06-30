@@ -26,7 +26,7 @@ public class ReviewDto {
     private Date updatedDate;
     private boolean isEdit;
     private Long parentId;
-    private ProductDto product;
+//    private ProductDto product;
     private OrderDetailDto orderDetail;
     private String status;
     private UserDto createdBy;
@@ -43,7 +43,7 @@ public class ReviewDto {
                 .updatedDate(entity.getUpdatedDate())
                 .isEdit(entity.getIsEdit())
                 .parentId(entity.getParentReview() == null ? null : entity.getParentReview().getId())
-                .product(ProductDto.toDto(entity.getProduct()))
+//                .product(ProductDto.toDto(entity.getProduct()))
                 .orderDetail(OrderDetailDto.toDto(entity.getOrderDetail()))
                 .status(entity.getStatus())
                 .createdBy(UserDto.toDto(entity.getCreatedBy()))
