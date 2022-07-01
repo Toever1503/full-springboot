@@ -5,9 +5,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.web.multipart.MultipartFile;
-
-import javax.validation.constraints.NotNull;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -16,7 +13,7 @@ import javax.validation.constraints.NotNull;
 public class ProductSkuDto {
     private Long id;
     private Double price;
-    private Integer discount; // similar with old price and new price. range from 1-100 percent.
+    private Double oldPrice; // similar with old price and new price. range from 1-100 percent.
     private String image;
     private String skuCode;
     private Integer inventoryQuantity;
@@ -31,7 +28,7 @@ public class ProductSkuDto {
                 .id(entity.getId())
                 .price(entity.getPrice())
                 .skuCode(entity.getSkuCode())
-                .discount(entity.getDiscount())
+                .oldPrice(entity.getOldPrice())
                 .image(entity.getImage())
                 .inventoryQuantity(entity.getInventoryQuantity())
                 .isValid(entity.getIsValid())

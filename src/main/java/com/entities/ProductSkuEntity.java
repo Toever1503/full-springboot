@@ -32,8 +32,8 @@ public class ProductSkuEntity {
     @Column(name = "price")
     private Double price;
 
-    @Column(name = "discount")
-    private Integer discount; // similar with old price and new price. range from 1-100 percent.
+    @Column(name = "old_price")
+    private Double oldPrice; // similar with old price and new price. range from 1-100 percent.
 
     @Column(name = "image")
     private String image;

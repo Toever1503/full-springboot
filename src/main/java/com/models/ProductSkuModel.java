@@ -21,7 +21,7 @@ public class ProductSkuModel {
     private Long id;
     @NotNull
     private Double price;
-    private Integer discount; // similar with old price and new price. range from 1-100 percent.
+    private Double oldPrice; // similar with old price and new price. range from 1-100 percent.
 
     private String imageParameter;
 
@@ -52,7 +52,7 @@ public class ProductSkuModel {
                 .product(product)
                 .id(model.id)
                 .price(model.price)
-                .discount(model.discount == null ? 0 : model.discount)
+                .oldPrice(model.oldPrice == null ? 0 : model.oldPrice)
                 .inventoryQuantity(model.inventoryQuantity)
                 .skuCode(skuCode)
                 .isValid(model.isValid)
