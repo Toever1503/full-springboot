@@ -1,8 +1,12 @@
 package com.services.impl;
 
+import com.dtos.ENotificationCategory;
+import com.dtos.EStatusOrder;
 import com.entities.*;
 import com.models.OrderModel;
+import com.models.SocketNotificationModel;
 import com.repositories.*;
+import com.services.INotificationService;
 import com.services.IOrderService;
 import com.utils.SecurityUtils;
 import org.aspectj.weaver.ast.Or;
@@ -31,6 +35,13 @@ public class OrderServiceImpl implements IOrderService {
     ICartDetailRepository cartDetailRepository;
     @Autowired
     IAddressRepository addressRepository;
+
+    @Autowired
+    private INotificationService notificationService;
+
+    @Autowired
+    private IUserRepository userRepository;
+
     @Autowired
 
     @Override
@@ -50,12 +61,12 @@ public class OrderServiceImpl implements IOrderService {
 
     @Override
     public Page<OrderEntity> filter(Pageable page, Specification<OrderEntity> specs) {
-        return orderRepository.findAll(specs,page);
+        return orderRepository.findAll(specs, page);
     }
 
     @Override
     public OrderEntity findById(Long id) {
-        return orderRepository.findById(id).orElseThrow(()->new RuntimeException("Order not found!!!"));
+        return orderRepository.findById(id).orElseThrow(() -> new RuntimeException("Order not found!!!"));
     }
 
     //Address,Delete cartDetail
@@ -63,25 +74,29 @@ public class OrderServiceImpl implements IOrderService {
     public OrderEntity add(OrderModel model) {
         String uuid = UUID.randomUUID().toString();
         String note = model.getNote();
-        AddressEntity address = new AddressEntity();
+        AddressEntity address = this.addressRepository.findById(model.getAddressId()).orElseThrow(() -> new RuntimeException("Address not found!!!"));
         String paymentMethod = model.getPaymentMethod().toString();
         List<CartDetailEntity> cartDetailEntities = cartDetailRepository.findAllById(model.getCartDetailIds());
-        if(cartDetailEntities.size()==0){
+        if (cartDetailEntities.size() == 0) {
             return null;
         }
-        List<CartEntity> cartEntities = cartDetailEntities.stream().map(CartDetailEntity::getCart).collect(Collectors.toList());
         List<OrderDetailEntity> orderDetailEntities = new ArrayList<>();
         AtomicReference<Double> totalPrices = new AtomicReference<>(0.0);
         AtomicReference<Integer> totalProducts = new AtomicReference<>(0);
+
+
+        StringBuilder strAddress = new StringBuilder(address.getStreet());
+        strAddress.append(", ").append(address.getWard().getName()).append(", ").append(address.getDistrict().getName()).append(", ").append(address.getProvince().getName());
         OrderEntity order = orderRepository.save(OrderEntity.builder()
                 .uuid(uuid)
                 .note(note)
                 .paymentMethod(paymentMethod)
-                .status("PENDING")
-                .mainAddress("nope")
-                .mainPhone("none")
-                .mainReceiver("Hiu")
-                .deliveryCode("sadasdassd")
+                .status(EStatusOrder.PENDING.name())
+                .mainAddress(strAddress.toString())
+                .mainPhone(address.getPhone())
+                .mainReceiver(address.getReceiver())
+                .deliveryCode(null)
+                .addressEntity(address)
                 .deliveryFee(Double.valueOf(30000f))
                 .createdBy(SecurityUtils.getCurrentUser().getUser())
                 .build());
@@ -102,10 +117,11 @@ public class OrderServiceImpl implements IOrderService {
 
         cartDetailRepository.deleteAll(cartDetailEntities);
         orderDetailRepository.saveAll(orderDetailEntities);
-        order.setTotalPrices(totalPrices.get()+order.getDeliveryFee());
+        order.setTotalPrices(totalPrices.get() + order.getDeliveryFee());
         order.setTotalNumberProducts(totalProducts.get());
         order.setOrderDetails(orderDetailEntities);
         cartRepository.deleteAllByCartDetails_Empty();
+        this.notificationService.addForSpecificUser(new SocketNotificationModel(null, "Bạn có đơn hàng mới!, #".concat(order.getUuid()), "", ENotificationCategory.ORDER,OrderEntity.ADMIN_ORDER_URL), this.userRepository.getAllIdsByRole(RoleEntity.ADMINISTRATOR));
         return orderRepository.save(order);
     }
 
@@ -159,7 +175,7 @@ public class OrderServiceImpl implements IOrderService {
 
     @Override
     public OrderEntity onlyUserFindById(Long id, Long userId) {
-        return orderRepository.findByIdAndCreatedById(id, userId).orElseThrow(()->new RuntimeException("Order not found!!!"));
+        return orderRepository.findByIdAndCreatedById(id, userId).orElseThrow(() -> new RuntimeException("Order not found!!!"));
     }
 
     @Override
@@ -169,7 +185,7 @@ public class OrderServiceImpl implements IOrderService {
 
     @Override
     public OrderEntity findByUUID(String uuid) {
-        return orderRepository.findByUuid(uuid).orElseThrow(()->new RuntimeException("Order not found!!!"));
+        return orderRepository.findByUuid(uuid).orElseThrow(() -> new RuntimeException("Order not found!!!"));
     }
 
     @Override
