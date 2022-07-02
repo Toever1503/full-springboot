@@ -316,10 +316,9 @@ public class ProductServiceImpl implements IProductService {
     @Override
     public DetailProductDto findDetailProductById(Pageable similarPage, Long id) {
         ProductDto productDto = this.findDtoById(id);
-        String[] fields = Arrays.stream(productDto.getClass().getDeclaredFields()).map(Field::getName).toArray(String[]::new);
         return DetailProductDto.builder()
                 .data(productDto)
-                .similarProducts(this.eProductRepository.searchSimilar(productDto, fields, similarPage))
+                .similarProducts(this.eProductRepository.searchSimilar(productDto, ProductDto.FIELDS, similarPage))
                 .build();
     }
 

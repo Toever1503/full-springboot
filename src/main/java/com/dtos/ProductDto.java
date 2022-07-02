@@ -21,6 +21,21 @@ import java.util.stream.Collectors;
 //for elasticsearch
 @Document(indexName = ElasticsearchIndices.PRODUCT_INDEX)
 public class ProductDto {
+
+    public final static String[] FIELDS = {"name",
+            "description",
+            "category.categoryName",
+            "category.description",
+            "category.slug",
+            "industry.industryName",
+            "industry.slug",
+            "industry.description",
+            "productMetas.metaKey",
+            "productMetas.metaValue",
+            "tags.tagName",
+            "variations.variationName",
+            "variations.variationName.values.value"
+    };
     @Id
     private Long id;
 
@@ -73,8 +88,6 @@ public class ProductDto {
 
     @Field(type = FieldType.Object, name = "createdBy")
     private UserDto createdBy;
-
-
 
 
     public static ProductDto toDto(ProductEntity entity) {
