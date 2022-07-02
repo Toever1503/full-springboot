@@ -6,6 +6,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.data.elasticsearch.annotations.Field;
+import org.springframework.data.elasticsearch.annotations.FieldType;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
@@ -18,7 +20,10 @@ import java.util.stream.Collectors;
 @Data
 public class ProductVariationDto {
     private Long variationId;
+    @Field(type = FieldType.Keyword, storeNullValue = true)
     private String variationName;
+
+    @Field(type = FieldType.Nested, name = "values", storeNullValue = true)
     private List<ProductVariationValueDto> values;
 
     public static ProductVariationDto toDto(ProductVariationEntity entity) {

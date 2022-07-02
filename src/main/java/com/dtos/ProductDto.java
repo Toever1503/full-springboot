@@ -62,10 +62,8 @@ public class ProductDto {
 
     private List<Object> attachFiles;
 
-    @Field(type = FieldType.Object, name = "category", storeNullValue = true)
     private CategoryDto category;
 
-    @Field(type = FieldType.Object, name = "industry", storeNullValue = true)
     private IndustryDto industry;
 
     @Field(type = FieldType.Nested, name = "productMetas", storeNullValue = true)
@@ -86,8 +84,8 @@ public class ProductDto {
     @Field(type = FieldType.Nested, name = "skus", storeNullValue = true)
     private List<ProductSkuDto> skus;
 
-    @Field(type = FieldType.Object, name = "createdBy")
-    private UserDto createdBy;
+//    @Field(type = FieldType.Object, name = "createdBy")
+//    private UserDto createdBy;
 
 
     public static ProductDto toDto(ProductEntity entity) {
@@ -103,11 +101,11 @@ public class ProductDto {
         productDto.setImage(entity.getImage());
         productDto.setStatus(entity.getStatus());
         productDto.setIsUseVariation(entity.getIsUseVariation());
-        productDto.createdBy = UserDto.toDto(entity.getCreatedBy());
+//        productDto.createdBy = UserDto.toDto(entity.getCreatedBy());
 
         productDto.setAttachFiles(entity.getAttachFiles() != null ? new JSONObject(entity.getAttachFiles()).getJSONArray("files").toList() : List.of());
         productDto.setCategory(entity.getCategory() == null ? null : CategoryDto.toDto(entity.getCategory(), false));
-        productDto.setIndustry(entity.getIndustry() == null ? null : IndustryDto.toDto(entity.getIndustry(), false));
+        productDto.setIndustry(entity.getIndustry() == null ? null : IndustryDto.toDto(entity.getIndustry()));
         productDto.setProductMetas(entity.getProductMetas() == null ? null : entity.getProductMetas().stream().map(ProductMetaDto::toDto).collect(Collectors.toList()));
         productDto.setTags(entity.getTags() == null ? null : entity.getTags().stream().map(TagDto::toTagDto).collect(Collectors.toSet()));
 

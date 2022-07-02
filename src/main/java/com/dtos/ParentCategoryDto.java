@@ -5,6 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.data.elasticsearch.annotations.Field;
+import org.springframework.data.elasticsearch.annotations.FieldType;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -14,7 +16,7 @@ public class ParentCategoryDto {
     private Long id;
     private String categoryName;
     private Integer deepLevel;
-    private String slug;
+    private String parentCategorySlug;
     private ParentCategoryDto parentCategory;
 
     public static ParentCategoryDto toDto(CategoryEntity entity) {
@@ -24,7 +26,7 @@ public class ParentCategoryDto {
                 .categoryName(entity.getCategoryName())
                 .deepLevel(entity.getDeepLevel())
                 .parentCategory(ParentCategoryDto.toDto(entity.getParentCategory()))
-                .slug(entity.getSlug())
+                .parentCategorySlug(entity.getSlug())
                 .build();
     }
 }

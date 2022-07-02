@@ -2,6 +2,8 @@ package com.dtos;
 
 import com.entities.CategoryEntity;
 import lombok.*;
+import org.springframework.data.elasticsearch.annotations.Field;
+import org.springframework.data.elasticsearch.annotations.FieldType;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -14,10 +16,16 @@ import java.util.stream.Collectors;
 public class CategoryDto {
     private Long id;
     private String categoryName;
+
+    @Field(type = FieldType.Keyword, name = "categorySLug")
     private String slug;
+
     private String description;
+
     private ParentCategoryDto parentCategory;
+
     private List<CategoryDto> childCategories;
+
     private Integer deepLevel;
 
     public static CategoryDto toDto(CategoryEntity entity, boolean wantChild) {

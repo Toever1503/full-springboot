@@ -45,6 +45,7 @@ public class WebSecurityConfiguration {
 
             new AntPathRequestMatcher("/transaction/result**"),
             new AntPathRequestMatcher("/products/**", HttpMethod.GET.name()),
+            new AntPathRequestMatcher("/products/public/**"),
             new AntPathRequestMatcher("/products/filter"),
 
             new AntPathRequestMatcher("/industries/**", HttpMethod.GET.name()),
@@ -64,6 +65,7 @@ public class WebSecurityConfiguration {
     public WebSecurityCustomizer webSecurityCustomizer() {
         return (web) -> web.ignoring().requestMatchers(PUBLIC_URLS);
     }
+
     //Authentication manager bean config
     @Bean
     public AuthenticationManager authenticationManager(HttpSecurity httpSecurity) throws Exception {
@@ -90,7 +92,7 @@ public class WebSecurityConfiguration {
         http.authorizeRequests()
                 .requestMatchers(PRIVATE_URLS).authenticated();
         http.addFilterBefore(new JwtFilter(this.userService), org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter.class);
-        http.addFilterBefore(new SocketFilter(this.userService),JwtFilter.class);
+        http.addFilterBefore(new SocketFilter(this.userService), JwtFilter.class);
         return http.build();
     }
 

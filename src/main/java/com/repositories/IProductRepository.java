@@ -11,4 +11,5 @@ import java.util.Optional;
 @Repository
 public interface IProductRepository extends JpaRepository<ProductEntity, Long>, JpaSpecificationExecutor<ProductEntity> {
 
+
 }

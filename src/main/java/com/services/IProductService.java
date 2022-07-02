@@ -3,12 +3,10 @@ package com.services;
 import com.dtos.DetailProductDto;
 import com.dtos.ProductDto;
 import com.entities.ProductEntity;
-import com.entities.ProductSkuEntity;
-import com.entities.ProductVariationEntity;
 import com.models.ProductModel;
 import com.models.ProductSkuModel;
 import com.models.ProductVariationModel;
-import com.models.filters.ProductDtoFilter;
+import com.models.elasticsearch.EProductFilterModel;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -18,19 +16,13 @@ import java.util.List;
 public interface IProductService extends IBaseService<ProductEntity, ProductModel, Long> {
     int likeProduct(Long id);
 
-    ProductDto saveDtoOnElasticsearch(ProductEntity productEntity);
+    ProductDto saveDtoOnElasticsearch(ProductEntity entity);
 
-    Page<ProductDto> findAllDto(Pageable page);
-
-    ProductDto findDtoById(Long id);
-
+    DetailProductDto findDetailById(Pageable page, Long id);
     ProductEntity saveVariations(Long productId, List<ProductVariationModel> models);
 
     ProductEntity saveSkus(HttpServletRequest req, Long productId, List<ProductSkuModel> models);
 
-    Page<ProductDto> search(Pageable page, String q);
+    Page<ProductDto> eFilter(Pageable page, EProductFilterModel model);
 
-    Page<ProductDto> filterSearch(Pageable page, ProductDtoFilter q);
-
-    DetailProductDto findDetailProductById(Pageable similarPage, Long id);
 }

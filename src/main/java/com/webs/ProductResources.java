@@ -3,18 +3,18 @@ package com.webs;
 
 import com.config.elasticsearch.ERepositories.IEProductRepository;
 import com.dtos.ProductDto;
-import com.dtos.ProductSkuDto;
-import com.dtos.ProductVariationDto;
 import com.dtos.ResponseDto;
-import com.entities.ProductEntity;
 import com.entities.RoleEntity;
 import com.models.ProductModel;
 import com.models.ProductSkuModel;
 import com.models.ProductVariationModel;
+import com.models.elasticsearch.EProductFilterModel;
+import com.repositories.IProductRepository;
 import com.services.IProductService;
 import io.swagger.v3.oas.annotations.Operation;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
@@ -23,57 +23,54 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.annotation.security.RolesAllowed;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
-import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 @RequestMapping("products")
 @RestController
 @Transactional
+@Lazy
 public class ProductResources {
 
     private final IProductService productService;
+
     private final IEProductRepository eProductRepository;
+    private final IProductRepository productRepository;
 
+    private final Logger log = LoggerFactory.getLogger(this.getClass());
 
-    public ProductResources(IProductService productService, IEProductRepository eProductRepository) {
+    public ProductResources(IProductService productService, IEProductRepository eProductRepository, IProductRepository productRepository) {
         this.productService = productService;
         this.eProductRepository = eProductRepository;
+        this.productRepository = productRepository;
     }
 
     @GetMapping
     public ResponseDto getAll(Pageable page) {
-        return ResponseDto.of(productService.findAllDto(page), "Get all products");
+        return ResponseDto.of(productService.findAll(page), "Get all products");
     }
 
-
-    @GetMapping("{id}")
-    public ResponseDto findProductById(@PathVariable Long id, Pageable page) {
-        return ResponseDto.of(this.productService.findDetailProductById(page, id), "Get product id: ".concat(id.toString()));
-    }
 
     @Transactional
-    @GetMapping("id/{id}")
+    @GetMapping("/{id}")
     public ResponseDto findById(@PathVariable Long id) {
-        Page<ProductEntity> ps = this.productService.findAll(PageRequest.of(0, 20));
-//        Hibernate.initialize(ps);
-//        ProductDto dto = eProductRepository.findById(id).orElseThrow(() -> new RuntimeException("Product not found"));
-        return ResponseDto.of(ps.map(ProductDto::toDto), "Get all products");
+        return ResponseDto.of(ProductDto.toDto(this.productService.findById(id)), "Get product id: ".concat(id.toString()));
     }
 
 
     @Transactional
     @PostMapping("variations/{productId}")
     public ResponseDto saveVariations(@PathVariable Long productId, @RequestBody @Valid List<ProductVariationModel> models) {
-        return ResponseDto.of(this.productService.saveDtoOnElasticsearch(this.productService.saveVariations(productId, models)).getVariations(), "Save variations for product id: ".concat(productId.toString()));
+        ProductDto dto = productService.saveDtoOnElasticsearch(this.productService.saveVariations(productId, models));
+        return ResponseDto.of(dto.getVariations(), "Save variations for product id: ".concat(productId.toString()));
     }
 
     @Transactional
     @PostMapping("skus/{productId}")
     public ResponseDto saveSkus(@PathVariable Long productId, @Valid @RequestPart("skus") List<ProductSkuModel> models, HttpServletRequest req) {
-        return ResponseDto.of(this.productService.saveDtoOnElasticsearch(this.productService.saveSkus(req, productId, models)).getSkus(), "Save skus for product id: ".concat(productId.toString()));
+        ProductDto dto = productService.saveDtoOnElasticsearch(this.productService.saveSkus(req, productId, models));
+        return ResponseDto.of(dto.getSkus(), "Save skus for product id: ".concat(productId.toString()));
     }
 
     @Transactional
@@ -95,7 +92,7 @@ public class ProductResources {
         productModel.setId(id);
         productModel.setAttachFiles(attachFiles);
         productModel.setImage(image);
-        return ResponseDto.of(this.productService.saveDtoOnElasticsearch(productService.update(productModel)), "Update product successfully");
+        return ResponseDto.of(this.productService.saveDtoOnElasticsearch(this.productService.update(productModel)), "Update product successfully");
     }
 
     @RolesAllowed(RoleEntity.ADMINISTRATOR)
@@ -103,12 +100,24 @@ public class ProductResources {
     @GetMapping("refreshData")
     @Operation(summary = "resync data on database to  elasticsearch")
     public String refreshElasticsearch() {
+        this.eProductRepository.saveAll(this.productRepository.findAll().stream().map(ProductDto::toDto).collect(Collectors.toList()));
         return "Ok";
     }
 
-    @GetMapping("_search")
-    private ResponseDto search(@RequestParam @Valid @NotBlank @NotNull String q, Pageable page) {
-        return ResponseDto.of(this.productService.search(page, q), "Search product");
+
+    @Operation(summary = "filter products")
+    @PostMapping("public/filter")
+    public ResponseDto filterProduct(@Valid @NotNull @RequestBody EProductFilterModel filterModel, Pageable page) {
+        log.info("Product filterModel: {}", filterModel);
+        return ResponseDto.of(this.productService.eFilter(page, filterModel), "Filter product");
     }
 
+    @Operation(summary = "find product by id and related data")
+    @GetMapping("public/{id}")
+    public ResponseDto findProductById(@PathVariable Long id, Pageable page) {
+        log.info("find product by id: {}", id);
+        return ResponseDto.of(
+                this.productService.findDetailById(page, id),
+                "Get product id: ".concat(id.toString()));
+    }
 }
