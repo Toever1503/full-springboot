@@ -30,33 +30,33 @@ public class IndustryResources {
     @Transactional
     @PostMapping
     public ResponseDto addIndustry(@RequestBody @Valid CategoryModel model) {
-        return ResponseDto.of(IndustryDto.toDto(categoryService.addIndustry(model), false), "Create industry successfully");
+        return ResponseDto.of(IndustryDto.toDto(categoryService.addIndustry(model)), "Create industry successfully");
     }
 
     @Transactional
     @PutMapping
     public ResponseDto updateCategory(@RequestBody @Valid CategoryModel model) {
-        return ResponseDto.of(IndustryDto.toDto(categoryService.updateIndustry(model), false), "Create industry successfully");
+        return ResponseDto.of(IndustryDto.toDto(categoryService.updateIndustry(model)), "Create industry successfully");
     }
 
     @Transactional
     @GetMapping("slug/{slug}")
     public ResponseDto findBySlug(@PathVariable String slug) {
-        return ResponseDto.of(IndustryDto.toDto(this.categoryService.findBySlug(slug), true), "Get by slug: ".concat(slug));
+        return ResponseDto.of(IndustryDto.toDto(this.categoryService.findBySlug(slug)), "Get by slug: ".concat(slug));
     }
 
     @Transactional
     @GetMapping("{id}")
     public ResponseDto findById(@PathVariable Long id) {
         CategoryEntity industry = this.categoryService.findOne(Specification.where(CategorySpecification.byType(ECategoryType.INDUSTRY).and(CategorySpecification.byId(id))));
-        return ResponseDto.of(IndustryDto.toDto(industry, true), "Find industry by id: ".concat(id.toString()));
+        return ResponseDto.of(IndustryDto.toDto(industry), "Find industry by id: ".concat(id.toString()));
     }
 
     @Transactional
     @GetMapping
     public ResponseDto getAllByPage() {
         List<CategoryEntity> categoryEntities = this.categoryService.findAll(Specification.where(CategorySpecification.byType(ECategoryType.INDUSTRY)));
-        return ResponseDto.of(categoryEntities.stream().map(c -> IndustryDto.toDto(c, false)), "Get all industries");
+        return ResponseDto.of(categoryEntities.stream().map(c -> IndustryDto.toDto(c)), "Get all industries");
     }
 
     @Transactional

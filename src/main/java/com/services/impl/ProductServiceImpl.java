@@ -1,21 +1,34 @@
 package com.services.impl;
 
+import com.config.elasticsearch.ERepositories.IEProductRepository;
+import com.dtos.DetailProductDto;
 import com.dtos.ECategoryType;
 import com.dtos.EProductStatus;
+import com.dtos.ProductDto;
 import com.entities.*;
 import com.models.ProductMetaModel;
 import com.models.ProductModel;
 import com.models.ProductSkuModel;
 import com.models.ProductVariationModel;
+import com.models.elasticsearch.EProductFilterModel;
 import com.repositories.*;
 import com.services.ICategoryService;
 import com.services.IProductService;
 import com.utils.FileUploadProvider;
 import com.utils.SecurityUtils;
+import org.apache.lucene.search.join.ScoreMode;
+import org.elasticsearch.index.query.BoolQueryBuilder;
+import org.elasticsearch.index.query.QueryBuilder;
 import org.json.JSONObject;
-import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate;
+import org.springframework.data.elasticsearch.core.SearchHit;
+import org.springframework.data.elasticsearch.core.SearchHits;
+import org.springframework.data.elasticsearch.core.query.NativeSearchQuery;
+import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilder;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -23,24 +36,27 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
+
+import static org.elasticsearch.index.query.QueryBuilders.*;
 
 
 @Service
+@Lazy
 public class ProductServiceImpl implements IProductService {
 
     private final IProductRepository productRepository;
-
     private final IProductVariationRepository productVariationRepository;
     private final IProductVariationValueRepository productVariationValueRepository;
     private final IProductSkuEntityRepository productSkuEntityRepository;
-
     private final ICategoryService categoryService;
     private final FileUploadProvider fileUploadProvider;
     private final IUserLikeProductRepository userLikeProductRepository;
+
+    private final IEProductRepository eProductRepository;
+    private final ElasticsearchRestTemplate elasticsearchRestTemplate;
+
 
     public ProductServiceImpl(IProductRepository productRepository,
                               IProductVariationRepository productVariationRepository,
@@ -48,7 +64,9 @@ public class ProductServiceImpl implements IProductService {
                               IProductSkuEntityRepository productSkuEntityRepository,
                               ICategoryService categoryService,
                               FileUploadProvider fileUploadProvider,
-                              IUserLikeProductRepository userLikeProductRepository) {
+                              IUserLikeProductRepository userLikeProductRepository,
+                              IEProductRepository eProductRepository,
+                              ElasticsearchRestTemplate elasticsearchRestTemplate1) {
         this.productRepository = productRepository;
         this.productVariationRepository = productVariationRepository;
         this.productVariationValueRepository = productVariationValueRepository;
@@ -56,11 +74,13 @@ public class ProductServiceImpl implements IProductService {
         this.categoryService = categoryService;
         this.fileUploadProvider = fileUploadProvider;
         this.userLikeProductRepository = userLikeProductRepository;
+        this.elasticsearchRestTemplate = elasticsearchRestTemplate1;
+        this.eProductRepository = eProductRepository;
     }
 
     @Override
     public List<ProductEntity> findAll() {
-        return null;
+        return this.productRepository.findAll();
     }
 
     @Override
@@ -246,26 +266,188 @@ public class ProductServiceImpl implements IProductService {
     }
 
     @Override
-    public List<ProductVariationEntity> saveVariations(Long productId, List<ProductVariationModel> models) {
-        ProductEntity entity = this.findById(productId);
-        if (!entity.getIsUseVariation())
-            throw new RuntimeException("Product is not use variation, id: ".concat(entity.getId().toString()));
-        return this.productVariationRepository.saveAll(models.stream().map(variation -> ProductVariationModel.toEntity(variation, entity)).collect(Collectors.toList()));
+    public ProductDto saveDtoOnElasticsearch(ProductEntity entity) {
+        return this.eProductRepository.save(ProductDto.toDto(entity));
     }
 
     @Override
-    public List<ProductSkuEntity> saveSkus(HttpServletRequest req, Long productId, List<ProductSkuModel> models) throws RuntimeException {
+    public DetailProductDto findDetailById(Pageable page, Long id) {
+        ProductDto productDto = this.eProductRepository.findById(id).orElseThrow(() -> new RuntimeException("Product not found, id: ".concat(id.toString())));
+        return DetailProductDto.builder()
+                .data(productDto)
+                .similarProducts(this.eProductRepository.searchSimilar(productDto, ProductDto.FIELDS, page))
+                .build();
+    }
+
+
+    @Override
+    public ProductEntity saveVariations(Long productId, List<ProductVariationModel> models) {
+        ProductEntity entity = this.findById(productId);
+        if (!entity.getIsUseVariation())
+            throw new RuntimeException("Product is not use variation, id: ".concat(entity.getId().toString()));
+        entity.setVariations(this.productVariationRepository.saveAll(models.stream().map(variation -> ProductVariationModel.toEntity(variation, entity)).collect(Collectors.toList())));
+        return entity;
+    }
+
+    @Override
+    public ProductEntity saveSkus(HttpServletRequest req, Long productId, List<ProductSkuModel> models) throws RuntimeException {
         final ProductEntity entity = this.findById(productId);
         //separate 2 type: variation and not have variation
         final String folder = this.getProductFolder(entity.getId());
-        if (entity.getIsUseVariation())
-            return models.stream()
+        if (entity.getIsUseVariation()) {
+            entity.setSkus(models.stream()
                     .map(sku -> saveSku(entity, folder, sku, req))
-                    .collect(Collectors.toList());
-        else {
-            return List.of(saveSku(entity, folder, models.get(0), req));
+                    .collect(Collectors.toList()));
+        } else {
+            entity.setSkus(List.of(saveSku(entity, folder, models.get(0), req)));
         }
+        return entity;
     }
+
+
+    @Override
+    public Page<ProductDto> eFilter(Pageable page, EProductFilterModel model) {
+//        EProductFilterModel
+
+//        List<Object> mustFilter = new ArrayList<>();
+//        Map<String, Object> query = putMap("query", putMap("bool", putMap("must", mustFilter)));
+
+//        CriteriaQuery
+
+
+        BoolQueryBuilder rootQueryBool = boolQuery();
+        List<QueryBuilder> rootQueryBuilders = rootQueryBool.must();
+
+        NativeSearchQuery searchQuery = new NativeSearchQueryBuilder()
+                .withQuery(rootQueryBool)
+                .withPageable(page)
+                .build();
+
+//        List<Criteria> criteriaList = new ArrayList<>();
+        if (model.getCategorySlugs() != null) {
+            rootQueryBuilders.add(termsQuery("category.categorySLug.keyword", model.getCategorySlugs()));
+//            filter by category
+        } else if (model.getIndustrySlug() != null) {
+            //filter by industry
+            rootQueryBuilders.add(termQuery("industry.industrySLug.keyword", model.getIndustrySlug()));
+        }
+
+        if (model.getMaxPrice() != null && model.getMinPrice() != null) {
+//            filter by price
+            rootQueryBuilders.add(nestedQuery("skus", boolQuery().must(
+                    rangeQuery("skus.price").gte(model.getMinPrice()).lte(model.getMaxPrice())
+            ), ScoreMode.None));
+        } else if (model.getMinPrice() != null) {
+            rootQueryBuilders.add(nestedQuery("skus", boolQuery().must(
+                    rangeQuery("skus.price").gte(model.getMinPrice())
+            ), ScoreMode.None));
+        } else if (model.getMaxPrice() != null) {
+            rootQueryBuilders.add(nestedQuery("skus", boolQuery().must(
+                    rangeQuery("skus.price").lte(model.getMaxPrice())
+            ), ScoreMode.None));
+        }
+
+
+        if (model.getTags() != null) {
+            //           filter by tags
+            rootQueryBuilders.add(
+                    termsQuery("tags", model.getTags())
+            );
+        }
+
+        if (model.getMetas() != null) {
+            //           filter by metas
+            BoolQueryBuilder boolMeta = boolQuery();
+            List<QueryBuilder> metaBools = boolMeta.must();
+            metaBools.add(termsQuery("productMetas.metaKey", model.getMetas().getMetaKeys()));
+            metaBools.add(termsQuery("productMetas.metaValue", model.getMetas().getMetaValues()));
+
+            rootQueryBuilders.add(nestedQuery("productMetas", boolMeta, ScoreMode.None));
+//            List<Criteria> metaCriteriaList = new ArrayList<>();
+//            model.getMetas().forEach(m -> {
+//                metaCriteriaList.add(Criteria.where("metas.metaKey").is(m.getMetaKey()).and("metas.metaValue").in(m.getMetaValues()));
+//            });
+//            if (metaCriteriaList.size() > 0) {
+//                Criteria finalMeta = null;
+//                for (Criteria c : metaCriteriaList) {
+//                    if (finalMeta == null) {
+//                        finalMeta = c;
+//                    } else {
+//                        finalMeta = finalMeta.and(c);
+//                    }
+//                }
+//                if (finalMeta != null) {
+//                    criteriaList.add(finalMeta);
+//                }
+//            }
+        }
+
+        if (model.getVariations() != null) {
+            // filter by variations
+            BoolQueryBuilder boolVariation = boolQuery();
+            List<QueryBuilder> variationBools = boolVariation.must();
+
+            variationBools.add(termsQuery("variations.variationName", model.getVariations().getVariationNames()));
+            variationBools.add(nestedQuery("variations.values", boolQuery().must(
+                    termsQuery("variations.values.value", model.getVariations().getVariationValues())
+            ), ScoreMode.None));
+            rootQueryBuilders.add(nestedQuery("variations", boolVariation, ScoreMode.None));
+
+//            List<Criteria> variationCriteriaList = new ArrayList<>();
+//            model.getVariations().forEach(v -> {
+//                variationCriteriaList.add(Criteria.where("variations.variationName").is(v.getVariationName()).and("variations.values.value").in(v.getVariationValues()));
+//            });
+//            if (variationCriteriaList.size() > 0) {
+//                Criteria finalVariation = null;
+//                for (Criteria c : variationCriteriaList) {
+//                    if (finalVariation == null) {
+//                        finalVariation = c;
+//                    } else {
+//                        finalVariation = finalVariation.and(c);
+//                    }
+//                }
+//                if (finalVariation != null) {
+//                    criteriaList.add(finalVariation);
+//                }
+//            }
+        }
+
+        if (model.getQ() != null) {
+            // filter by q
+//            criteriaList.add(Criteria.where("name").contains(model.getQ()));
+            rootQueryBuilders.add(
+                    queryStringQuery(model.getQ()).analyzeWildcard(true).defaultField("*")
+            );
+        }
+
+//        use later
+//        if (model.getSortBy() != null) {
+//            // sort by
+//        } else {
+//            // default sort
+//        }
+
+//        Criteria finalQuery = null;
+//        for (Criteria c : criteriaList) {
+//            if (finalQuery == null) {
+//                finalQuery = c;
+//            } else {
+//                finalQuery = finalQuery.and(c);
+//            }
+//        }
+//
+//        CriteriaQuery query = new CriteriaQuery(finalQuery, page);
+
+        SearchHits<ProductDto> searchHit = this.elasticsearchRestTemplate.search(searchQuery, ProductDto.class);
+        Page<ProductDto> pageResult = new PageImpl<>(searchHit.getSearchHits().stream().map(SearchHit::getContent).collect(Collectors.toList()), page, searchHit.getTotalHits());
+        return pageResult;
+    }
+
+//    private Map<String, Object> putMap(String key, Object value) {
+//        Map<String, Object> map = new HashMap<>();
+//        map.put(key, value);
+//        return map;
+//    }
 
     private ProductSkuEntity saveSku(ProductEntity entity, String folder, ProductSkuModel model, HttpServletRequest req) {
         ProductSkuEntity skuEntity = ProductSkuModel.toEntity(model, entity, entity.getIsUseVariation());
