@@ -48,4 +48,8 @@ public class CategoryEntity {
     @Fetch(FetchMode.SUBSELECT)
     private List<CategoryEntity> childCategories;
 
+    @OneToMany(mappedBy = "industry", fetch = FetchType.EAGER)
+    @Fetch(FetchMode.SUBSELECT)
+    private List<CategoryEntity> categories;
+
 }

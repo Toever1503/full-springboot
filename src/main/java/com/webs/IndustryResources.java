@@ -1,20 +1,20 @@
 package com.webs;
 
-import com.dtos.CategoryDto;
 import com.dtos.ECategoryType;
 import com.dtos.IndustryDto;
 import com.dtos.ResponseDto;
 import com.entities.CategoryEntity;
+import com.entities.RoleEntity;
 import com.models.CategoryModel;
 import com.models.specifications.CategorySpecification;
 import com.services.ICategoryService;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
+import javax.annotation.security.RolesAllowed;
 import javax.validation.Valid;
+import javax.validation.constraints.NotBlank;
 import java.util.List;
 
 
@@ -23,6 +23,7 @@ import java.util.List;
 public class IndustryResources {
 
     private final ICategoryService categoryService;
+
     public IndustryResources(ICategoryService categoryService) {
         this.categoryService = categoryService;
     }
@@ -59,9 +60,22 @@ public class IndustryResources {
         return ResponseDto.of(categoryEntities.stream().map(c -> IndustryDto.toDto(c)), "Get all industries");
     }
 
+    @RolesAllowed(RoleEntity.ADMINISTRATOR)
+    @Transactional
+    @GetMapping("resync-data-all")
+    public ResponseDto resyncAllData() {
+        return ResponseDto.of(this.categoryService.resyncIndustriesOnElasticsearch(), "Resync all data");
+    }
+
     @Transactional
     @DeleteMapping("{id}")
     public ResponseDto deleteById(@PathVariable Long id) {
         return ResponseDto.of(this.categoryService.deleteIndustryById(id), "Delete industry by id: ".concat(id.toString()));
+    }
+
+    @Transactional
+    @GetMapping("public/detail-industry/{slug}")
+    public ResponseDto getDetailIndustry(@PathVariable @Valid @NotBlank String slug) {
+        return ResponseDto.of(this.categoryService.findDetailIndustryBySLug(slug), "Find detail industry by slug: ".concat(slug));
     }
 }

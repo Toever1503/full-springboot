@@ -26,7 +26,7 @@ public class ProductVariationEntity {
     @Column(name = "variation_name")
     private String variationName;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id")
     private ProductEntity product;
 

@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.security.RolesAllowed;
 import javax.validation.Valid;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import java.util.stream.Collectors;
 
 @RestController
@@ -89,6 +91,12 @@ public class CategoryResources {
     @GetMapping("get-all-categories")
     public ResponseDto getAllCategories() {
         return ResponseDto.of(this.categoryService.findAll().stream().map(c -> CategoryDto.toDto(c, false)).collect(Collectors.toList()), "get all categories success");
+    }
+
+    @Transactional
+    @GetMapping("public/detail-category/{slug}")
+    public ResponseDto getDetailCategory(@PathVariable @Valid @NotBlank String slug) {
+        return ResponseDto.of(this.categoryService.findDetailIndustryByCategorySLug(slug), "Find category by slug: ".concat(slug));
     }
 
 }
