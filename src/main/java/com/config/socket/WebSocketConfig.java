@@ -20,7 +20,13 @@ public class WebSocketConfig implements WebSocketConfigurer {
     @Override
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
         registry.addHandler(socketHandler, "/socket")
-                .setAllowedOrigins("http://localhost:8080",
+                .setAllowedOrigins(
+                        "http://localhost:8080",
+                        "http://localhost:8081",
+                        "http://localhost:8082",
+                        "http://localhost:8083",
+                        "http://localhost:8084",
+                        "http://localhost:8085",
                         "http://54.180.146.189",
                         "http://3.34.44.100:3000",
                         "http://192.168.1.44:8080",
