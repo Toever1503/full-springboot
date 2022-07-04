@@ -54,6 +54,7 @@ public class ProductSkuModel {
                 .price(model.price)
                 .oldPrice(model.oldPrice == null ? 0 : model.oldPrice)
                 .inventoryQuantity(model.inventoryQuantity)
+                .image(model.originImage)
                 .skuCode(skuCode)
                 .isValid(model.isValid)
                 .variationSize(model.variationSize)
