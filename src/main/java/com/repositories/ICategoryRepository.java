@@ -18,6 +18,9 @@ public interface ICategoryRepository extends JpaRepository<CategoryEntity, Long>
 
     Optional<CategoryEntity> findBySlug(String slug);
 
+    @Query("select c.industry.slug from CategoryEntity c where c.slug = ?1")
+    Optional<String> findByCategorySlug(String slug);
+
     @Query("SELECT c FROM CategoryEntity c ORDER BY c.id DESC")
     List<CategoryEntity> findAlLS();
 

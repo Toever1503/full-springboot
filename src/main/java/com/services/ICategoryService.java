@@ -1,5 +1,6 @@
 package com.services;
 
+import com.dtos.DetailIndustryDto;
 import com.entities.CategoryEntity;
 import com.models.CategoryModel;
 import org.springframework.data.domain.Page;
@@ -22,5 +23,11 @@ public interface ICategoryService extends IBaseService<CategoryEntity, CategoryM
 
     CategoryEntity findOne(Specification<CategoryEntity> spec);
 
+
+    DetailIndustryDto findDetailIndustryByCategorySLug(String slug);
+    DetailIndustryDto findDetailIndustryBySLug(String slug);
+
     boolean deleteIndustryById(Long id);
+
+    boolean resyncIndustriesOnElasticsearch();
 }

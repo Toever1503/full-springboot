@@ -1,28 +1,53 @@
 package com.services.impl;
 
+import com.config.elasticsearch.ERepositories.IEIndustryRepository;
+import com.dtos.DetailIndustryDto;
 import com.dtos.ECategoryType;
+import com.dtos.ProductMetaDto;
+import com.dtos.ProductVariationDto;
 import com.entities.CategoryEntity;
-import com.entities.ProductEntity;
 import com.models.CategoryModel;
+import com.models.specifications.CategorySpecification;
 import com.repositories.ICategoryRepository;
-import com.repositories.IProductRepository;
+import com.repositories.IProductMetaRepository;
+import com.repositories.IProductVariationRepository;
 import com.services.ICategoryService;
 import com.utils.ASCIIConverter;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executor;
+import java.util.stream.Collectors;
 
 @Service
 public class CategoryServiceImpl implements ICategoryService {
     private final ICategoryRepository categoryRepository;
-    private final IProductRepository productRepository;
 
-    public CategoryServiceImpl(ICategoryRepository categoryRepository, IProductRepository productRepository) {
+    private final IEIndustryRepository eIndustryRepository;
+
+    private final IProductVariationRepository productVariationRepository;
+
+    private final IProductMetaRepository productMetaRepository;
+
+    private final Executor taskExecutor;
+
+    public CategoryServiceImpl(ICategoryRepository categoryRepository,
+                               IEIndustryRepository eIndustryRepository,
+                               IProductVariationRepository productVariationRepository,
+                               IProductMetaRepository productMetaRepository,
+                               Executor taskExecutor) {
         this.categoryRepository = categoryRepository;
-        this.productRepository = productRepository;
+        this.eIndustryRepository = eIndustryRepository;
+        this.productVariationRepository = productVariationRepository;
+        this.productMetaRepository = productMetaRepository;
+        this.taskExecutor = taskExecutor;
     }
 
     @Override
@@ -79,10 +104,72 @@ public class CategoryServiceImpl implements ICategoryService {
     }
 
     @Override
+    public DetailIndustryDto findDetailIndustryByCategorySLug(String slug) {
+        return this.findBySLug(this.categoryRepository.findByCategorySlug(slug).orElseThrow(() -> new RuntimeException("Industry category not found: ".concat(slug))));
+    }
+
+    private DetailIndustryDto findBySLug(String slug) {
+        return this.eIndustryRepository.findBySlug(slug).orElseThrow(() -> new RuntimeException("Industry not found, id: ".concat(slug)));
+    }
+
+    @Override
+    public DetailIndustryDto findDetailIndustryBySLug(String slug) {
+        return this.findBySLug(slug);
+    }
+
+    @Override
     public boolean deleteIndustryById(Long id) {
         this.categoryRepository.deleteByIdAndType(id, ECategoryType.INDUSTRY.name());
         this.categoryRepository.updateProductIndustry(id);
         this.categoryRepository.updateCategoryIndustry(id);
+        this.eIndustryRepository.deleteById(id);
+        return true;
+    }
+
+
+    private DetailIndustryDto syncIndustryOnElasticsearch(CategoryEntity entity) {
+        DetailIndustryDto dto = DetailIndustryDto.toDto(entity);
+        CompletableFuture all = CompletableFuture.allOf(
+                this.findProductMetasFuture(entity.getId()).thenAccept(dto::setProductMetas),
+                this.findProductVariationsFuture(entity.getId()).thenAccept(dto::setProductVariations)
+        );
+        try {
+            all.get();
+        } catch (ExecutionException e) {
+            throw new RuntimeException(e);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+        return this.eIndustryRepository.save(dto);
+    }
+
+    @Transactional(propagation = Propagation.NESTED)
+    protected CompletableFuture<List<DetailIndustryDto.ProductMetaDto2>> findProductMetasFuture(Long industryId) {
+        return CompletableFuture.supplyAsync(() ->
+                this.productMetaRepository.findAllMetaKeysByProductIndustryId(industryId)
+                        .stream().map(metaKey -> DetailIndustryDto.ProductMetaDto2.builder()
+                                .metaKey(metaKey)
+                                .metaValues(this.productMetaRepository.findAllMetaValuesByMetaKey(metaKey))
+                                .build())
+                        .collect(Collectors.toList()), this.taskExecutor);
+    }
+
+    @Transactional(propagation = Propagation.NESTED)
+    protected CompletableFuture<List<DetailIndustryDto.ProductVariationDto2>> findProductVariationsFuture(Long industryId) {
+        return CompletableFuture.supplyAsync(() ->
+                this.productVariationRepository.findAllVariationNamesByProductIndustryId(industryId)
+                        .stream().map(variationName ->
+                                DetailIndustryDto.ProductVariationDto2.builder()
+                                        .variationName(variationName)
+                                        .variationValues(this.productVariationRepository.findALlVariationValuesByVariationName(variationName))
+                                        .build())
+                        .collect(Collectors.toList()), this.taskExecutor);
+    }
+
+    @Override
+    public boolean resyncIndustriesOnElasticsearch() {
+        List<CategoryEntity> industries = this.categoryRepository.findAll(CategorySpecification.byType(ECategoryType.INDUSTRY));
+        industries.forEach(this::syncIndustryOnElasticsearch);
         return true;
     }
 
@@ -107,7 +194,10 @@ public class CategoryServiceImpl implements ICategoryService {
 
         this.saveParentCategory(categoryEntity, model.getParentId());
         this.saveIndustry(categoryEntity, model.getIndustryId());
-        return this.categoryRepository.save(categoryEntity);
+        categoryEntity = this.categoryRepository.save(categoryEntity);
+
+        this.syncIndustryOnElasticsearch(categoryEntity);
+        return categoryEntity;
     }
 
     @Override
@@ -128,7 +218,10 @@ public class CategoryServiceImpl implements ICategoryService {
         originCategory.setDescription(model.getDescription());
         this.saveParentCategory(originCategory, model.getParentId());
         this.saveIndustry(originCategory, model.getIndustryId());
-        return this.categoryRepository.save(originCategory);
+
+        originCategory = this.categoryRepository.save(originCategory);
+        this.syncIndustryOnElasticsearch(originCategory);
+        return originCategory;
     }
 
     private void saveIndustry(CategoryEntity entity, Long industry) {

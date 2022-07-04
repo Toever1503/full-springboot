@@ -7,6 +7,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.json.JSONObject;
+import org.springframework.data.elasticsearch.annotations.Field;
+import org.springframework.data.elasticsearch.annotations.FieldType;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -14,6 +16,7 @@ import org.json.JSONObject;
 @Data
 public class ProductVariationValueDto {
     private Long variationValueId;
+    @Field(type = FieldType.Keyword, storeNullValue = true)
     private String value;
     private Boolean isChecked;
 

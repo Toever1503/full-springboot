@@ -20,6 +20,10 @@ import org.thymeleaf.spring5.templateresolver.SpringResourceTemplateResolver;
 import org.thymeleaf.templatemode.TemplateMode;
 
 import java.util.Properties;
+import java.util.concurrent.Executor;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 @Configuration
 public class BeanConfiguration {
@@ -47,6 +51,12 @@ public class BeanConfiguration {
                         .allowedMethods("GET", "POST", "DELETE", "PUT", "PATCH", "OPTIONS");
             }
         };
+    }
+
+    @Bean
+    public Executor taskExecutor(){
+        ThreadPoolExecutor executor = new ThreadPoolExecutor(500, 5000, 300l, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>());
+        return executor;
     }
 
 

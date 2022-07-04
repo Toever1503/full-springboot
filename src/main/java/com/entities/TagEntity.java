@@ -20,6 +20,10 @@ public class TagEntity {
     private Long id;
     @Column(name ="tag_name")
     private String tagName;
-    @ManyToMany(mappedBy = "tags")
+    @ManyToMany
+    @JoinTable(name = "tbl_tag_products",
+            joinColumns = @JoinColumn(name = "tags_id"),
+            inverseJoinColumns = @JoinColumn(name = "products_id")
+    )
     private Set<ProductEntity> products;
 }

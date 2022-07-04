@@ -2,6 +2,8 @@ package com.entities;
 
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.*;
@@ -68,7 +70,8 @@ public class UserEntity {
 //    )
 //    private Set<Address> myAddress;
 
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.EAGER)
+    @Fetch(FetchMode.SUBSELECT)
     @JoinTable(
             name = "user_role",
             joinColumns = @JoinColumn(name = "user_id"),

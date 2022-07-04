@@ -1,0 +1,35 @@
+//#filter
+{
+  "query": {
+    "bool": {
+      "must": [
+        {
+          "term": {
+            "status": "PUBLISHED"
+          }
+        },
+        {
+          "term": {
+            "isUseVariation": true
+          }
+        },
+        {
+          "nested": {
+            "path": "variations",
+            "query": {
+              "bool": {
+                "must": [
+                  {
+                    "term": {
+                      "variations.variationId": 16
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

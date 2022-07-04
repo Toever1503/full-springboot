@@ -17,7 +17,7 @@ public class ProductSkuDto {
     private String image;
     private String skuCode;
     private Integer inventoryQuantity;
-
+    private String productName;
     private Boolean isValid;
 
     private String optionName;
@@ -33,6 +33,7 @@ public class ProductSkuDto {
                 .inventoryQuantity(entity.getInventoryQuantity())
                 .isValid(entity.getIsValid())
                 .optionName(entity.getOptionName())
+                .productName(entity.getProduct().getName())
                 .build();
     }
 }

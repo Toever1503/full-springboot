@@ -19,11 +19,13 @@ public class OrderDetailDto {
     private String optionName;
     private ProductDto product;
     private Boolean isReview;
+    private Long sku;
 
     public static OrderDetailDto toDto(OrderDetailEntity entity) {
         if(entity == null) return null;
         return OrderDetailDto.builder()
                 .id(entity.getId())
+                .sku(entity.getSku().getId())
                 .price(entity.getPrice())
                 .quantity(entity.getQuantity())
                 .isReview(entity.getIsReview())
