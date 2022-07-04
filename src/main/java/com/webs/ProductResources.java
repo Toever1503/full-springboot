@@ -3,6 +3,8 @@ package com.webs;
 
 import com.config.elasticsearch.ERepositories.IEProductRepository;
 import com.dtos.ProductDto;
+import com.dtos.ProductSkuDto;
+import com.dtos.ProductVariationDto;
 import com.dtos.ResponseDto;
 import com.entities.RoleEntity;
 import com.models.ProductModel;
@@ -82,6 +84,18 @@ public class ProductResources {
         productModel.setAttachFiles(attachFiles);
         productModel.setImage(image);
         return ResponseDto.of(this.productService.saveDtoOnElasticsearch(productService.add(productModel)), "Create product successfully");
+    }
+
+    @Transactional
+    @GetMapping("variations/{id}")
+    public ResponseDto findVariations(@PathVariable Long id) {
+        return ResponseDto.of(this.productService.findVariations(id).stream().map(ProductVariationDto::toDto).collect(Collectors.toList()), "Get variations for product id: ".concat(id.toString()));
+    }
+
+    @Transactional
+    @GetMapping("skus/{id}")
+    public ResponseDto findSkus(@PathVariable Long id) {
+        return ResponseDto.of(this.productService.findSkus(id).stream().map(ProductSkuDto::toDto).collect(Collectors.toList()), "Get skus for product id: ".concat(id.toString()));
     }
 
     @Transactional

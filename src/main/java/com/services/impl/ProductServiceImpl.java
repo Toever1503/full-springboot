@@ -443,6 +443,16 @@ public class ProductServiceImpl implements IProductService {
         return pageResult;
     }
 
+    @Override
+    public List<ProductVariationEntity> findVariations(Long id) {
+        return this.productVariationRepository.findAllByProductId(id);
+    }
+
+    @Override
+    public List<ProductSkuEntity> findSkus(Long id) {
+        return this.productSkuEntityRepository.findAllByProductId(id);
+    }
+
 //    private Map<String, Object> putMap(String key, Object value) {
 //        Map<String, Object> map = new HashMap<>();
 //        map.put(key, value);
