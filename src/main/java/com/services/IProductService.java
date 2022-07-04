@@ -3,6 +3,8 @@ package com.services;
 import com.dtos.DetailProductDto;
 import com.dtos.ProductDto;
 import com.entities.ProductEntity;
+import com.entities.ProductSkuEntity;
+import com.entities.ProductVariationEntity;
 import com.models.ProductModel;
 import com.models.ProductSkuModel;
 import com.models.ProductVariationModel;
@@ -25,4 +27,7 @@ public interface IProductService extends IBaseService<ProductEntity, ProductMode
 
     Page<ProductDto> eFilter(Pageable page, EProductFilterModel model);
 
+    List<ProductVariationEntity> findVariations(Long id);
+
+    List<ProductSkuEntity> findSkus(Long id);
 }
