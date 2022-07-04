@@ -17,6 +17,7 @@ import com.utils.FileUploadProvider;
 import com.utils.SecurityUtils;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.socket.TextMessage;
@@ -42,19 +43,24 @@ public class ChatResources {
         return ResponseDto.of(chatService.createChatRoom(),"Create chat room");
     }
 
+    @Transactional
     @RolesAllowed(RoleEntity.ADMINISTRATOR)
     @PostMapping("/joinChatRoom")
     public ResponseDto joinChatRoom(@PathParam("roomId") String roomId) throws IOException {
         return ResponseDto.of(chatService.joinChatRoom(roomId), "Join chat room");
     }
+
+    @Transactional
     @PostMapping("/sendChatMessage")
     public ResponseDto sendChatMessage(ChatMessageModel model) {
         return ResponseDto.of(chatService.sendMessage(model), "Send chat message");
     }
+    @Transactional
     @GetMapping("/getAllChatRoom")
     public ResponseDto getAllChatRoom() {
         return ResponseDto.of(chatService.getAllRoomList(), "Get all chat room");
     }
+    @Transactional
     @GetMapping("/getAllAvailableChatRoom")
     public ResponseDto getAllAvailableChatRoom() {
         return ResponseDto.of(chatService.getAvailableRoomList(), "Get all available chat room");
