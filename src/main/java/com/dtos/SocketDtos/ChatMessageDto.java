@@ -14,4 +14,5 @@ public class ChatMessageDto {
     private String roomId;
     private List<String> attachments;
     private String sender;
+    private String senderRole;
 }

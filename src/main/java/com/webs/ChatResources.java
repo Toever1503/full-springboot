@@ -1,37 +1,20 @@
 package com.webs;
 
 
-import com.config.socket.NotificationSocketMessage;
-import com.config.socket.SocketHandler;
 import com.dtos.ResponseDto;
-import com.dtos.SocketDtos.ChatMessageDto;
-import com.dtos.SocketDtos.ChatRoomDto;
 import com.entities.RoleEntity;
-import com.entities.UserEntity;
 import com.models.ChatMessageModel;
-import com.models.sockets.ChatModel;
-import com.models.sockets.MessageData;
-import com.models.sockets.SocketChatMessage;
 import com.services.IChatService;
-import com.utils.FileUploadProvider;
-import com.utils.SecurityUtils;
-import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.socket.TextMessage;
-import org.springframework.web.socket.WebSocketMessage;
-import org.springframework.web.socket.WebSocketSession;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.security.RolesAllowed;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import javax.websocket.server.PathParam;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/chat")

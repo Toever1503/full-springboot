@@ -5,6 +5,7 @@ import com.config.socket.SocketHandler;
 import com.dtos.ResponseDto;
 import com.dtos.SocketDtos.ChatMessageDto;
 import com.dtos.SocketDtos.ChatRoomDto;
+import com.entities.RoleEntity;
 import com.entities.UserEntity;
 import com.models.ChatMessageModel;
 import com.models.sockets.ChatModel;
@@ -47,7 +48,12 @@ public class ChatServiceImp implements IChatService {
                     }
                 });
             }
-            ChatMessageDto chatMessageDto = new ChatMessageDto(model.getMessage(), model.getRoomId(), imageList, SecurityUtils.getCurrentUsername());
+            ChatMessageDto chatMessageDto = new ChatMessageDto();
+            if(SecurityUtils.getCurrentUser().getUser().getRoleEntity().stream().anyMatch(x->x.getRoleName().equals(RoleEntity.ADMINISTRATOR))){
+                chatMessageDto = new ChatMessageDto(model.getMessage(), model.getRoomId(), imageList, SecurityUtils.getCurrentUsername(),"ADMINISTRATOR");
+            }else {
+                chatMessageDto = new ChatMessageDto(model.getMessage(), model.getRoomId(), imageList, SecurityUtils.getCurrentUsername(),"USER");
+            }
             NotificationSocketMessage socketMessage = new NotificationSocketMessage("Chat",chatMessageDto);
             WebSocketMessage message = new TextMessage(new JSONObject(socketMessage).toString());
             chatRoom.sendMessage(SocketHandler.userSessions.get(SecurityUtils.getCurrentUserId()),message, false);
@@ -66,7 +72,7 @@ public class ChatServiceImp implements IChatService {
             String roomId = UUID.randomUUID().toString();
             ChatModel newChatRoom = new ChatModel(SocketHandler.userSessions.get(SecurityUtils.getCurrentUserId()), roomId, false);
             SocketHandler.chatRooms.put(roomId, newChatRoom);
-            ChatMessageDto chatMessageDto = new ChatMessageDto("Nguoi dung "+SecurityUtils.getCurrentUsername()+" da tao phong chat:"+roomId , roomId,null , SecurityUtils.getCurrentUsername());
+            ChatMessageDto chatMessageDto = new ChatMessageDto("Nguoi dung "+SecurityUtils.getCurrentUsername()+" da tao phong chat:"+roomId , roomId,null , SecurityUtils.getCurrentUsername(),RoleEntity.USER);
             NotificationSocketMessage socketMessage = new NotificationSocketMessage("Chat",chatMessageDto);
             WebSocketMessage message = new TextMessage(new JSONObject(socketMessage).toString());
             newChatRoom.sendMessage(curSession,message,true);
@@ -81,7 +87,7 @@ public class ChatServiceImp implements IChatService {
         if (chatRoom == null) {
             throw new RuntimeException("Chat room not found");
         }
-        ChatMessageDto chatMessageDto = new ChatMessageDto("[ADMIN] "+SecurityUtils.getCurrentUsername()+" da tham gia phong chat:"+roomId , roomId,null , SecurityUtils.getCurrentUsername());
+        ChatMessageDto chatMessageDto = new ChatMessageDto("[ADMIN] "+SecurityUtils.getCurrentUsername()+" da tham gia phong chat:"+roomId , roomId,null , SecurityUtils.getCurrentUsername(), RoleEntity.ADMINISTRATOR);
         NotificationSocketMessage socketMessage = new NotificationSocketMessage("Chat",chatMessageDto);
         WebSocketMessage message = new TextMessage(new JSONObject(socketMessage).toString());
         chatRoom.joinRoom(SocketHandler.userSessions.get(SecurityUtils.getCurrentUserId()));
