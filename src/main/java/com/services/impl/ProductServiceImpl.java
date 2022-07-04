@@ -285,7 +285,8 @@ public class ProductServiceImpl implements IProductService {
         ProductEntity entity = this.findById(productId);
         if (!entity.getIsUseVariation())
             throw new RuntimeException("Product is not use variation, id: ".concat(entity.getId().toString()));
-        entity.setVariations(this.productVariationRepository.saveAll(models.stream().map(variation -> ProductVariationModel.toEntity(variation, entity)).collect(Collectors.toList())));
+//        entity.getVariations().clear();
+        entity.setVariations(models.stream().map(variation -> ProductVariationModel.toEntity(variation, entity)).collect(Collectors.toList()));
         return entity;
     }
 

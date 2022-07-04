@@ -83,7 +83,7 @@ public class ProductEntity {
     @Column(name = "is_use_variation")
     private Boolean isUseVariation;
 
-    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @Fetch(FetchMode.SUBSELECT)
     private List<ProductVariationEntity> variations;
 
