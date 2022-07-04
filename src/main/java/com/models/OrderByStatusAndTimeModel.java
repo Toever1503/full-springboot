@@ -13,7 +13,7 @@ import java.util.Date;
 @Setter
 @NoArgsConstructor
 public class OrderByStatusAndTimeModel {
-    private String status;
-    private Date timeFrom;
-    private Date timeTo;
+    private String status_order;
+    private Date time_from;
+    private Date time_to;
 }
