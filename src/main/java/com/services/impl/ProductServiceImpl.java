@@ -285,9 +285,8 @@ public class ProductServiceImpl implements IProductService {
         ProductEntity entity = this.findById(productId);
         if (!entity.getIsUseVariation())
             throw new RuntimeException("Product is not use variation, id: ".concat(entity.getId().toString()));
-        this.productRepository.flush();
-//        entity.getVariations().clear();
-        entity.setVariations(models.stream().map(variation -> ProductVariationModel.toEntity(variation, entity)).collect(Collectors.toList()));
+        entity.getVariations().clear();
+        entity.getVariations().addAll(this.productVariationRepository.saveAll(models.stream().map(variation -> ProductVariationModel.toEntity(variation, entity)).collect(Collectors.toList())));
         return entity;
     }
 
@@ -296,6 +295,7 @@ public class ProductServiceImpl implements IProductService {
         final ProductEntity entity = this.findById(productId);
         //separate 2 type: variation and not have variation
         final String folder = this.getProductFolder(entity.getId());
+        entity.getSkus().clear();
         if (entity.getIsUseVariation()) {
             entity.setSkus(models.stream()
                     .map(sku -> saveSku(entity, folder, sku, req))
