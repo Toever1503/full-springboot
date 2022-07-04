@@ -21,4 +21,5 @@ public interface IChatService {
 
     List<ChatRoomDto> getAvailableRoomList();
 
+    List<ChatRoomDto> getAllMyChatRoom();
 }

@@ -61,9 +61,9 @@ public class ChatResources {
         return ResponseDto.of(chatService.getAllRoomList(), "Get all chat room");
     }
     @Transactional
-    @GetMapping("/getAllAvailableChatRoom")
+    @GetMapping("/getAllMyChatRoom")
     public ResponseDto getAllAvailableChatRoom() {
-        return ResponseDto.of(chatService.getAvailableRoomList(), "Get all available chat room");
+        return ResponseDto.of(chatService.getAllMyChatRoom(), "Get all my chat room");
     }
 
 }
