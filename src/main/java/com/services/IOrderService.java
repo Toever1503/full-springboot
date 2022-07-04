@@ -23,5 +23,7 @@ public interface IOrderService extends IBaseService<OrderEntity, OrderModel, Lon
 
     OrderEntity updateDeliveryCode(Long id, String deliveryCode);
 
-    List<OrderByStatusAndTimeDto> getTotalOrderByStatusAndTime(String status_order, Date time_from, Date time_to);
+    List<Object> getTotalOrderByStatusAndTime(String status_order, Date time_from, Date time_to);
+
+    Integer getTotalOrderByStatus(String status_order, Date time_from, Date time_to);
 }
