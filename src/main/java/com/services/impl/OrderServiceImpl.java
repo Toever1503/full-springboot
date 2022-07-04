@@ -10,14 +10,17 @@ import com.repositories.*;
 import com.services.INotificationService;
 import com.services.IOrderService;
 import com.utils.SecurityUtils;
-import org.aspectj.weaver.ast.Or;
-import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.EntityManager;
+import javax.persistence.ParameterMode;
+import javax.persistence.PersistenceContext;
+import javax.persistence.StoredProcedureQuery;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -43,8 +46,6 @@ public class OrderServiceImpl implements IOrderService {
 
     @Autowired
     private IUserRepository userRepository;
-
-    @Autowired
 
     @Override
     public List<OrderEntity> findAll() {
@@ -208,8 +209,15 @@ public class OrderServiceImpl implements IOrderService {
     }
 
     @Override
-    public List<OrderByStatusAndTimeDto> getTotalOrderByStatusAndTime(String status_order, Date time_from, Date time_to) {
-        return this.orderDetailRepository.order_by_status_and_time(status_order, time_from, time_to);
+    public List<Object> getTotalOrderByStatusAndTime(String status_order, Date time_from, Date time_to) {
+//        List<Object> list = this.orderDetailRepository.order_by_status_and_time(status_order, time_from, time_to);
+
+        return null;
     }
 
+    @Override
+    public Integer getTotalOrderByStatus(String status_order, Date time_from, Date time_to) {
+        return this.orderDetailRepository.findTotalOrderByTimeAndStatus(status_order,time_from, time_to);
+    }
 }
+

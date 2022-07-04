@@ -9,6 +9,7 @@ import org.springframework.data.repository.query.Param;
 import javax.persistence.NamedStoredProcedureQuery;
 import javax.persistence.ParameterMode;
 import javax.persistence.StoredProcedureParameter;
+import javax.persistence.Temporal;
 import java.util.Date;
 import java.util.List;
 
