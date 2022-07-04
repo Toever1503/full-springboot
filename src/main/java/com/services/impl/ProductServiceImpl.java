@@ -267,16 +267,6 @@ public class ProductServiceImpl implements IProductService {
         }
     }
 
-    @Override
-    public List<ProductVariationEntity> findProductVariations(Long id) {
-        return this.productVariationRepository.findAllByProductId(id);
-    }
-
-    @Override
-    public List<ProductSkuEntity> findProductSkus(Long id) {
-        return this.productSkuEntityRepository.findAllByProductId(id);
-    }
-
     private ProductSkuEntity saveSku(ProductEntity entity, String folder, ProductSkuModel model, HttpServletRequest req) {
         ProductSkuEntity skuEntity = ProductSkuModel.toEntity(model, entity, entity.getIsUseVariation());
         if (model.getImageParameter() != null) {

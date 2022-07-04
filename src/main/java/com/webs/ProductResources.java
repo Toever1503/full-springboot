@@ -5,7 +5,6 @@ import com.dtos.ProductDto;
 import com.dtos.ProductSkuDto;
 import com.dtos.ProductVariationDto;
 import com.dtos.ResponseDto;
-import com.entities.RoleEntity;
 import com.models.ProductModel;
 import com.models.ProductSkuModel;
 import com.models.ProductVariationModel;
@@ -15,7 +14,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.annotation.security.RolesAllowed;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.util.List;
@@ -64,20 +62,6 @@ public class ProductResources {
         productModel.setAttachFiles(attachFiles);
         productModel.setImage(image);
         return ResponseDto.of(ProductDto.toDto(productService.add(productModel)), "Create product successfully");
-    }
-
-    @RolesAllowed(RoleEntity.ADMINISTRATOR)
-    @Transactional
-    @GetMapping("variations/{id}")
-    public ResponseDto getVariations(@PathVariable Long id){
-        return ResponseDto.of(this.productService.findProductVariations(id).stream().map(ProductVariationDto::toDto), "Get variations for product id: ".concat(id.toString()));
-    }
-
-    @RolesAllowed(RoleEntity.ADMINISTRATOR)
-    @Transactional
-    @GetMapping("skus/{id}")
-    public ResponseDto getSkus(@PathVariable Long id){
-        return ResponseDto.of(this.productService.findProductSkus(id).stream().map(ProductSkuDto::toDto), "Get skus for product id: ".concat(id.toString()));
     }
 
     @Transactional

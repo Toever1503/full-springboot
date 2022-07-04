@@ -193,10 +193,7 @@ public class OrderServiceImpl implements IOrderService {
 
     @Override
     public List<OrderByStatusAndTimeDto> getTotalOrderByStatusAndTime(String status_order, Date time_from, Date time_to) {
-        List<OrderByStatusAndTimeDto> listtest = new ArrayList<>();
-        List<OrderByStatusAndTimeDto> listRusult =  this.orderDetailRepository.order_by_status_and_time(status_order, time_from, time_to);
-        System.out.println("kkkkk");
-        return null;
+        return this.orderDetailRepository.order_by_status_and_time(status_order, time_from, time_to);
     }
 
 }
