@@ -8,6 +8,7 @@ import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketMessage;
 import org.springframework.web.socket.WebSocketSession;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -32,15 +33,25 @@ public class ChatModel {
         this.isMultiple = isMultiple;
     }
 
-    public void sendMessage(WebSocketSession session, WebSocketMessage<?> message) {
+    public void sendMessage(WebSocketSession session, WebSocketMessage<?> message, boolean sendToAll) {
         this.updatedDate = Calendar.getInstance().getTime();
-        for (WebSocketSession person : persons) {
-            if (person.getId().equals(session.getId()))
-                continue;
-            try {
-                person.sendMessage(message);
-            } catch (Exception e) {
-                e.printStackTrace();
+        if(sendToAll){
+            for (WebSocketSession person : persons){
+                try {
+                    person.sendMessage(message);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }else {
+            for (WebSocketSession person : persons) {
+                if (person.getId().equals(session.getId()))
+                    continue;
+                try {
+                    person.sendMessage(message);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
         }
     }

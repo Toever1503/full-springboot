@@ -1,6 +1,7 @@
 package com.config.socket;
 
 import com.config.socket.exception.ChatRoomException;
+import com.entities.RoleEntity;
 import com.entities.UserEntity;
 import com.google.gson.Gson;
 import com.models.SocketNotificationModel;
@@ -23,8 +24,6 @@ import java.util.stream.Collectors;
 public class SocketHandler implements WebSocketHandler {
     public static ConcurrentHashMap<Long, WebSocketSession> userSessions = new ConcurrentHashMap<>();
     public static Map<String, ChatModel> chatRooms = new ConcurrentHashMap<>();
-//    public static List<String> availableRooms = new ArrayList<>();
-//    public static List<String> fullRooms = new ArrayList<>();
 
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
@@ -57,89 +56,9 @@ public class SocketHandler implements WebSocketHandler {
                 }
             }
         }
-
-//        if (receive.has("sendTo")) {
-//            String sendTo = receive.getString("sendTo");
-//            if (sendTo.equals(SendTo.ALL.toString())) {
-//                socketMessage.setSendTo(SendTo.ALL);
-//                socketMessage.setUidSet(userSessions.keySet());
-//            }
-//            if (sendTo.equals(SendTo.USER.toString())) {
-//                if (receive.has("idList")) {
-//                    Set<Long> idSet = new HashSet<>();
-//                    for (Object l : receive.getJSONArray("idList")
-//                    ) {
-//                        Long uid = Long.valueOf((Integer) l);
-//                        idSet.add(uid);
-//                    }
-//                    socketMessage.setUidSet(idSet);
-//                }
-//            }
-//        }
         socketMessage.setUidSet(userSessions.keySet());
         Long curUid = Long.valueOf(session.getAttributes().get("id").toString());
         System.out.println(socketMessage.toString());
-        if (socketMessage.getAction() != null && receive.has("topic")) {
-            switch (socketMessage.getAction()) {
-//                case "createChatRoom":
-//                    try {
-//                        if(receive.getString("topic").equals("chat")){
-//                            ChatModel chatRoom = new ChatModel(session, UUID.randomUUID().toString(), false,false);
-//                            chatRooms.add(chatRoom);
-//                            availableRooms.add(chatRoom.getRoomId());
-//                            SocketChatMessage socketChatMessage = new SocketChatMessage(null,new MessageData(),"chat");
-//                            socketChatMessage.getMessageData().setMessageContent(session.getAttributes().get("username").toString()+" da tao phong chat: " + chatRoom.getRoomId());
-//                            socketChatMessage.getMessageData().setCreatedDate(Calendar.getInstance().getTime());
-//                            socketChatMessage.setRoomId(chatRoom.getRoomId());
-//                            WebSocketMessage mss = new TextMessage(new JSONObject(socketChatMessage).toString());
-//                            chatRoom.sendMessage(session,mss);
-//                            session.sendMessage(mss);
-//                        }
-//                    } catch (Exception e) {
-//                        e.printStackTrace();
-//                    }
-//                    break;
-//                case "joinChatRoom":
-//                    try{
-//                        if(receive.getString("topic").equals("chat")) {
-//                            String roomId = receive.getString("roomId");
-//                            ChatModel chatRoom = chatRooms.stream().filter(s -> s.getRoomId().equals(roomId)).findFirst().get();
-//                            chatRoom.setFull(true);
-//                            availableRooms.remove(chatRoom.getRoomId());
-//                            fullRooms.add(chatRoom.getRoomId());
-//                            chatRoom.getPersons().add(session);
-//                            SocketChatMessage socketChatMessage = new SocketChatMessage(null, new MessageData(),"chat");
-//                            socketChatMessage.getMessageData().setMessageContent(session.getAttributes().get("username").toString() + " da tham gia phong chat: " + chatRoom.getRoomId());
-//                            socketChatMessage.getMessageData().setCreatedDate(Calendar.getInstance().getTime());
-//                            socketChatMessage.setRoomId(chatRoom.getRoomId());
-//                            WebSocketMessage mss = new TextMessage(new JSONObject(socketChatMessage).toString());
-//                            session.sendMessage(mss);
-//                            chatRoom.sendMessage(session, mss);
-//                        }
-//                    }catch (Exception e){
-//                        e.printStackTrace();
-//                    }
-//                    break;
-//                case "sendChatMessage":
-//                    try{
-//                        if(receive.getString("topic").equals("chat")) {
-//                            String roomIdc = receive.getString("roomId");
-//                            ChatModel chatRoom = chatRooms.stream().filter(s -> s.getRoomId().equals(roomIdc.toString())).findFirst().get();
-//                            SocketChatMessage socketChatMessage = new SocketChatMessage(null, new MessageData(),"chat");
-//                            socketChatMessage.getMessageData().setMessageContent(socketMessage.getMessageData().getMessageContent());
-//                            socketChatMessage.getMessageData().setCreatedDate(Calendar.getInstance().getTime());
-//                            socketChatMessage.setRoomId(chatRoom.getRoomId());
-//                            WebSocketMessage mss = new TextMessage(new JSONObject(socketChatMessage).toString());
-//                            chatRoom.sendMessage(session, mss);
-//                        }
-//                    }catch (Exception e){
-//                        e.printStackTrace();
-//                    }
-//                    break;
-                default:
-                    break;
-            }
-        }
     }
 
     @Override
@@ -155,8 +74,15 @@ public class SocketHandler implements WebSocketHandler {
     public void afterConnectionClosed(WebSocketSession session, CloseStatus closeStatus) throws Exception {
         UsernamePasswordAuthenticationToken userDetail = (UsernamePasswordAuthenticationToken) session.getPrincipal();
         CustomUserDetail customUserDetail = (CustomUserDetail) userDetail.getPrincipal();
-        if(chatRooms.values().contains(session)){
-            chatRooms.remove(customUserDetail.getUser().getId());
+        if(chatRooms.values().stream().anyMatch(s -> s.getPersons().contains(session))){
+            ChatModel chatRoom = chatRooms.values().stream().filter(s -> s.getPersons().contains(session)).findFirst().get();
+            chatRoom.getPersons().remove(session);
+            if(userDetail.getAuthorities().stream().map(s->s.getAuthority()).collect(Collectors.toList()).containsAll(List.of(RoleEntity.ADMINISTRATOR,RoleEntity.USER))){
+                chatRoom.sendMessage(session, new TextMessage("User "+ getUserFromSession(session).getUserName()+" has disconnected from chat room: " + chatRoom.getRoomId()),false);
+            }else {
+                chatRoom.sendMessage(session, new TextMessage("User "+ getUserFromSession(session).getUserName()+ " has closed chat room: " + chatRoom.getRoomId()),false);
+                chatRooms.remove(chatRoom.getRoomId());
+            }
         }
         userSessions.remove(userSessions.remove(customUserDetail.getUser().getId()));
     }
@@ -175,37 +101,6 @@ public class SocketHandler implements WebSocketHandler {
         }
     }
 
-//    private void subscribeTopic(WebSocketSession session, SocketMessage socketMessage, List<Object> topics, boolean subscribe) {
-//        if (topics == null)
-//            throw new RuntimeException("Topic is null");
-//        List userTopics = (List<String>) session.getAttributes().get("topics");
-//        if (subscribe) {
-//            for (Object topic : topics) {
-//                if (!userTopics.contains(topic)) {
-//                    userTopics.add(topic);
-//                }
-//            }
-//        } else {
-//            userTopics.removeAll(topics);
-//        }
-//    }
-//
-//    private void publishMessage(SocketMessage socketMessage, WebSocketMessage<?> message) throws IOException {
-//        List<WebSocketSession> sendSessions = new ArrayList<>();
-//        for (Long uid : socketMessage.getUidSet()) {
-//            List<String> topics = (List<String>) userSessions.get(uid).getAttributes().get("topics");
-//            if (topics.contains(socketMessage.getTopic())) {
-//                sendSessions.add(userSessions.get(uid));
-//            }
-//        }
-//        System.out.println(sendSessions.toString());
-//        if (sendSessions.size() > 0) {
-//            for (WebSocketSession s : sendSessions
-//            ) {
-//                s.sendMessage(message);
-//            }
-//        }
-//    }
 
     public void publishNotification(SocketNotificationModel notification, List<Long> uIds) {
         NotificationSocketMessage notificationSocketMessage = new NotificationSocketMessage("notification", notification);

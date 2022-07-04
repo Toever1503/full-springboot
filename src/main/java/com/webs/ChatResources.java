@@ -36,64 +36,28 @@ import java.util.UUID;
 @RequestMapping("/chat")
 public class ChatResources {
     @Autowired
-    SocketHandler socketHandler;
-    @Autowired
-    FileUploadProvider fileUploadProvider;
+    IChatService chatService;
     @PostMapping("/createChatRoom")
     public ResponseDto createChatRoom() {
-        WebSocketSession curSession = SocketHandler.userSessions.get(SecurityUtils.getCurrentUserId());
-        if(SocketHandler.getCurrentChatRoomId(curSession)!=null){
-            return ResponseDto.of(null, "You are already in a chat room : "+ SocketHandler.getCurrentChatRoomId(curSession));
-        }else {
-            String roomId = UUID.randomUUID().toString();
-            ChatModel newChatRoom = new ChatModel(SocketHandler.userSessions.get(SecurityUtils.getCurrentUserId()), roomId,false);
-            SocketHandler.chatRooms.put(roomId, newChatRoom);
-            return ResponseDto.of(roomId, "Create chat room");
-        }
+        return ResponseDto.of(chatService.createChatRoom(),"Create chat room");
     }
 
     @RolesAllowed(RoleEntity.ADMINISTRATOR)
     @PostMapping("/joinChatRoom")
     public ResponseDto joinChatRoom(@PathParam("roomId") String roomId) throws IOException {
-        ChatModel chatRoom = SocketHandler.chatRooms.get(roomId);
-        if (chatRoom == null) {
-            throw new RuntimeException("Chat room not found");
-        }
-        chatRoom.joinRoom(SocketHandler.userSessions.get(SecurityUtils.getCurrentUserId()));
-        return ResponseDto.of(roomId, "Join chat room");
+        return ResponseDto.of(chatService.joinChatRoom(roomId), "Join chat room");
     }
     @PostMapping("/sendChatMessage")
     public ResponseDto sendChatMessage(ChatMessageModel model) {
-        if(SocketHandler.chatRooms.get(model.getRoomId())!=null){
-            ChatModel chatRoom = SocketHandler.chatRooms.get(model.getRoomId());
-            List<String> imageList = new ArrayList<>();
-            if(model.getAttachments()!=null){
-                model.getAttachments().stream().forEach(x->{
-                    try {
-                        String image = fileUploadProvider.uploadFile("chat/" + SecurityUtils.getCurrentUser().getUsername()+"/", x);
-                        imageList.add(image);
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
-                    }
-                });
-            }
-            ChatMessageDto chatMessageDto = new ChatMessageDto(model.getMessage(), model.getRoomId(), imageList, SecurityUtils.getCurrentUsername());
-            NotificationSocketMessage socketMessage = new NotificationSocketMessage("Chat",chatMessageDto);
-            WebSocketMessage message = new TextMessage(new JSONObject(socketMessage).toString());
-            chatRoom.sendMessage(SocketHandler.userSessions.get(SecurityUtils.getCurrentUserId()),message);
-            return ResponseDto.of(socketMessage, "Send chat message");
-        }else {
-            return ResponseDto.of(null, "Send chat message");
-        }
-
+        return ResponseDto.of(chatService.sendMessage(model), "Send chat message");
     }
     @GetMapping("/getAllChatRoom")
     public ResponseDto getAllChatRoom() {
-        return ResponseDto.of(socketHandler.getAllChatRoom().stream().map(ChatRoomDto::toDto), "Get all chat room");
+        return ResponseDto.of(chatService.getAllRoomList(), "Get all chat room");
     }
     @GetMapping("/getAllAvailableChatRoom")
     public ResponseDto getAllAvailableChatRoom() {
-        return ResponseDto.of(socketHandler.getAllAvailableChatRoom().stream().map(ChatRoomDto::toDto), "Get all available chat room");
+        return ResponseDto.of(chatService.getAvailableRoomList(), "Get all available chat room");
     }
 
 }

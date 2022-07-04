@@ -1,6 +1,8 @@
 package com.services;
 
+import com.config.socket.NotificationSocketMessage;
 import com.dtos.SocketDtos.ChatRoomDto;
+import com.models.ChatMessageModel;
 import com.models.sockets.SocketChatMessage;
 import org.springframework.web.socket.WebSocketSession;
 
@@ -9,15 +11,14 @@ import java.util.List;
 import java.util.Map;
 
 public interface IChatService {
-    SocketChatMessage sendMessage(SocketChatMessage socketChatMessage);
+    NotificationSocketMessage sendMessage(ChatMessageModel model);
 
-    boolean createChatRoom(SocketChatMessage socketChatMessage);
+    String createChatRoom();
 
-    boolean joinChatRoom(SocketChatMessage socketChatMessage);
+    String joinChatRoom(String roomId);
 
     List<ChatRoomDto> getAllRoomList();
 
     List<ChatRoomDto> getAvailableRoomList();
 
-    List<ChatRoomDto> getFullRoomList();
 }
