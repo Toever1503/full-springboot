@@ -3,6 +3,7 @@ package com.webs;
 import com.dtos.OrderDto;
 import com.dtos.ResponseDto;
 import com.entities.OrderEntity;
+import com.models.OrderByStatusAndTimeModel;
 import com.models.OrderModel;
 import com.models.ReportModel;
 import com.models.filters.OrderFilterModel;
@@ -102,8 +103,8 @@ public class OrderResources {
 
     @RolesAllowed("ADMINISTRATOR")
     @Transactional
-    @GetMapping("/quantityProduct")
-    public ResponseDto getQuantityProduct(@RequestBody ReportModel reportModel){
-        return ResponseDto.of(this.orderService.getQuantityProductByStatusAndTime(reportModel.getStatus(), reportModel.getTime_from(), reportModel.getTime_to()),"Get quantity product");
+    @PostMapping("/report/total-order-by-time-and-status")
+    public ResponseDto getTotalOrder(@RequestBody OrderByStatusAndTimeModel model){
+        return ResponseDto.of(this.orderService.getTotalOrderByStatusAndTime(model.getStatus(), model.getTimeFrom(), model.getTimeTo()),"Get total order by status and time");
     }
 }

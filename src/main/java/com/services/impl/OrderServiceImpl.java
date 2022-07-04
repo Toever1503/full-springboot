@@ -1,11 +1,13 @@
 package com.services.impl;
 
+import com.dtos.OrderByStatusAndTimeDto;
 import com.entities.*;
 import com.models.OrderModel;
 import com.repositories.*;
 import com.services.IOrderService;
 import com.utils.SecurityUtils;
 import org.aspectj.weaver.ast.Or;
+import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -190,8 +192,8 @@ public class OrderServiceImpl implements IOrderService {
     }
 
     @Override
-    public Integer getQuantityProductByStatusAndTime(String status_order, Date time_from, Date time_to) {
-        Integer totalQuantityProductInTime = this.orderDetailRepository.getQuantityProductByStatusAndTime(status_order, time_from, time_to).stream().mapToInt(Integer::intValue).sum();
-        return totalQuantityProductInTime;
+    public List<OrderByStatusAndTimeDto> getTotalOrderByStatusAndTime(String status_order, Date time_from, Date time_to) {
+        return this.orderDetailRepository.order_by_status_and_time(status_order, time_from, time_to);
     }
+
 }

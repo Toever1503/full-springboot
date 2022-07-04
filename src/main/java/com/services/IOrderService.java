@@ -1,11 +1,14 @@
 package com.services;
 
+import com.dtos.OrderByStatusAndTimeDto;
 import com.entities.OrderEntity;
 import com.models.OrderModel;
+import org.joda.time.DateTime;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import java.util.Date;
+import java.util.List;
 
 public interface IOrderService extends IBaseService<OrderEntity, OrderModel, Long> {
     OrderEntity updateStatusOrder(Long id, String status);
@@ -20,5 +23,5 @@ public interface IOrderService extends IBaseService<OrderEntity, OrderModel, Lon
 
     OrderEntity updateDeliveryCode(Long id, String deliveryCode);
 
-    Integer getQuantityProductByStatusAndTime(String status_order, Date time_from, Date time_to);
+    List<OrderByStatusAndTimeDto> getTotalOrderByStatusAndTime(String status_order, Date time_from, Date time_to);
 }
