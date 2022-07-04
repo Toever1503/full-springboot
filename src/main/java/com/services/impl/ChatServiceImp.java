@@ -98,5 +98,10 @@ public class ChatServiceImp implements IChatService {
     public List<ChatRoomDto> getAvailableRoomList() {
         return socketHandler.getAllAvailableChatRoom().stream().map(ChatRoomDto::toDto).collect(Collectors.toList());
     }
+
+    @Override
+    public List<ChatRoomDto> getAllMyChatRoom() {
+        return socketHandler.getAllMyChatRoom(SocketHandler.userSessions.get(SecurityUtils.getCurrentUserId())).stream().map(ChatRoomDto::toDto).collect(Collectors.toList());
+    }
 }
 

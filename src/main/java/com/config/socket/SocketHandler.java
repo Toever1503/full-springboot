@@ -137,6 +137,12 @@ public class SocketHandler implements WebSocketHandler {
         return availRooms;
     }
 
+    public List<ChatModel> getAllMyChatRoom(WebSocketSession session){
+        List<ChatModel> myRooms = chatRooms.values().stream().filter(x->x.getPersons().contains(session)).collect(Collectors.toList());
+        myRooms.addAll(getAllAvailableChatRoom());
+        return myRooms;
+    }
+
     public List<ChatModel> getAllFullChatRoom() {
         Long uid = SecurityUtils.getCurrentUserId();
         List<ChatModel> availRooms = this.chatRooms.values().stream().filter(x->x.hasPersons(2) && x.getPersons().contains(userSessions.get(uid))).collect(Collectors.toList());
