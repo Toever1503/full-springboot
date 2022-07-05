@@ -14,12 +14,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.data.jpa.repository.query.Procedure;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityManager;
 import javax.persistence.ParameterMode;
 import javax.persistence.PersistenceContext;
 import javax.persistence.StoredProcedureQuery;
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -209,15 +214,38 @@ public class OrderServiceImpl implements IOrderService {
     }
 
     @Override
-    public List<Object> getTotalOrderByStatusAndTime(String status_order, Date time_from, Date time_to) {
-//        List<Object> list = this.orderDetailRepository.order_by_status_and_time(status_order, time_from, time_to);
+    @Procedure(name = "findOrderAndPriceByTimeAndStatus")
+    public List<OrderByStatusAndTimeDto> getAllOrderByStatusAndTime(String status_order,Date time_from,Date time_to) {
+        List<Object[]> list = this.orderRepository.findAllByTimeAndStatus(status_order, time_from, time_to);
+        List<OrderByStatusAndTimeDto> orderByStatusAndTimeDtoList = new ArrayList<>();
 
-        return null;
+        list.stream().forEach(o -> {
+            OrderByStatusAndTimeDto orderByStatusAndTimeDto = new OrderByStatusAndTimeDto();
+            orderByStatusAndTimeDto.setHour_in_day((Integer) o[0]);
+            orderByStatusAndTimeDto.setTotal_order(((BigInteger) o[1]).intValue());
+            orderByStatusAndTimeDto.setStatus_order((String) o[2]);
+            orderByStatusAndTimeDto.setTotal_products((Integer) o[3]);
+            orderByStatusAndTimeDto.setTotal_prices((Double) o[4]);
+            orderByStatusAndTimeDto.setOrder_date(o[5] == null ? null : ((Timestamp) o[5]).toLocalDateTime());
+            orderByStatusAndTimeDtoList.add(orderByStatusAndTimeDto);
+        });
+
+        return orderByStatusAndTimeDtoList;
     }
 
     @Override
-    public Integer getTotalOrderByStatus(String status_order, Date time_from, Date time_to) {
-        return this.orderDetailRepository.findTotalOrderByTimeAndStatus(status_order,time_from, time_to);
+    public Integer getTotalOrderByStatusAndTime(String status_order, Date time_from, Date time_to) {
+        return this.orderRepository.findTotalOrderByTimeAndStatus(status_order,time_from, time_to);
+    }
+
+    @Override
+    public Double getTotalPriceByStatusAndTime(String status_order, Date time_from, Date time_to) {
+        return this.orderRepository.findTotalPriceByTimeAndStatus(status_order,time_from, time_to);
+    }
+
+    @Override
+    public Integer getTotalUserByTime(Date time_from, Date time_to) {
+        return this.orderRepository.findTotalUserByTime(time_from, time_to);
     }
 }
 
