@@ -525,6 +525,7 @@ public class ProductServiceImpl implements IProductService {
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
+        productFilterDataDto = filterData;
         return productFilterDataDto;
     }
 
