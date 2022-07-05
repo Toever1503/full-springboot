@@ -100,7 +100,6 @@ public class OrderResources {
         return ResponseDto.of(orderService.getUrlByID(id),"Get url");
     }
 
-    // chua xu ly duoc du lieu dau ra
     @RolesAllowed("ADMINISTRATOR")
     @Transactional
     @PostMapping("/report/all-by-time-and-status")
