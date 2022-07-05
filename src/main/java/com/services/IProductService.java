@@ -2,6 +2,7 @@ package com.services;
 
 import com.dtos.DetailProductDto;
 import com.dtos.ProductDto;
+import com.dtos.ProductFilterDataDto;
 import com.entities.ProductEntity;
 import com.entities.ProductSkuEntity;
 import com.entities.ProductVariationEntity;
@@ -30,4 +31,6 @@ public interface IProductService extends IBaseService<ProductEntity, ProductMode
     List<ProductVariationEntity> findVariations(Long id);
 
     List<ProductSkuEntity> findSkus(Long id);
+
+    ProductFilterDataDto getFilterData();
 }
