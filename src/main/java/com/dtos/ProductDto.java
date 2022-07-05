@@ -110,7 +110,7 @@ public class ProductDto {
         productDto.setProductMetas(entity.getProductMetas() == null ? null : entity.getProductMetas().stream().map(ProductMetaDto::toDto).collect(Collectors.toList()));
         productDto.setTags(entity.getTags() == null ? null : entity.getTags().stream().map(TagDto::toTagDto).collect(Collectors.toSet()));
 
-        productDto.setVariations(entity.getVariations() == null ? null : entity.getVariations().stream().map(ProductVariationDto::toDto).collect(Collectors.toList()));
+        productDto.setVariations(entity.getVariations() == null ? Collections.EMPTY_LIST : entity.getVariations().stream().map(ProductVariationDto::toDto).collect(Collectors.toList()));
         productDto.setSkus(entity.getSkus() == null ? Collections.EMPTY_LIST : entity.getSkus().stream().map(ProductSkuDto::toDto).collect(Collectors.toList()));
         return productDto;
     }

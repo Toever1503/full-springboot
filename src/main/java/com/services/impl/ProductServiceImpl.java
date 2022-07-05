@@ -541,6 +541,7 @@ public class ProductServiceImpl implements IProductService {
             skuEntity = this.productSkuEntityRepository.findById(model.getId()).orElse(null);
         else
             skuEntity = ProductSkuModel.toEntity(model, entity, entity.getIsUseVariation());
+        skuEntity.setImage(model.getOriginImage());
         if (model.getImageParameter() != null) {
             String filePath;
             try {
@@ -553,6 +554,7 @@ public class ProductServiceImpl implements IProductService {
                 throw new RuntimeException(e);
             }
         }
+
         List<ProductVariationValueEntity> values = productVariationValueRepository.checkVariationValueExist(model.getVariationValues());
         if (values.size() != model.getVariationValues().size())
             throw new RuntimeException("variation values not enough, expected " + values.size());

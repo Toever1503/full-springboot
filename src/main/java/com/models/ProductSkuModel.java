@@ -25,6 +25,8 @@ public class ProductSkuModel {
 
     private String imageParameter;
 
+    private String originImage;
+
     @NotNull
     private Integer inventoryQuantity;
 
@@ -52,6 +54,7 @@ public class ProductSkuModel {
                 .oldPrice(model.oldPrice == null ? 0 : model.oldPrice)
                 .inventoryQuantity(model.inventoryQuantity)
                 .skuCode(skuCode)
+                .image(model.originImage)
                 .isValid(model.isValid)
                 .variationSize(model.variationSize)
                 .build();
