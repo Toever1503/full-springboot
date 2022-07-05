@@ -15,5 +15,6 @@ public interface IProductVariationRepository extends JpaRepository<ProductVariat
     @Query("SELECT distinct pv.value from ProductVariationValueEntity pv join ProductVariationEntity pr on pr.id = pv.variation.id where pr.variationName = ?1")
     List<String> findALlVariationValuesByVariationName(String variationName);
 
+
     List<ProductVariationEntity> findAllByProductId(Long id);
 }

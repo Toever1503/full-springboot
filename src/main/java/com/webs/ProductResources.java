@@ -65,14 +65,14 @@ public class ProductResources {
     @PostMapping("variations/{productId}")
     public ResponseDto saveVariations(@PathVariable Long productId, @RequestBody @Valid List<ProductVariationModel> models) {
         ProductDto dto = productService.saveDtoOnElasticsearch(this.productService.saveVariations(productId, models));
-        return ResponseDto.of(dto.getVariations(), "Save variations for product id: ".concat(productId.toString()));
+        return ResponseDto.of(dto, "Save variations for product id: ".concat(productId.toString()));
     }
 
     @Transactional
     @PostMapping("skus/{productId}")
     public ResponseDto saveSkus(@PathVariable Long productId, @Valid @RequestPart("skus") List<ProductSkuModel> models, HttpServletRequest req) {
         ProductDto dto = productService.saveDtoOnElasticsearch(this.productService.saveSkus(req, productId, models));
-        return ResponseDto.of(dto.getSkus(), "Save skus for product id: ".concat(productId.toString()));
+        return ResponseDto.of(dto, "Save skus for product id: ".concat(productId.toString()));
     }
 
     @Transactional
