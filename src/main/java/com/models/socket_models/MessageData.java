@@ -1,12 +1,10 @@
-package com.models.sockets;
+package com.models.socket_models;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.web.socket.WebSocketMessage;
 
-import java.sql.Timestamp;
 import java.util.Date;
 
 
