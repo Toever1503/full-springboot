@@ -1,9 +1,7 @@
-package com.models.sockets;
+package com.models.socket_models;
 
-import com.sun.mail.imap.protocol.UIDSet;
 import lombok.*;
 
-import java.util.List;
 import java.util.Set;
 
 @Data

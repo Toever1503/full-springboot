@@ -1,4 +1,4 @@
-package com.dtos.SocketDtos;
+package com.dtos.socket_dtos;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
