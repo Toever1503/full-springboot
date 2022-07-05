@@ -74,7 +74,7 @@ public class ProductEntity {
     @Fetch(FetchMode.SUBSELECT)
     private List<ProductMetaEntity> productMetas;
 
-    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @OrderBy("price ASC")
     @Fetch(FetchMode.SUBSELECT)
     private List<ProductSkuEntity> skus;

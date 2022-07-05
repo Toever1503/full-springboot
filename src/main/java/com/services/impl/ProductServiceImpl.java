@@ -304,11 +304,14 @@ public class ProductServiceImpl implements IProductService {
         final String folder = this.getProductFolder(entity.getId());
         entity.getSkus().clear();
         if (entity.getIsUseVariation()) {
-            entity.setSkus(models.stream()
-                    .map(sku -> saveSku(entity, folder, sku, req))
-                    .collect(Collectors.toList()));
+            if (models.isEmpty())
+                this.productSkuEntityRepository.deleteAllByProductId(productId);
+            else
+                entity.setSkus(this.productSkuEntityRepository.saveAll(models.stream()
+                        .map(sku -> saveSku(entity, folder, sku, req))
+                        .collect(Collectors.toList())));
         } else {
-            entity.setSkus(List.of(saveSku(entity, folder, models.get(0), req)));
+            entity.setSkus(List.of(this.productSkuEntityRepository.save(saveSku(entity, folder, models.get(0), req))));
         }
         return entity;
     }
@@ -532,11 +535,15 @@ public class ProductServiceImpl implements IProductService {
 //    }
 
     private ProductSkuEntity saveSku(ProductEntity entity, String folder, ProductSkuModel model, HttpServletRequest req) {
-        ProductSkuEntity skuEntity = ProductSkuModel.toEntity(model, entity, entity.getIsUseVariation());
+        ProductSkuEntity skuEntity;
+        if (model.getId() != null)
+            skuEntity = this.productSkuEntityRepository.findById(model.getId()).orElse(null);
+        else
+            skuEntity = ProductSkuModel.toEntity(model, entity, entity.getIsUseVariation());
         if (model.getImageParameter() != null) {
             String filePath;
             try {
-                fileUploadProvider.deleteFile(model.getOriginImage());
+                fileUploadProvider.deleteFile(skuEntity.getImage());
                 filePath = fileUploadProvider.uploadFile(folder, req.getPart(model.getImageParameter()));
                 skuEntity.setImage(filePath);
             } catch (IOException e) {

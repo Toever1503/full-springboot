@@ -71,7 +71,7 @@ public class ProductResources {
 
     @Transactional
     @PostMapping("skus/{productId}")
-    public ResponseDto saveSkus(@PathVariable Long productId, @Valid @RequestPart("skus") List<ProductSkuModel> models, HttpServletRequest req) {
+    public ResponseDto saveSkus(@PathVariable Long productId, @Valid @RequestPart List<ProductSkuModel> models, HttpServletRequest req) {
         ProductDto dto = productService.saveDtoOnElasticsearch(this.productService.saveSkus(req, productId, models));
         return ResponseDto.of(dto, "Save skus for product id: ".concat(productId.toString()));
     }
