@@ -171,14 +171,14 @@ public class OrderServiceImpl implements IOrderService {
     public OrderEntity updateStatusOrder(Long id, String status) {
         OrderEntity order = this.findById(id);
         order.setStatus(status);
-        return orderRepository.save(order);
+        return orderRepository.saveAndFlush(order);
     }
 
     @Override
     public OrderEntity cancelOrder(Long id) {
         OrderEntity order = this.findById(id);
         order.setStatus("CANCEL");
-        return orderRepository.save(order);
+        return orderRepository.saveAndFlush(order);
     }
 
     @Override
@@ -210,7 +210,7 @@ public class OrderServiceImpl implements IOrderService {
     public OrderEntity updateDeliveryCode(Long id, String deliveryCode) {
         OrderEntity order = this.findById(id);
         order.setDeliveryCode(deliveryCode);
-        return orderRepository.save(order);
+        return orderRepository.saveAndFlush(order);
     }
 
     @Override
