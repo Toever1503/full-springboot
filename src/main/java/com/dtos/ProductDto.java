@@ -9,6 +9,7 @@ import org.springframework.data.elasticsearch.annotations.Document;
 import org.springframework.data.elasticsearch.annotations.Field;
 import org.springframework.data.elasticsearch.annotations.FieldType;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -110,7 +111,7 @@ public class ProductDto {
         productDto.setTags(entity.getTags() == null ? null : entity.getTags().stream().map(TagDto::toTagDto).collect(Collectors.toSet()));
 
         productDto.setVariations(entity.getVariations() == null ? null : entity.getVariations().stream().map(ProductVariationDto::toDto).collect(Collectors.toList()));
-        productDto.setSkus(entity.getSkus() == null ? null : entity.getSkus().stream().map(ProductSkuDto::toDto).collect(Collectors.toList()));
+        productDto.setSkus(entity.getSkus() == null ? Collections.EMPTY_LIST : entity.getSkus().stream().map(ProductSkuDto::toDto).collect(Collectors.toList()));
         return productDto;
     }
 }

@@ -12,4 +12,6 @@ public interface IProductSkuEntityRepository extends JpaRepository<ProductSkuEnt
     ProductSkuEntity findByProductIdAndId(Long productId, Long skuId);
 
     List<ProductSkuEntity> findAllByProductId(Long id);
+
+    List<ProductSkuEntity> deleteAllByProductId(Long id);
 }

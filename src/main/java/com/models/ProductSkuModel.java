@@ -25,8 +25,6 @@ public class ProductSkuModel {
 
     private String imageParameter;
 
-    private String originImage;
-
     @NotNull
     private Integer inventoryQuantity;
 
@@ -47,14 +45,12 @@ public class ProductSkuModel {
             if (!skuCode.matches(ProductSkuEntity.SKU_CODE_PATTERN))
                 throw new RuntimeException("Generated skuCode is invalid: ".concat(skuCode).concat(". Please check again!"));
         }
-
         ProductSkuEntity sku = ProductSkuEntity.builder()
                 .product(product)
                 .id(model.id)
                 .price(model.price)
                 .oldPrice(model.oldPrice == null ? 0 : model.oldPrice)
                 .inventoryQuantity(model.inventoryQuantity)
-                .image(model.originImage)
                 .skuCode(skuCode)
                 .isValid(model.isValid)
                 .variationSize(model.variationSize)

@@ -1,16 +1,14 @@
 package com.services.impl;
 
 import com.config.elasticsearch.ERepositories.IEProductRepository;
-import com.dtos.DetailProductDto;
-import com.dtos.ECategoryType;
-import com.dtos.EProductStatus;
-import com.dtos.ProductDto;
+import com.dtos.*;
 import com.entities.*;
 import com.models.ProductMetaModel;
 import com.models.ProductModel;
 import com.models.ProductSkuModel;
 import com.models.ProductVariationModel;
 import com.models.elasticsearch.EProductFilterModel;
+import com.models.specifications.CategorySpecification;
 import com.repositories.*;
 import com.services.ICategoryService;
 import com.services.IProductService;
@@ -37,6 +35,9 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executor;
 import java.util.stream.Collectors;
 
 import static org.elasticsearch.index.query.QueryBuilders.*;
@@ -57,6 +58,8 @@ public class ProductServiceImpl implements IProductService {
     private final IEProductRepository eProductRepository;
     private final ElasticsearchRestTemplate elasticsearchRestTemplate;
 
+    private final Executor taskExecutor;
+
 
     public ProductServiceImpl(IProductRepository productRepository,
                               IProductVariationRepository productVariationRepository,
@@ -66,7 +69,8 @@ public class ProductServiceImpl implements IProductService {
                               FileUploadProvider fileUploadProvider,
                               IUserLikeProductRepository userLikeProductRepository,
                               IEProductRepository eProductRepository,
-                              ElasticsearchRestTemplate elasticsearchRestTemplate1) {
+                              ElasticsearchRestTemplate elasticsearchRestTemplate1,
+                              Executor taskExecutor) {
         this.productRepository = productRepository;
         this.productVariationRepository = productVariationRepository;
         this.productVariationValueRepository = productVariationValueRepository;
@@ -76,6 +80,7 @@ public class ProductServiceImpl implements IProductService {
         this.userLikeProductRepository = userLikeProductRepository;
         this.elasticsearchRestTemplate = elasticsearchRestTemplate1;
         this.eProductRepository = eProductRepository;
+        this.taskExecutor = taskExecutor;
     }
 
     @Override
@@ -142,7 +147,7 @@ public class ProductServiceImpl implements IProductService {
                 e.printStackTrace();
             }
         }
-        return entity;
+        return this.productRepository.save(entity);
     }
 
     @Override
@@ -165,7 +170,6 @@ public class ProductServiceImpl implements IProductService {
         entity.setCategory(category);
         entity.setIndustry(industry);
         entity.setCreatedBy(SecurityUtils.getCurrentUser().getUser());
-
         return entity;
     }
 
@@ -183,6 +187,9 @@ public class ProductServiceImpl implements IProductService {
         entity.setTotalReview(originProduct.getTotalReview());
         entity.setTotalQuantity(originProduct.getTotalQuantity());
         entity.setTotalLike(originProduct.getTotalLike());
+        entity.setVariations(originProduct.getVariations());
+        entity.setSkus(originProduct.getSkus());
+        entity.setImage(originProduct.getImage());
 
         if (model.getProductMetas() != null)
             if (!model.getProductMetas().isEmpty())
@@ -230,7 +237,7 @@ public class ProductServiceImpl implements IProductService {
                 e.printStackTrace();
             }
         }
-        return entity;
+        return this.productRepository.save(entity);
     }
 
     @Override
@@ -297,11 +304,14 @@ public class ProductServiceImpl implements IProductService {
         final String folder = this.getProductFolder(entity.getId());
         entity.getSkus().clear();
         if (entity.getIsUseVariation()) {
-            entity.setSkus(models.stream()
-                    .map(sku -> saveSku(entity, folder, sku, req))
-                    .collect(Collectors.toList()));
+            if (models.isEmpty())
+                this.productSkuEntityRepository.deleteAllByProductId(productId);
+            else
+                entity.setSkus(this.productSkuEntityRepository.saveAll(models.stream()
+                        .map(sku -> saveSku(entity, folder, sku, req))
+                        .collect(Collectors.toList())));
         } else {
-            entity.setSkus(List.of(saveSku(entity, folder, models.get(0), req)));
+            entity.setSkus(List.of(this.productSkuEntityRepository.save(saveSku(entity, folder, models.get(0), req))));
         }
         return entity;
     }
@@ -455,6 +465,70 @@ public class ProductServiceImpl implements IProductService {
         return this.productSkuEntityRepository.findAllByProductId(id);
     }
 
+
+    private static ProductFilterDataDto productFilterDataDto = null;
+
+    @Override
+    public ProductFilterDataDto getFilterData() {
+        if (productFilterDataDto != null) {
+            return productFilterDataDto;
+        }
+
+        ProductFilterDataDto filterData = new ProductFilterDataDto();
+        Pageable page = Pageable.unpaged();
+
+        // create future for industries
+        CompletableFuture<List<IndustryDto>> industries = CompletableFuture.supplyAsync(() -> {
+            List<CategoryEntity> data = this.categoryService.findAll(CategorySpecification.byType(ECategoryType.INDUSTRY));
+            return data
+                    .stream().map(IndustryDto::toDto)
+                    .collect(Collectors.toList());
+        }, this.taskExecutor);
+
+        // create future for categories
+        CompletableFuture<List<CategoryDto>> categories = CompletableFuture.supplyAsync(() -> {
+            List<CategoryEntity> data = this.categoryService.findAll(CategorySpecification.byType(ECategoryType.CATEGORY));
+            return data.stream().map(c -> CategoryDto.toDto(c, true)).collect(Collectors.toList());
+        }, this.taskExecutor);
+
+        // create future for vatiations
+        CompletableFuture<List<DetailIndustryDto.ProductVariationDto2>> variations = CompletableFuture
+                .supplyAsync(() -> this.productRepository.findVariations(page)
+                        .stream()
+                        .map(v -> DetailIndustryDto.ProductVariationDto2.builder()
+                                .variationName(v)
+                                .variationValues(this.productRepository.findVariationValues(v, page))
+                                .build())
+                        .collect(Collectors.toList()), this.taskExecutor);
+
+        //create future for product metas
+        CompletableFuture<List<DetailIndustryDto.ProductMetaDto2>> metas = CompletableFuture
+                .supplyAsync(() -> this.productRepository.findMetas(page)
+                        .stream()
+                        .map(m -> DetailIndustryDto.ProductMetaDto2.builder()
+                                .metaKey(m)
+                                .metaValues(this.productRepository.findMetaValues(m, page))
+                                .build())
+                        .collect(Collectors.toList()), this.taskExecutor);
+
+        //        wait for all future to finish
+        CompletableFuture all = CompletableFuture.allOf(
+                industries.thenAccept(data -> filterData.setIndustryFilter(data)),
+                categories.thenAccept(data -> filterData.setCategoryFilter(data)),
+                variations.thenAccept(data -> filterData.setVariationFilter(data)),
+                metas.thenAccept(data -> filterData.setMetaFilter(data)));
+
+        try {
+            all.get();
+        } catch (ExecutionException e) {
+            throw new RuntimeException(e);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+        productFilterDataDto = filterData;
+        return productFilterDataDto;
+    }
+
 //    private Map<String, Object> putMap(String key, Object value) {
 //        Map<String, Object> map = new HashMap<>();
 //        map.put(key, value);
@@ -462,11 +536,15 @@ public class ProductServiceImpl implements IProductService {
 //    }
 
     private ProductSkuEntity saveSku(ProductEntity entity, String folder, ProductSkuModel model, HttpServletRequest req) {
-        ProductSkuEntity skuEntity = ProductSkuModel.toEntity(model, entity, entity.getIsUseVariation());
+        ProductSkuEntity skuEntity;
+        if (model.getId() != null)
+            skuEntity = this.productSkuEntityRepository.findById(model.getId()).orElse(null);
+        else
+            skuEntity = ProductSkuModel.toEntity(model, entity, entity.getIsUseVariation());
         if (model.getImageParameter() != null) {
             String filePath;
             try {
-                fileUploadProvider.deleteFile(model.getOriginImage());
+                fileUploadProvider.deleteFile(skuEntity.getImage());
                 filePath = fileUploadProvider.uploadFile(folder, req.getPart(model.getImageParameter()));
                 skuEntity.setImage(filePath);
             } catch (IOException e) {

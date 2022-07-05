@@ -57,7 +57,8 @@ public class ProductResources {
     @Transactional
     @GetMapping("/{id}")
     public ResponseDto findById(@PathVariable Long id) {
-        return ResponseDto.of(ProductDto.toDto(this.productService.findById(id)), "Get product id: ".concat(id.toString()));
+        return ResponseDto.of(this.eProductRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Cannot found product id: ".concat(id.toString()))), "Get product id: ".concat(id.toString()));
     }
 
 
@@ -70,7 +71,7 @@ public class ProductResources {
 
     @Transactional
     @PostMapping("skus/{productId}")
-    public ResponseDto saveSkus(@PathVariable Long productId, @Valid @RequestPart("skus") List<ProductSkuModel> models, HttpServletRequest req) {
+    public ResponseDto saveSkus(@PathVariable Long productId, @Valid @RequestPart List<ProductSkuModel> models, HttpServletRequest req) {
         ProductDto dto = productService.saveDtoOnElasticsearch(this.productService.saveSkus(req, productId, models));
         return ResponseDto.of(dto, "Save skus for product id: ".concat(productId.toString()));
     }
@@ -134,4 +135,11 @@ public class ProductResources {
                 this.productService.findDetailById(page, id),
                 "Get product id: ".concat(id.toString()));
     }
+
+    @Transactional
+    @GetMapping("public/get-filter-data")
+    public ResponseDto getFilterData() {
+        return ResponseDto.of(this.productService.getFilterData(), "Get filter data");
+    }
+
 }
