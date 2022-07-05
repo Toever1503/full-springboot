@@ -7,10 +7,7 @@ import com.models.ChatMessageModel;
 import com.services.IChatService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.security.RolesAllowed;
 import javax.websocket.server.PathParam;
@@ -48,5 +45,15 @@ public class ChatResources {
     public ResponseDto getAllAvailableChatRoom() {
         return ResponseDto.of(chatService.getAllMyChatRoom(), "Get all my chat room");
     }
+    @Transactional
+    @GetMapping("/getAllUserChatRoom")
+    public ResponseDto getAllUserChatRoom() {
+        return ResponseDto.of(chatService.getAllUserChatRoom(), "Get all user chat room");
+    }
 
+    @Transactional
+    @GetMapping("/getAllChatRoomMessage/{id}")
+    public ResponseDto getAllChatRoomMessage(@PathVariable("id") String id) {
+        return ResponseDto.of(chatService.getAllRoomChatMessages(id), "Get all messages from room: "+id);
+    }
 }
