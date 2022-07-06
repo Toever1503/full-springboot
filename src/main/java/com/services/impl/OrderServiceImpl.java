@@ -1,9 +1,6 @@
 package com.services.impl;
 
-import com.dtos.ENotificationCategory;
-import com.dtos.EStatusOrder;
-import com.dtos.OrderByStatusAndTimeDto;
-import com.dtos.OrderGroupbyStatusDto;
+import com.dtos.*;
 import com.entities.*;
 import com.models.OrderModel;
 import com.models.SocketNotificationModel;
@@ -215,7 +212,6 @@ public class OrderServiceImpl implements IOrderService {
     }
 
     @Override
-    @Procedure(name = "findOrderAndPriceByTimeAndStatus")
     public List<OrderByStatusAndTimeDto> getAllOrderByStatusAndTime(String status_order,Date time_from,Date time_to) {
         List<Object[]> list = this.orderRepository.findAllByTimeAndStatus(status_order, time_from, time_to);
         List<OrderByStatusAndTimeDto> orderByStatusAndTimeDtoList = new ArrayList<>();
@@ -223,15 +219,33 @@ public class OrderServiceImpl implements IOrderService {
         list.stream().forEach(o -> {
             OrderByStatusAndTimeDto orderByStatusAndTimeDto = new OrderByStatusAndTimeDto();
             orderByStatusAndTimeDto.setHour_in_day((Integer) o[0]);
-            orderByStatusAndTimeDto.setTotal_order(((BigInteger) o[1]).intValue());
-            orderByStatusAndTimeDto.setStatus_order((String) o[2]);
-            orderByStatusAndTimeDto.setTotal_products((Integer) o[3]);
-            orderByStatusAndTimeDto.setTotal_prices((Double) o[4]);
+            orderByStatusAndTimeDto.setTotal_order(o[1] == null ? null : ((BigInteger) o[1]).intValue());
+            orderByStatusAndTimeDto.setStatus_order(o[2] == null ? null : (String) o[2]);
+            orderByStatusAndTimeDto.setTotal_products(o[3] == null ? null : (Integer) o[3]);
+            orderByStatusAndTimeDto.setTotal_prices(o[4] == null ? null : (Double) o[4]);
             orderByStatusAndTimeDto.setOrder_date(o[5] == null ? null : ((Timestamp) o[5]).toLocalDateTime());
             orderByStatusAndTimeDtoList.add(orderByStatusAndTimeDto);
         });
 
         return orderByStatusAndTimeDtoList;
+    }
+
+    @Override
+    public List<StatisticsYearByStatusAndTimeDto> statisticsYearOrderByStatusAndTime(String status_order, Date time_from, Date time_to) {
+        List<Object[]> list = this.orderRepository.statisticsYearByTimeAndStatus(status_order, time_from, time_to);
+        List<StatisticsYearByStatusAndTimeDto> statisticsYearByStatusAndTimeDtos = new ArrayList<>();
+
+        list.stream().forEach(o -> {
+            StatisticsYearByStatusAndTimeDto statisticsYearByStatusAndTimeDto = new StatisticsYearByStatusAndTimeDto();
+            statisticsYearByStatusAndTimeDto.setMonth_in_year((Integer) o[0]);
+            statisticsYearByStatusAndTimeDto.setTotal_order(o[1] == null ? null : ((BigInteger) o[1]).intValue());
+            statisticsYearByStatusAndTimeDto.setStatus_order(o[2] == null ? null : (String) o[2]);
+            statisticsYearByStatusAndTimeDto.setTotal_products(o[3] == null ? null : ((BigDecimal) o[3]).intValue());
+            statisticsYearByStatusAndTimeDto.setTotal_prices(o[4] == null ? null : (Double) o[4]);
+            statisticsYearByStatusAndTimeDtos.add(statisticsYearByStatusAndTimeDto);
+        });
+
+        return statisticsYearByStatusAndTimeDtos;
     }
 
     @Override
