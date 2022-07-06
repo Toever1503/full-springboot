@@ -1,6 +1,8 @@
 package com.services;
 
 import com.dtos.OrderByStatusAndTimeDto;
+import com.dtos.OrderGroupbyStatusDto;
+import com.dtos.StatisticsYearByStatusAndTimeDto;
 import com.entities.OrderEntity;
 import com.models.OrderModel;
 import org.joda.time.DateTime;
@@ -25,9 +27,13 @@ public interface IOrderService extends IBaseService<OrderEntity, OrderModel, Lon
 
     List<OrderByStatusAndTimeDto> getAllOrderByStatusAndTime(String status_order, Date time_from, Date time_to);
 
+    List<StatisticsYearByStatusAndTimeDto> statisticsYearOrderByStatusAndTime(String status_order, Date time_from, Date time_to);
+
     Integer getTotalOrderByStatusAndTime(String status_order, Date time_from, Date time_to);
 
     Double getTotalPriceByStatusAndTime(String status_order, Date time_from, Date time_to);
 
     Integer getTotalUserByTime(Date time_from, Date time_to);
+
+    List<OrderGroupbyStatusDto> getAllOrderGroupByStatus();
 }

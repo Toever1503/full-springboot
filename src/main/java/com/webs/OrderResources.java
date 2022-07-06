@@ -109,6 +109,13 @@ public class OrderResources {
 
     @RolesAllowed("ADMINISTRATOR")
     @Transactional
+    @PostMapping("/report/statistic-year-by-time-and-status")
+    public ResponseDto getTotalOrderByYear(@RequestBody TotalOrderModel model){
+        return ResponseDto.of(this.orderService.statisticsYearOrderByStatusAndTime(model.getStatus(), model.getTime_from(), model.getTime_to()),"statistic year by status and time");
+    }
+
+    @RolesAllowed("ADMINISTRATOR")
+    @Transactional
     @PostMapping("/report/total-order-by-time-and-status")
     public ResponseDto getTotalOrderByStatus(@RequestBody TotalOrderModel model){
         return ResponseDto.of(this.orderService.getTotalOrderByStatusAndTime(model.getStatus(), model.getTime_from(), model.getTime_to()),"Get total order by status and time");
@@ -127,4 +134,12 @@ public class OrderResources {
     public ResponseDto getTotalUserByTime(@RequestBody TotalUserModel model){
         return ResponseDto.of(this.orderService.getTotalUserByTime(model.getTime_from(), model.getTime_to()),"Get total user by time");
     }
+
+    @RolesAllowed("ADMINISTRATOR")
+    @Transactional
+    @GetMapping("/report/get-all-order-groupby-status")
+    public ResponseDto getAllOrderGroupByStatus(){
+        return ResponseDto.of(this.orderService.getAllOrderGroupByStatus(),"Get all order group by status");
+    }
+
 }
