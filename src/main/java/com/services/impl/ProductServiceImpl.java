@@ -222,7 +222,7 @@ public class ProductServiceImpl implements IProductService {
         //delete file into s3
         String folder = this.getProductFolder(entity.getId());
         List<Object> originalFile;
-        if (originProduct.getAttachFiles() != null) {
+        if (!model.getAttachFilesOrigin().isEmpty()) {
             originalFile = FileUploadProvider.parseJson(originProduct.getAttachFiles());
             originalFile.removeAll(model.getAttachFilesOrigin());
             originalFile.forEach(o -> fileUploadProvider.deleteFile(o.toString()));
@@ -230,12 +230,10 @@ public class ProductServiceImpl implements IProductService {
 
         //add old file to uploadFiles
         List<String> uploadedFiles = new ArrayList<>();
-        if (!model.getAttachFilesOrigin().isEmpty())
-            uploadedFiles.addAll(model.getAttachFilesOrigin());
+        uploadedFiles.addAll(model.getAttachFilesOrigin());
 
 
         List<CompletableFuture> futures = new ArrayList<>();
-
         //upload new file to uploadFiles and save to database
         if (model.getAttachFiles() != null) {
             futures.add(CompletableFuture.allOf(this.fileUploadProvider.asyncUploadFiles(uploadedFiles, folder, model.getAttachFiles()))
@@ -266,6 +264,7 @@ public class ProductServiceImpl implements IProductService {
             if (!futures.isEmpty())
                 CompletableFuture.allOf(futures.toArray(CompletableFuture[]::new)).get();
             entity.setAttachFiles(uploadedFiles.isEmpty() ? null : (new JSONObject(Map.of("files", uploadedFiles)).toString()));
+
             return this.productRepository.saveAndFlush(entity);
 
         } catch (InterruptedException e) {
