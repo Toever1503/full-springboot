@@ -18,6 +18,7 @@ public class EProductFilterModel {
 
     private List<String> categorySlugs;
     private String industrySlug;
+    private String status;
 
     private EProductMetaFilterModel metas;
 

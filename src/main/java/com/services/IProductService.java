@@ -36,4 +36,6 @@ public interface IProductService extends IBaseService<ProductEntity, ProductMode
     ProductFilterDataDto getFilterData();
 
     Page<ProductDto> findAll(Pageable page, Specification<ProductEntity> specs);
+
+    void refreshDataElasticsearch();
 }

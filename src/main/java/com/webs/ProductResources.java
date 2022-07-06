@@ -40,14 +40,11 @@ public class ProductResources {
     private final IProductService productService;
 
     private final IEProductRepository eProductRepository;
-    private final IProductRepository productRepository;
-
     private final Logger log = LoggerFactory.getLogger(this.getClass());
 
-    public ProductResources(IProductService productService, IEProductRepository eProductRepository, IProductRepository productRepository) {
+    public ProductResources(IProductService productService, IEProductRepository eProductRepository) {
         this.productService = productService;
         this.eProductRepository = eProductRepository;
-        this.productRepository = productRepository;
     }
 
     @GetMapping("public/get-all")
@@ -58,7 +55,9 @@ public class ProductResources {
 
     @Transactional
     @GetMapping("/{id}")
-    public ResponseDto findById(@PathVariable Long id) {
+    public ResponseDto findById(@PathVariable Long id, @RequestParam(required = false) boolean force) {
+        if (force)
+            return ResponseDto.of(ProductDto.toDto(this.productService.findById(id)), "Get product by id: ".concat(id.toString()));
         return ResponseDto.of(this.eProductRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Cannot found product id: ".concat(id.toString()))), "Get product id: ".concat(id.toString()));
     }
@@ -117,7 +116,7 @@ public class ProductResources {
     @GetMapping("refreshData")
     @Operation(summary = "resync data on database to  elasticsearch")
     public String refreshElasticsearch() {
-        this.eProductRepository.saveAll(this.productRepository.findAll().stream().map(ProductDto::toDto).collect(Collectors.toList()));
+        this.productService.refreshDataElasticsearch();
         return "Ok";
     }
 
@@ -125,7 +124,6 @@ public class ProductResources {
     public ResponseDto filterProduct(@RequestBody @Valid ProductFilter productFilter, Pageable pageable) {
         return ResponseDto.of(productService.findAll(pageable, ProductSpecification.filter(productFilter)), "Filter product");
     }
-
 
     @Operation(summary = "filter products")
     @PostMapping("public/filter")
@@ -147,6 +145,12 @@ public class ProductResources {
     @GetMapping("public/get-filter-data")
     public ResponseDto getFilterData() {
         return ResponseDto.of(this.productService.getFilterData(), "Get filter data");
+    }
+
+    @Transactional
+    @DeleteMapping("{id}")
+    public ResponseDto deleteProduct(@PathVariable Long id) {
+        return ResponseDto.of(this.productService.deleteById(id), "Delete product successfully");
     }
 
 }

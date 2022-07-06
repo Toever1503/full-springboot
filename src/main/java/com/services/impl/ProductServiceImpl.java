@@ -243,7 +243,7 @@ public class ProductServiceImpl implements IProductService {
     public boolean deleteById(Long id) {
         ProductEntity entity = this.findById(id);
         entity.setStatus(EProductStatus.DELETED.name());
-        return this.productRepository.save(entity) != null;
+        return this.saveDtoOnElasticsearch(this.productRepository.saveAndFlush(entity)) != null;
     }
 
     @Override
@@ -362,6 +362,9 @@ public class ProductServiceImpl implements IProductService {
             rootQueryBuilders.add(nestedQuery("skus", boolQuery().must(
                     rangeQuery("skus.price").lte(model.getMaxPrice())
             ), ScoreMode.None));
+        }
+        if(model.getStatus()!= null){
+            rootQueryBuilders.add(termQuery("status", model.getStatus()));
         }
 
 
@@ -539,6 +542,13 @@ public class ProductServiceImpl implements IProductService {
     public Page<ProductDto> findAll(Pageable page, Specification<ProductEntity> specs) {
         Page<ProductEntity> productDtoPage = this.productRepository.findAll(specs, page);
         return productDtoPage.map(ProductDto::toDto);
+    }
+
+    @Override
+    public void refreshDataElasticsearch() {
+        this.eProductRepository.saveAll(
+                this.productRepository.findAll().stream().map(ProductDto::toDto).collect(Collectors.toList())
+        );
     }
 
 //    private Map<String, Object> putMap(String key, Object value) {
