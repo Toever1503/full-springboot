@@ -4,9 +4,12 @@ import com.entities.CategoryEntity;
 import com.utils.ASCIIConverter;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import java.util.ArrayList;
+import java.util.List;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -32,6 +35,9 @@ public class CategoryModel {
     private Long parentId;
     @ApiModelProperty(notes = "Industry Id", dataType = "Long", example = "1")
     private Long industryId;
+
+    @ApiModelProperty(notes = "files of category", dataType = "MultipartFile", example = "file1")
+    private MultipartFile catFile;
 
     public static CategoryEntity toEntity(CategoryModel model) {
         if(model == null) return null;

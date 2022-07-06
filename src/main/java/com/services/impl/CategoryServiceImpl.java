@@ -3,9 +3,9 @@ package com.services.impl;
 import com.config.elasticsearch.ERepositories.IEIndustryRepository;
 import com.dtos.DetailIndustryDto;
 import com.dtos.ECategoryType;
-import com.dtos.ProductMetaDto;
-import com.dtos.ProductVariationDto;
 import com.entities.CategoryEntity;
+import com.entities.NotificationEntity;
+import com.entities.UserEntity;
 import com.models.CategoryModel;
 import com.models.specifications.CategorySpecification;
 import com.repositories.ICategoryRepository;
@@ -13,14 +13,21 @@ import com.repositories.IProductMetaRepository;
 import com.repositories.IProductVariationRepository;
 import com.services.ICategoryService;
 import com.utils.ASCIIConverter;
+import com.utils.FileUploadProvider;
+import com.utils.SecurityUtils;
+import org.json.JSONObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
@@ -32,6 +39,8 @@ public class CategoryServiceImpl implements ICategoryService {
 
     private final IEIndustryRepository eIndustryRepository;
 
+    final FileUploadProvider fileUploadProvider;
+
     private final IProductVariationRepository productVariationRepository;
 
     private final IProductMetaRepository productMetaRepository;
@@ -40,11 +49,12 @@ public class CategoryServiceImpl implements ICategoryService {
 
     public CategoryServiceImpl(ICategoryRepository categoryRepository,
                                IEIndustryRepository eIndustryRepository,
-                               IProductVariationRepository productVariationRepository,
+                               FileUploadProvider fileUploadProvider, IProductVariationRepository productVariationRepository,
                                IProductMetaRepository productMetaRepository,
                                Executor taskExecutor) {
         this.categoryRepository = categoryRepository;
         this.eIndustryRepository = eIndustryRepository;
+        this.fileUploadProvider = fileUploadProvider;
         this.productVariationRepository = productVariationRepository;
         this.productMetaRepository = productMetaRepository;
         this.taskExecutor = taskExecutor;
@@ -186,7 +196,21 @@ public class CategoryServiceImpl implements ICategoryService {
 
     @Override
     public CategoryEntity add(CategoryModel model) {
+        final String folder = UserEntity.FOLDER + SecurityUtils.getCurrentUsername() + "/" + CategoryEntity.FOLDER;
         CategoryEntity categoryEntity = CategoryModel.toEntity(model);
+
+        // save file
+        if (model.getCatFile() != null) {//Check if notification avatar is empty or not
+            String filePath;
+            try {
+                filePath = fileUploadProvider.uploadFile(folder, model.getCatFile());
+                categoryEntity.setCatFile(filePath);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        categoryEntity.setCreatedBy(SecurityUtils.getCurrentUser().getUser());
         categoryEntity.setType(ECategoryType.CATEGORY.name());
         categoryEntity.setDeepLevel(0);
         if (this.categoryRepository.findBySlug(model.getSlug()).isPresent())
@@ -209,15 +233,30 @@ public class CategoryServiceImpl implements ICategoryService {
     public CategoryEntity update(CategoryModel model) {
         String slug = model.getSlug() == null ? ASCIIConverter.utf8ToAscii(model.getCategoryName()) : ASCIIConverter.utf8ToAscii(model.getSlug());
         CategoryEntity checkedCategory = this.categoryRepository.findBySlug(slug).orElse(null);
+
         if (checkedCategory != null)
             if (!checkedCategory.getId().equals(model.getId()))
                 throw new RuntimeException("Slug already existed!");
         CategoryEntity originCategory = this.findById(model.getId());
+        final String folder = UserEntity.FOLDER + originCategory.getCreatedBy().getUserName() + "/" + CategoryEntity.FOLDER;
+        originCategory.setCreatedBy(SecurityUtils.getCurrentUser().getUser());
         originCategory.setCategoryName(model.getCategoryName());
         originCategory.setSlug(slug);
         originCategory.setDescription(model.getDescription());
         this.saveParentCategory(originCategory, model.getParentId());
         this.saveIndustry(originCategory, model.getIndustryId());
+
+        // delete old file and save new file
+        if (model.getCatFile() != null) {
+            String filePath;
+            try {
+                filePath = fileUploadProvider.uploadFile(folder, model.getCatFile());
+                fileUploadProvider.deleteFile(originCategory.getCatFile());
+                originCategory.setCatFile(filePath);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
 
         originCategory = this.categoryRepository.save(originCategory);
         this.syncIndustryOnElasticsearch(originCategory);

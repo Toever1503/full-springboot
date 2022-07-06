@@ -17,6 +17,7 @@ import java.util.List;
 @Entity
 @Table(name = "tbl_category")
 public class CategoryEntity {
+    public static final String FOLDER = "category/";
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "category_id")
@@ -36,6 +37,9 @@ public class CategoryEntity {
     @Column(name = "type")
     private String type;
 
+    @Column(name = "category_file")
+    private String catFile;
+
     @ManyToOne
     @JoinColumn(name = "parent_id")
     private CategoryEntity parentCategory;
@@ -51,5 +55,9 @@ public class CategoryEntity {
     @OneToMany(mappedBy = "industry", fetch = FetchType.EAGER)
     @Fetch(FetchMode.SUBSELECT)
     private List<CategoryEntity> categories;
+
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private UserEntity createdBy;
 
 }

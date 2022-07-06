@@ -8,6 +8,8 @@ import org.springframework.data.elasticsearch.annotations.FieldType;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.dtos.QuestionDto.parseJson;
+
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
@@ -30,6 +32,8 @@ public class CategoryDto {
 
     private Integer deepLevel;
 
+    private String catFiles;
+
     public static CategoryDto toDto(CategoryEntity entity, boolean wantChild) {
         if (entity == null) return null;
         return CategoryDto.builder()
@@ -41,6 +45,7 @@ public class CategoryDto {
                 .industry(IndustryDto.toDto(entity.getIndustry()))
                 .parentCategory(entity.getParentCategory() == null ? null : ParentCategoryDto.toDto(entity.getParentCategory()))
                 .childCategories(wantChild == true ? (entity.getChildCategories() == null ? null : entity.getChildCategories().stream().map(child -> CategoryDto.toDto(child, wantChild)).collect(Collectors.toList())) : null)
+                .catFiles(entity.getCatFile() == null ? null : entity.getCatFile())
                 .build();
     }
 }
