@@ -3,6 +3,7 @@ package com.services.impl;
 import com.dtos.ENotificationCategory;
 import com.dtos.EStatusOrder;
 import com.dtos.OrderByStatusAndTimeDto;
+import com.dtos.OrderGroupbyStatusDto;
 import com.entities.*;
 import com.models.OrderModel;
 import com.models.SocketNotificationModel;
@@ -246,6 +247,21 @@ public class OrderServiceImpl implements IOrderService {
     @Override
     public Integer getTotalUserByTime(Date time_from, Date time_to) {
         return this.orderRepository.findTotalUserByTime(time_from, time_to);
+    }
+
+    @Override
+    public List<OrderGroupbyStatusDto> getAllOrderGroupByStatus() {
+        List<Object[]> list = this.orderRepository.findAllOrderGroupByStatus();
+        List<OrderGroupbyStatusDto> listOrderGroupbyStatusDto = new ArrayList<>();
+
+        list.stream().forEach(o -> {
+            OrderGroupbyStatusDto orderGroupbyStatusDto = new OrderGroupbyStatusDto();
+            orderGroupbyStatusDto.setStatus((String) o[1]);
+            orderGroupbyStatusDto.setCount(((BigInteger) o[0]).intValue());
+            listOrderGroupbyStatusDto.add(orderGroupbyStatusDto);
+        });
+        listOrderGroupbyStatusDto.add(new OrderGroupbyStatusDto("list-size", list.stream().mapToInt(o -> ((BigInteger) o[0]).intValue()).sum()));
+        return listOrderGroupbyStatusDto;
     }
 }
 

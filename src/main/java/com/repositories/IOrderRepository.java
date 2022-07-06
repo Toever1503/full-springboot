@@ -1,6 +1,7 @@
 package com.repositories;
 
 import com.dtos.OrderByStatusAndTimeDto;
+import com.dtos.OrderGroupbyStatusDto;
 import com.entities.OrderEntity;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -50,4 +51,7 @@ public interface IOrderRepository extends JpaRepository<OrderEntity, Long>, JpaS
 
     @Query(value = "CALL user_by_time(?1, ?2)", nativeQuery = true)
     Integer findTotalUserByTime(Date time_from, Date time_to);
+
+    @Query(value = "select count(order_id) as quantity, status from tbl_order o group by status", nativeQuery = true)
+    List<Object[]> findAllOrderGroupByStatus();
 }
