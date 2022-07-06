@@ -22,6 +22,8 @@ public class IndustryDto {
     private String slug;
 
     private String description;
+    private String image;
+    private Boolean status;
 
     public static IndustryDto toDto(CategoryEntity entity) {
         if (entity == null) return null;
@@ -30,6 +32,8 @@ public class IndustryDto {
                 .industryName(entity.getCategoryName())
                 .slug(entity.getSlug())
                 .description(entity.getDescription())
+                .image(entity.getCatFile())
+                .status(entity.getStatus())
                 .build();
     }
 }

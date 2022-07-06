@@ -1,5 +1,6 @@
 package com.entities;
 
+import io.swagger.models.auth.In;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -29,13 +30,16 @@ public class CategoryEntity {
     @Column(name = "description")
     private String description;
     @Column(name = "total_product")
-    private Long totalProduct;
+    private Integer totalProduct;
 
     @Column(name = "deep_level")
     private Integer deepLevel;
 
     @Column(name = "type")
     private String type;
+
+    @Column(name = "status")
+    private Boolean status;
 
     @Column(name = "category_file")
     private String catFile;

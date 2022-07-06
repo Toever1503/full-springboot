@@ -95,6 +95,21 @@ public class CategoryServiceImpl implements ICategoryService {
         CategoryEntity entity = CategoryModel.toEntity(model);
         entity.setType(ECategoryType.INDUSTRY.name());
         entity.setDeepLevel(0);
+        entity.setTotalProduct(0);
+
+
+        final String folder = UserEntity.FOLDER + SecurityUtils.getCurrentUsername() + "/" + CategoryEntity.FOLDER;
+        // save file
+        if (model.getImage() != null) {//Check if notification avatar is empty or not
+            String filePath;
+            try {
+                filePath = fileUploadProvider.uploadFile(folder, model.getImage());
+                entity.setCatFile(filePath);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
         return this.categoryRepository.save(entity);
     }
 
@@ -105,6 +120,21 @@ public class CategoryServiceImpl implements ICategoryService {
         entity.setId(original.getId());
         entity.setChildCategories(original.getChildCategories());
         entity.setType(ECategoryType.INDUSTRY.name());
+        entity.setTotalProduct(original.getTotalProduct());
+
+        final String folder = UserEntity.FOLDER + SecurityUtils.getCurrentUser().getUser().getUserName() + "/" + CategoryEntity.FOLDER;
+        // delete old file and save new file
+        if (model.getImage() != null) {
+            String filePath;
+            try {
+                filePath = fileUploadProvider.uploadFile(folder, model.getImage());
+                fileUploadProvider.deleteFile(entity.getCatFile());
+                entity.setCatFile(filePath);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
         return this.categoryRepository.save(entity);
     }
 
@@ -129,10 +159,12 @@ public class CategoryServiceImpl implements ICategoryService {
 
     @Override
     public boolean deleteIndustryById(Long id) {
-        this.categoryRepository.deleteByIdAndType(id, ECategoryType.INDUSTRY.name());
+        CategoryEntity entity = this.findById(id);
+        this.categoryRepository.delete(entity);
         this.categoryRepository.updateProductIndustry(id);
         this.categoryRepository.updateCategoryIndustry(id);
         this.eIndustryRepository.deleteById(id);
+        this.fileUploadProvider.deleteFile(entity.getCatFile());
         return true;
     }
 
@@ -183,6 +215,13 @@ public class CategoryServiceImpl implements ICategoryService {
         return true;
     }
 
+    @Override
+    public boolean changeStatus(Long id) {
+        CategoryEntity entity = this.findById(id);
+        entity.setStatus(!entity.getStatus());
+        return this.categoryRepository.save(entity) != null;
+    }
+
 
     @Override
     public Page<CategoryEntity> filter(Pageable page, Specification<CategoryEntity> specs) {
@@ -196,29 +235,18 @@ public class CategoryServiceImpl implements ICategoryService {
 
     @Override
     public CategoryEntity add(CategoryModel model) {
-        final String folder = UserEntity.FOLDER + SecurityUtils.getCurrentUsername() + "/" + CategoryEntity.FOLDER;
         CategoryEntity categoryEntity = CategoryModel.toEntity(model);
-
-        // save file
-        if (model.getCatFile() != null) {//Check if notification avatar is empty or not
-            String filePath;
-            try {
-                filePath = fileUploadProvider.uploadFile(folder, model.getCatFile());
-                categoryEntity.setCatFile(filePath);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
 
         categoryEntity.setCreatedBy(SecurityUtils.getCurrentUser().getUser());
         categoryEntity.setType(ECategoryType.CATEGORY.name());
+        categoryEntity.setTotalProduct(0);
         categoryEntity.setDeepLevel(0);
         if (this.categoryRepository.findBySlug(model.getSlug()).isPresent())
             throw new RuntimeException("Slug already existed!");
 
         this.saveParentCategory(categoryEntity, model.getParentId());
         this.saveIndustry(categoryEntity, model.getIndustryId());
-        categoryEntity = this.categoryRepository.save(categoryEntity);
+        categoryEntity = this.categoryRepository.saveAndFlush(categoryEntity);
 
         this.syncIndustryOnElasticsearch(categoryEntity);
         return categoryEntity;
@@ -238,7 +266,7 @@ public class CategoryServiceImpl implements ICategoryService {
             if (!checkedCategory.getId().equals(model.getId()))
                 throw new RuntimeException("Slug already existed!");
         CategoryEntity originCategory = this.findById(model.getId());
-        final String folder = UserEntity.FOLDER + originCategory.getCreatedBy().getUserName() + "/" + CategoryEntity.FOLDER;
+
         originCategory.setCreatedBy(SecurityUtils.getCurrentUser().getUser());
         originCategory.setCategoryName(model.getCategoryName());
         originCategory.setSlug(slug);
@@ -246,19 +274,8 @@ public class CategoryServiceImpl implements ICategoryService {
         this.saveParentCategory(originCategory, model.getParentId());
         this.saveIndustry(originCategory, model.getIndustryId());
 
-        // delete old file and save new file
-        if (model.getCatFile() != null) {
-            String filePath;
-            try {
-                filePath = fileUploadProvider.uploadFile(folder, model.getCatFile());
-                fileUploadProvider.deleteFile(originCategory.getCatFile());
-                originCategory.setCatFile(filePath);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
 
-        originCategory = this.categoryRepository.save(originCategory);
+        originCategory = this.categoryRepository.saveAndFlush(originCategory);
         this.syncIndustryOnElasticsearch(originCategory);
         return originCategory;
     }
@@ -270,6 +287,7 @@ public class CategoryServiceImpl implements ICategoryService {
                 throw new RuntimeException("Category can't be industry");
             entity.setIndustry(parentCategory);
         }
+        else throw new RuntimeException("Industry can't be null");
     }
 
     private void saveParentCategory(CategoryEntity entity, Long parentId) {

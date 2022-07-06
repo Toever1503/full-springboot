@@ -32,7 +32,8 @@ public class CategoryDto {
 
     private Integer deepLevel;
 
-    private String catFiles;
+
+    private Boolean status;
 
     public static CategoryDto toDto(CategoryEntity entity, boolean wantChild) {
         if (entity == null) return null;
@@ -45,7 +46,7 @@ public class CategoryDto {
                 .industry(IndustryDto.toDto(entity.getIndustry()))
                 .parentCategory(entity.getParentCategory() == null ? null : ParentCategoryDto.toDto(entity.getParentCategory()))
                 .childCategories(wantChild == true ? (entity.getChildCategories() == null ? null : entity.getChildCategories().stream().map(child -> CategoryDto.toDto(child, wantChild)).collect(Collectors.toList())) : null)
-                .catFiles(entity.getCatFile() == null ? null : entity.getCatFile())
+                .status(entity.getStatus())
                 .build();
     }
 }

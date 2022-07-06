@@ -30,13 +30,14 @@ public class IndustryResources {
 
     @Transactional
     @PostMapping
-    public ResponseDto addIndustry(@RequestBody @Valid CategoryModel model) {
+    public ResponseDto addIndustry(@Valid CategoryModel model) {
         return ResponseDto.of(IndustryDto.toDto(categoryService.addIndustry(model)), "Create industry successfully");
     }
 
     @Transactional
-    @PutMapping
-    public ResponseDto updateCategory(@RequestBody @Valid CategoryModel model) {
+    @PutMapping("{id}")
+    public ResponseDto updateCategory(@PathVariable Long id, @Valid CategoryModel model) {
+        model.setId(id);
         return ResponseDto.of(IndustryDto.toDto(categoryService.updateIndustry(model)), "Create industry successfully");
     }
 

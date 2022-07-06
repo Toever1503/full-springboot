@@ -36,8 +36,8 @@ public class CategoryModel {
     @ApiModelProperty(notes = "Industry Id", dataType = "Long", example = "1")
     private Long industryId;
 
-    @ApiModelProperty(notes = "files of category", dataType = "MultipartFile", example = "file1")
-    private MultipartFile catFile;
+    @ApiModelProperty(notes = "file of industry", dataType = "MultipartFile", example = "file1")
+    private MultipartFile image;
 
     public static CategoryEntity toEntity(CategoryModel model) {
         if(model == null) return null;
@@ -46,7 +46,7 @@ public class CategoryModel {
                 .categoryName(model.getCategoryName())
                 .slug(model.getSlug() == null ? ASCIIConverter.utf8ToAscii(model.getCategoryName()) : ASCIIConverter.utf8ToAscii(model.getSlug()))
                 .description(model.getDescription())
-                .totalProduct(0L)
+                .status(true)
                 .build();
     }
 }
