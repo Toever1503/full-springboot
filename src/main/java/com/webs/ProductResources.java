@@ -17,6 +17,9 @@ import io.swagger.v3.oas.annotations.Operation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Lazy;
+import com.models.filters.ProductFilter;
+import com.models.specifications.ProductSpecification;
+import com.services.IProductService;
 import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
@@ -117,6 +120,12 @@ public class ProductResources {
     public String refreshElasticsearch() {
         this.eProductRepository.saveAll(this.productRepository.findAll().stream().map(ProductDto::toDto).collect(Collectors.toList()));
         return "Ok";
+    }
+
+    @Transactional
+    @PostMapping("/filter")
+    public ResponseDto filterProduct(@RequestBody @Valid ProductFilter productFilter, Pageable pageable){
+        return ResponseDto.of(productService.filter(pageable, ProductSpecification.filter(productFilter)).stream().map(ProductDto::toDto), "Filter product");
     }
 
 
