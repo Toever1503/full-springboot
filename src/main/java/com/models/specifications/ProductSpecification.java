@@ -6,18 +6,16 @@ import org.springframework.data.jpa.domain.Specification;
 
 import javax.persistence.criteria.*;
 import java.time.Instant;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
 public class ProductSpecification {
     public static Specification<ProductEntity> like(String t) {
         return (root, query, criteriaBuilder) -> criteriaBuilder.or(
-                criteriaBuilder.like(root.get(ProductEntity_.NAME), t)
+                criteriaBuilder.like(root.get(ProductEntity_.NAME), t),
+                criteriaBuilder.like(root.get(ProductEntity_.DESCRIPTION), t)
         );
     }
 
@@ -124,7 +122,7 @@ public class ProductSpecification {
             Join<ProductVariationEntity, ProductVariationValueEntity> variationValueEntityRoot = variationEntityRoot.join(ProductVariationEntity_.VARIATION_VALUES);
 
             List<Predicate> pres = new ArrayList<Predicate>();
-            variations.forEach(variation ->{
+            variations.forEach(variation -> {
                 List<Predicate> varPre = new ArrayList<>();
                 variation.getVariationValues().forEach(variationValue -> {
                     varPre.add(criteriaBuilder.or(criteriaBuilder.equal(variationValueEntityRoot.get(ProductVariationValueEntity_.VALUE), variationValue)));
@@ -142,40 +140,39 @@ public class ProductSpecification {
     }
 
 
-
     public static Specification<ProductEntity> filter(ProductFilter filter) {
         List<Specification<ProductEntity>> specifications = new ArrayList<>();
 
-        if (filter.getT() != null)
-            specifications.add(like(filter.getT()));
-        if (filter.getName() != null)
-            specifications.add(byProductName(filter.getName()));
+        if (filter.getQ() != null)
+            specifications.add(like(filter.getQ()));
+//        if (filter.getName() != null)
+//            specifications.add(byProductName(filter.getName()));
+//
+//        if (filter.getDate() != null)
+//            specifications.add(byDate(filter.getDate()));
+//
+//        if (filter.getLikeFilterModel() != null)
+//            specifications.add(byLike(filter.getLikeFilterModel()));
+//        if (filter.getReviewFilterModel() != null)
+//            specifications.add(byReview(filter.getReviewFilterModel()));
+//        if (filter.getRatingFilterModel() != null)
+//            specifications.add(byRating(filter.getRatingFilterModel()));
+//        if (filter.getMetaKey() != null)
+//            specifications.add(byMetaKey(filter.getMetaKey()));
+//        if (filter.getMetas() != null)
+//            filter.getMetas().forEach(meta -> specifications.add(byMeta(meta)));
+//        if (filter.getVariations() != null) {
+//            specifications.add(byVariationValue(filter.getVariations()));
+//        }
 
-        if (filter.getDate() != null)
-            specifications.add(byDate(filter.getDate()));
-
-        if (filter.getLikeFilterModel() != null)
-            specifications.add(byLike(filter.getLikeFilterModel()));
-        if (filter.getReviewFilterModel() != null)
-            specifications.add(byReview(filter.getReviewFilterModel()));
-        if (filter.getRatingFilterModel() != null)
-            specifications.add(byRating(filter.getRatingFilterModel()));
-        if (filter.getMetaKey() != null)
-            specifications.add(byMetaKey(filter.getMetaKey()));
-        if (filter.getMetas() != null)
-            filter.getMetas().forEach(meta -> specifications.add(byMeta(meta)));
-        if (filter.getVariations() != null) {
-            specifications.add(byVariationValue(filter.getVariations()));
+        if (filter.getCategorySlugs() != null) {
+            specifications.add(byCategory(filter.getCategorySlugs()));
         }
 
         Specification<ProductEntity> finalSpec = null;
-        if (filter.getCategorySlugs() != null) {
-            if (finalSpec == null) {
-                finalSpec = byCategory(filter.getCategorySlugs());
-            }
-        }
-        for (Specification<ProductEntity> s : specifications
-        ) {
+
+
+        for (Specification<ProductEntity> s : specifications) {
             if (finalSpec == null) {
                 finalSpec = s;
             } else
