@@ -50,7 +50,7 @@ public class ProductResources {
         this.productRepository = productRepository;
     }
 
-    @GetMapping
+    @GetMapping("public/get-all")
     public ResponseDto getAll(Pageable page) {
         return ResponseDto.of(eProductRepository.findAll(page), "Get all products");
     }
