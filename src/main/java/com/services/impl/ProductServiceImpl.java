@@ -69,7 +69,7 @@ public class ProductServiceImpl implements IProductService {
                               FileUploadProvider fileUploadProvider,
                               IUserLikeProductRepository userLikeProductRepository,
                               IEProductRepository eProductRepository,
-                              ElasticsearchRestTemplate elasticsearchRestTemplate1,
+                              ElasticsearchRestTemplate elasticsearchRestTemplate,
                               Executor taskExecutor) {
         this.productRepository = productRepository;
         this.productVariationRepository = productVariationRepository;
@@ -78,7 +78,7 @@ public class ProductServiceImpl implements IProductService {
         this.categoryService = categoryService;
         this.fileUploadProvider = fileUploadProvider;
         this.userLikeProductRepository = userLikeProductRepository;
-        this.elasticsearchRestTemplate = elasticsearchRestTemplate1;
+        this.elasticsearchRestTemplate = elasticsearchRestTemplate;
         this.eProductRepository = eProductRepository;
         this.taskExecutor = taskExecutor;
     }
@@ -114,7 +114,6 @@ public class ProductServiceImpl implements IProductService {
 
         entity.setRating(0f);
         entity.setTotalReview(0);
-        entity.setTotalQuantity(0);
         entity.setTotalLike(0);
 
         if (model.getProductMetas() != null)
@@ -185,7 +184,6 @@ public class ProductServiceImpl implements IProductService {
 
         entity.setRating(originProduct.getRating());
         entity.setTotalReview(originProduct.getTotalReview());
-        entity.setTotalQuantity(originProduct.getTotalQuantity());
         entity.setTotalLike(originProduct.getTotalLike());
         entity.setVariations(originProduct.getVariations());
         entity.setSkus(originProduct.getSkus());
@@ -255,17 +253,23 @@ public class ProductServiceImpl implements IProductService {
 
     @Override
     public int likeProduct(Long id) {
-        //If product is present
+        //If OBJ is present
+        ProductEntity product = this.findById(id);
         if (userLikeProductRepository.findFirstByProductIdAndUserId(id, SecurityUtils.getCurrentUserId()) != null) {
             UserLikeProductEntity userLikeProductEntity = userLikeProductRepository.findFirstByProductIdAndUserId(id, SecurityUtils.getCurrentUserId());
+
             userLikeProductEntity.setIsLike(!userLikeProductEntity.getIsLike());
+            product.setTotalLike(product.getTotalLike() + (userLikeProductEntity.getIsLike() ? 1 : -1));
+            this.productRepository.save(product);
             return 0;
         } else {
-            //if product not present
+            //if OBJ not present
             UserLikeProductEntity entity = new UserLikeProductEntity();
             entity.setProductId(id);
             entity.setIsLike(true);
             entity.setUserId(SecurityUtils.getCurrentUserId());
+            product.setTotalLike(product.getTotalLike() + 1);
+            this.productRepository.save(product);
             userLikeProductRepository.save(entity);
             return 1;
         }

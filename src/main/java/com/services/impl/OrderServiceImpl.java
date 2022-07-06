@@ -15,23 +15,15 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.query.Procedure;
-import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Service;
 
-import javax.persistence.EntityManager;
-import javax.persistence.ParameterMode;
-import javax.persistence.PersistenceContext;
-import javax.persistence.StoredProcedureQuery;
-import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.sql.Timestamp;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.stream.Collectors;
 
 @Service
 public class OrderServiceImpl implements IOrderService {
@@ -47,10 +39,16 @@ public class OrderServiceImpl implements IOrderService {
     IAddressRepository addressRepository;
 
     @Autowired
+    private final IProductRepository productRepository;
+    @Autowired
     private INotificationService notificationService;
 
     @Autowired
     private IUserRepository userRepository;
+
+    public OrderServiceImpl(IProductRepository productRepository) {
+        this.productRepository = productRepository;
+    }
 
     @Override
     public List<OrderEntity> findAll() {
@@ -108,20 +106,40 @@ public class OrderServiceImpl implements IOrderService {
                 .deliveryFee(Double.valueOf(30000f))
                 .createdBy(SecurityUtils.getCurrentUser().getUser())
                 .build());
+
+
+        List<ProductEntity> productEntities = new ArrayList<>();
+
         cartDetailEntities.stream().forEach(cartDetailEntity -> {
+            ProductSkuEntity productSku = cartDetailEntity.getSku();
+            ProductEntity product = productSku.getProduct(); // for get product
+
             OrderDetailEntity orderDetailEntity = OrderDetailEntity.builder()
-                    .sku(cartDetailEntity.getSku())
+                    .sku(productSku)
                     .quantity(cartDetailEntity.getQuantity())
-//                    .option(cartDetailEntity.getSku().getPr())
+                    .option(productSku.getOptionName())
                     .order(order)
-                    .price(cartDetailEntity.getSku().getPrice())
+                    .price(productSku.getPrice())
                     .isReview(false)
-                    .productId(cartDetailEntity.getSku().getProduct())
+                    .productId(product)
                     .build();
+            // change quantity of product
+            int remainQuantity = productSku.getInventoryQuantity() - cartDetailEntity.getQuantity();
+            productSku.setInventoryQuantity(remainQuantity < 0 ? 0 : remainQuantity);
+
+            // change total sold
+            product.setTotalSold(product.getTotalSold() + cartDetailEntity.getQuantity());
+
+            // add to list to save later
+            productEntities.add(product);
+
             orderDetailEntities.add(orderDetailEntity);
             totalPrices.updateAndGet(v -> v + cartDetailEntity.getSku().getPrice() * cartDetailEntity.getQuantity());
             totalProducts.updateAndGet(v -> v + cartDetailEntity.getQuantity());
         });
+
+        // save product again
+        productRepository.saveAll(productEntities);
 
         cartDetailRepository.deleteAll(cartDetailEntities);
         orderDetailRepository.saveAll(orderDetailEntities);
@@ -129,7 +147,7 @@ public class OrderServiceImpl implements IOrderService {
         order.setTotalNumberProducts(totalProducts.get());
         order.setOrderDetails(orderDetailEntities);
         cartRepository.deleteAllByCartDetails_Empty();
-        this.notificationService.addForSpecificUser(new SocketNotificationModel(null, "Bạn có đơn hàng mới!, #".concat(order.getUuid()), "", ENotificationCategory.ORDER,OrderEntity.ADMIN_ORDER_URL), this.userRepository.getAllIdsByRole(RoleEntity.ADMINISTRATOR));
+        this.notificationService.addForSpecificUser(new SocketNotificationModel(null, "Bạn có đơn hàng mới!, #".concat(order.getUuid()), "", ENotificationCategory.ORDER, OrderEntity.ADMIN_ORDER_URL), this.userRepository.getAllIdsByRole(RoleEntity.ADMINISTRATOR));
         return orderRepository.save(order);
     }
 
@@ -215,7 +233,7 @@ public class OrderServiceImpl implements IOrderService {
 
     @Override
     @Procedure(name = "findOrderAndPriceByTimeAndStatus")
-    public List<OrderByStatusAndTimeDto> getAllOrderByStatusAndTime(String status_order,Date time_from,Date time_to) {
+    public List<OrderByStatusAndTimeDto> getAllOrderByStatusAndTime(String status_order, Date time_from, Date time_to) {
         List<Object[]> list = this.orderRepository.findAllByTimeAndStatus(status_order, time_from, time_to);
         List<OrderByStatusAndTimeDto> orderByStatusAndTimeDtoList = new ArrayList<>();
 
@@ -235,12 +253,12 @@ public class OrderServiceImpl implements IOrderService {
 
     @Override
     public Integer getTotalOrderByStatusAndTime(String status_order, Date time_from, Date time_to) {
-        return this.orderRepository.findTotalOrderByTimeAndStatus(status_order,time_from, time_to);
+        return this.orderRepository.findTotalOrderByTimeAndStatus(status_order, time_from, time_to);
     }
 
     @Override
     public Double getTotalPriceByStatusAndTime(String status_order, Date time_from, Date time_to) {
-        return this.orderRepository.findTotalPriceByTimeAndStatus(status_order,time_from, time_to);
+        return this.orderRepository.findTotalPriceByTimeAndStatus(status_order, time_from, time_to);
     }
 
     @Override

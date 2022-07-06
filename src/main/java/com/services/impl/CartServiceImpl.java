@@ -3,10 +3,7 @@ package com.services.impl;
 import com.entities.*;
 import com.models.CartModel;
 import com.models.ChangeOptionModel;
-import com.repositories.ICartDetailRepository;
-import com.repositories.ICartRepository;
-import com.repositories.IProductRepository;
-import com.repositories.IProductSkuRepository;
+import com.repositories.*;
 import com.services.ICartService;
 import com.utils.SecurityUtils;
 import org.springframework.data.domain.Page;
@@ -19,13 +16,16 @@ import java.util.List;
 
 @Service
 public class CartServiceImpl implements ICartService {
-    final private ICartRepository cartRepository;
-    final private IProductRepository productRepository;
-    final private ICartDetailRepository cartDetailRepository;
-    final private IProductSkuRepository productSkuRepository;
+    private final ICartRepository cartRepository;
 
-    public CartServiceImpl(ICartRepository cartRepository, IProductRepository productRepository, ICartDetailRepository cartDetailRepository, IProductSkuRepository productSkuRepository) {
+    private final IUserLikeProductRepository userLikeProductRepository;
+    private final IProductRepository productRepository;
+    private final ICartDetailRepository cartDetailRepository;
+    private final IProductSkuRepository productSkuRepository;
+
+    public CartServiceImpl(ICartRepository cartRepository, IUserLikeProductRepository userLikeProductRepository, IProductRepository productRepository, ICartDetailRepository cartDetailRepository, IProductSkuRepository productSkuRepository) {
         this.cartRepository = cartRepository;
+        this.userLikeProductRepository = userLikeProductRepository;
         this.productRepository = productRepository;
         this.cartDetailRepository = cartDetailRepository;
         this.productSkuRepository = productSkuRepository;
@@ -38,7 +38,13 @@ public class CartServiceImpl implements ICartService {
 
     @Override
     public Page<CartEntity> findAll(Pageable page) {
-        return this.cartRepository.findAllByUser_Id(SecurityUtils.getCurrentUserId(), page);
+        Long userId = SecurityUtils.getCurrentUserId();
+        return this.cartRepository.findAllByUser_Id(userId, page)
+                .map(cart -> {
+                    UserLikeProductEntity userLikeProduct = this.userLikeProductRepository.getIsLikedProduct(cart.getId(), userId).orElse(null);
+                    cart.setIsLiked(userLikeProduct == null ? false : userLikeProduct.getIsLike());
+                    return cart;
+                });
     }
 
     @Override
@@ -188,7 +194,7 @@ public class CartServiceImpl implements ICartService {
         if (originCart.getUser().getId().equals(SecurityUtils.getCurrentUser().getUser().getId())) {
             CartDetailEntity cartDetailEntity = this.cartDetailRepository.findCartDetailEntityByCart_IdAndSku_Id(idCart, idSku).orElseThrow(() -> new RuntimeException("Cart detail not found"));
             originCart.getCartDetails().remove(cartDetailEntity);
-            if(originCart.getCartDetails().size() == 0) {
+            if (originCart.getCartDetails().size() == 0) {
                 this.cartRepository.deleteById(idCart);
             }
             return true;

@@ -88,6 +88,10 @@ public class ReviewServiceImpl implements IReviewService {
         reviewEntity.setParentReview(null);
         OrderDetailEntity orderDetailEntity = this.orderDetailRepository.findById(model.getOrderDetailId()).orElseThrow(() -> new RuntimeException("Order detail not found"));
 
+        ProductEntity productEntity = orderDetailEntity.getProductId(); // get product to update total review
+        if (model.getParentId() == null)
+            productEntity.setTotalReview(productEntity.getTotalReview() + 1);
+
         // kiem tra nguoi dung da mua hang va da nhan hang chua
         // neu ok thi se set lai createBy, optionName,
         OrderEntity orderEntity = orderDetailEntity.getOrder();
@@ -98,14 +102,14 @@ public class ReviewServiceImpl implements IReviewService {
                 reviewEntity.setCreatedBy(SecurityUtils.getCurrentUser().getUser());
 
                 // set optionName
-               String optionName = orderDetailEntity.getSku().getOptionName();
+                String optionName = orderDetailEntity.getSku().getOptionName();
                 reviewEntity.setOptionName(optionName);
 
                 //set orderDetail
                 reviewEntity.setOrderDetail(orderDetailEntity);
 
                 // set product, ten dat la productId nhung thuc te la product
-                reviewEntity.setProduct(orderDetailEntity.getProductId());
+                reviewEntity.setProduct(productEntity);
 
                 // upload file
                 String folder = UserEntity.FOLDER + SecurityUtils.getCurrentUsername() + ReviewEntity.FOLDER;
@@ -207,9 +211,14 @@ public class ReviewServiceImpl implements IReviewService {
     @Override
     public boolean deleteById(Long id) {
         ReviewEntity review = this.findById(id);
+
+        ProductEntity productEntity = review.getProduct(); // to update total review
+        productEntity.setTotalReview(productEntity.getTotalReview() - 1);
+        this.productRepository.save(productEntity);
+
         this.reviewRepository.deleteReviewByParent(id);
         this.reviewRepository.deleteById(id);
-        this.reviewRepository.updateProductRating(review.getProduct().getId());
+        this.reviewRepository.updateProductRating(productEntity.getId());
         return true;
     }
 

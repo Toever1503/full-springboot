@@ -28,12 +28,12 @@ public class ProductEntity {
     private String name;
     @Column(name = "description")
     private String description;
-    @Column(name = "total_quantity")
-    private Integer totalQuantity;
     @Column(name = "total_like")
     private Integer totalLike;
     @Column(name = "total_review")
     private Integer totalReview;
+    @Column(name = "total_sold")
+    private Integer totalSold;
     @Column(name = "rating")
     private Float rating;
     @Column(name = "image")

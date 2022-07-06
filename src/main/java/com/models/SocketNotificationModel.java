@@ -41,6 +41,7 @@ public class SocketNotificationModel {
                 .contentExcerpt(model.getContentExcerpt())
                 .category(model.getCategory().name())
                 .url(model.getUrl())
+                .isJustNotice(true)
                 .build();
     }
     public static SocketNotificationModel toModel(NotificationEntity entity) {

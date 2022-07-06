@@ -5,6 +5,7 @@ import com.entities.ProductVariationEntity;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
@@ -25,7 +26,5 @@ public interface IProductRepository extends JpaRepository<ProductEntity, Long>, 
 
     @Query("select distinct p.metaValue from ProductMetaEntity p where p.metaKey = ?1")
     List<String> findMetaValues(String metaKey, Pageable page);
-
-
 
 }

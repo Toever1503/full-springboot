@@ -45,6 +45,7 @@ public class NotificationSpecification extends BaseSpecification {
 
     public static Specification<NotificationEntity> filter(NotificationFilter notificationFilter) {
         List<Specification<NotificationEntity>> specs = new ArrayList<>();
+        specs.add((root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get(NotificationEntity_.IS_JUST_NOTICE), null));
 
         if (notificationFilter.getTitle() != null)
             specs.add(like(NotificationEntity_.TITLE, notificationFilter.getTitle()));

@@ -10,6 +10,7 @@ import org.springframework.data.elasticsearch.annotations.Field;
 import org.springframework.data.elasticsearch.annotations.FieldType;
 
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -55,6 +56,9 @@ public class ProductDto {
     @Field(type = FieldType.Integer, name = "totalReview")
     private Integer totalReview;
 
+    @Field(type = FieldType.Integer, name = "totalSold")
+    private Integer totalSold;
+
     @Field(type = FieldType.Float, name = "rating")
     private Float rating;
 
@@ -85,6 +89,9 @@ public class ProductDto {
     @Field(type = FieldType.Nested, name = "skus", storeNullValue = true)
     private List<ProductSkuDto> skus;
 
+    private Date createdDate;
+    private Date updatedDate;
+
 //    @Field(type = FieldType.Object, name = "createdBy")
 //    private UserDto createdBy;
 
@@ -95,13 +102,14 @@ public class ProductDto {
         productDto.setId(entity.getId());
         productDto.setName(entity.getName());
         productDto.setDescription(entity.getDescription());
-        productDto.setTotalQuantity(entity.getTotalQuantity());
         productDto.setTotalLike(entity.getTotalLike());
         productDto.setTotalReview(entity.getTotalReview());
         productDto.setRating(entity.getRating());
         productDto.setImage(entity.getImage());
         productDto.setStatus(entity.getStatus());
         productDto.setIsUseVariation(entity.getIsUseVariation());
+        productDto.setCreatedDate(entity.getCreatedDate());
+        productDto.setUpdatedDate(entity.getUpdatedDate());
 //        productDto.createdBy = UserDto.toDto(entity.getCreatedBy());
 
         productDto.setAttachFiles(entity.getAttachFiles() != null ? new JSONObject(entity.getAttachFiles()).getJSONArray("files").toList() : List.of());
@@ -112,6 +120,7 @@ public class ProductDto {
 
         productDto.setVariations(entity.getVariations() == null ? Collections.EMPTY_LIST : entity.getVariations().stream().map(ProductVariationDto::toDto).collect(Collectors.toList()));
         productDto.setSkus(entity.getSkus() == null ? Collections.EMPTY_LIST : entity.getSkus().stream().map(ProductSkuDto::toDto).collect(Collectors.toList()));
+        productDto.setTotalQuantity(productDto.getSkus().isEmpty() ? 0 : productDto.getSkus().stream().mapToInt(ProductSkuDto::getInventoryQuantity).sum());
         return productDto;
     }
 }

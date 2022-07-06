@@ -39,4 +39,7 @@ public class CartEntity {
     @ManyToOne
     @JoinColumn(name = "user_id")
     private UserEntity user;
+
+    @Transient
+    private Boolean isLiked;
 }
