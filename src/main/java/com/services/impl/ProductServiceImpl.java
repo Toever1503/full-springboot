@@ -39,6 +39,8 @@ import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static org.elasticsearch.index.query.QueryBuilders.*;
@@ -116,38 +118,63 @@ public class ProductServiceImpl implements IProductService {
         entity.setRating(0f);
         entity.setTotalReview(0);
         entity.setTotalLike(0);
+        entity.setTotalSold(0);
+
+
+        List<CompletableFuture> futures = new ArrayList<>();
+
+        //  save images
+        String folder = this.getProductFolder(entity.getId());
+        List<String> uploadedFiles = new ArrayList<>();
+
+        //upload new file to uploadFiles and save to database
+        if (model.getAttachFiles() != null) {
+            futures.add(CompletableFuture.allOf(this.fileUploadProvider.asyncUploadFiles(uploadedFiles, folder, model.getAttachFiles()))
+                    .thenAccept(e1 -> uploadedFiles.removeIf(e -> e == null)));
+        }
+
+        // add image
+        futures.add(this.fileUploadProvider.asyncUpload1File(folder, model.getImage()).thenAccept(o -> entity.setImage(o)));
+
+        if (!uploadedFiles.isEmpty()) {
+            entity.setAttachFiles(new JSONObject(Map.of("files", uploadedFiles)).toString());
+        }
 
         if (model.getProductMetas() != null)
             if (!model.getProductMetas().isEmpty())
                 entity.setProductMetas(model.getProductMetas()
                         .stream().map(productMetaModel -> ProductMetaModel.toEntity(productMetaModel, null)).collect(Collectors.toList()));
 
-        entity = this.productRepository.save(entity);
+        try {
+            if (!futures.isEmpty())
+                CompletableFuture.allOf(futures.toArray(CompletableFuture[]::new)).get();
+            entity.setAttachFiles(uploadedFiles.isEmpty() ? null : (new JSONObject(Map.of("files", uploadedFiles)).toString()));
+            return this.productRepository.saveAndFlush(entity);
 
-        //  save images
-        String folder = this.getProductFolder(entity.getId());
-        if (model.getAttachFiles() != null) {
-            List<String> filePaths = new ArrayList<>();
-            for (MultipartFile file : model.getAttachFiles()) {
-                try {
-                    filePaths.add(fileUploadProvider.uploadFile(folder, file));
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-            JSONObject jsonObject = new JSONObject(Map.of("files", filePaths));
-            entity.setAttachFiles(jsonObject.toString());
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+            this.taskExecutor.execute(() -> {
+                removeFile(entity.getImage(), uploadedFiles);
+            });
+            throw new RuntimeException("Error when upload file");
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+            this.taskExecutor.execute(() -> {
+                removeFile(entity.getImage(), uploadedFiles);
+            });
+            throw new RuntimeException("Error when upload file");
+        } catch (Exception e) {
+            e.printStackTrace();
+            this.taskExecutor.execute(() -> {
+                removeFile(entity.getImage(), uploadedFiles);
+            });
+            throw new RuntimeException("Error when add product");
         }
-        if (model.getImage() != null) {
-            String filePath;
-            try {
-                filePath = fileUploadProvider.uploadFile(folder, model.getImage());
-                entity.setImage(filePath);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-        return this.productRepository.save(entity);
+    }
+
+    void removeFile(String file, List<String> files) {
+        this.fileUploadProvider.deleteFile(file);
+        files.forEach(this.fileUploadProvider::deleteFile);
     }
 
     @Override
@@ -190,12 +217,6 @@ public class ProductServiceImpl implements IProductService {
         entity.setSkus(originProduct.getSkus());
         entity.setImage(originProduct.getImage());
 
-        if (model.getProductMetas() != null)
-            if (!model.getProductMetas().isEmpty())
-                entity.setProductMetas(model.getProductMetas()
-                        .stream().map(productMetaModel -> ProductMetaModel.toEntity(productMetaModel, model.getId())).collect(Collectors.toList()));
-        entity = this.productRepository.save(entity);
-
 
         // update images
         //delete file into s3
@@ -212,31 +233,61 @@ public class ProductServiceImpl implements IProductService {
         if (!model.getAttachFilesOrigin().isEmpty())
             uploadedFiles.addAll(model.getAttachFilesOrigin());
 
+
+        List<CompletableFuture> futures = new ArrayList<>();
+
         //upload new file to uploadFiles and save to database
         if (model.getAttachFiles() != null) {
-            for (MultipartFile file : model.getAttachFiles()) {
-                try {
-                    uploadedFiles.add(fileUploadProvider.uploadFile(folder, file));
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
+            futures.add(CompletableFuture.allOf(this.fileUploadProvider.asyncUploadFiles(uploadedFiles, folder, model.getAttachFiles()))
+                    .thenAccept(e1 -> uploadedFiles.removeIf(e -> e == null)));
+//            for (MultipartFile file : model.getAttachFiles()) {
+//                try {
+//                    uploadedFiles.add(fileUploadProvider.uploadFile(folder, file));
+//                } catch (IOException e) {
+//                    e.printStackTrace();
+//                }
+//            }
         }
-        entity.setAttachFiles(uploadedFiles.isEmpty() ? null : (new JSONObject(Map.of("files", uploadedFiles)).toString()));
+
 
         // update image
         if (model.getImage() != null) {
-            String filePath;
-            try {
-                fileUploadProvider.deleteFile(originProduct.getImage());
-                filePath = fileUploadProvider.uploadFile(folder, model.getImage());
-                fileUploadProvider.deleteFile(originProduct.getImage());
-                originProduct.setImage(filePath);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            fileUploadProvider.deleteFile(originProduct.getImage());
+//                filePath.set(fileUploadProvider.uploadFile(folder, model.getImage()));
+            futures.add(this.fileUploadProvider.asyncUpload1File(folder, model.getImage()).thenAccept(o -> originProduct.setImage(o)));
         }
-        return this.productRepository.save(entity);
+
+        if (model.getProductMetas() != null)
+            if (!model.getProductMetas().isEmpty())
+                entity.setProductMetas(model.getProductMetas()
+                        .stream().map(productMetaModel -> ProductMetaModel.toEntity(productMetaModel, model.getId())).collect(Collectors.toList()));
+
+        try {
+            if (!futures.isEmpty())
+                CompletableFuture.allOf(futures.toArray(CompletableFuture[]::new)).get();
+            entity.setAttachFiles(uploadedFiles.isEmpty() ? null : (new JSONObject(Map.of("files", uploadedFiles)).toString()));
+            return this.productRepository.saveAndFlush(entity);
+
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+            this.taskExecutor.execute(() -> {
+                removeFile(entity.getImage(), uploadedFiles);
+            });
+            throw new RuntimeException("Error when upload file");
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+            this.taskExecutor.execute(() -> {
+                removeFile(entity.getImage(), uploadedFiles);
+            });
+            throw new RuntimeException("Error when upload file");
+        } catch (Exception e) {
+            e.printStackTrace();
+            this.taskExecutor.execute(() -> {
+                removeFile(entity.getImage(), uploadedFiles);
+            });
+            throw new RuntimeException("Error when update product");
+        }
+
     }
 
     @Override
@@ -298,8 +349,82 @@ public class ProductServiceImpl implements IProductService {
         if (!entity.getIsUseVariation())
             throw new RuntimeException("Product is not use variation, id: ".concat(entity.getId().toString()));
         entity.getVariations().clear();
-        entity.getVariations().addAll(this.productVariationRepository.saveAll(models.stream().map(variation -> ProductVariationModel.toEntity(variation, entity)).collect(Collectors.toList())));
+        entity.getVariations().addAll(this.productVariationRepository.saveAllAndFlush(models.stream().map(variation -> ProductVariationModel.toEntity(variation, entity)).collect(Collectors.toList())));
+
+        Map<Long, ProductVariationValueEntity> variationValuesMap = entity.getVariations().stream().flatMap(variation -> variation.getVariationValues().stream())
+                .collect(Collectors.toMap(ProductVariationValueEntity::getId, Function.identity()));
+
+        checkValidSku(productId, entity.getVariations().size(), variationValuesMap);
         return entity;
+    }
+
+    public void checkValidSku(Long productID, Integer variationSize, Map<Long, ProductVariationValueEntity> variationValuesMap) {
+        List<ProductSkuEntity> skus = this.productSkuEntityRepository.findAllByProductId(productID);
+        if (skus.isEmpty()) return;
+
+        // create list future check to increase performance
+        CompletableFuture<ProductSkuEntity>[] futures = skus.stream().map(sku -> CompletableFuture.supplyAsync(() -> {
+            if (!sku.getVariationSize().equals(variationSize))
+                sku.setIsValid(false);
+            else {
+                final List<Long> valueIds = Arrays.stream(sku.getSkuCode().split("-")).map(Long::valueOf).collect(Collectors.toList());
+                int check = 1;
+
+                for (int i = 0; i < variationSize; ++i) {
+                    if (!variationValuesMap.containsKey(valueIds.get(i))) {
+                        check = -1;
+                        break;
+                    }
+                }
+
+                if (check == 1) // sku code is ok, then set option agains
+                {
+                    String optionName = valueIds.stream().map(vId -> {
+                        ProductVariationValueEntity variationValue = variationValuesMap.get(vId);
+                        return variationValue.getVariation().getVariationName().concat(" ").concat(variationValue.getValue());
+                    }).reduce((a, b) -> a.concat(", ").concat(b)).get();
+                    sku.setOptionName(optionName);
+                } else
+                    sku.setIsValid(false);
+            }
+            return sku;
+        }, this.taskExecutor)).toArray(CompletableFuture[]::new);
+
+        try {
+            CompletableFuture.allOf(futures).get(); // wait for all complete futures done
+        } catch (ExecutionException e) {
+            throw new RuntimeException(e);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+
+//        skus.forEach(sku -> {
+//            if (!sku.getVariationSize().equals(variationSize))
+//                sku.setIsValid(false);
+//            else {
+//                final List<Long> valueIds = Arrays.stream(sku.getSkuCode().split("-")).map(Long::valueOf).collect(Collectors.toList());
+//                int check = 1;
+//
+//                for (int i = 0; i < variationSize; ++i) {
+//                    if (!variationValuesMap.containsKey(valueIds.get(i))) {
+//                        check = -1;
+//                        break;
+//                    }
+//                }
+//
+//                if (check == 1) // sku code is ok, then set option agains
+//                {
+//                    sku.setIsValid(true);
+//                    String optionName = valueIds.stream().map(vId -> {
+//                        ProductVariationValueEntity variationValue = variationValuesMap.get(vId);
+//                        return variationValue.getVariation().getVariationName().concat(" ").concat(variationValue.getValue());
+//                    }).reduce((a, b) -> a.concat(", ").concat(b)).get();
+//                    sku.setOptionName(optionName);
+//                } else
+//                    sku.setIsValid(false);
+//            }
+//        });
+        this.productSkuEntityRepository.saveAllAndFlush(skus);
     }
 
     @Override
@@ -312,11 +437,11 @@ public class ProductServiceImpl implements IProductService {
             if (models.isEmpty())
                 this.productSkuEntityRepository.deleteAllByProductId(productId);
             else
-                entity.setSkus(this.productSkuEntityRepository.saveAll(models.stream()
+                entity.setSkus(this.productSkuEntityRepository.saveAllAndFlush(models.stream()
                         .map(sku -> saveSku(entity, folder, sku, req))
                         .collect(Collectors.toList())));
         } else {
-            entity.setSkus(List.of(this.productSkuEntityRepository.save(saveSku(entity, folder, models.get(0), req))));
+            entity.setSkus(List.of(this.productSkuEntityRepository.saveAndFlush(saveSku(entity, folder, models.get(0), req))));
         }
         return entity;
     }
@@ -363,7 +488,7 @@ public class ProductServiceImpl implements IProductService {
                     rangeQuery("skus.price").lte(model.getMaxPrice())
             ), ScoreMode.None));
         }
-        if(model.getStatus()!= null){
+        if (model.getStatus() != null) {
             rootQueryBuilders.add(termQuery("status", model.getStatus()));
         }
 
@@ -590,6 +715,17 @@ public class ProductServiceImpl implements IProductService {
             System.out.println("=============exception");
             throw new RuntimeException("Duplicate skuCode: " + skuEntity.getSkuCode().concat(", product id: ".concat(entity.getId().toString().concat(". please check again!"))));
         }
+    }
+
+    public static void main(String[] args) {
+        List<String> list = new ArrayList<>();
+        list.add("a");
+        list.add("b");
+        list.add("c");
+        list.add(null);
+
+        list.removeIf(e -> e == null);
+        System.out.println(list.toString());
     }
 
 }
