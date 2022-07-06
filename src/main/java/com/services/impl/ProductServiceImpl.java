@@ -29,6 +29,7 @@ import org.springframework.data.elasticsearch.core.query.NativeSearchQuery;
 import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilder;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.ServletException;
@@ -531,6 +532,13 @@ public class ProductServiceImpl implements IProductService {
         }
         productFilterDataDto = filterData;
         return productFilterDataDto;
+    }
+
+    @Transactional
+    @Override
+    public Page<ProductDto> findAll(Pageable page, Specification<ProductEntity> specs) {
+        Page<ProductEntity> productDtoPage = this.productRepository.findAll(specs, page);
+        return productDtoPage.map(ProductDto::toDto);
     }
 
 //    private Map<String, Object> putMap(String key, Object value) {

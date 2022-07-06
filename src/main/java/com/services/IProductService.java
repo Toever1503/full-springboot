@@ -12,6 +12,7 @@ import com.models.ProductVariationModel;
 import com.models.elasticsearch.EProductFilterModel;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
@@ -33,4 +34,6 @@ public interface IProductService extends IBaseService<ProductEntity, ProductMode
     List<ProductSkuEntity> findSkus(Long id);
 
     ProductFilterDataDto getFilterData();
+
+    Page<ProductDto> findAll(Pageable page, Specification<ProductEntity> specs);
 }

@@ -168,6 +168,8 @@ public class ProductSpecification {
         if (filter.getCategorySlugs() != null) {
             specifications.add(byCategory(filter.getCategorySlugs()));
         }
+        if (filter.getStatus() != null)
+            specifications.add(((root, query, criteriaBuilder) -> root.get(ProductEntity_.STATUS).in(filter.getStatus())));
 
         Specification<ProductEntity> finalSpec = null;
 
