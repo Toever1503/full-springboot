@@ -58,7 +58,7 @@ public class OrderResources {
     @Transactional
     @PostMapping
     public ResponseDto createOrder(@RequestBody OrderModel orderModel) {
-        OrderEntity order =  orderService.add(orderModel);
+        OrderEntity order = orderService.add(orderModel);
         return ResponseDto.of(OrderDto.toDto(order), "Create order");
     }
 
@@ -68,6 +68,7 @@ public class OrderResources {
         OrderEntity order = orderService.updateDeliveryCode(id, deliveryCode);
         return ResponseDto.of(OrderDto.toDto(order), "Update delivery code");
     }
+
     @Transactional
     @PatchMapping("update-status/{id}")
     public ResponseDto updateStatusOrder(@PathVariable("id") Long id, @RequestParam("status") String status) {
@@ -90,56 +91,49 @@ public class OrderResources {
 
     @Transactional
     @GetMapping("/check/{id}")
-    public ResponseDto getPayStatus(@PathVariable("id") Long id){
-        return ResponseDto.of(orderService.getStatusByID(id),"Get status");
+    public ResponseDto getPayStatus(@PathVariable("id") Long id) {
+        return ResponseDto.of(orderService.getStatusByID(id), "Get status");
     }
 
     @Transactional
     @GetMapping("/redirect/{id}")
-    public ResponseDto getPayUrl(@PathVariable("id") Long id){
-        return ResponseDto.of(orderService.getUrlByID(id),"Get url");
+    public ResponseDto getPayUrl(@PathVariable("id") Long id) {
+        return ResponseDto.of(orderService.getUrlByID(id), "Get url");
     }
 
     @RolesAllowed("ADMINISTRATOR")
     @Transactional
     @PostMapping("/report/all-by-time-and-status")
-    public ResponseDto getTotalOrder(@RequestBody TotalOrderModel model){
-        return ResponseDto.of(this.orderService.getAllOrderByStatusAndTime(model.getStatus(), model.getTime_from(), model.getTime_to()),"Get all by status and time");
+    public ResponseDto getTotalOrder(@RequestBody TotalOrderModel model) {
+        return ResponseDto.of(this.orderService.getAllOrderByStatusAndTime(model.getStatus(), model.getTime_from(), model.getTime_to()), "Get all by status and time");
     }
 
     @RolesAllowed("ADMINISTRATOR")
     @Transactional
     @PostMapping("/report/statistic-year-by-time-and-status")
-    public ResponseDto getTotalOrderByYear(@RequestBody TotalOrderModel model){
-        return ResponseDto.of(this.orderService.statisticsYearOrderByStatusAndTime(model.getStatus(), model.getTime_from(), model.getTime_to()),"statistic year by status and time");
+    public ResponseDto getTotalOrderByYear(@RequestBody TotalOrderModel model) {
+        return ResponseDto.of(this.orderService.statisticsYearOrderByStatusAndTime(model.getStatus(), model.getTime_from(), model.getTime_to()), "statistic year by status and time");
     }
 
     @RolesAllowed("ADMINISTRATOR")
     @Transactional
     @PostMapping("/report/total-order-by-time-and-status")
-    public ResponseDto getTotalOrderByStatus(@RequestBody TotalOrderModel model){
-        return ResponseDto.of(this.orderService.getTotalOrderByStatusAndTime(model.getStatus(), model.getTime_from(), model.getTime_to()),"Get total order by status and time");
-    }
-
-    @RolesAllowed("ADMINISTRATOR")
-    @Transactional
-    @PostMapping("/report/total-price-by-time-and-status")
-    public ResponseDto getTotalPriceByStatus(@RequestBody TotalOrderModel model){
-        return ResponseDto.of(this.orderService.getTotalPriceByStatusAndTime(model.getStatus(), model.getTime_from(), model.getTime_to()),"Get total price by status and time");
+    public ResponseDto getTotalOrderByStatus(@RequestBody TotalOrderModel model) {
+        return ResponseDto.of(this.orderService.getTotalOrderByStatusAndTime(model.getStatus(), model.getTime_from(), model.getTime_to()), "Get total order by status and time");
     }
 
     @RolesAllowed("ADMINISTRATOR")
     @Transactional
     @PostMapping("/report/total-user-by-time")
-    public ResponseDto getTotalUserByTime(@RequestBody TotalUserModel model){
-        return ResponseDto.of(this.orderService.getTotalUserByTime(model.getTime_from(), model.getTime_to()),"Get total user by time");
+    public ResponseDto getTotalUserByTime(@RequestBody TotalUserModel model) {
+        return ResponseDto.of(this.orderService.getTotalUserByTime(model.getTime_from(), model.getTime_to()), "Get total user by time");
     }
 
     @RolesAllowed("ADMINISTRATOR")
     @Transactional
     @GetMapping("/report/get-all-order-groupby-status")
-    public ResponseDto getAllOrderGroupByStatus(){
-        return ResponseDto.of(this.orderService.getAllOrderGroupByStatus(),"Get all order group by status");
+    public ResponseDto getAllOrderGroupByStatus() {
+        return ResponseDto.of(this.orderService.getAllOrderGroupByStatus(), "Get all order group by status");
     }
 
 }

@@ -54,7 +54,7 @@ public class BeanConfiguration {
     }
 
     @Bean
-    public Executor taskExecutor(){
+    public Executor taskExecutor() {
         ThreadPoolExecutor executor = new ThreadPoolExecutor(500, 5000, 300l, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>());
         return executor;
     }
@@ -96,15 +96,15 @@ public class BeanConfiguration {
     //Mail sender bean configure
     @Bean
     public JavaMailSender getMailSender(@Value("${mail.smtp.host}")
-                                        String host,
+                                                String host,
                                         @Value("${mail.smtp.port}")
-                                        int port,
+                                                int port,
                                         @Value("${mail.smtp.username}")
-                                        String username,
+                                                String username,
                                         @Value("${mail.smtp.password}")
-                                        String password,
+                                                String password,
                                         @Value("${mail.smtp.auth}")
-                                        String auth) {
+                                                String auth) {
         JavaMailSenderImpl javaMailSender = new JavaMailSenderImpl();
         javaMailSender.setHost(host);
         javaMailSender.setPort(port);

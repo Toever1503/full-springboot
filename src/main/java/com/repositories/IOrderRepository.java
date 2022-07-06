@@ -18,16 +18,17 @@ import java.util.Optional;
 
 @Repository
 public interface IOrderRepository extends JpaRepository<OrderEntity, Long>, JpaSpecificationExecutor<OrderEntity> {
-    
+
     Page<OrderEntity> findAllByCreatedById(Long userId, Pageable pageable);
 
     Optional<OrderEntity> findByIdAndCreatedById(Long id, Long userId);
+
     Optional<OrderEntity> findByUuid(String uuid);
 
     @Modifying
     @Transactional
     @Query("update OrderEntity o set o.status=?1 where o.id = ?2")
-    void changeOrderStatusByID(String status,Long id);
+    void changeOrderStatusByID(String status, Long id);
 
 //    @Modifying
 //    @Transactional
@@ -47,10 +48,7 @@ public interface IOrderRepository extends JpaRepository<OrderEntity, Long>, JpaS
     List<Object[]> statisticsYearByTimeAndStatus(String status_order, Date time_from, Date time_to);
 
     @Query(value = "CALL total_order_by_time_and_status(?1, ?2, ?3)", nativeQuery = true)
-    Integer findTotalOrderByTimeAndStatus(String status_order, Date time_from, Date time_to);
-
-    @Query(value = "CALL price_by_status_and_time(?1, ?2, ?3)", nativeQuery = true)
-    Double findTotalPriceByTimeAndStatus(String status_order, Date time_from, Date time_to);
+    List<Object[]> findTotalOrderByTimeAndStatus(String status_order, Date time_from, Date time_to);
 
     @Query(value = "CALL user_by_time(?1, ?2)", nativeQuery = true)
     Integer findTotalUserByTime(Date time_from, Date time_to);

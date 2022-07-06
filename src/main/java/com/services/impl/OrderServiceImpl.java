@@ -12,7 +12,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.data.jpa.repository.query.Procedure;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -231,17 +230,17 @@ public class OrderServiceImpl implements IOrderService {
     }
 
     @Override
-    public List<OrderByStatusAndTimeDto> getAllOrderByStatusAndTime(String status_order,Date time_from,Date time_to) {
+    public List<OrderByStatusAndTimeDto> getAllOrderByStatusAndTime(String status_order, Date time_from, Date time_to) {
         List<Object[]> list = this.orderRepository.findAllByTimeAndStatus(status_order, time_from, time_to);
         List<OrderByStatusAndTimeDto> orderByStatusAndTimeDtoList = new ArrayList<>();
 
         list.stream().forEach(o -> {
             OrderByStatusAndTimeDto orderByStatusAndTimeDto = new OrderByStatusAndTimeDto();
             orderByStatusAndTimeDto.setHour_in_day((Integer) o[0]);
-            orderByStatusAndTimeDto.setTotal_order(o[1] == null ? null : ((BigInteger) o[1]).intValue());
+            orderByStatusAndTimeDto.setTotal_order(o[1] == null ? 0 : ((BigInteger) o[1]).intValue());
             orderByStatusAndTimeDto.setStatus_order(o[2] == null ? null : (String) o[2]);
-            orderByStatusAndTimeDto.setTotal_products(o[3] == null ? null : (Integer) o[3]);
-            orderByStatusAndTimeDto.setTotal_prices(o[4] == null ? null : (Double) o[4]);
+            orderByStatusAndTimeDto.setTotal_products(o[3] == null ? 0 : (Integer) o[3]);
+            orderByStatusAndTimeDto.setTotal_prices(o[4] == null ? 0 : (Double) o[4]);
             orderByStatusAndTimeDto.setOrder_date(o[5] == null ? null : ((Timestamp) o[5]).toLocalDateTime());
             orderByStatusAndTimeDtoList.add(orderByStatusAndTimeDto);
         });
@@ -257,10 +256,10 @@ public class OrderServiceImpl implements IOrderService {
         list.stream().forEach(o -> {
             StatisticsYearByStatusAndTimeDto statisticsYearByStatusAndTimeDto = new StatisticsYearByStatusAndTimeDto();
             statisticsYearByStatusAndTimeDto.setMonth_in_year((Integer) o[0]);
-            statisticsYearByStatusAndTimeDto.setTotal_order(o[1] == null ? null : ((BigInteger) o[1]).intValue());
+            statisticsYearByStatusAndTimeDto.setTotal_order(o[1] == null ? 0 : ((BigInteger) o[1]).intValue());
             statisticsYearByStatusAndTimeDto.setStatus_order(o[2] == null ? null : (String) o[2]);
-            statisticsYearByStatusAndTimeDto.setTotal_products(o[3] == null ? null : ((BigDecimal) o[3]).intValue());
-            statisticsYearByStatusAndTimeDto.setTotal_prices(o[4] == null ? null : (Double) o[4]);
+            statisticsYearByStatusAndTimeDto.setTotal_products(o[3] == null ? 0 : ((BigDecimal) o[3]).intValue());
+            statisticsYearByStatusAndTimeDto.setTotal_prices(o[4] == null ? 0 : (Double) o[4]);
             statisticsYearByStatusAndTimeDtos.add(statisticsYearByStatusAndTimeDto);
         });
 
@@ -268,14 +267,22 @@ public class OrderServiceImpl implements IOrderService {
     }
 
     @Override
-    public Integer getTotalOrderByStatusAndTime(String status_order, Date time_from, Date time_to) {
-        return this.orderRepository.findTotalOrderByTimeAndStatus(status_order, time_from, time_to);
+    public List<TotalOrderWeekAndMonthByStatusAndTimeDto> getTotalOrderByStatusAndTime(String status_order, Date time_from, Date time_to) {
+        List<Object[]> list = this.orderRepository.findTotalOrderByTimeAndStatus(status_order, time_from, time_to);
+        List<TotalOrderWeekAndMonthByStatusAndTimeDto> totalOrderWeekAndMonthByStatusAndTimeDtos = new ArrayList<>();
+
+        list.stream().forEach(o -> {
+            TotalOrderWeekAndMonthByStatusAndTimeDto totalOrderWeekAndMonthByStatusAndTimeDto = new TotalOrderWeekAndMonthByStatusAndTimeDto();
+            totalOrderWeekAndMonthByStatusAndTimeDto.setTotal_order(o[0] == null ? 0 : ((BigInteger) o[0]).intValue());
+            totalOrderWeekAndMonthByStatusAndTimeDto.setStatus_order(o[1] == null ? null : (String) o[1]);
+            totalOrderWeekAndMonthByStatusAndTimeDto.setTotal_products(o[3] == null ? 0 : ((BigDecimal) o[3]).intValue());
+            totalOrderWeekAndMonthByStatusAndTimeDto.setTotal_prices(o[2] == null ? 0 : (Double) o[2]);
+            totalOrderWeekAndMonthByStatusAndTimeDtos.add(totalOrderWeekAndMonthByStatusAndTimeDto);
+        });
+
+        return totalOrderWeekAndMonthByStatusAndTimeDtos;
     }
 
-    @Override
-    public Double getTotalPriceByStatusAndTime(String status_order, Date time_from, Date time_to) {
-        return this.orderRepository.findTotalPriceByTimeAndStatus(status_order, time_from, time_to);
-    }
 
     @Override
     public Integer getTotalUserByTime(Date time_from, Date time_to) {
