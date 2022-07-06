@@ -17,10 +17,7 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 
 @Service
@@ -264,6 +261,16 @@ public class OrderServiceImpl implements IOrderService {
         });
 
         return statisticsYearByStatusAndTimeDtos;
+    }
+
+    @Override
+    public Map<Object, List<StatisticsYearByStatusAndTimeDto>> statisticsYearOrderByAndTime(Date time_from, Date time_to) {
+        Map<Object, List<StatisticsYearByStatusAndTimeDto>> map = new HashMap<>();
+        List<String> status_orders = List.of("APPROVE", "PAID", "REFUNDED", "COMPLETED", "CANCELED");
+        status_orders.stream().forEach(status_order -> {
+            map.put(status_order, this.statisticsYearOrderByStatusAndTime(status_order, time_from, time_to));
+        });
+        return map;
     }
 
     @Override

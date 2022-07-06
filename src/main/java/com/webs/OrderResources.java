@@ -117,6 +117,13 @@ public class OrderResources {
 
     @RolesAllowed("ADMINISTRATOR")
     @Transactional
+    @PostMapping("/report/statistic-year-by-time-and-all-status")
+    public ResponseDto getTotalOrderByYearAllStatus(@RequestBody TotalOrderModel model) {
+        return ResponseDto.of(this.orderService.statisticsYearOrderByAndTime(model.getTime_from(), model.getTime_to()), "statistic year by time");
+    }
+
+    @RolesAllowed("ADMINISTRATOR")
+    @Transactional
     @PostMapping("/report/total-order-by-time-and-status")
     public ResponseDto getTotalOrderByStatus(@RequestBody TotalOrderModel model) {
         return ResponseDto.of(this.orderService.getTotalOrderByStatusAndTime(model.getStatus(), model.getTime_from(), model.getTime_to()), "Get total order by status and time");

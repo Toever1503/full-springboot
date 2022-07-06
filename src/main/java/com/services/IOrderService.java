@@ -12,6 +12,7 @@ import org.springframework.data.domain.Pageable;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 public interface IOrderService extends IBaseService<OrderEntity, OrderModel, Long> {
     OrderEntity updateStatusOrder(Long id, String status);
@@ -33,6 +34,8 @@ public interface IOrderService extends IBaseService<OrderEntity, OrderModel, Lon
     List<OrderByStatusAndTimeDto> getAllOrderByStatusAndTime(String status_order, Date time_from, Date time_to);
 
     List<StatisticsYearByStatusAndTimeDto> statisticsYearOrderByStatusAndTime(String status_order, Date time_from, Date time_to);
+
+    Map<Object, List<StatisticsYearByStatusAndTimeDto>> statisticsYearOrderByAndTime(Date time_from, Date time_to);
 
     List<TotalOrderWeekAndMonthByStatusAndTimeDto> getTotalOrderByStatusAndTime(String status_order, Date time_from, Date time_to);
 
