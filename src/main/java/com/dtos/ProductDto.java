@@ -110,6 +110,7 @@ public class ProductDto {
         productDto.setIsUseVariation(entity.getIsUseVariation());
         productDto.setCreatedDate(entity.getCreatedDate());
         productDto.setUpdatedDate(entity.getUpdatedDate());
+        productDto.setTotalSold(entity.getTotalSold());
 //        productDto.createdBy = UserDto.toDto(entity.getCreatedBy());
 
         productDto.setAttachFiles(entity.getAttachFiles() != null ? new JSONObject(entity.getAttachFiles()).getJSONArray("files").toList() : List.of());
