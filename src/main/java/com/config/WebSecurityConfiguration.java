@@ -48,6 +48,8 @@ public class WebSecurityConfiguration {
             new AntPathRequestMatcher("/products/public/**"),
             new AntPathRequestMatcher("/products/filter"),
 
+            new AntPathRequestMatcher("/banners/**", HttpMethod.GET.name()),
+
             new AntPathRequestMatcher("/industries/**", HttpMethod.GET.name()),
             new AntPathRequestMatcher("/categories/**", HttpMethod.GET.name()),
             new AntPathRequestMatcher("/reviews/product/**"),

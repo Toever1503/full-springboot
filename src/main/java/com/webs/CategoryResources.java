@@ -59,7 +59,6 @@ public class CategoryResources {
         return ResponseDto.of(this.categoryService.findChildrenById(null).stream().map(c -> CategoryDto.toDto(c, true)).collect(Collectors.toList()), "get category children success");
     }
 
-
     @Transactional
     @PostMapping
     @RolesAllowed(RoleEntity.ADMINISTRATOR)

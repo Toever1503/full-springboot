@@ -155,4 +155,11 @@ public class ProductResources {
         return ResponseDto.of(this.productService.deleteById(id), "Delete product successfully");
     }
 
+    @Transactional
+    @GetMapping("/get-product-by-categoryId/{id}")
+    public ResponseDto getProductByCategoryId(@PathVariable Long id, Pageable page) {
+        this.productService.findAll(page);
+        return ResponseDto.of(eProductRepository.findByCategoryId(id,page), "Get all products");
+    }
+
 }

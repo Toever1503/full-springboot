@@ -676,6 +676,11 @@ public class ProductServiceImpl implements IProductService {
         );
     }
 
+    @Override
+    public Page<ProductEntity> findAllByCategoryId(Long categoryId, Pageable page) {
+        return this.productRepository.findAllByCategoryId(categoryId, page);
+    }
+
 //    private Map<String, Object> putMap(String key, Object value) {
 //        Map<String, Object> map = new HashMap<>();
 //        map.put(key, value);

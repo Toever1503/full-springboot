@@ -38,4 +38,6 @@ public interface IProductService extends IBaseService<ProductEntity, ProductMode
     Page<ProductDto> findAll(Pageable page, Specification<ProductEntity> specs);
 
     void refreshDataElasticsearch();
+
+    Page<ProductEntity> findAllByCategoryId(Long categoryId, Pageable page);
 }

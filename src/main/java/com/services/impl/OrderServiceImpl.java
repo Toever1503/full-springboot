@@ -302,7 +302,7 @@ public class OrderServiceImpl implements IOrderService {
 
     @Override
     public List<StatisticsUserDto> getTotalUserByTime(Date time_from, Date time_to) {
-        List<Object[]> list =  this.orderRepository.findTotalUserByTime(time_from, time_to);
+        List<Object[]> list = this.orderRepository.findTotalUserByTime(time_from, time_to);
         List<StatisticsUserDto> statisticsUserDtos = new ArrayList<>();
         list.stream().forEach(o -> {
             StatisticsUserDto statisticsUserDto = new StatisticsUserDto();

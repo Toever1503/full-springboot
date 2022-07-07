@@ -2,6 +2,7 @@ package com.repositories;
 
 import com.entities.ProductEntity;
 import com.entities.ProductVariationEntity;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
@@ -27,4 +28,5 @@ public interface IProductRepository extends JpaRepository<ProductEntity, Long>, 
     @Query("select distinct p.metaValue from ProductMetaEntity p where p.metaKey = ?1")
     List<String> findMetaValues(String metaKey, Pageable page);
 
+    Page<ProductEntity> findAllByCategoryId(Long categoryId, Pageable page);
 }

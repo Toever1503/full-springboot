@@ -43,7 +43,6 @@ public interface ICategoryRepository extends JpaRepository<CategoryEntity, Long>
     @Query("UPDATE ProductEntity p SET p.industry = null WHERE p.industry.id = ?1")
     void updateProductIndustry(Long categoryId);
 
-
     @Modifying
     void deleteByIdAndType(Long id, String type);
 }
