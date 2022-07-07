@@ -299,6 +299,7 @@ public class ProductServiceImpl implements IProductService {
     @Override
     public boolean deleteByIds(List<Long> ids) {
         ids.forEach(this::deleteById);
+        this.findAll();
         return true;
     }
 

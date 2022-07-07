@@ -49,14 +49,15 @@ public class ProductResources {
 
     @GetMapping("public/get-all")
     public ResponseDto getAll(Pageable page) {
-
-        return ResponseDto.of(this.productService.findAll(page), "Get all products");
+        this.productService.findAll(page);
+        return ResponseDto.of(eProductRepository.findAll(page), "Get all products");
     }
 
 
     @Transactional
     @GetMapping("/{id}")
     public ResponseDto findById(@PathVariable Long id, @RequestParam(required = false) boolean force) {
+        this.productService.findAll();
         if (force)
             return ResponseDto.of(ProductDto.toDto(this.productService.findById(id)), "Get product by id: ".concat(id.toString()));
         return ResponseDto.of(this.eProductRepository.findById(id)
