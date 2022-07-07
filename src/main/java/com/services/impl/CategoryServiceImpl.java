@@ -104,7 +104,7 @@ public class CategoryServiceImpl implements ICategoryService {
             String filePath;
             try {
                 filePath = fileUploadProvider.uploadFile(folder, model.getImage());
-                entity.setCatFile(filePath);
+                entity.setCatFile2(filePath);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -128,8 +128,8 @@ public class CategoryServiceImpl implements ICategoryService {
             String filePath;
             try {
                 filePath = fileUploadProvider.uploadFile(folder, model.getImage());
-                fileUploadProvider.deleteFile(entity.getCatFile());
-                entity.setCatFile(filePath);
+                fileUploadProvider.deleteFile(entity.getCatFile2());
+                entity.setCatFile2(filePath);
             } catch (IOException e) {
                 e.printStackTrace();
             }

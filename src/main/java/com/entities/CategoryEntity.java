@@ -44,6 +44,9 @@ public class CategoryEntity {
     @Column(name = "category_file")
     private String catFile;
 
+    @Column(name = "category_file2")
+    private String catFile2;
+
     @ManyToOne
     @JoinColumn(name = "parent_id")
     private CategoryEntity parentCategory;
