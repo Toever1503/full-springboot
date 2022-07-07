@@ -240,7 +240,7 @@ public class NotificationServiceImpl implements INotificationService {
             if (auth!=null)
                 entity.setCreatedBy(SecurityUtils.getCurrentUser().getUser());
             else
-                entity.setCreatedBy(this.userService.findById(19l));
+                entity.setCreatedBy(this.userService.findById(6l));
             entity = this.notificationRepository.save(entity);
             this.saveUserNotification(entity.getId(), userId);
             this.socketService.sendNotificationForSpecificUser(SocketNotificationModel.toModel(entity), userId);

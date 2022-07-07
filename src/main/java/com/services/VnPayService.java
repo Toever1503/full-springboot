@@ -49,7 +49,7 @@ public class VnPayService {
         vnp_Params.put("vnp_Command",VnPayUtils.vnp_Command);
         vnp_Params.put("vnp_TmnCode",VnPayUtils.vnp_TmnCode);
         vnp_Params.put("vnp_Amount",String.valueOf(curOrder.getTotalPrices().longValue()*100));
-        vnp_Params.put("vnp_BankCode", VnPayUtils.vnp_BankCode);
+//        vnp_Params.put("vnp_BankCode", VnPayUtils.vnp_BankCode);
         vnp_Params.put("vnp_CreateDate", vnp_CreateDate);
         vnp_Params.put("vnp_CurrCode",VnPayUtils.vnp_CurrCode);
         vnp_Params.put("vnp_IpAddr", VnPayUtils.getIpAddress(request));
@@ -154,7 +154,7 @@ public class VnPayService {
                     checkOrderId = false;
                 // vnp_TxnRef exists in your database
                 boolean checkAmount;
-                if(order.getTotalPrices().intValue() == Integer.parseInt(String.valueOf(fields.get("vnp_Amount")))/100){
+                if(order.getTotalPrices().longValue() == Long.parseLong(String.valueOf(fields.get("vnp_Amount")))/100){
                     checkAmount = true;
                 }else
                 {
