@@ -239,7 +239,9 @@ public class CategoryServiceImpl implements ICategoryService {
         CategoryEntity categoryEntity = CategoryModel.toEntity(model);
 
         // save file
-        if (model.getImage().getOriginalFilename() != null && !model.getImage().getOriginalFilename().equals("")) {//Check if image is empty or not
+        if (model.getImage()!=null
+                && model.getImage().getOriginalFilename() != null
+                && !model.getImage().getOriginalFilename().equals("")) {//Check if image is empty or not
             String filePath;
             try {
                 filePath = fileUploadProvider.uploadFile(folder, model.getImage());
