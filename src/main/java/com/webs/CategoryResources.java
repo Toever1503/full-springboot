@@ -63,14 +63,14 @@ public class CategoryResources {
     @Transactional
     @PostMapping
     @RolesAllowed(RoleEntity.ADMINISTRATOR)
-    public ResponseDto add(@Valid CategoryModel model) {
+    public ResponseDto add(CategoryModel model) {
         return ResponseDto.of(CategoryDto.toDto(categoryService.add(model), false), "add category success");
     }
 
     @Transactional
     @PutMapping("/{id}")
     @RolesAllowed(RoleEntity.ADMINISTRATOR)
-    public ResponseDto update(@Valid CategoryModel model, @PathVariable("id") Long id) {
+    public ResponseDto update(CategoryModel model, @PathVariable("id") Long id) {
         model.setId(model.getId());
         return ResponseDto.of(CategoryDto.toDto(categoryService.update(model), false), "update category success");
     }
