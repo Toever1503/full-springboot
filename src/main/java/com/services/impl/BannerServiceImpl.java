@@ -1,6 +1,7 @@
 package com.services.impl;
 
 import com.entities.BannerEntity;
+import com.entities.RoleEntity;
 import com.entities.UserEntity;
 import com.models.BannerModel;
 import com.repositories.IBannerRepository;
@@ -123,8 +124,16 @@ public class BannerServiceImpl implements IBannerService {
 
     @Override
     public boolean deleteById(Long id) {
-        this.bannerRepository.deleteById(id);
-        return true;
+        BannerEntity bannerEntity = this.findById(id);
+        if(bannerEntity.getCreatedBy().getId().equals(SecurityUtils.getCurrentUserId()) || SecurityUtils.hasRole(RoleEntity.ADMINISTRATOR)){
+            if (bannerEntity.getAttachFiles() != null) {
+                new JSONObject(bannerEntity.getAttachFiles()).getJSONArray("files").toList().forEach(u -> fileUploadProvider.deleteFile(u.toString()));
+            }
+            this.bannerRepository.deleteById(id);
+            return true;
+        }
+        else
+            return false;
     }
 
     @Override
@@ -136,6 +145,7 @@ public class BannerServiceImpl implements IBannerService {
 
     @Override
     public boolean deleteByIds(List<Long> ids) {
-        return false;
+        ids.forEach(id -> this.deleteById(id));
+        return true;
     }
 }

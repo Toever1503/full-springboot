@@ -49,15 +49,14 @@ public class ProductResources {
 
     @GetMapping("public/get-all")
     public ResponseDto getAll(Pageable page) {
-        this.productService.findAll(page);
+        this.productService.refreshDataElasticsearch();
         return ResponseDto.of(eProductRepository.findAll(page), "Get all products");
     }
-
 
     @Transactional
     @GetMapping("/{id}")
     public ResponseDto findById(@PathVariable Long id, @RequestParam(required = false) boolean force) {
-        this.productService.findAll();
+        this.productService.refreshDataElasticsearch();
         if (force)
             return ResponseDto.of(ProductDto.toDto(this.productService.findById(id)), "Get product by id: ".concat(id.toString()));
         return ResponseDto.of(this.eProductRepository.findById(id)
@@ -84,6 +83,7 @@ public class ProductResources {
     public ResponseDto createProduct(@Valid @RequestPart("product") ProductModel productModel,
                                      @RequestPart("image") MultipartFile image,
                                      @RequestPart(name = "attachFiles[]", required = false) List<MultipartFile> attachFiles) {
+        this.productService.refreshDataElasticsearch();
         productModel.setId(null);
         productModel.setAttachFiles(attachFiles);
         productModel.setImage(image);
@@ -107,6 +107,7 @@ public class ProductResources {
     public ResponseDto updateProduct(@PathVariable("id") Long id, @Valid @RequestPart("product") ProductModel productModel,
                                      @RequestPart(value = "image", required = false) MultipartFile image,
                                      @RequestPart(name = "attachFiles[]", required = false) List<MultipartFile> attachFiles) {
+        this.productService.refreshDataElasticsearch();
         productModel.setId(id);
         productModel.setAttachFiles(attachFiles);
         productModel.setImage(image);
@@ -130,6 +131,7 @@ public class ProductResources {
     @Operation(summary = "filter products")
     @PostMapping("public/filter")
     public ResponseDto filterProduct(@Valid @NotNull @RequestBody EProductFilterModel filterModel, Pageable page) {
+        this.productService.refreshDataElasticsearch();
         log.info("Product filterModel: {}", filterModel);
         return ResponseDto.of(this.productService.eFilter(page, filterModel), "Filter product");
     }
@@ -138,6 +140,7 @@ public class ProductResources {
     @GetMapping("public/{id}")
     public ResponseDto findProductById(@PathVariable Long id, Pageable page) {
         log.info("find product by id: {}", id);
+        this.productService.refreshDataElasticsearch();
         return ResponseDto.of(
                 this.productService.findDetailById(page, id),
                 "Get product id: ".concat(id.toString()));
@@ -146,19 +149,21 @@ public class ProductResources {
     @Transactional
     @GetMapping("public/get-filter-data")
     public ResponseDto getFilterData() {
+        this.productService.refreshDataElasticsearch();
         return ResponseDto.of(this.productService.getFilterData(), "Get filter data");
     }
 
     @Transactional
     @DeleteMapping("{id}")
     public ResponseDto deleteProduct(@PathVariable Long id) {
+        this.productService.refreshDataElasticsearch();
         return ResponseDto.of(this.productService.deleteById(id), "Delete product successfully");
     }
 
     @Transactional
     @GetMapping("/get-product-by-categoryId/{id}")
     public ResponseDto getProductByCategoryId(@PathVariable Long id, Pageable page) {
-        this.productService.findAll(page);
+        this.productService.refreshDataElasticsearch();
         return ResponseDto.of(eProductRepository.findByCategoryId(id,page), "Get all products");
     }
 

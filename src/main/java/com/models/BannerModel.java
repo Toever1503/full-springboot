@@ -30,7 +30,7 @@ public class BannerModel {
         return BannerEntity.builder()
                 .id(model.getId())
                 .name(model.getName())
-                .status(EBannerStatus.PUBLISHED.name())
+                .status(model.status == null ? null : EBannerStatus.PUBLISHED.name())
                 .isEdit(false)
                 .build();
     }

@@ -293,6 +293,7 @@ public class ProductServiceImpl implements IProductService {
     public boolean deleteById(Long id) {
         ProductEntity entity = this.findById(id);
         entity.setStatus(EProductStatus.DELETED.name());
+        this.eProductRepository.deleteById(id);
         return this.saveDtoOnElasticsearch(this.productRepository.saveAndFlush(entity)) != null;
     }
 
