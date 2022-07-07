@@ -235,7 +235,19 @@ public class CategoryServiceImpl implements ICategoryService {
 
     @Override
     public CategoryEntity add(CategoryModel model) {
+        final String folder = UserEntity.FOLDER + SecurityUtils.getCurrentUsername() + "/" + CategoryEntity.FOLDER;
         CategoryEntity categoryEntity = CategoryModel.toEntity(model);
+
+        // save file
+        if (model.getImage() != null) {//Check if notification avatar is empty or not
+            String filePath;
+            try {
+                filePath = fileUploadProvider.uploadFile(folder, model.getImage());
+                categoryEntity.setCatFile(filePath);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
 
         categoryEntity.setCreatedBy(SecurityUtils.getCurrentUser().getUser());
         categoryEntity.setType(ECategoryType.CATEGORY.name());
@@ -266,14 +278,24 @@ public class CategoryServiceImpl implements ICategoryService {
             if (!checkedCategory.getId().equals(model.getId()))
                 throw new RuntimeException("Slug already existed!");
         CategoryEntity originCategory = this.findById(model.getId());
-
+        final String folder = UserEntity.FOLDER + originCategory.getCreatedBy().getUserName() + "/" + CategoryEntity.FOLDER;
         originCategory.setCreatedBy(SecurityUtils.getCurrentUser().getUser());
         originCategory.setCategoryName(model.getCategoryName());
         originCategory.setSlug(slug);
         originCategory.setDescription(model.getDescription());
         this.saveParentCategory(originCategory, model.getParentId());
         this.saveIndustry(originCategory, model.getIndustryId());
-
+        // delete old file and save new file
+        if (model.getImage() != null) {
+            String filePath;
+            try {
+                filePath = fileUploadProvider.uploadFile(folder, model.getImage());
+                fileUploadProvider.deleteFile(originCategory.getCatFile());
+                originCategory.setCatFile(filePath);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
 
         originCategory = this.categoryRepository.saveAndFlush(originCategory);
         this.syncIndustryOnElasticsearch(originCategory);

@@ -5,6 +5,7 @@ import com.dtos.ResponseDto;
 import com.entities.OrderEntity;
 import com.models.OrderModel;
 import com.models.TotalOrderModel;
+import com.models.TotalOrderSelectStatusModel;
 import com.models.TotalUserModel;
 import com.models.filters.OrderFilterModel;
 import com.models.specifications.OrderSpecification;
@@ -120,6 +121,13 @@ public class OrderResources {
     @PostMapping("/report/statistic-year-by-time-and-all-status")
     public ResponseDto getTotalOrderByYearAllStatus(@RequestBody TotalOrderModel model) {
         return ResponseDto.of(this.orderService.statisticsYearOrderByAndTime(model.getTime_from(), model.getTime_to()), "statistic year by time");
+    }
+
+    @RolesAllowed("ADMINISTRATOR")
+    @Transactional
+    @PostMapping("/report/statistic-year-select-status")
+    public ResponseDto statisticsYearOrderSelectStatus(@RequestBody TotalOrderSelectStatusModel model) {
+        return ResponseDto.of(this.orderService.statisticsYearOrderSelectStatus(model.getStatus_orders(),model.getTime_from(), model.getTime_to()), "statistic year by time");
     }
 
     @RolesAllowed("ADMINISTRATOR")

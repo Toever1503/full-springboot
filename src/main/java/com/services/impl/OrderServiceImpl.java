@@ -274,6 +274,15 @@ public class OrderServiceImpl implements IOrderService {
     }
 
     @Override
+    public Map<Object, List<StatisticsYearByStatusAndTimeDto>> statisticsYearOrderSelectStatus(List<String> status_orders, Date time_from, Date time_to) {
+        Map<Object, List<StatisticsYearByStatusAndTimeDto>> map = new HashMap<>();
+        status_orders.stream().forEach(status_order -> {
+            map.put(status_order, this.statisticsYearOrderByStatusAndTime(status_order, time_from, time_to));
+        });
+        return map;
+    }
+
+    @Override
     public List<TotalOrderWeekAndMonthByStatusAndTimeDto> getTotalOrderByStatusAndTime(String status_order, Date time_from, Date time_to) {
         List<Object[]> list = this.orderRepository.findTotalOrderByTimeAndStatus(status_order, time_from, time_to);
         List<TotalOrderWeekAndMonthByStatusAndTimeDto> totalOrderWeekAndMonthByStatusAndTimeDtos = new ArrayList<>();
@@ -292,8 +301,16 @@ public class OrderServiceImpl implements IOrderService {
 
 
     @Override
-    public Integer getTotalUserByTime(Date time_from, Date time_to) {
-        return this.orderRepository.findTotalUserByTime(time_from, time_to);
+    public List<StatisticsUserDto> getTotalUserByTime(Date time_from, Date time_to) {
+        List<Object[]> list =  this.orderRepository.findTotalUserByTime(time_from, time_to);
+        List<StatisticsUserDto> statisticsUserDtos = new ArrayList<>();
+        list.stream().forEach(o -> {
+            StatisticsUserDto statisticsUserDto = new StatisticsUserDto();
+            statisticsUserDto.setMonth_in_year((Integer) o[0]);
+            statisticsUserDto.setTotal_user(o == null ? 0 : ((BigInteger) o[1]).intValue());
+            statisticsUserDtos.add(statisticsUserDto);
+        });
+        return statisticsUserDtos;
     }
 
     @Override

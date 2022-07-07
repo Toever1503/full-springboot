@@ -51,7 +51,7 @@ public interface IOrderRepository extends JpaRepository<OrderEntity, Long>, JpaS
     List<Object[]> findTotalOrderByTimeAndStatus(String status_order, Date time_from, Date time_to);
 
     @Query(value = "CALL user_by_time(?1, ?2)", nativeQuery = true)
-    Integer findTotalUserByTime(Date time_from, Date time_to);
+    List<Object[]> findTotalUserByTime(Date time_from, Date time_to);
 
     @Query(value = "select count(order_id) as quantity, status from tbl_order o group by status", nativeQuery = true)
     List<Object[]> findAllOrderGroupByStatus();
