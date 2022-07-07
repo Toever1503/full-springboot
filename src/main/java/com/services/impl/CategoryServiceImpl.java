@@ -100,7 +100,7 @@ public class CategoryServiceImpl implements ICategoryService {
 
         final String folder = UserEntity.FOLDER + SecurityUtils.getCurrentUsername() + "/" + CategoryEntity.FOLDER;
         // save file
-        if (model.getImage() != null) {//Check if notification avatar is empty or not
+        if (model.getImage().getOriginalFilename() != null && !model.getImage().getOriginalFilename().equals("")) {//Check if notification avatar is empty or not
             String filePath;
             try {
                 filePath = fileUploadProvider.uploadFile(folder, model.getImage());
@@ -124,7 +124,7 @@ public class CategoryServiceImpl implements ICategoryService {
 
         final String folder = UserEntity.FOLDER + SecurityUtils.getCurrentUser().getUser().getUserName() + "/" + CategoryEntity.FOLDER;
         // delete old file and save new file
-        if (model.getImage() != null) {
+        if (model.getImage().getOriginalFilename() != null && !model.getImage().getOriginalFilename().equals("")) {
             String filePath;
             try {
                 filePath = fileUploadProvider.uploadFile(folder, model.getImage());
@@ -239,7 +239,7 @@ public class CategoryServiceImpl implements ICategoryService {
         CategoryEntity categoryEntity = CategoryModel.toEntity(model);
 
         // save file
-        if (model.getImage() != null) {//Check if notification avatar is empty or not
+        if (model.getImage().getOriginalFilename() != null && !model.getImage().getOriginalFilename().equals("")) {//Check if image is empty or not
             String filePath;
             try {
                 filePath = fileUploadProvider.uploadFile(folder, model.getImage());
@@ -286,7 +286,7 @@ public class CategoryServiceImpl implements ICategoryService {
         this.saveParentCategory(originCategory, model.getParentId());
         this.saveIndustry(originCategory, model.getIndustryId());
         // delete old file and save new file
-        if (model.getImage() != null) {
+        if (model.getImage().getOriginalFilename() != null && !model.getImage().getOriginalFilename().equals("")) {
             String filePath;
             try {
                 filePath = fileUploadProvider.uploadFile(folder, model.getImage());
