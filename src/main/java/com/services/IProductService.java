@@ -40,4 +40,10 @@ public interface IProductService extends IBaseService<ProductEntity, ProductMode
     void refreshDataElasticsearch();
 
     Page<ProductEntity> findAllByCategoryId(Long categoryId, Pageable page);
+
+    boolean deleteAllDataOnElasticsearch();
+
+    boolean deleteIndexElasticsearch();
+
+    boolean reindexElasticsearch();
 }

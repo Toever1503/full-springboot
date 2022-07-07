@@ -1,6 +1,7 @@
 package com.services.impl;
 
 import com.config.elasticsearch.ERepositories.IEProductRepository;
+import com.config.elasticsearch.ElasticsearchIndices;
 import com.dtos.*;
 import com.entities.*;
 import com.models.ProductMetaModel;
@@ -25,6 +26,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate;
 import org.springframework.data.elasticsearch.core.SearchHit;
 import org.springframework.data.elasticsearch.core.SearchHits;
+import org.springframework.data.elasticsearch.core.mapping.IndexCoordinates;
 import org.springframework.data.elasticsearch.core.query.NativeSearchQuery;
 import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilder;
 import org.springframework.data.jpa.domain.Specification;
@@ -355,13 +357,13 @@ public class ProductServiceImpl implements IProductService {
         Map<Long, ProductVariationValueEntity> variationValuesMap = entity.getVariations().stream().flatMap(variation -> variation.getVariationValues().stream())
                 .collect(Collectors.toMap(ProductVariationValueEntity::getId, Function.identity()));
 
-        checkValidSku(productId, entity.getVariations().size(), variationValuesMap);
+        entity.setSkus(checkValidSku(productId, entity.getVariations().size(), variationValuesMap));
         return entity;
     }
 
-    public void checkValidSku(Long productID, Integer variationSize, Map<Long, ProductVariationValueEntity> variationValuesMap) {
+    public List<ProductSkuEntity> checkValidSku(Long productID, Integer variationSize, Map<Long, ProductVariationValueEntity> variationValuesMap) {
         List<ProductSkuEntity> skus = this.productSkuEntityRepository.findAllByProductId(productID);
-        if (skus.isEmpty()) return;
+        if (skus.isEmpty()) return skus;
 
         // create list future check to increase performance
         CompletableFuture<ProductSkuEntity>[] futures = skus.stream().map(sku -> CompletableFuture.supplyAsync(() -> {
@@ -425,7 +427,7 @@ public class ProductServiceImpl implements IProductService {
 //                    sku.setIsValid(false);
 //            }
 //        });
-        this.productSkuEntityRepository.saveAllAndFlush(skus);
+        return this.productSkuEntityRepository.saveAllAndFlush(skus);
     }
 
     @Override
@@ -433,7 +435,6 @@ public class ProductServiceImpl implements IProductService {
         final ProductEntity entity = this.findById(productId);
         //separate 2 type: variation and not have variation
         final String folder = this.getProductFolder(entity.getId());
-        entity.getSkus().clear();
         if (entity.getIsUseVariation()) {
             if (models.isEmpty())
                 this.productSkuEntityRepository.deleteAllByProductId(productId);
@@ -444,6 +445,7 @@ public class ProductServiceImpl implements IProductService {
         } else {
             entity.setSkus(List.of(this.productSkuEntityRepository.saveAndFlush(saveSku(entity, folder, models.get(0), req))));
         }
+        this.productSkuEntityRepository.deleteAllByProductIdAndIdNotIn(entity.getId(), entity.getSkus().stream().map(ProductSkuEntity::getId).collect(Collectors.toList()));
         return entity;
     }
 
@@ -682,6 +684,26 @@ public class ProductServiceImpl implements IProductService {
         return this.productRepository.findAllByCategoryId(categoryId, page);
     }
 
+    @Override
+    public boolean deleteAllDataOnElasticsearch() {
+        this.eProductRepository.deleteAll();
+        return true;
+    }
+
+
+    @Override
+    public boolean reindexElasticsearch() {
+        this.elasticsearchRestTemplate
+                .indexOps(IndexCoordinates.of(ElasticsearchIndices.PRODUCT_INDEX))
+                .createMapping(ProductDto.class);
+        return true;
+    }
+
+    @Override
+    public boolean deleteIndexElasticsearch() {
+        return this.elasticsearchRestTemplate.indexOps(IndexCoordinates.of(ElasticsearchIndices.PRODUCT_INDEX)).delete();
+    }
+
 //    private Map<String, Object> putMap(String key, Object value) {
 //        Map<String, Object> map = new HashMap<>();
 //        map.put(key, value);
@@ -716,8 +738,10 @@ public class ProductServiceImpl implements IProductService {
                     .collect(Collectors.joining(", ")));
             skuEntity.setIsValid(true);
             skuEntity.setVariationSize(values.size());
-            return this.productSkuEntityRepository.save(skuEntity);
+//            return this.productSkuEntityRepository.saveAndFlush(skuEntity);
+            return skuEntity;
         } catch (Exception e) {
+            e.printStackTrace();
             System.out.println("=============exception");
             throw new RuntimeException("Duplicate skuCode: " + skuEntity.getSkuCode().concat(", product id: ".concat(entity.getId().toString().concat(". please check again!"))));
         }
