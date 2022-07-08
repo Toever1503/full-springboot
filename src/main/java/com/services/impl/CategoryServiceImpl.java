@@ -4,7 +4,6 @@ import com.config.elasticsearch.ERepositories.IEIndustryRepository;
 import com.dtos.DetailIndustryDto;
 import com.dtos.ECategoryType;
 import com.entities.CategoryEntity;
-import com.entities.NotificationEntity;
 import com.entities.UserEntity;
 import com.models.CategoryModel;
 import com.models.specifications.CategorySpecification;
@@ -15,19 +14,15 @@ import com.services.ICategoryService;
 import com.utils.ASCIIConverter;
 import com.utils.FileUploadProvider;
 import com.utils.SecurityUtils;
-import org.json.JSONObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
@@ -226,6 +221,10 @@ public class CategoryServiceImpl implements ICategoryService {
     @Override
     public Page<CategoryEntity> filter(Pageable page, Specification<CategoryEntity> specs) {
         return null;
+    }
+    @Override
+    public Page<CategoryEntity> filterByStatus(Pageable page, int status) {
+        return categoryRepository.findAll(CategorySpecification.byStatus(status), page);
     }
 
     @Override

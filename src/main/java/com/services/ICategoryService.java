@@ -34,4 +34,6 @@ public interface ICategoryService extends IBaseService<CategoryEntity, CategoryM
     boolean resyncIndustriesOnElasticsearch();
 
     boolean changeStatus(Long id);
+
+    Page<CategoryEntity> filterByStatus(Pageable page, int status);
 }

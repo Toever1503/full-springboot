@@ -24,7 +24,10 @@ public class ChatRoomDto {
     private String userImage;
 
     public static ChatRoomDto toDto(ChatRoomEntity chatRoomEntity){
-        UserEntity roomOwner = chatRoomEntity.getUserEntities().stream().filter(x->x.getRoleEntity().size()==1 && x.getRoleEntity().stream().findFirst().get().getRoleName().equals(RoleEntity.USER)).findFirst().get();
+        UserEntity roomOwner = new UserEntity();
+        if(chatRoomEntity.getUserEntities().stream().anyMatch(x->x.getRoleEntity().size()==1 && x.getRoleEntity().stream().findFirst().get().getRoleName().equals(RoleEntity.USER))){
+            roomOwner = chatRoomEntity.getUserEntities().stream().filter(x->x.getRoleEntity().size()==1 && x.getRoleEntity().stream().findFirst().get().getRoleName().equals(RoleEntity.USER)).findFirst().get();
+        }
         return ChatRoomDto.builder()
                 .roomId(chatRoomEntity.getRoomId())
                 .userName(roomOwner.getUserName())

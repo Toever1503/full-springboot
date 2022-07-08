@@ -15,4 +15,8 @@ public class CategorySpecification extends BaseSpecification {
         return (root, query, cb) -> cb.equal(root.get(CategoryEntity_.TYPE), type.name());
     }
 
+    public static Specification byStatus(int status){
+        return (root, query, cb) -> cb.equal(root.get(CategoryEntity_.STATUS), status);
+    }
+
 }
