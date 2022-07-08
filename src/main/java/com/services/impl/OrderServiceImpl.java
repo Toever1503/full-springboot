@@ -73,78 +73,87 @@ public class OrderServiceImpl implements IOrderService {
     //Address,Delete cartDetail
     @Override
     public OrderEntity add(OrderModel model) {
-        String uuid = UUID.randomUUID().toString();
-        String note = model.getNote();
-        AddressEntity address = this.addressRepository.findById(model.getAddressId()).orElseThrow(() -> new RuntimeException("Address not found!!!"));
-        String paymentMethod = model.getPaymentMethod().toString();
-        List<CartDetailEntity> cartDetailEntities = cartDetailRepository.findAllById(model.getCartDetailIds());
-        if (cartDetailEntities.size() == 0) {
-            return null;
+        if (!model.getCartDetailIds().stream().findFirst().isPresent()) {
+            throw new RuntimeException("Cart is empty!!!");
         }
-        List<OrderDetailEntity> orderDetailEntities = new ArrayList<>();
-        AtomicReference<Double> totalPrices = new AtomicReference<>(0.0);
-        AtomicReference<Integer> totalProducts = new AtomicReference<>(0);
+            model.getCartDetailIds().stream().forEach(x->{
+                CartEntity cart = cartRepository.findCartByCartDetails_Id(x).orElseThrow(()-> new RuntimeException("Cart not found!!!"));
+                if(!cart.getUser().getId().equals(SecurityUtils.getCurrentUserId())){
+                    throw new RuntimeException("Cart item not valid!!!");
+                }
+            });
+                String uuid = UUID.randomUUID().toString();
+                String note = model.getNote();
+                AddressEntity address = this.addressRepository.findById(model.getAddressId()).orElseThrow(() -> new RuntimeException("Address not found!!!"));
+                String paymentMethod = model.getPaymentMethod().toString();
+                List<CartDetailEntity> cartDetailEntities = cartDetailRepository.findAllById(model.getCartDetailIds());
+                if (cartDetailEntities.size() == 0) {
+                    return null;
+                }
+                List<OrderDetailEntity> orderDetailEntities = new ArrayList<>();
+                AtomicReference<Double> totalPrices = new AtomicReference<>(0.0);
+                AtomicReference<Integer> totalProducts = new AtomicReference<>(0);
 
 
-        StringBuilder strAddress = new StringBuilder(address.getStreet());
-        strAddress.append(", ").append(address.getWard().getName()).append(", ").append(address.getDistrict().getName()).append(", ").append(address.getProvince().getName());
-        OrderEntity order = orderRepository.save(OrderEntity.builder()
-                .uuid(uuid)
-                .note(note)
-                .paymentMethod(paymentMethod)
-                .status(EStatusOrder.PENDING.name())
-                .mainAddress(strAddress.toString())
-                .mainPhone(address.getPhone())
-                .mainReceiver(address.getReceiver())
-                .deliveryCode(null)
-                .addressEntity(address)
-                .deliveryFee(Double.valueOf(30000f))
-                .createdBy(SecurityUtils.getCurrentUser().getUser())
-                .build());
+                StringBuilder strAddress = new StringBuilder(address.getStreet());
+                strAddress.append(", ").append(address.getWard().getName()).append(", ").append(address.getDistrict().getName()).append(", ").append(address.getProvince().getName());
+                OrderEntity order = orderRepository.save(OrderEntity.builder()
+                        .uuid(uuid)
+                        .note(note)
+                        .paymentMethod(paymentMethod)
+                        .status(EStatusOrder.PENDING.name())
+                        .mainAddress(strAddress.toString())
+                        .mainPhone(address.getPhone())
+                        .mainReceiver(address.getReceiver())
+                        .deliveryCode(null)
+                        .addressEntity(address)
+                        .deliveryFee(Double.valueOf(30000f))
+                        .createdBy(SecurityUtils.getCurrentUser().getUser())
+                        .build());
 
 
-        List<ProductEntity> productEntities = new ArrayList<>();
+                List<ProductEntity> productEntities = new ArrayList<>();
 
-        cartDetailEntities.stream().forEach(cartDetailEntity -> {
-            ProductSkuEntity productSku = cartDetailEntity.getSku();
-            ProductEntity product = productSku.getProduct(); // for get product
+                cartDetailEntities.stream().forEach(cartDetailEntity -> {
+                    ProductSkuEntity productSku = cartDetailEntity.getSku();
+                    ProductEntity product = productSku.getProduct(); // for get product
 
-            OrderDetailEntity orderDetailEntity = OrderDetailEntity.builder()
-                    .sku(productSku)
-                    .quantity(cartDetailEntity.getQuantity())
-                    .option(productSku.getOptionName())
-                    .order(order)
-                    .price(productSku.getPrice())
-                    .isReview(false)
-                    .productId(product)
-                    .build();
-            // change quantity of product
-            int remainQuantity = productSku.getInventoryQuantity() - cartDetailEntity.getQuantity();
-            productSku.setInventoryQuantity(remainQuantity < 0 ? 0 : remainQuantity);
+                    OrderDetailEntity orderDetailEntity = OrderDetailEntity.builder()
+                            .sku(productSku)
+                            .quantity(cartDetailEntity.getQuantity())
+                            .option(productSku.getOptionName())
+                            .order(order)
+                            .price(productSku.getPrice())
+                            .isReview(false)
+                            .productId(product)
+                            .build();
+                    // change quantity of product
+                    int remainQuantity = productSku.getInventoryQuantity() - cartDetailEntity.getQuantity();
+                    productSku.setInventoryQuantity(remainQuantity < 0 ? 0 : remainQuantity);
 
-            // change total sold
-            product.setTotalSold(product.getTotalSold() + cartDetailEntity.getQuantity());
+                    // change total sold
+                    product.setTotalSold(product.getTotalSold() + cartDetailEntity.getQuantity());
 
-            // add to list to save later
-            productEntities.add(product);
+                    // add to list to save later
+                    productEntities.add(product);
 
-            orderDetailEntities.add(orderDetailEntity);
-            totalPrices.updateAndGet(v -> v + cartDetailEntity.getSku().getPrice() * cartDetailEntity.getQuantity());
-            totalProducts.updateAndGet(v -> v + cartDetailEntity.getQuantity());
-        });
+                    orderDetailEntities.add(orderDetailEntity);
+                    totalPrices.updateAndGet(v -> v + cartDetailEntity.getSku().getPrice() * cartDetailEntity.getQuantity());
+                    totalProducts.updateAndGet(v -> v + cartDetailEntity.getQuantity());
+                });
 
-        // save product again
-        productRepository.saveAll(productEntities);
+                // save product again
+                productRepository.saveAll(productEntities);
 
-        cartDetailRepository.deleteAll(cartDetailEntities);
-        orderDetailRepository.saveAll(orderDetailEntities);
-        order.setTotalPrices(totalPrices.get() + order.getDeliveryFee());
-        order.setTotalNumberProducts(totalProducts.get());
-        order.setOrderDetails(orderDetailEntities);
-        cartRepository.deleteAllByCartDetails_Empty();
-        this.notificationService.addForSpecificUser(new SocketNotificationModel(null, "Bạn có đơn hàng mới!, #".concat(order.getUuid()), "", ENotificationCategory.ORDER, OrderEntity.ADMIN_ORDER_URL), this.userRepository.getAllIdsByRole(RoleEntity.ADMINISTRATOR));
-        return orderRepository.save(order);
-    }
+                cartDetailRepository.deleteAll(cartDetailEntities);
+                orderDetailRepository.saveAll(orderDetailEntities);
+                order.setTotalPrices(totalPrices.get() + order.getDeliveryFee());
+                order.setTotalNumberProducts(totalProducts.get());
+                order.setOrderDetails(orderDetailEntities);
+                cartRepository.deleteAllByCartDetails_Empty();
+                this.notificationService.addForSpecificUser(new SocketNotificationModel(null, "Bạn có đơn hàng mới!, #".concat(order.getUuid()), "", ENotificationCategory.ORDER, OrderEntity.ADMIN_ORDER_URL), this.userRepository.getAllIdsByRole(RoleEntity.ADMINISTRATOR));
+                return orderRepository.save(order);
+            }
 
     @Override
     public List<OrderEntity> add(List<OrderModel> model) {
@@ -190,7 +199,7 @@ public class OrderServiceImpl implements IOrderService {
     @Override
     public OrderEntity cancelOrder(Long id) {
         OrderEntity order = this.findById(id);
-        order.setStatus("CANCEL");
+        order.setStatus("CANCELED");
         return orderRepository.saveAndFlush(order);
     }
 
