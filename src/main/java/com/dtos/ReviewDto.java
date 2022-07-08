@@ -6,8 +6,10 @@ import org.json.JSONObject;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static com.dtos.QuestionDto.parseJson;
 
@@ -26,10 +28,11 @@ public class ReviewDto {
     private Date updatedDate;
     private boolean isEdit;
     private Long parentId;
-//    private ProductDto product;
+    //    private ProductDto product;
     private OrderDetailDto orderDetail;
     private String status;
     private UserDto createdBy;
+    private List<ReviewDto> childReviews;
 
     public static ReviewDto toDto(ReviewEntity entity) {
         if (entity == null) return null;
@@ -46,6 +49,7 @@ public class ReviewDto {
 //                .product(ProductDto.toDto(entity.getProduct()))
                 .orderDetail(OrderDetailDto.toDto(entity.getOrderDetail()))
                 .status(entity.getStatus())
+                .childReviews(entity.getChildReviews() == null ? Collections.EMPTY_LIST : entity.getChildReviews().stream().map(ReviewDto::toDto).collect(Collectors.toList()))
                 .createdBy(UserDto.toDto(entity.getCreatedBy()))
                 .build();
     }

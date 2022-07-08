@@ -69,7 +69,7 @@ public class ReviewServiceImpl implements IReviewService {
 
     @Override
     public List<ReviewEntity> findAll(Specification<ReviewEntity> specs) {
-        return null;
+        return this.reviewRepository.findAll(specs);
     }
 
     @Override
@@ -262,7 +262,7 @@ public class ReviewServiceImpl implements IReviewService {
             throw new RuntimeException("Parent review not found");
         }
         notificationService.addForSpecificUser(new SocketNotificationModel(null, "Admin đã phản hồi lại đánh giá của bạn!", "", ENotificationCategory.REVIEW, ReviewEntity.ADMIN_REVIEW_URL), List.of(reviewEntity.getCreatedBy().getId()));
-        return this.reviewRepository.save(reviewEntity);
+        return this.reviewRepository.saveAndFlush(reviewEntity);
     }
 
     public ReviewEntity updateStatus(Long id, String status) {

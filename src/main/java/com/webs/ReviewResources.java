@@ -3,6 +3,7 @@ package com.webs;
 import com.dtos.ResponseDto;
 import com.dtos.ReviewDto;
 import com.entities.ReviewEntity;
+import com.entities.RoleEntity;
 import com.models.ReviewModel;
 import com.models.filters.ReviewFilterModel;
 import com.models.specifications.ReviewSpecification;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.security.RolesAllowed;
 import javax.validation.Valid;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/reviews")
@@ -70,6 +72,23 @@ public class ReviewResources {
         return ResponseDto.of(this.reviewService.updateStatus(id, status), "Status updated successfully");
     }
 
+    @RolesAllowed(RoleEntity.ADMINISTRATOR)
+    @Transactional
+    @GetMapping("all-reviews-by-product/{id}")
+    public ResponseDto getAllReviewsForProduct(@PathVariable Long id, Pageable page, @RequestParam("rating") Float rating) {
+        Specification<ReviewEntity> spec = ReviewSpecification.byProductId(id);
+        Specification<ReviewEntity> ratingSpec = ReviewSpecification.byRating(rating);
+
+        Specification<ReviewEntity> finalSpec;
+        if (rating != null)
+            finalSpec = spec.and(ratingSpec);
+        else
+            finalSpec = spec;
+
+        Page<ReviewEntity> reviewEntityPage = this.reviewService.filter(page, Specification.where(finalSpec));
+        return ResponseDto.of(reviewEntityPage.map(ReviewDto::toDto),
+                "Reviews retrieved for product: ".concat(id.toString()));
+    }
 
     @RolesAllowed("ADMINISTRATOR")
     @Transactional
@@ -101,7 +120,7 @@ public class ReviewResources {
 
     @Transactional
     @GetMapping("/reply/{id}")
-    public ResponseDto getReplyByParentId(@PathVariable("id") Long parentId, Pageable pageable){
+    public ResponseDto getReplyByParentId(@PathVariable("id") Long parentId, Pageable pageable) {
         return ResponseDto.of(this.reviewService.findAllByParentId(parentId, pageable).map(ReviewDto::toDto), "Get all review by parent review id: " + parentId);
     }
 }

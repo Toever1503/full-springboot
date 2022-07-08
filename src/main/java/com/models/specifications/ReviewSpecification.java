@@ -9,11 +9,22 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class ReviewSpecification extends BaseSpecification{
+public class ReviewSpecification extends BaseSpecification {
     public static Specification likeCreatedBy(String createdBy) {
         return (root, query, cb) -> {
             Join<ReviewEntity, UserEntity> join = root.join(ReviewEntity_.createdBy);
             return cb.or(cb.like(join.get(UserEntity_.USER_NAME), "%" + createdBy + "%"), cb.like(join.get(UserEntity_.FULL_NAME), "%" + createdBy + "%"));
+        };
+    }
+
+    public static Specification<ReviewEntity> byRating(Float rate) {
+        return (root, query, cb) -> cb.greaterThanOrEqualTo(root.get(ReviewEntity_.RATING), rate);
+    }
+
+    public static Specification<ReviewEntity> byProductId(Long productId) {
+        return (root, query, cb) -> {
+            Join<ReviewEntity, ProductEntity> join = root.join(ReviewEntity_.product);
+            return cb.equal(join.get(ProductEntity_.ID), productId);
         };
     }
 
