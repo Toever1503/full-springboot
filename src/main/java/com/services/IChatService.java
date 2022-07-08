@@ -3,6 +3,8 @@ package com.services;
 import com.models.socket_models.GeneralSocketMessage;
 import com.dtos.socket_dtos.ChatRoomDto;
 import com.models.ChatMessageModel;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
@@ -13,10 +15,9 @@ public interface IChatService {
 
     String joinChatRoom(String roomId);
 
-    List<ChatRoomDto> getAllRoomList();
+    List<ChatRoomDto> getAllRoomList(Pageable pageable);
 
-    List<ChatRoomDto> getAvailableRoomList();
-    List<ChatRoomDto> getAllMyChatRoom();
-    List<ChatRoomDto> getAllUserChatRoom();
-    List<GeneralSocketMessage> getAllRoomChatMessages(String roomId);
+    List<ChatRoomDto> getAvailableRoomList(Pageable pageable);
+    List<ChatRoomDto> getAllMyChatRoom(Pageable pageable);
+    List<GeneralSocketMessage> getAllRoomChatMessages(String roomId, Pageable pageable);
 }
