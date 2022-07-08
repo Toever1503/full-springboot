@@ -88,6 +88,12 @@ public class CategoryResources {
     }
 
     @Transactional
+    @GetMapping("/status/{status}")
+    public ResponseDto filterByStatus(@PathVariable int status, Pageable page) {
+        return ResponseDto.of(categoryService.filterByStatus(page,status).stream().map(c->CategoryDto.toDto(c,false)),"get category by status success");
+    }
+
+    @Transactional
     @GetMapping("search/{q}")
     public ResponseDto search(@PathVariable String q, Pageable page) {
         return ResponseDto.of(categoryService.search(q, page).map(c -> CategoryDto.toDto(c, false)), "search category success");
