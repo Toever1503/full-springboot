@@ -1,17 +1,21 @@
 package com.config.socket;
 
 import com.config.socket.exception.ChatRoomException;
+import com.entities.ChatRoomEntity;
 import com.entities.RoleEntity;
 import com.entities.UserEntity;
 import com.google.gson.Gson;
 import com.models.SocketNotificationModel;
 import com.models.socket_models.*;
+import com.repositories.IChatRoomRepository;
 import com.services.CustomUserDetail;
 import com.utils.SecurityUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.socket.*;
 
 import java.io.IOException;
@@ -22,10 +26,12 @@ import java.util.stream.Collectors;
 
 @Component
 public class SocketHandler implements WebSocketHandler {
+    @Autowired
+    IChatRoomRepository chatRoomRepository;
     public static ConcurrentHashMap<Long, WebSocketSession> userSessions = new ConcurrentHashMap<>();
-    public static Map<String, ChatRoomModel> chatRooms = new ConcurrentHashMap<>();
-    public static List<SocketChatUserModel> userChatRooms = new ArrayList<>();
+    public static List<ChatRoomModel> userChatRooms = new ArrayList<>();
 
+    @Transactional
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
         session.getAttributes().put("topics", new ArrayList<>());
@@ -34,6 +40,24 @@ public class SocketHandler implements WebSocketHandler {
         session.getAttributes().put("username", customUserDetail.getUsername());
         session.getAttributes().put("id", customUserDetail.getUser().getId());
         userSessions.put(customUserDetail.getUser().getId(), session);
+        List<ChatRoomModel> chatRoomModels = new ArrayList<>();
+        if(chatRoomRepository.findAllByUserEntitiesContains(customUserDetail.getUser()).size() > 0){
+            for (ChatRoomEntity chatRoomEntity : chatRoomRepository.findAllByUserEntitiesContains(customUserDetail.getUser())) {
+                ChatRoomModel chatRoomModel = ChatRoomModel.toModel(chatRoomEntity);
+                for (UserEntity userEntity : chatRoomEntity.getUserEntities()) {
+                     if(userSessions.get(userEntity.getId())!=null){
+                         chatRoomModel.getPersons().add(userSessions.get(userEntity.getId()));
+                     }
+                }
+                if(chatRoomModel.getPersons().stream().filter(x->x.getAttributes().get("id").equals(customUserDetail.getUser().getId())).findAny().isPresent()){
+                    chatRoomModel.getPersons().remove(chatRoomModel.getPersons().stream().filter(x->x.getAttributes().get("id").equals(customUserDetail.getUser().getId())).findAny().get());
+                    chatRoomModel.getPersons().add(session);
+                }
+                updateUsersChatRoom(chatRoomModel);
+                chatRoomModels.add(chatRoomModel);
+            }
+        }
+        userChatRooms.addAll(chatRoomModels);
     }
 
     public static UserEntity getUserFromSession(WebSocketSession session) {
@@ -75,16 +99,16 @@ public class SocketHandler implements WebSocketHandler {
     public void afterConnectionClosed(WebSocketSession session, CloseStatus closeStatus) throws Exception {
         UsernamePasswordAuthenticationToken userDetail = (UsernamePasswordAuthenticationToken) session.getPrincipal();
         CustomUserDetail customUserDetail = (CustomUserDetail) userDetail.getPrincipal();
-        if(chatRooms.values().stream().anyMatch(s -> s.getPersons().contains(session))){
-            ChatRoomModel chatRoom = chatRooms.values().stream().filter(s -> s.getPersons().contains(session)).findFirst().get();
-            chatRoom.getPersons().remove(session);
-            if(userDetail.getAuthorities().stream().map(s->s.getAuthority()).collect(Collectors.toList()).containsAll(List.of(RoleEntity.ADMINISTRATOR,RoleEntity.USER))){
-                chatRoom.sendMessage(session, new TextMessage("User "+ getUserFromSession(session).getUserName()+" has disconnected from chat room: " + chatRoom.getRoomId()),false);
-            }else {
-                chatRoom.sendMessage(session, new TextMessage("User "+ getUserFromSession(session).getUserName()+ " has closed chat room: " + chatRoom.getRoomId()),false);
-                chatRooms.remove(chatRoom.getRoomId());
-            }
-        }
+//        if(chatRooms.values().stream().anyMatch(s -> s.getPersons().contains(session))){
+//            ChatRoomModel chatRoom = chatRooms.values().stream().filter(s -> s.getPersons().contains(session)).findFirst().get();
+//            chatRoom.getPersons().remove(session);
+//            if(userDetail.getAuthorities().stream().map(s->s.getAuthority()).collect(Collectors.toList()).containsAll(List.of(RoleEntity.ADMINISTRATOR,RoleEntity.USER))){
+//                chatRoom.sendMessage(session, new TextMessage("User "+ getUserFromSession(session).getUserName()+" has disconnected from chat room: " + chatRoom.getRoomId()),false);
+//            }else {
+//                chatRoom.sendMessage(session, new TextMessage("User "+ getUserFromSession(session).getUserName()+ " has closed chat room: " + chatRoom.getRoomId()),false);
+//                chatRooms.remove(chatRoom.getRoomId());
+//            }
+//        }
         userSessions.remove(userSessions.remove(customUserDetail.getUser().getId()));
     }
 
@@ -121,39 +145,6 @@ public class SocketHandler implements WebSocketHandler {
         }
     }
 
-    public List<String> getAllChatRoomId(WebSocketSession session) {
-        List<String> roomIds = new ArrayList<>();
-        chatRooms.forEach((roomId,room) -> roomIds.add(roomId));
-        return roomIds;
-        }
-
-    public List<ChatRoomModel> getAllChatRoom() {
-        List<ChatRoomModel> rooms = new ArrayList<>();
-        chatRooms.forEach((roomId,room) -> rooms.add(room));
-        return rooms;
-    }
-
-    public List<ChatRoomModel> getAllAvailableChatRoom() {
-        List<ChatRoomModel> availRooms = this.chatRooms.values().stream().filter(x->x.hasPersons(1)).collect(Collectors.toList());
-        return availRooms;
-    }
-
-    public List<ChatRoomModel> getAllMyChatRoom(WebSocketSession session){
-        List<ChatRoomModel> myRooms = chatRooms.values().stream().filter(x->x.getPersons().contains(session)).collect(Collectors.toList());
-        myRooms.addAll(getAllAvailableChatRoom());
-        return myRooms;
-    }
-
-    public List<ChatRoomModel> getAllUserChatRoom(Long uid){
-        return userChatRooms.stream().filter(x->x.getUserId().equals(uid)).findFirst().orElseThrow(()-> new RuntimeException("You dont have any chat room yet!!")).getChatRoomList();
-    }
-
-    public List<ChatRoomModel> getAllFullChatRoom() {
-        Long uid = SecurityUtils.getCurrentUserId();
-        List<ChatRoomModel> availRooms = this.chatRooms.values().stream().filter(x->x.hasPersons(2) && x.getPersons().contains(userSessions.get(uid))).collect(Collectors.toList());
-        return availRooms;
-    }
-
     private Long getKeyFromValue(WebSocketSession session) {
         for (Long key : userSessions.keySet()) {
             if (userSessions.get(key).equals(session)) {
@@ -163,21 +154,12 @@ public class SocketHandler implements WebSocketHandler {
         return null;
     }
 
-    public static String getCurrentChatRoomId(WebSocketSession session) {
-        Long uid = SecurityUtils.getCurrentUserId();
-        AtomicReference<String> roomId = new AtomicReference<>(null);
-        if(chatRooms.size()>0){
-            chatRooms.values().stream().forEach(x->{
-                if(x.getPersons().contains(userSessions.get(uid))){
-                    roomId.set(x.getRoomId());
-                }
-            });
-            return roomId.get();
-        }else {
-            return null;
-        }
-
+    private static void updateUsersChatRoom(ChatRoomModel chatRoomModel){
+        userChatRooms.stream().filter(x->x.getRoomId().equals(chatRoomModel.getRoomId()))
+                .collect(Collectors.toList())
+                .forEach(x->userChatRooms.remove(x));
     }
+
 
 }
 

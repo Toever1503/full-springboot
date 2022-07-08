@@ -6,6 +6,10 @@ import com.entities.RoleEntity;
 import com.models.ChatMessageModel;
 import com.services.IChatService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
+import org.springframework.retry.annotation.EnableRetry;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,6 +22,8 @@ import java.io.IOException;
 public class ChatResources {
     @Autowired
     IChatService chatService;
+
+    @Transactional
     @PostMapping("/createChatRoom")
     public ResponseDto createChatRoom() {
         return ResponseDto.of(chatService.createChatRoom(),"Create chat room");
@@ -37,23 +43,24 @@ public class ChatResources {
     }
     @Transactional
     @GetMapping("/getAllChatRoom")
-    public ResponseDto getAllChatRoom() {
-        return ResponseDto.of(chatService.getAllRoomList(), "Get all chat room");
+    public ResponseDto getAllChatRoom(Pageable pageable) {
+        return ResponseDto.of(chatService.getAllRoomList(pageable), "Get all chat room");
     }
     @Transactional
     @GetMapping("/getAllMyChatRoom")
-    public ResponseDto getAllAvailableChatRoom() {
-        return ResponseDto.of(chatService.getAllMyChatRoom(), "Get all my chat room");
+    public ResponseDto getAllMyChatRoom(Pageable pageable) {
+        return ResponseDto.of(chatService.getAllMyChatRoom(pageable), "Get all my chat room");
     }
+
     @Transactional
-    @GetMapping("/getAllUserChatRoom")
-    public ResponseDto getAllUserChatRoom() {
-        return ResponseDto.of(chatService.getAllUserChatRoom(), "Get all user chat room");
+    @GetMapping("/getAllAvailableChatRoom")
+    public ResponseDto getAllAvailableChatRoom(Pageable pageable) {
+        return ResponseDto.of(chatService.getAvailableRoomList(pageable), "Get all available chat room");
     }
 
     @Transactional
     @GetMapping("/getAllChatRoomMessage/{id}")
-    public ResponseDto getAllChatRoomMessage(@PathVariable("id") String id) {
-        return ResponseDto.of(chatService.getAllRoomChatMessages(id), "Get all messages from room: "+id);
+    public ResponseDto getAllChatRoomMessage(@PathVariable("id") String id, Pageable pageable) {
+        return ResponseDto.of(chatService.getAllRoomChatMessages(id,pageable), "Get all messages from room: "+id);
     }
 }

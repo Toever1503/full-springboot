@@ -88,4 +88,7 @@ public class UserEntity {
     @OneToMany(mappedBy = "createdBy", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ReviewEntity> reviewEntity;
 
+    @ManyToMany(mappedBy = "userEntities",targetEntity = ChatRoomEntity.class)
+    private Set<ChatRoomEntity> chatRoomEntities;
+
 }
