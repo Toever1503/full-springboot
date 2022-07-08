@@ -41,9 +41,11 @@ public class CategoryEntity {
     @Column(name = "status")
     private Boolean status;
 
+    // image category
     @Column(name = "category_file")
     private String catFile;
 
+    // image industry
     @Column(name = "category_file2")
     private String catFile2;
 

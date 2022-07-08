@@ -32,7 +32,7 @@ public class IndustryDto {
                 .industryName(entity.getCategoryName())
                 .slug(entity.getSlug())
                 .description(entity.getDescription())
-                .image(entity.getCatFile())
+                .image(entity.getCatFile2())
                 .status(entity.getStatus())
                 .build();
     }

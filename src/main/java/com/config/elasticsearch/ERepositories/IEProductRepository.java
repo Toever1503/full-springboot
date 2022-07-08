@@ -15,4 +15,8 @@ public interface IEProductRepository extends ElasticsearchRepository<ProductDto,
 
     @Query("{\"bool\":{\"must\":[{\"match\":{\"categoryId\":\"?0\"}}]}}")
     Page<ProductDto> findByCategoryId(Long categoryId, Pageable page);
+
+    @Query("{\"bool\":{\"must\":[{\"match\":{\"categoryId\":\"?0\"}},{\"match\":{\"name\":\"?1\"}}]}}")
+    Page<ProductDto> findByCategoryIdAndName(Long categoryId, String name, Pageable page);
+
 }
