@@ -10,7 +10,6 @@ import java.util.TimeZone;
 public class DateTimeConfig {
     @PostConstruct
     public void init() {
-        //TimeZone.setDefault(TimeZone.getTimeZone("UTC+07:00"));
-        System.out.println("Date in UTC: " + new Date().toString());
+        TimeZone.setDefault(TimeZone.getTimeZone("GMT+7:00"));
     }
 }
