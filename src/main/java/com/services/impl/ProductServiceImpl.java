@@ -461,7 +461,8 @@ public class ProductServiceImpl implements IProductService {
 
 
         BoolQueryBuilder rootQueryBool = boolQuery();
-        List<QueryBuilder> rootQueryBuilders = rootQueryBool.must();
+        List<QueryBuilder> rootAndQueryBuilders = rootQueryBool.must();
+//        List<QueryBuilder> rootOrQueryBuilders = rootQueryBool.should();
 
         NativeSearchQuery searchQuery = new NativeSearchQueryBuilder()
                 .withQuery(rootQueryBool)
@@ -470,35 +471,34 @@ public class ProductServiceImpl implements IProductService {
 
 //        List<Criteria> criteriaList = new ArrayList<>();
         if (model.getCategorySlugs() != null) {
-            rootQueryBuilders.add(termsQuery("category.categorySLug.keyword", model.getCategorySlugs()));
+            rootAndQueryBuilders.add(termsQuery("category.categorySLug.keyword", model.getCategorySlugs()));
 //            filter by category
         } else if (model.getIndustrySlug() != null) {
             //filter by industry
-            rootQueryBuilders.add(termQuery("industry.industrySLug.keyword", model.getIndustrySlug()));
+            rootAndQueryBuilders.add(termQuery("industry.industrySLug.keyword", model.getIndustrySlug()));
         }
 
         if (model.getMaxPrice() != null && model.getMinPrice() != null) {
 //            filter by price
-            rootQueryBuilders.add(nestedQuery("skus", boolQuery().must(
+            rootAndQueryBuilders.add(nestedQuery("skus", boolQuery().must(
                     rangeQuery("skus.price").gte(model.getMinPrice()).lte(model.getMaxPrice())
             ), ScoreMode.None));
         } else if (model.getMinPrice() != null) {
-            rootQueryBuilders.add(nestedQuery("skus", boolQuery().must(
+            rootAndQueryBuilders.add(nestedQuery("skus", boolQuery().must(
                     rangeQuery("skus.price").gte(model.getMinPrice())
             ), ScoreMode.None));
         } else if (model.getMaxPrice() != null) {
-            rootQueryBuilders.add(nestedQuery("skus", boolQuery().must(
+            rootAndQueryBuilders.add(nestedQuery("skus", boolQuery().must(
                     rangeQuery("skus.price").lte(model.getMaxPrice())
             ), ScoreMode.None));
         }
         if (model.getStatus() != null) {
-            rootQueryBuilders.add(termQuery("status", model.getStatus()));
+            rootAndQueryBuilders.add(termQuery("status", model.getStatus()));
         }
-
 
         if (model.getTags() != null) {
             //           filter by tags
-            rootQueryBuilders.add(
+            rootAndQueryBuilders.add(
                     termsQuery("tags", model.getTags())
             );
         }
@@ -510,7 +510,7 @@ public class ProductServiceImpl implements IProductService {
             metaBools.add(termsQuery("productMetas.metaKey", model.getMetas().getMetaKeys()));
             metaBools.add(termsQuery("productMetas.metaValue", model.getMetas().getMetaValues()));
 
-            rootQueryBuilders.add(nestedQuery("productMetas", boolMeta, ScoreMode.None));
+            rootAndQueryBuilders.add(nestedQuery("productMetas", boolMeta, ScoreMode.None));
 //            List<Criteria> metaCriteriaList = new ArrayList<>();
 //            model.getMetas().forEach(m -> {
 //                metaCriteriaList.add(Criteria.where("metas.metaKey").is(m.getMetaKey()).and("metas.metaValue").in(m.getMetaValues()));
@@ -539,7 +539,7 @@ public class ProductServiceImpl implements IProductService {
             variationBools.add(nestedQuery("variations.values", boolQuery().must(
                     termsQuery("variations.values.value", model.getVariations().getVariationValues())
             ), ScoreMode.None));
-            rootQueryBuilders.add(nestedQuery("variations", boolVariation, ScoreMode.None));
+            rootAndQueryBuilders.add(nestedQuery("variations", boolVariation, ScoreMode.None));
 
 //            List<Criteria> variationCriteriaList = new ArrayList<>();
 //            model.getVariations().forEach(v -> {
@@ -563,7 +563,7 @@ public class ProductServiceImpl implements IProductService {
         if (model.getQ() != null) {
             // filter by q
 //            criteriaList.add(Criteria.where("name").contains(model.getQ()));
-            rootQueryBuilders.add(
+            rootAndQueryBuilders.add(
                     queryStringQuery(model.getQ()).analyzeWildcard(true).defaultField("*")
             );
         }
