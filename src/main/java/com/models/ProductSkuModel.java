@@ -30,35 +30,39 @@ public class ProductSkuModel {
     @NotNull
     private Integer inventoryQuantity;
 
-    private List<Long> variationValues = new ArrayList<>();
+    private List<String> variationValueNames;
+
+    private List<Long> variationValues;
 
     private Boolean isValid = false;
     private Integer variationSize = 0;
 
-    public static ProductSkuEntity toEntity(ProductSkuModel model, ProductEntity product, boolean isVariation) {
+    public static ProductSkuEntity toEntity(ProductSkuModel model, ProductEntity product) {
         if (model == null) throw new RuntimeException("Sku model is null");
         String skuCode = null;
 
-        // check and handle sku code
-        if (isVariation && model.variationValues.isEmpty())
-            throw new RuntimeException("Product is using variation and sku model not have any variation value. Please check again!");
-        else if (isVariation && !model.variationValues.isEmpty()) {
-            skuCode = model.variationValues.stream().map(n -> n.toString()).reduce((str1, str2) -> str1.concat("-".concat(str2))).orElse(null);
-            if (!skuCode.matches(ProductSkuEntity.SKU_CODE_PATTERN))
-                throw new RuntimeException("Generated skuCode is invalid: ".concat(skuCode).concat(". Please check again!"));
+        if(model.getVariationValues() != null){
+            // check and handle sku code
+            if (product.getIsUseVariation() && model.variationValues.isEmpty())
+                throw new RuntimeException("Product is using variation and sku model not have any variation value. Please check again!");
+            else if (product.getIsUseVariation() && !model.variationValues.isEmpty()) {
+                skuCode = model.variationValues.stream().map(n -> n.toString()).reduce((str1, str2) -> str1.concat("-".concat(str2))).orElse(null);
+                if (!skuCode.matches(ProductSkuEntity.SKU_CODE_PATTERN))
+                    throw new RuntimeException("Generated skuCode is invalid: ".concat(skuCode).concat(". Please check again!"));
+            }
         }
+
         ProductSkuEntity sku = ProductSkuEntity.builder()
                 .product(product)
                 .id(model.id)
                 .price(model.price)
-                .oldPrice(model.oldPrice == null ? 0 : model.oldPrice)
+                .oldPrice(model.oldPrice)
                 .inventoryQuantity(model.inventoryQuantity)
                 .skuCode(skuCode)
                 .image(model.originImage)
                 .isValid(model.isValid)
                 .variationSize(model.variationSize)
                 .build();
-
         return sku;
     }
 

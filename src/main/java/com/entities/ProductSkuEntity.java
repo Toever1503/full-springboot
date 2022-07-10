@@ -50,6 +50,9 @@ public class ProductSkuEntity {
     @Column(name = "option_name")
     private String optionName;
 
+    @Transient
+    private String uuid;
+
     public static final String SKU_CODE_PATTERN = "(\\d+)|((\\d+-)+\\d+)";
 
     /*

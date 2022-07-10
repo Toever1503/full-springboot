@@ -89,6 +89,18 @@ public class FileUploadProvider {
         }, taskExecutor);
     }
 
+    public CompletableFuture<String> asyncUpload1File(String folder, Part file) {
+        return CompletableFuture.supplyAsync(() -> {
+            try {
+                return uploadFile(folder, file);
+            } catch (IOException e) {
+                e.printStackTrace();
+                log.error("Error when upload file", file.getSubmittedFileName());
+                return null;
+            }
+        }, taskExecutor);
+    }
+
     //Check if file exist
     public boolean isFileExist(String key) {
         try {

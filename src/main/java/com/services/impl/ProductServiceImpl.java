@@ -32,7 +32,6 @@ import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilde
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -41,7 +40,7 @@ import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
-import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -427,7 +426,43 @@ public class ProductServiceImpl implements IProductService {
 //                    sku.setIsValid(false);
 //            }
 //        });
+
+
         return this.productSkuEntityRepository.saveAllAndFlush(skus);
+    }
+
+    private ProductSkuEntity saveSkus(ProductSkuModel skuModel, HttpServletRequest req, ProductEntity product, String folder) {
+        ProductSkuEntity skuEntity;
+        if (skuModel.getVariationValueNames() != null) {
+            skuEntity = ProductSkuModel.toEntity(skuModel, product);
+            CompletableFuture<Void> imgUploadFuture = null;
+
+            if (skuModel.getImageParameter() != null) {
+                fileUploadProvider.deleteFile(skuEntity.getImage());
+                try {
+                    imgUploadFuture = fileUploadProvider.asyncUpload1File(folder, req.getPart(skuModel.getImageParameter())).thenAccept(
+                            filePath -> skuEntity.setImage(filePath)
+                    );
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                } catch (ServletException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+            if (imgUploadFuture != null) {
+                try {
+                    imgUploadFuture.get();
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                } catch (ExecutionException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+
+            return skuEntity;
+        } else this.saveSku(product, folder, skuModel, req);
+
+        return null;
     }
 
     @Override
@@ -704,41 +739,70 @@ public class ProductServiceImpl implements IProductService {
         return this.elasticsearchRestTemplate.indexOps(IndexCoordinates.of(ElasticsearchIndices.PRODUCT_INDEX)).delete();
     }
 
-//    private Map<String, Object> putMap(String key, Object value) {
-//        Map<String, Object> map = new HashMap<>();
-//        map.put(key, value);
-//        return map;
-//    }
 
     private ProductSkuEntity saveSku(ProductEntity entity, String folder, ProductSkuModel model, HttpServletRequest req) {
         ProductSkuEntity skuEntity;
         if (model.getId() != null)
             skuEntity = this.productSkuEntityRepository.findById(model.getId()).orElse(null);
         else
-            skuEntity = ProductSkuModel.toEntity(model, entity, entity.getIsUseVariation());
+            skuEntity = ProductSkuModel.toEntity(model, entity);
+
         skuEntity.setImage(model.getOriginImage());
+        CompletableFuture<Void> imgUploadFuture = null;
         if (model.getImageParameter() != null) {
-            String filePath;
+            fileUploadProvider.deleteFile(skuEntity.getImage());
             try {
-                fileUploadProvider.deleteFile(skuEntity.getImage());
-                filePath = fileUploadProvider.uploadFile(folder, req.getPart(model.getImageParameter()));
-                skuEntity.setImage(filePath);
+                imgUploadFuture = fileUploadProvider.asyncUpload1File(folder, req.getPart(model.getImageParameter())).thenAccept(
+                        filePath -> skuEntity.setImage(filePath)
+                );
             } catch (IOException e) {
-                e.printStackTrace();
+                throw new RuntimeException(e);
             } catch (ServletException e) {
                 throw new RuntimeException(e);
             }
         }
 
-        List<ProductVariationValueEntity> values = productVariationValueRepository.checkVariationValueExist(model.getVariationValues());
-        if (values.size() != model.getVariationValues().size())
+        AtomicInteger indexVariation = new AtomicInteger();
+        List<ProductVariationValueEntity> values = new ArrayList<>();
+        if (model.getVariationValueNames() != null) { // for new sku or update new
+            model.getVariationValueNames().forEach(value -> {
+                ProductVariationValueEntity valueEntity = entity.getVariations().get(indexVariation.get())
+                        .getVariationValues().stream().filter(v -> v.getValue().equals(value))
+                        .findFirst().get();
+                values.add(valueEntity);
+                indexVariation.getAndIncrement();
+            });
+            skuEntity.setSkuCode(values.stream().map(v -> v.getId().toString()).reduce(
+                    (v1, v2) -> v1.concat("-").concat(v2)
+            ).get());
+            if (!skuEntity.getSkuCode().matches(ProductSkuEntity.SKU_CODE_PATTERN))
+                throw new RuntimeException("Generated skuCode is invalid: ".concat(skuEntity.getSkuCode()).concat(". Please check again!"));
+        } else { // for existed sku
+            model.getVariationValues().forEach(value -> {
+                ProductVariationValueEntity valueEntity = entity.getVariations().get(indexVariation.get())
+                        .getVariationValues().stream().filter(v -> v.getId().equals(value))
+                        .findFirst().get();
+                values.add(valueEntity);
+                indexVariation.getAndIncrement();
+            });
+        }
+        if (values.size() != entity.getVariations().size())
             throw new RuntimeException("variation values not enough, expected " + values.size());
+        skuEntity.setOptionName(values.stream().map(v -> v.getVariation().getVariationName().concat(" ".concat(v.getValue())))
+                .collect(Collectors.joining(", ")));
+
         try {
-            skuEntity.setOptionName(values.stream().map(v -> v.getVariation().getVariationName().concat(" ".concat(v.getValue())))
-                    .collect(Collectors.joining(", ")));
             skuEntity.setIsValid(true);
-            skuEntity.setVariationSize(values.size());
-//            return this.productSkuEntityRepository.saveAndFlush(skuEntity);
+            skuEntity.setVariationSize(entity.getVariations().size());
+            if (imgUploadFuture != null) {
+                try {
+                    imgUploadFuture.get();
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                } catch (ExecutionException e) {
+                    throw new RuntimeException(e);
+                }
+            }
             return skuEntity;
         } catch (Exception e) {
             e.printStackTrace();
