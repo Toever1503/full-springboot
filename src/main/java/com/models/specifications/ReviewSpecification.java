@@ -18,7 +18,7 @@ public class ReviewSpecification extends BaseSpecification {
     }
 
     public static Specification<ReviewEntity> byRating(Float rate) {
-        return (root, query, cb) -> cb.greaterThanOrEqualTo(root.get(ReviewEntity_.RATING), rate);
+        return (root, query, cb) -> cb.equal(root.get(ReviewEntity_.RATING), rate);
     }
 
     public static Specification<ReviewEntity> byProductId(Long productId) {
