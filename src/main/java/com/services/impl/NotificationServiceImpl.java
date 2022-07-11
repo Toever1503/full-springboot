@@ -4,10 +4,12 @@ import com.dtos.ENotificationCategory;
 import com.dtos.ENotificationStatus;
 import com.dtos.NotificationDto;
 import com.entities.NotificationEntity;
+import com.entities.NotificationEntity_;
 import com.entities.NotificationUser;
 import com.entities.UserEntity;
 import com.models.NotificationModel;
 import com.models.SocketNotificationModel;
+import com.models.specifications.NotificationSpecification;
 import com.repositories.INotificationRepository;
 import com.repositories.INotificationUserRepository;
 import com.repositories.IUserRepository;
@@ -44,6 +46,7 @@ public class NotificationServiceImpl implements INotificationService {
     private final INotificationUserRepository notificationUserRepository;
     private final IUserRepository userRepository;
     private final ISocketService socketService;
+
     public NotificationServiceImpl(INotificationRepository notificationRepository,
                                    FileUploadProvider fileUploadProvider,
                                    IUserService userService,
@@ -65,7 +68,9 @@ public class NotificationServiceImpl implements INotificationService {
 
     @Override
     public Page<NotificationEntity> findAll(Pageable page) {
-        return this.notificationRepository.findAll(page);
+        return this.notificationRepository.findAll(Specification.where(
+                NotificationSpecification.equal(NotificationEntity_.IS_JUST_NOTICE, null)
+        ), page);
     }
 
     @Override
@@ -237,7 +242,7 @@ public class NotificationServiceImpl implements INotificationService {
             NotificationEntity entity = SocketNotificationModel.toEntity(model);
             entity.setStatus(ENotificationStatus.POSTED.name());
             Object auth = SecurityContextHolder.getContext().getAuthentication();
-            if (auth!=null)
+            if (auth != null)
                 entity.setCreatedBy(SecurityUtils.getCurrentUser().getUser());
             else
                 entity.setCreatedBy(this.userService.findById(6l));

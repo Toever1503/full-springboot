@@ -109,7 +109,7 @@ public class SocketHandler implements WebSocketHandler {
 //                chatRooms.remove(chatRoom.getRoomId());
 //            }
 //        }
-        userSessions.remove(userSessions.remove(customUserDetail.getUser().getId()));
+        userSessions.remove(customUserDetail.getUser().getId());
     }
 
     @Override

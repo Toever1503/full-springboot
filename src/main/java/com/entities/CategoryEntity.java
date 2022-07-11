@@ -45,9 +45,6 @@ public class CategoryEntity {
     @Column(name = "category_file")
     private String catFile;
 
-    // image industry
-    @Column(name = "category_file2")
-    private String catFile2;
 
     @ManyToOne
     @JoinColumn(name = "parent_id")

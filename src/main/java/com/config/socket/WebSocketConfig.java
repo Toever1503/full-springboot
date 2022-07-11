@@ -25,6 +25,8 @@ public class WebSocketConfig implements WebSocketConfigurer {
                         "http://192.168.1.13:8081",
                         "http://15.164.227.244",
                         "http://3.34.44.100:3000",
+                        "http://localhost:8080",
+                        "http://localhost:8081",
                         "http://192.168.1.44:8080",
                         "http://192.168.1.44:8081");
     }

@@ -108,9 +108,9 @@ public class CategoryResources {
     }
 
     @Transactional
-    @GetMapping("public/detail-category/{slug}")
+    @GetMapping("public/{slug}")
     public ResponseDto getDetailCategory(@PathVariable @Valid @NotBlank String slug) {
-        return ResponseDto.of(this.categoryService.findDetailIndustryByCategorySLug(slug), "Find category by slug: ".concat(slug));
+        return ResponseDto.of(this.categoryService.findBySlug(slug), "Find category by slug: ".concat(slug));
     }
 
     @PatchMapping("change-status/{id}")

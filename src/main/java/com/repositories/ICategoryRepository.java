@@ -28,9 +28,6 @@ public interface ICategoryRepository extends JpaRepository<CategoryEntity, Long>
     @Query(value = "update tbl_category set parent_id = null where parent_id = ?1 and type = 'CATEGORY'", nativeQuery = true)
     void updateCategoryParent(Long catId);
 
-    @Modifying
-    @Query(value = "update tbl_category set industry_id = null where industry_id = ?1 and type = 'INDUSTRY'", nativeQuery = true)
-    void updateCategoryIndustry(Long catId);
 
     @Query("SELECT c FROM CategoryEntity c WHERE c.slug LIKE %?1% or c.categoryName LIKE %?1% or c.description LIKE %?1%")
     Page<CategoryEntity> search(String q, Pageable page);
@@ -38,10 +35,6 @@ public interface ICategoryRepository extends JpaRepository<CategoryEntity, Long>
     @Modifying
     @Query("UPDATE ProductEntity p SET p.category = null WHERE p.category.id = ?1")
     void updateProductCategory(Long categoryId);
-
-    @Modifying
-    @Query("UPDATE ProductEntity p SET p.industry = null WHERE p.industry.id = ?1")
-    void updateProductIndustry(Long categoryId);
 
     @Modifying
     void deleteByIdAndType(Long id, String type);

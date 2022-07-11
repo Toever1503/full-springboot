@@ -12,10 +12,9 @@ import java.util.List;
 @Data
 @Builder
 public class ProductFilterDataDto {
-    private List<IndustryDto> industryFilter;
     private List<CategoryDto> categoryFilter;
-    private List<DetailIndustryDto.ProductVariationDto2> variationFilter;
-    private List<DetailIndustryDto.ProductMetaDto2> metaFilter;
+    private List<ProductVariationDto2> variationFilter;
+    private List<ProductMetaDto2> metaFilter;
     private List<String> tags;
 
 }

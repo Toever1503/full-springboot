@@ -188,15 +188,11 @@ public class ProductServiceImpl implements IProductService {
      * convert model to entity
      */
     private ProductEntity fromModel(ProductModel model) {
-        CategoryEntity industry = this.categoryService.findById(model.getIndustryId());
-        if (!industry.getType().equalsIgnoreCase(ECategoryType.INDUSTRY.name()))
-            throw new RuntimeException("Industry is not industry, please check again");
         CategoryEntity category = this.categoryService.findById(model.getCategoryId());
         if (!category.getType().equalsIgnoreCase(ECategoryType.CATEGORY.name()))
             throw new RuntimeException("Category is not category, please check again");
         ProductEntity entity = ProductModel.toEntity(model);
         entity.setCategory(category);
-        entity.setIndustry(industry);
         entity.setCreatedBy(SecurityUtils.getCurrentUser().getUser());
         return entity;
     }
@@ -648,13 +644,6 @@ public class ProductServiceImpl implements IProductService {
         ProductFilterDataDto filterData = new ProductFilterDataDto();
         Pageable page = Pageable.unpaged();
 
-        // create future for industries
-        CompletableFuture<List<IndustryDto>> industries = CompletableFuture.supplyAsync(() -> {
-            List<CategoryEntity> data = this.categoryService.findAll(CategorySpecification.byType(ECategoryType.INDUSTRY));
-            return data
-                    .stream().map(IndustryDto::toDto)
-                    .collect(Collectors.toList());
-        }, this.taskExecutor);
 
         // create future for categories
         CompletableFuture<List<CategoryDto>> categories = CompletableFuture.supplyAsync(() -> {
@@ -663,20 +652,20 @@ public class ProductServiceImpl implements IProductService {
         }, this.taskExecutor);
 
         // create future for vatiations
-        CompletableFuture<List<DetailIndustryDto.ProductVariationDto2>> variations = CompletableFuture
+        CompletableFuture<List<ProductVariationDto2>> variations = CompletableFuture
                 .supplyAsync(() -> this.productRepository.findVariations(page)
                         .stream()
-                        .map(v -> DetailIndustryDto.ProductVariationDto2.builder()
+                        .map(v -> ProductVariationDto2.builder()
                                 .variationName(v)
                                 .variationValues(this.productRepository.findVariationValues(v, page))
                                 .build())
                         .collect(Collectors.toList()), this.taskExecutor);
 
         //create future for product metas
-        CompletableFuture<List<DetailIndustryDto.ProductMetaDto2>> metas = CompletableFuture
+        CompletableFuture<List<ProductMetaDto2>> metas = CompletableFuture
                 .supplyAsync(() -> this.productRepository.findMetas(page)
                         .stream()
-                        .map(m -> DetailIndustryDto.ProductMetaDto2.builder()
+                        .map(m -> ProductMetaDto2.builder()
                                 .metaKey(m)
                                 .metaValues(this.productRepository.findMetaValues(m, page))
                                 .build())
@@ -684,7 +673,6 @@ public class ProductServiceImpl implements IProductService {
 
         //        wait for all future to finish
         CompletableFuture all = CompletableFuture.allOf(
-                industries.thenAccept(data -> filterData.setIndustryFilter(data)),
                 categories.thenAccept(data -> filterData.setCategoryFilter(data)),
                 variations.thenAccept(data -> filterData.setVariationFilter(data)),
                 metas.thenAccept(data -> filterData.setMetaFilter(data)));

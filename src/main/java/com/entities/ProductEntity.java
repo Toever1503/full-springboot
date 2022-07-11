@@ -65,10 +65,6 @@ public class ProductEntity {
     @JoinColumn(name = "category_id", nullable = false)
     private CategoryEntity category;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "industry_id", nullable = false)
-    private CategoryEntity industry;
-
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     @JoinColumn(name = "product_id")
     @Fetch(FetchMode.SUBSELECT)

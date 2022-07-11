@@ -32,7 +32,8 @@ public class SocketFilter extends OncePerRequestFilter {
                 this.userService.tokenFilter(token.substring(7), req, res);
                 Long id = SecurityUtils.getCurrentUserId();
                 if (SocketHandler.userSessions.containsKey(id))
-                    return;
+                    res.getWriter().println(new JSONObject(new ResponseDto("Socket has been established!", "ERROR", null)));
+
             }
         }
         filterChain.doFilter(req, res);

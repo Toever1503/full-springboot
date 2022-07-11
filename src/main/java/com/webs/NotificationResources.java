@@ -47,7 +47,7 @@ public class NotificationResources {
     @Transactional
     @PutMapping("{id}")
     public ResponseDto updateNotification(@PathVariable Long id,@Valid NotificationModel model) {
-        log.info("admin {} is updating notification id: {%d}", SecurityUtils.getCurrentUser().getUsername(), id);
+        log.info("admin {} is updating notification id: {}", SecurityUtils.getCurrentUser().getUsername(), id);
         NotificationEntity notificationEntity = this.notificationService.update(model);
         NotificationDetailDto notificationDetailDto = NotificationDetailDto.toDto(notificationEntity);
         return ResponseDto.of(notificationDetailDto, "update notification successfully");
@@ -57,7 +57,7 @@ public class NotificationResources {
     @Transactional
     @DeleteMapping("/{id}")
     public ResponseDto deleteNotification(@PathVariable("id") Long id) {
-        log.info("admin {} is deleting notification id: {%d}", SecurityUtils.getCurrentUser().getUsername(), id);
+        log.info("admin {} is deleting notification id: {}", SecurityUtils.getCurrentUser().getUsername(), id);
         return ResponseDto.of(this.notificationService.deleteById(id), "Deleted notification successfully");
     }
 

@@ -28,10 +28,6 @@ public class CategoryDto {
 
     private List<CategoryDto> childCategories;
 
-    private List<CategoryDto> childIndustries;
-
-    private IndustryDto industry;
-
     private Integer deepLevel;
 
     private String image;
@@ -46,10 +42,8 @@ public class CategoryDto {
                 .slug(entity.getSlug())
                 .description(entity.getDescription())
                 .deepLevel(entity.getDeepLevel())
-                .industry(IndustryDto.toDto(entity.getIndustry()))
-                .parentCategory(entity.getParentCategory() == null ? null : ParentCategoryDto.toDto(entity.getParentCategory()))
+                .parentCategory(ParentCategoryDto.toDto(entity.getParentCategory()))
                 .childCategories(wantChild == true ? (entity.getChildCategories() == null ? null : entity.getChildCategories().stream().map(child -> CategoryDto.toDto(child, wantChild)).collect(Collectors.toList())) : null)
-                .childIndustries(wantChild == true ? (entity.getCategories() == null ? null : entity.getCategories().stream().map(child -> CategoryDto.toDto(child, wantChild)).collect(Collectors.toList())) : null)
                 .status(entity.getStatus())
                 .image(entity.getCatFile() == null ? null : entity.getCatFile())
                 .build();

@@ -29,8 +29,6 @@ public class ProductDto {
             "category.categoryName",
             "category.description",
             "category.slug",
-            "industry.industryName",
-            "industry.slug",
             "industry.description",
             "productMetas.metaKey",
             "productMetas.metaValue",
@@ -69,7 +67,6 @@ public class ProductDto {
 
     private CategoryDto category;
 
-    private IndustryDto industry;
 
     @Field(type = FieldType.Nested, name = "productMetas", storeNullValue = true)
     private List<ProductMetaDto> productMetas;
@@ -115,7 +112,6 @@ public class ProductDto {
 
         productDto.setAttachFiles(entity.getAttachFiles() != null ? new JSONObject(entity.getAttachFiles()).getJSONArray("files").toList() : List.of());
         productDto.setCategory(entity.getCategory() == null ? null : CategoryDto.toDto(entity.getCategory(), false));
-        productDto.setIndustry(entity.getIndustry() == null ? null : IndustryDto.toDto(entity.getIndustry()));
         productDto.setProductMetas(entity.getProductMetas() == null ? null : entity.getProductMetas().stream().map(ProductMetaDto::toDto).collect(Collectors.toList()));
         productDto.setTags(entity.getTags() == null ? null : entity.getTags().stream().map(TagDto::toTagDto).collect(Collectors.toSet()));
 
