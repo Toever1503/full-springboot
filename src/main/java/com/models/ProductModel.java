@@ -39,10 +39,6 @@ public class ProductModel {
     @NotNull
     private Long categoryId;
 
-    @ApiModelProperty(notes = "industry Id", dataType = "Long", example = "1")
-    @NotNull
-    private Long industryId;
-
     @ApiModelProperty(notes = "list product metas", dataType = "List<ProductMeta>", example = "Object productMetas")
     private List<ProductMetaModel> productMetas;
 
