@@ -69,7 +69,7 @@ public class NotificationServiceImpl implements INotificationService {
     @Override
     public Page<NotificationEntity> findAll(Pageable page) {
         return this.notificationRepository.findAll(Specification.where(
-                NotificationSpecification.equal(NotificationEntity_.IS_JUST_NOTICE, null)
+                (root, query, cb) -> cb.equal(root.get(NotificationEntity_.isJustNotice), false)
         ), page);
     }
 
@@ -122,6 +122,7 @@ public class NotificationServiceImpl implements INotificationService {
             notificationEntity.setUrl(model.getUrl());
         }
         notificationEntity = this.notificationRepository.save(notificationEntity);
+        notificationEntity.setIsJustNotice(false);
         this.saveUserNotification(notificationEntity.getId(), this.userRepository.getAllId());
         this.socketService.sendNotificationForAllUser(SocketNotificationModel.toModel(notificationEntity));
         return notificationEntity;
