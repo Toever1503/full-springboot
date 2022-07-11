@@ -24,7 +24,7 @@ public class ChatResources {
     IChatService chatService;
 
     @Transactional
-    @PostMapping("/createChatRoom")
+        @PostMapping("/createChatRoom")
     public ResponseDto createChatRoom() {
         return ResponseDto.of(chatService.createChatRoom(),"Create chat room");
     }

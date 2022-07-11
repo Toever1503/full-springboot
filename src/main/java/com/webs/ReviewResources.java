@@ -123,4 +123,11 @@ public class ReviewResources {
     public ResponseDto getReplyByParentId(@PathVariable("id") Long parentId, Pageable pageable) {
         return ResponseDto.of(this.reviewService.findAllByParentId(parentId, pageable).map(ReviewDto::toDto), "Get all review by parent review id: " + parentId);
     }
+
+    @Transactional
+    @GetMapping("/my-reviews")
+    public ResponseDto getMyReviews(Pageable pageable) {
+        return ResponseDto.of(this.reviewService.findAllMyReview(SecurityUtils.getCurrentUserId(), pageable).map(ReviewDto::toDto), "Get all review by user id: " + SecurityUtils.getCurrentUserId());
+    }
+
 }
