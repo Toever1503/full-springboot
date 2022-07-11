@@ -210,6 +210,7 @@ public class ProductServiceImpl implements IProductService {
         entity.setTotalLike(originProduct.getTotalLike());
         entity.setTotalSold(originProduct.getTotalSold());
         entity.setVariations(originProduct.getVariations());
+        entity.setCreatedDate(originProduct.getCreatedDate());
         entity.setSkus(originProduct.getSkus());
         entity.setImage(originProduct.getImage());
 
