@@ -94,6 +94,15 @@ public class CategoryResources {
         return ResponseDto.of(categoryService.changeStatus(id), "change status success");
     }
 
+    @Operation(summary = "Admin Get all categories", description = "Admin Get all categories")
+    @Transactional
+    @GetMapping("get-all-categories")
+    public ResponseDto getAll() {
+        List<CategoryEntity> categories = this.categoryService.findAll();
+        return ResponseDto.of(categories
+                .stream().map(c -> CategoryDto.toDto(c, false)).collect(Collectors.toList()), "get all categories");
+    }
+
     @Operation(summary = "Get all categories", description = "Get all categories")
     @Transactional
     @GetMapping("public/get-all-categories")
