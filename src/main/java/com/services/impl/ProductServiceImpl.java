@@ -208,6 +208,7 @@ public class ProductServiceImpl implements IProductService {
         entity.setRating(originProduct.getRating());
         entity.setTotalReview(originProduct.getTotalReview());
         entity.setTotalLike(originProduct.getTotalLike());
+        entity.setTotalSold(originProduct.getTotalSold());
         entity.setVariations(originProduct.getVariations());
         entity.setSkus(originProduct.getSkus());
         entity.setImage(originProduct.getImage());
@@ -233,13 +234,6 @@ public class ProductServiceImpl implements IProductService {
         if (model.getAttachFiles() != null) {
             futures.add(CompletableFuture.allOf(this.fileUploadProvider.asyncUploadFiles(uploadedFiles, folder, model.getAttachFiles()))
                     .thenAccept(e1 -> uploadedFiles.removeIf(e -> e == null)));
-//            for (MultipartFile file : model.getAttachFiles()) {
-//                try {
-//                    uploadedFiles.add(fileUploadProvider.uploadFile(folder, file));
-//                } catch (IOException e) {
-//                    e.printStackTrace();
-//                }
-//            }
         }
 
 
