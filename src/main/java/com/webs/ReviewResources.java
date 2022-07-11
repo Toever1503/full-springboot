@@ -125,9 +125,9 @@ public class ReviewResources {
     }
 
     @Transactional
-    @GetMapping("/my-reviews/{productId}")
-    public ResponseDto getMyReviews(@PathVariable Long productId) {
-        return ResponseDto.of(this.reviewService.findAllMyReview(productId).stream().map(ReviewDto::toDto)
+    @GetMapping("/my-reviews/{orderId}")
+    public ResponseDto getMyReviews(@PathVariable Long orderId) {
+        return ResponseDto.of(this.reviewService.findAllMyReview(orderId).stream().map(ReviewDto::toDto)
                 .collect(Collectors.toList()), "Get all review by user id: " + SecurityUtils.getCurrentUserId());
     }
 
