@@ -189,8 +189,6 @@ public class ProductServiceImpl implements IProductService {
      */
     private ProductEntity fromModel(ProductModel model) {
         CategoryEntity category = this.categoryService.findById(model.getCategoryId());
-        if (!category.getType().equalsIgnoreCase(ECategoryType.CATEGORY.name()))
-            throw new RuntimeException("Category is not category, please check again");
         ProductEntity entity = ProductModel.toEntity(model);
         entity.setCategory(category);
         entity.setCreatedBy(SecurityUtils.getCurrentUser().getUser());
@@ -647,7 +645,7 @@ public class ProductServiceImpl implements IProductService {
 
         // create future for categories
         CompletableFuture<List<CategoryDto>> categories = CompletableFuture.supplyAsync(() -> {
-            List<CategoryEntity> data = this.categoryService.findAll(CategorySpecification.byType(ECategoryType.CATEGORY));
+            List<CategoryEntity> data = this.categoryService.findAll();
             return data.stream().map(c -> CategoryDto.toDto(c, true)).collect(Collectors.toList());
         }, this.taskExecutor);
 

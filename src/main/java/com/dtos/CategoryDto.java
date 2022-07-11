@@ -45,7 +45,7 @@ public class CategoryDto {
                 .parentCategory(ParentCategoryDto.toDto(entity.getParentCategory()))
                 .childCategories(wantChild == true ? (entity.getChildCategories() == null ? null : entity.getChildCategories().stream().map(child -> CategoryDto.toDto(child, wantChild)).collect(Collectors.toList())) : null)
                 .status(entity.getStatus())
-                .image(entity.getCatFile() == null ? null : entity.getCatFile())
+                .image(entity.getCatFile())
                 .build();
     }
 }

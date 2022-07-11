@@ -53,7 +53,7 @@ public class CategoryServiceImpl implements ICategoryService {
 
     @Override
     public List<CategoryEntity> findAll() {
-        return this.categoryRepository.findAlLS();
+        return this.categoryRepository.findAll();
     }
 
     @Override
@@ -68,7 +68,7 @@ public class CategoryServiceImpl implements ICategoryService {
 
     @Override
     public List<CategoryEntity> findChildrenById(Long id) {
-        return this.categoryRepository.findAllByParentCategoryIdAndType(id, ECategoryType.CATEGORY.name());
+        return this.categoryRepository.findAllByParentCategoryId(id);
     }
 
     @Override
@@ -123,8 +123,9 @@ public class CategoryServiceImpl implements ICategoryService {
     public Page<CategoryEntity> filter(Pageable page, Specification<CategoryEntity> specs) {
         return null;
     }
+
     @Override
-    public Page<CategoryEntity> filterByStatus(Pageable page, int status) {
+    public Page<CategoryEntity> filterByStatus(Pageable page, Boolean status) {
         return categoryRepository.findAll(CategorySpecification.byStatus(status), page);
     }
 
@@ -151,7 +152,6 @@ public class CategoryServiceImpl implements ICategoryService {
         }
 
         categoryEntity.setCreatedBy(SecurityUtils.getCurrentUser().getUser());
-        categoryEntity.setType(ECategoryType.CATEGORY.name());
         categoryEntity.setTotalProduct(0);
         categoryEntity.setDeepLevel(0);
         if (this.categoryRepository.findBySlug(model.getSlug()).isPresent())
@@ -202,8 +202,6 @@ public class CategoryServiceImpl implements ICategoryService {
     private void saveParentCategory(CategoryEntity entity, Long parentId) {
         if (parentId != null) { //check if parent id not null\
             CategoryEntity parentCategory = this.findById(parentId);
-            if (parentCategory.getType().equals(ECategoryType.INDUSTRY.name()))
-                throw new RuntimeException("Industry can't be parent category");
             if (parentCategory.getDeepLevel() >= 3)
                 throw new RuntimeException("Parent category is too deep!");
             entity.setParentCategory(parentCategory);
@@ -213,7 +211,7 @@ public class CategoryServiceImpl implements ICategoryService {
 
     @Override
     public boolean deleteById(Long id) {
-        this.categoryRepository.deleteByIdAndType(id, ECategoryType.CATEGORY.name());
+        this.categoryRepository.deleteById(id);
         this.categoryRepository.updateCategoryParent(id);
         this.categoryRepository.updateProductCategory(id);
         return true;

@@ -35,9 +35,6 @@ public class CategoryEntity {
     @Column(name = "deep_level")
     private Integer deepLevel;
 
-    @Column(name = "type")
-    private String type;
-
     @Column(name = "status")
     private Boolean status;
 
@@ -45,22 +42,13 @@ public class CategoryEntity {
     @Column(name = "category_file")
     private String catFile;
 
-
     @ManyToOne
     @JoinColumn(name = "parent_id")
     private CategoryEntity parentCategory;
 
-    @ManyToOne
-    @JoinColumn(name = "industry_id")
-    private CategoryEntity industry;
-
     @OneToMany(mappedBy = "parentCategory", fetch = FetchType.EAGER)
     @Fetch(FetchMode.SUBSELECT)
     private List<CategoryEntity> childCategories;
-
-    @OneToMany(mappedBy = "industry", fetch = FetchType.EAGER)
-    @Fetch(FetchMode.SUBSELECT)
-    private List<CategoryEntity> categories;
 
     @ManyToOne
     @JoinColumn(name = "user_id")

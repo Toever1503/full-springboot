@@ -14,15 +14,10 @@ import java.util.Optional;
 
 @Repository
 public interface ICategoryRepository extends JpaRepository<CategoryEntity, Long>, JpaSpecificationExecutor<CategoryEntity> {
-    List<CategoryEntity> findAllByParentCategoryIdAndType(Long id, String type);
+    List<CategoryEntity> findAllByParentCategoryId(Long id);
 
     Optional<CategoryEntity> findBySlug(String slug);
 
-    @Query("select c.industry.slug from CategoryEntity c where c.slug = ?1")
-    Optional<String> findByCategorySlug(String slug);
-
-    @Query("SELECT c FROM CategoryEntity c ORDER BY c.id DESC")
-    List<CategoryEntity> findAlLS();
 
     @Modifying
     @Query(value = "update tbl_category set parent_id = null where parent_id = ?1 and type = 'CATEGORY'", nativeQuery = true)
@@ -36,6 +31,4 @@ public interface ICategoryRepository extends JpaRepository<CategoryEntity, Long>
     @Query("UPDATE ProductEntity p SET p.category = null WHERE p.category.id = ?1")
     void updateProductCategory(Long categoryId);
 
-    @Modifying
-    void deleteByIdAndType(Long id, String type);
 }

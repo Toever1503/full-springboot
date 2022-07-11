@@ -19,7 +19,6 @@ import org.springframework.web.bind.annotation.*;
 import javax.annotation.security.RolesAllowed;
 import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -37,12 +36,6 @@ public class CategoryResources {
     @GetMapping
     public ResponseDto getAll(Pageable pageable) {
         return ResponseDto.of(categoryService.findAll(pageable).map(c -> CategoryDto.toDto(c, false)), "get all categories success");
-    }
-
-    @Transactional
-    @GetMapping("/get-by-id/{id}")
-    public ResponseDto findById(@PathVariable("id") Long id) {
-        return ResponseDto.of(CategoryDto.toDto(categoryService.findById(id), false), "get category success");
     }
 
     @Operation(summary = "Get all child category", description = "Get all child category by parent category ID")
@@ -82,15 +75,11 @@ public class CategoryResources {
     }
 
     @Transactional
-    @GetMapping("/slug/{slug}")
-    public ResponseDto findBySlug(@PathVariable String slug) {
-        return ResponseDto.of(CategoryDto.toDto(categoryService.findBySlug(slug), true), "get category by slug success");
-    }
-
-    @Transactional
-    @GetMapping("/status/{status}")
-    public ResponseDto filterByStatus(@PathVariable int status, Pageable page) {
-        return ResponseDto.of(categoryService.filterByStatus(page,status).stream().map(c->CategoryDto.toDto(c,false)),"get category by status success");
+    @GetMapping("public/status/{status}")
+    public ResponseDto filterByStatus(@PathVariable Boolean status) {
+        List<CategoryEntity> categories = categoryService.findAll(Specification.where(CategorySpecification.byStatus(status)));
+        return ResponseDto.of(categories.stream()
+                .map(c -> CategoryDto.toDto(c, false)), "get category by status success");
     }
 
     @Transactional
@@ -99,24 +88,37 @@ public class CategoryResources {
         return ResponseDto.of(categoryService.search(q, page).map(c -> CategoryDto.toDto(c, false)), "search category success");
     }
 
-    @Transactional
-    @GetMapping("get-all-categories")
-    public ResponseDto getAllCategories() {
-        List<CategoryEntity> categories = this.categoryService.findAll(Specification.where(CategorySpecification.byType(ECategoryType.CATEGORY)));
-        return ResponseDto.of(categories
-                .stream().map(c -> CategoryDto.toDto(c, true)).collect(Collectors.toList()), "get all category children success");
-    }
-
-    @Transactional
-    @GetMapping("public/{slug}")
-    public ResponseDto getDetailCategory(@PathVariable @Valid @NotBlank String slug) {
-        return ResponseDto.of(this.categoryService.findBySlug(slug), "Find category by slug: ".concat(slug));
-    }
-
     @PatchMapping("change-status/{id}")
     @Transactional
     public ResponseDto changeStatus(@PathVariable Long id) {
         return ResponseDto.of(categoryService.changeStatus(id), "change status success");
     }
+
+    @Operation(summary = "Get all categories", description = "Get all categories")
+    @Transactional
+    @GetMapping("public/get-all-categories")
+    public ResponseDto getAllCategories() {
+        List<CategoryEntity> categories = this.categoryService.findAll(Specification.where(CategorySpecification.byStatus(true)));
+        return ResponseDto.of(categories
+                .stream().map(c -> CategoryDto.toDto(c, false)).collect(Collectors.toList()), "get all categories");
+    }
+
+    @Operation(summary = "Get category by slug", description = "use slug to find category")
+    @Transactional
+    @GetMapping("public/{slug}")
+    public ResponseDto getDetailCategory(@PathVariable @Valid @NotBlank String slug) {
+        return ResponseDto.of(CategoryDto.toDto(this.categoryService.findOne(
+                Specification.where(CategorySpecification.equal(CategoryEntity_.SLUG, slug).and(
+                        CategorySpecification.equal(CategoryEntity_.STATUS, true)
+                ))
+        ), true), "Find category by slug: ".concat(slug));
+    }
+
+    @Transactional
+    @GetMapping("public/get-by-id/{id}")
+    public ResponseDto findById(@PathVariable("id") Long id) {
+        return ResponseDto.of(CategoryDto.toDto(categoryService.findById(id), true), "get category id: ".concat(id.toString()));
+    }
+
 
 }

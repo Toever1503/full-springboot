@@ -33,10 +33,8 @@ public class CategoryModel {
 
     @ApiModelProperty(notes = "Category Id parent", dataType = "Long", example = "1")
     private Long parentId;
-    @ApiModelProperty(notes = "Industry Id", dataType = "Long", example = "1")
-    private Long industryId;
 
-    @ApiModelProperty(notes = "file of industry", dataType = "MultipartFile", example = "file1")
+    @ApiModelProperty(notes = "file of category", dataType = "MultipartFile", example = "file1")
     private MultipartFile image;
 
     public static CategoryEntity toEntity(CategoryModel model) {

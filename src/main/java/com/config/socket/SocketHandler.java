@@ -33,7 +33,7 @@ public class SocketHandler implements WebSocketHandler {
 
     @Transactional
     @Override
-    public void afterConnectionEstablished(WebSocketSession session) throws Exception {
+    public void afterConnectionEstablished(WebSocketSession session) {
         session.getAttributes().put("topics", new ArrayList<>());
         UsernamePasswordAuthenticationToken userDetail = (UsernamePasswordAuthenticationToken) session.getPrincipal();
         CustomUserDetail customUserDetail = (CustomUserDetail) userDetail.getPrincipal();
