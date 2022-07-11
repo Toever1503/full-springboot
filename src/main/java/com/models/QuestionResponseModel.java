@@ -20,7 +20,6 @@ public class QuestionResponseModel {
     @ApiModelProperty(notes = "Reply Content", dataType = "String", example = "Good question by you")
     @NotBlank
     @NotNull
-    @Length(min = 1, max = 254)
     private String replyContent;
     @ApiModelProperty(notes = "Reply file", dataType = "Multipart file", example = "*.png, *.jpeg, *.mp4...")
     private List<MultipartFile> replyFile;
