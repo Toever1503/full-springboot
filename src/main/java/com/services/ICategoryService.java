@@ -22,4 +22,6 @@ public interface ICategoryService extends IBaseService<CategoryEntity, CategoryM
     boolean changeStatus(Long id);
 
     Page<CategoryEntity> filterByStatus(Pageable page, Boolean status);
+
+    List<CategoryEntity> getAllCategories();
 }

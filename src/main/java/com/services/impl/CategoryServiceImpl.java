@@ -130,6 +130,11 @@ public class CategoryServiceImpl implements ICategoryService {
     }
 
     @Override
+    public List<CategoryEntity> getAllCategories() {
+        return this.categoryRepository.findAllPublicAndStatus(true);
+    }
+
+    @Override
     public CategoryEntity findById(Long id) {
         return this.categoryRepository.findById(id).orElseThrow(() -> new RuntimeException("Category not found: " + id));
     }

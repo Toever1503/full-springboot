@@ -18,6 +18,9 @@ public interface ICategoryRepository extends JpaRepository<CategoryEntity, Long>
 
     Optional<CategoryEntity> findBySlug(String slug);
 
+    @Query("SELECT c FROM CategoryEntity c WHERE c.status = ?1 and c.parentCategory is null")
+    List<CategoryEntity> findAllPublicAndStatus(Boolean status);
+
 
     @Modifying
     @Query(value = "update tbl_category set parent_id = null where parent_id = ?1 and type = 'CATEGORY'", nativeQuery = true)

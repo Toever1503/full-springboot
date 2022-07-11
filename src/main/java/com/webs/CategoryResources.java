@@ -98,7 +98,7 @@ public class CategoryResources {
     @Transactional
     @GetMapping("public/get-all-categories")
     public ResponseDto getAllCategories() {
-        List<CategoryEntity> categories = this.categoryService.findAll(Specification.where(CategorySpecification.byStatus(true)));
+        List<CategoryEntity> categories = this.categoryService.getAllCategories();
         return ResponseDto.of(categories
                 .stream().map(c -> CategoryDto.toDto(c, false)).collect(Collectors.toList()), "get all categories");
     }
