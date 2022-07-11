@@ -287,8 +287,8 @@ public class ReviewServiceImpl implements IReviewService {
     }
 
     @Override
-    public Page<ReviewEntity> findAllMyReview(Long id, Pageable pageable) {
-        return this.reviewRepository.findAllMyReview(id, pageable);
+    public List<ReviewEntity> findAllMyReview(Long productId) {
+        return this.reviewRepository.findAllMyReview(productId, SecurityUtils.getCurrentUserId());
     }
 
 }

@@ -125,9 +125,10 @@ public class ReviewResources {
     }
 
     @Transactional
-    @GetMapping("/my-reviews")
-    public ResponseDto getMyReviews(Pageable pageable) {
-        return ResponseDto.of(this.reviewService.findAllMyReview(SecurityUtils.getCurrentUserId(), pageable).map(ReviewDto::toDto), "Get all review by user id: " + SecurityUtils.getCurrentUserId());
+    @GetMapping("/my-reviews/{productId}")
+    public ResponseDto getMyReviews(@PathVariable Long productId) {
+        return ResponseDto.of(this.reviewService.findAllMyReview(productId).stream().map(ReviewDto::toDto)
+                .collect(Collectors.toList()), "Get all review by user id: " + SecurityUtils.getCurrentUserId());
     }
 
 }
