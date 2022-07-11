@@ -27,4 +27,7 @@ public interface IReviewRepository extends JpaRepository<ReviewEntity, Long>, Jp
 
     @Query(value = "SELECT * FROM tbl_review where parent_id = ?1", nativeQuery = true)
     Page<ReviewEntity> findReviewEntityByParentReview(Long id, Pageable pageable);
+
+    @Query("select r from ReviewEntity r where r.createdBy.id = ?1")
+    Page<ReviewEntity> findAllMyReview(Long id, Pageable pageable);
 }
