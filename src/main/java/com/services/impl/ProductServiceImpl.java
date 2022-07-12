@@ -18,11 +18,16 @@ import com.utils.SecurityUtils;
 import org.apache.lucene.search.join.ScoreMode;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
+import org.elasticsearch.search.sort.NestedSortBuilder;
+import org.elasticsearch.search.sort.SortBuilder;
+import org.elasticsearch.search.sort.SortBuilders;
+import org.elasticsearch.search.sort.SortOrder;
 import org.json.JSONObject;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate;
 import org.springframework.data.elasticsearch.core.SearchHit;
 import org.springframework.data.elasticsearch.core.SearchHits;
@@ -490,8 +495,24 @@ public class ProductServiceImpl implements IProductService {
 
         NativeSearchQuery searchQuery = new NativeSearchQueryBuilder()
                 .withQuery(rootQueryBool)
-                .withPageable(page)
                 .build();
+
+        Sort.Order sortOrder  = page.getSort().getOrderFor("skus.price");
+        if(sortOrder != null){
+            if(sortOrder.getProperty().equals("skus.price")){
+                NestedSortBuilder nestedSortBuilder = new NestedSortBuilder("skus");
+                nestedSortBuilder.setFilter(rangeQuery("skus.price").gte(0));
+                SortBuilder sortBuilder = SortBuilders.fieldSort("skus.price");
+
+//                sortBuilder.order(nestedSortBuilder);
+
+                searchQuery.setMaxResults(page.getPageSize());
+            }
+            else{
+                searchQuery.setPageable(page);
+            }
+        }
+
 
 //        List<Criteria> criteriaList = new ArrayList<>();
         if (model.getCategorySlugs() != null) {
