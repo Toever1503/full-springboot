@@ -115,7 +115,11 @@ public class FileUploadProvider {
     public void deleteFile(String key) {
         System.out.println("Delete File: " + key);
         if (key != null)
-            this.s3Client.deleteObject(this.bucket, key.replace(this.bucketEndpoint, ""));
+          try {
+              this.s3Client.deleteObject(this.bucket, key.replace(this.bucketEndpoint, ""));
+          } catch (Exception e) {
+              log.error("Error when delete file", key);
+          }
     }
 
     //Client initialization
@@ -135,8 +139,4 @@ public class FileUploadProvider {
         return new JSONObject(json).getJSONArray("files").toList();
     }
 
-    public static void main(String[] args) {
-//        FileUploadProvider fileUploadProvider = new FileUploadProvider(taskExecutor);
-//        System.out.println(fileUploadProvider.isFileExist("user/vudt/product/19112016.jpeg"));
-    }
 }

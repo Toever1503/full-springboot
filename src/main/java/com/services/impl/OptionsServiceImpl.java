@@ -1,5 +1,6 @@
 package com.services.impl;
 
+import com.entities.CategoryEntity;
 import com.entities.OptionsEntity;
 import com.models.OptionsModel;
 import com.repositories.ICategoryRepository;
@@ -16,6 +17,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.Part;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -86,11 +88,9 @@ public class OptionsServiceImpl implements IOptionsService {
 
 
     @Override
-    public OptionsEntity addOptions(OptionsModel model, HttpServletRequest request) {
+    public OptionsEntity settingUpdateHomePage(OptionsModel model, HttpServletRequest request) {
         String optionKey =  request.getParameter("optionKey");
-        this.optionsRepository.findByOptionKey(optionKey).ifPresent(optionsEntity -> {
-            throw new RuntimeException("Option key already exists");
-        });
+        OptionsEntity optionsCheck = this.optionsRepository.findByOptionKey(optionKey).orElse(null);
 
         if(model == null) throw new RuntimeException("Options model is null");
         OptionsEntity optionsEntity = OptionsEntity.builder()
@@ -104,17 +104,19 @@ public class OptionsServiceImpl implements IOptionsService {
         List<Object> categories = root.getJSONArray("categories").toList();
         List<Object> recommendProductFilter = root.getJSONArray("recommendProductFilter").toList();
 
-        CompletableFuture<Void> imgUploadFuture = null;
-        StringBuilder valueNew = new StringBuilder();
+        List<CompletableFuture<Void>> imgUploadFutures = new ArrayList<>();
 
         // Upload image slides
         for (Object slide : slides) {
             Map<String,Object> slideMap = (Map<String, Object>) slide;
             if(slideMap.get("imageParameter") != null) {
-                fileUploadProvider.deleteFile(slideMap.get("imageUrl").toString());
                 try {
+                    fileUploadProvider.deleteFile(slideMap.get("imageUrl").toString());
                     Part filePart = request.getPart(slideMap.get("imageParameter").toString());
-                    imgUploadFuture = fileUploadProvider.asyncUpload1File("slides", filePart).thenAccept(url -> slideMap.put("imageUrl", url));
+                    imgUploadFutures.add( fileUploadProvider.asyncUpload1File("slides/", filePart).thenAccept(url -> {
+                        slideMap.put("imageUrl", url);
+                    }));
+
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 } catch (ServletException e) {
@@ -123,16 +125,15 @@ public class OptionsServiceImpl implements IOptionsService {
             }
             slideMap.remove("imageParameter");
         }
-        valueNew.append(slides);
 
         // Upload image banner 1
-        Object banner1 = root.getJSONObject("imageBanner1");
-        Map<String, Object> banner1Map = (Map<String, Object>) banner1;
+        JSONObject banner1 = root.getJSONObject("imageBanner1");
+        Map<String, Object> banner1Map = banner1.toMap();
         if(banner1Map.get("imageParameter") != null) {
-            fileUploadProvider.deleteFile(banner1Map.get("imageUrl").toString());
             try {
+                fileUploadProvider.deleteFile(banner1Map.get("imageUrl").toString());
                 Part filePart = request.getPart(banner1Map.get("imageParameter").toString());
-                imgUploadFuture = fileUploadProvider.asyncUpload1File("banner1", filePart).thenAccept(url -> banner1Map.put("imageUrl", url));
+                imgUploadFutures.add(fileUploadProvider.asyncUpload1File("banner1/", filePart).thenAccept(url -> banner1Map.put("imageUrl", url)));
             } catch (IOException e) {
                 throw new RuntimeException(e);
             } catch (ServletException e) {
@@ -142,13 +143,13 @@ public class OptionsServiceImpl implements IOptionsService {
         banner1Map.remove("imageParameter");
 
         // Upload image banner 2
-        Object banner2 = root.getJSONObject("imageBanner2");
-        Map<String, Object> banner2Map = (Map<String, Object>) banner2;
+        JSONObject banner2 = root.getJSONObject("imageBanner2");
+        Map<String, Object> banner2Map = banner2.toMap();
         if(banner2Map.get("imageParameter") != null) {
-            fileUploadProvider.deleteFile(banner2Map.get("imageUrl").toString());
             try {
+                fileUploadProvider.deleteFile(banner2Map.get("imageUrl").toString());
                 Part filePart = request.getPart(banner2Map.get("imageParameter").toString());
-                imgUploadFuture = fileUploadProvider.asyncUpload1File("banner2", filePart).thenAccept(url -> banner2Map.put("imageUrl", url));
+                imgUploadFutures.add(fileUploadProvider.asyncUpload1File("banner2/", filePart).thenAccept(url -> banner2Map.put("imageUrl", url)));
             } catch (IOException e) {
                 throw new RuntimeException(e);
             } catch (ServletException e) {
@@ -159,11 +160,14 @@ public class OptionsServiceImpl implements IOptionsService {
 
         //check id category into database
         List<Long> listCatId = categories.stream().map(id -> Long.parseLong(id.toString())).collect(java.util.stream.Collectors.toList());
-        this.categoryRepository.findAllById(listCatId);
+        List<CategoryEntity> entityList = this.categoryRepository.findAllByIdIn(listCatId);
+        if(entityList.size() != listCatId.size()) {
+            throw new RuntimeException("Exist Category not found");
+        }
 
-        if (imgUploadFuture != null) {
+        if (!imgUploadFutures.isEmpty()) {
             try {
-                imgUploadFuture.get();
+                CompletableFuture.allOf(imgUploadFutures.toArray(CompletableFuture[]::new)).get();
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             } catch (ExecutionException e) {
@@ -180,6 +184,12 @@ public class OptionsServiceImpl implements IOptionsService {
 
         optionsEntity.setOptionValue(new JSONObject(finalRs).toString());
 
-        return this.optionsRepository.save(optionsEntity);
+        // check option key is exist, if exist, update, else add new
+        if(optionsCheck == null) {
+            return this.optionsRepository.save(optionsEntity);
+        } else {
+            optionsCheck.setOptionValue(new JSONObject(finalRs).toString());
+            return this.optionsRepository.save(optionsCheck);
+        }
     }
 }

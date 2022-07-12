@@ -1,5 +1,6 @@
 package com.webs;
 
+import com.dtos.OptionsDto;
 import com.dtos.ResponseDto;
 import com.models.OptionsModel;
 import com.services.IOptionsService;
@@ -19,14 +20,8 @@ public class OptionsResources {
 
     @Transactional
     @PostMapping
-    public ResponseDto addOptions(OptionsModel model, HttpServletRequest request) {
-        return ResponseDto.of(this.optionsService.addOptions(model, request), "Options added");
+    public ResponseDto settingUpdateHomePage(OptionsModel model, HttpServletRequest request) {
+        return ResponseDto.of(OptionsDto.toDto(this.optionsService.settingUpdateHomePage(model, request)), "Options added");
     }
-
-//    @Transactional
-//    @PatchMapping("/{id}")
-//    public ResponseDto updateOptions(@PathVariable Long id, @RequestBody OptionsModel model, HttpServletRequest request) {
-//        return ResponseDto.of(this.optionsService.updateOptions(id, model, request), "Options updated");
-//    }
 
 }

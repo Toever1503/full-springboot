@@ -33,5 +33,5 @@ public interface ICategoryRepository extends JpaRepository<CategoryEntity, Long>
     @Modifying
     @Query("UPDATE ProductEntity p SET p.category = null WHERE p.category.id = ?1")
     void updateProductCategory(Long categoryId);
-
+    List<CategoryEntity> findAllByIdIn(List<Long> ids);
 }
