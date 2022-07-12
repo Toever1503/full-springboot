@@ -29,6 +29,7 @@ public class OrderDetailDto {
                 .price(entity.getPrice())
                 .quantity(entity.getQuantity())
                 .isReview(entity.getIsReview())
+                .optionName(entity.getOption())
                 .product(ProductDto.toDto(entity.getProductId()))
                 .build();
     }
