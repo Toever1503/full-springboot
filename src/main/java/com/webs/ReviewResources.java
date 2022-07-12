@@ -3,6 +3,7 @@ package com.webs;
 import com.dtos.ResponseDto;
 import com.dtos.ReviewDto;
 import com.entities.ReviewEntity;
+import com.entities.ReviewEntity_;
 import com.entities.RoleEntity;
 import com.models.ReviewModel;
 import com.models.filters.ReviewFilterModel;
@@ -78,14 +79,15 @@ public class ReviewResources {
     public ResponseDto getAllReviewsForProduct(@PathVariable Long id, Pageable page, @RequestParam("rating") Float rating) {
         Specification<ReviewEntity> spec = ReviewSpecification.byProductId(id);
         Specification<ReviewEntity> ratingSpec = ReviewSpecification.byRating(rating);
+        Specification<ReviewEntity> parentSpec = ((root, query, criteriaBuilder) -> root.get(ReviewEntity_.PARENT_REVIEW).isNull());
 
         Specification<ReviewEntity> finalSpec;
-        if (rating != null)
-            finalSpec = spec.and(ratingSpec);
+        if (rating != 0)
+            finalSpec = Specification.where(spec).and(ratingSpec).and(parentSpec);
         else
-            finalSpec = spec;
+            finalSpec = Specification.where(spec).and(parentSpec);
 
-        Page<ReviewEntity> reviewEntityPage = this.reviewService.filter(page, Specification.where(finalSpec));
+        Page<ReviewEntity> reviewEntityPage = this.reviewService.filter(page, finalSpec);
         return ResponseDto.of(reviewEntityPage.map(ReviewDto::toDto),
                 "Reviews retrieved for product: ".concat(id.toString()));
     }

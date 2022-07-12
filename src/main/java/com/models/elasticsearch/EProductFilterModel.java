@@ -17,7 +17,6 @@ public class EProductFilterModel {
     private Double maxPrice;
 
     private List<String> categorySlugs;
-    private String industrySlug;
     private String status;
 
     private EProductMetaFilterModel metas;
@@ -25,4 +24,6 @@ public class EProductFilterModel {
     private EProductVariationFilterModel variations;
 
     private List<String> tags;
+
+    private List<String> recommendByKeywords;
 }

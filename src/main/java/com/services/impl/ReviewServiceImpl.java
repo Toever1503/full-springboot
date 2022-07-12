@@ -130,15 +130,25 @@ public class ReviewServiceImpl implements IReviewService {
                 throw new RuntimeException("You can not review this order, because you have not received it yet");
             }
         }
-        ReviewEntity review = this.reviewRepository.save(reviewEntity);
-        // set lai gia tri isReview cho orderDetail
-        orderDetailEntity.setIsReview(true);
-        this.orderDetailRepository.save(orderDetailEntity);
-        // update rating of product
-        this.reviewRepository.updateProductRating(review.getProduct().getId());
-        notificationService.addForSpecificUser(new SocketNotificationModel(null, SecurityUtils.getCurrentUsername() + " đã đánh giá cho sản phẩm!", "", ENotificationCategory.REVIEW, ReviewEntity.ADMIN_REVIEW_URL), this.userRepository.getAllIdsByRole(RoleEntity.ADMINISTRATOR));
 
-        return review;
+
+        try {
+            this.reviewRepository.save(reviewEntity);
+            // set lai gia tri isReview cho orderDetail
+            orderDetailEntity.setIsReview(true);
+            this.orderDetailRepository.save(orderDetailEntity);
+            // update rating of product
+            this.reviewRepository.updateProductRating(reviewEntity.getProduct().getId());
+            notificationService.addForSpecificUser(new SocketNotificationModel(null, SecurityUtils.getCurrentUsername() + " đã đánh giá cho sản phẩm!", "", ENotificationCategory.REVIEW, ReviewEntity.ADMIN_REVIEW_URL), this.userRepository.getAllIdsByRole(RoleEntity.ADMINISTRATOR));
+            return reviewEntity;
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException("Error when add review!!!");
+        } finally {
+            this.productService.saveDtoOnElasticsearch(productEntity);
+        }
+
+
     }
 
     @Override
@@ -201,11 +211,13 @@ public class ReviewServiceImpl implements IReviewService {
         } else {
             throw new RuntimeException("You can not update this review, because you have not created it yet");
         }
+
         // update rating of product
-        ReviewEntity reviewUpdate = this.reviewRepository.save(updateReview);
-        this.reviewRepository.updateProductRating(reviewUpdate.getProduct().getId());
+        this.reviewRepository.save(updateReview);
+        this.reviewRepository.updateProductRating(updateReview.getProduct().getId());
         notificationService.addForSpecificUser(new SocketNotificationModel(null, SecurityUtils.getCurrentUsername() + " đã chỉnh sửa lại đánh giá cho sản phẩm!", "", ENotificationCategory.REVIEW, ReviewEntity.ADMIN_REVIEW_URL), this.userRepository.getAllIdsByRole(RoleEntity.ADMINISTRATOR));
-        return reviewUpdate;
+        return updateReview;
+
     }
 
     @Override

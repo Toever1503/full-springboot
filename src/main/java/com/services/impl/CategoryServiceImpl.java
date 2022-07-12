@@ -146,7 +146,7 @@ public class CategoryServiceImpl implements ICategoryService {
 
         final String folder = UserEntity.FOLDER + SecurityUtils.getCurrentUsername() + "/" + CategoryEntity.FOLDER;
         // save file
-        if (model.getImage().getOriginalFilename() != null && !model.getImage().getOriginalFilename().equals("")) {//Check if notification avatar is empty or not
+        if (model.getImage() != null) {//Check if notification avatar is empty or not
             String filePath;
             try {
                 filePath = fileUploadProvider.uploadFile(folder, model.getImage());
@@ -216,9 +216,11 @@ public class CategoryServiceImpl implements ICategoryService {
 
     @Override
     public boolean deleteById(Long id) {
-        this.categoryRepository.deleteById(id);
+        if (id.equals(1l))
+            return false;
         this.categoryRepository.updateCategoryParent(id);
         this.categoryRepository.updateProductCategory(id);
+        this.categoryRepository.deleteById(id);
         return true;
     }
 

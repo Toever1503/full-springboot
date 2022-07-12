@@ -497,9 +497,6 @@ public class ProductServiceImpl implements IProductService {
         if (model.getCategorySlugs() != null) {
             rootAndQueryBuilders.add(termsQuery("category.categorySLug.keyword", model.getCategorySlugs()));
 //            filter by category
-        } else if (model.getIndustrySlug() != null) {
-            //filter by industry
-            rootAndQueryBuilders.add(termQuery("industry.industrySLug.keyword", model.getIndustrySlug()));
         }
 
         if (model.getMaxPrice() != null && model.getMinPrice() != null) {
@@ -588,8 +585,20 @@ public class ProductServiceImpl implements IProductService {
             // filter by q
 //            criteriaList.add(Criteria.where("name").contains(model.getQ()));
             rootAndQueryBuilders.add(
-                    queryStringQuery(model.getQ()).analyzeWildcard(true).defaultField("*")
+                    queryStringQuery(model.getQ())
+                            .analyzeWildcard(true)
+                            .field("name")
             );
+        }
+        else if(model.getRecommendByKeywords() != null){
+            rootAndQueryBuilders.add(
+                    queryStringQuery(model.getRecommendByKeywords()
+                            .stream().reduce((s1, s2)-> s1.concat(" OR ").concat(s2)).get())
+                            .analyzeWildcard(true)
+                            .field("name")
+                            .field("tags.tagName")
+            );
+
         }
 
 //        use later
