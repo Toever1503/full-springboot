@@ -40,7 +40,6 @@ public class SocketHandler implements WebSocketHandler {
         session.getAttributes().put("username", customUserDetail.getUsername());
         session.getAttributes().put("id", customUserDetail.getUser().getId());
         userSessions.put(customUserDetail.getUser().getId(), session);
-        List<ChatRoomModel> chatRoomModels = new ArrayList<>();
         if(chatRoomRepository.findAllByUserEntitiesContains(customUserDetail.getUser()).size() > 0){
             for (ChatRoomEntity chatRoomEntity : chatRoomRepository.findAllByUserEntitiesContains(customUserDetail.getUser())) {
                 ChatRoomModel chatRoomModel = ChatRoomModel.toModel(chatRoomEntity);
@@ -54,10 +53,9 @@ public class SocketHandler implements WebSocketHandler {
                     chatRoomModel.getPersons().add(session);
                 }
                 updateUsersChatRoom(chatRoomModel);
-                chatRoomModels.add(chatRoomModel);
+                userChatRooms.add(chatRoomModel);
             }
         }
-        userChatRooms.addAll(chatRoomModels);
     }
 
     public static UserEntity getUserFromSession(WebSocketSession session) {

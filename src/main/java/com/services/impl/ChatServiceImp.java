@@ -104,7 +104,7 @@ public class ChatServiceImp implements IChatService {
             return chatRoomModel.getRoomId();
         }
         else {
-            return curChatRooms.stream().findAny().get().getRoomId();
+            return curChatRooms.stream().filter(x->x.getPersons().contains(SocketHandler.userSessions.get(SecurityUtils.getCurrentUserId()))).findFirst().get().getRoomId();
         }
     }
 

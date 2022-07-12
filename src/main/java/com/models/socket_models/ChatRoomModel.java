@@ -53,15 +53,13 @@ public class ChatRoomModel {
 
     public void sendMessage(WebSocketSession session, WebSocketMessage<?> message) {
         this.updatedDate = Calendar.getInstance().getTime();
-            for (WebSocketSession person : persons) {
-                if (person.getId().equals(session.getId()))
-                    continue;
+            persons.stream().filter(x->!x.equals(session)).forEach(x->{
                 try {
-                    person.sendMessage(message);
-                } catch (Exception e) {
-                    e.printStackTrace();
+                    x.sendMessage(message);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
                 }
-            }
+            });
         }
 
     public String joinRoom(WebSocketSession session) throws ChatRoomException {
