@@ -720,7 +720,6 @@ public class ProductServiceImpl implements IProductService {
         return this.elasticsearchRestTemplate.indexOps(IndexCoordinates.of(ElasticsearchIndices.PRODUCT_INDEX)).delete();
     }
 
-
     private ProductSkuEntity saveSku(ProductEntity entity, String folder, ProductSkuModel model, HttpServletRequest req) {
         ProductSkuEntity skuEntity;
         if (model.getId() != null)
