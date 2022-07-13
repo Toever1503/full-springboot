@@ -39,13 +39,17 @@ public class NotificationSpecification extends BaseSpecification {
     public static Specification likeCreatedBy(String createdBy) {
         return (root, query, cb) -> {
             Join<NotificationEntity, UserEntity> join = root.join(NotificationEntity_.createdBy);
-            return cb.or(cb.like(join.get(UserEntity_.USER_NAME), createdBy), cb.like(join.get(UserEntity_.FULL_NAME), createdBy));
+            String likeName = new StringBuilder("%").append(createdBy).append("%").toString();
+            return cb.or(cb.like(join.get(UserEntity_.USER_NAME), likeName), cb.like(join.get(UserEntity_.FULL_NAME), likeName));
         };
     }
 
     public static Specification<NotificationEntity> filter(NotificationFilter notificationFilter) {
         List<Specification<NotificationEntity>> specs = new ArrayList<>();
-        specs.add((root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get(NotificationEntity_.IS_JUST_NOTICE), null));
+        specs.add((root, query, criteriaBuilder) -> criteriaBuilder.or(
+                root.get(NotificationEntity_.IS_JUST_NOTICE).isNull(),
+                criteriaBuilder.equal(root.get(NotificationEntity_.IS_JUST_NOTICE), false)
+        ));
 
         if (notificationFilter.getTitle() != null)
             specs.add(like(NotificationEntity_.TITLE, notificationFilter.getTitle()));
