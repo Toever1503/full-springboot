@@ -43,7 +43,7 @@ public class TotalQuestionDto {
         dto.setReplyContent(entity.getReplyContent());
         dto.setCreatedBy(entity.getCreatedBy().getUserName());
         if (entity.getAnsweredBy() != null)
-            dto.setUserReply(entity.getAnsweredBy().getFullName());
+            dto.setUserReply(entity.getAnsweredBy().getUserName());
         return dto;
     }
 

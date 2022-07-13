@@ -26,7 +26,7 @@ public class QuestionDto {
     private String status;
 
     public static QuestionDto toDto(QuestionEntity questionEntity) {
-        if(questionEntity == null) return null;
+        if (questionEntity == null) return null;
         return QuestionDto.builder()
                 .id(questionEntity.getId())
                 .category(questionEntity.getCategory())
@@ -40,8 +40,8 @@ public class QuestionDto {
                 .build();
     }
 
-        public static JSONObject parseJson(String json){
-            return new JSONObject(json);
-        }
+    public static JSONObject parseJson(String json) {
+        return new JSONObject(json);
+    }
 
 }

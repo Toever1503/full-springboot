@@ -90,10 +90,10 @@ public class OptionsServiceImpl implements IOptionsService {
 
     @Override
     public OptionsEntity settingUpdateHomePage(OptionsModel model, HttpServletRequest request) {
-        String optionKey =  request.getParameter("optionKey");
+        String optionKey = request.getParameter("optionKey");
         OptionsEntity optionsCheck = this.optionsRepository.findByOptionKey(optionKey).orElse(null);
 
-        if(model == null) throw new RuntimeException("Options model is null");
+        if (model == null) throw new RuntimeException("Options model is null");
         OptionsEntity optionsEntity = OptionsEntity.builder()
                 .optionKey(model.getOptionKey())
                 .build();
@@ -102,19 +102,19 @@ public class OptionsServiceImpl implements IOptionsService {
         JSONObject root = new JSONObject(json);
 
         List<Object> slides = root.getJSONArray("slides").toList();
-        List<Object> categories = root.getJSONArray("categories").toList();
+//        List<Object> categories = root.getJSONArray("categories").toList(); // not use
         List<Object> recommendProductFilter = root.getJSONArray("recommendProductFilter").toList();
 
         List<CompletableFuture<Void>> imgUploadFutures = new ArrayList<>();
 
         // Upload image slides
         for (Object slide : slides) {
-            Map<String,Object> slideMap = (Map<String, Object>) slide;
-            if(slideMap.get("imageParameter") != null) {
+            Map<String, Object> slideMap = (Map<String, Object>) slide;
+            if (slideMap.get("imageParameter") != null) {
                 try {
                     fileUploadProvider.deleteFile(slideMap.get("imageUrl").toString());
                     Part filePart = request.getPart(slideMap.get("imageParameter").toString());
-                    imgUploadFutures.add( fileUploadProvider.asyncUpload1File("slides/", filePart).thenAccept(url -> {
+                    imgUploadFutures.add(fileUploadProvider.asyncUpload1File("slides/", filePart).thenAccept(url -> {
                         slideMap.put("imageUrl", url);
                     }));
 
@@ -130,7 +130,7 @@ public class OptionsServiceImpl implements IOptionsService {
         // Upload image banner 1
         JSONObject banner1 = root.getJSONObject("imageBanner1");
         Map<String, Object> banner1Map = banner1.toMap();
-        if(banner1Map.get("imageParameter") != null) {
+        if (banner1Map.get("imageParameter") != null) {
             try {
                 fileUploadProvider.deleteFile(banner1Map.get("imageUrl").toString());
                 Part filePart = request.getPart(banner1Map.get("imageParameter").toString());
@@ -146,7 +146,7 @@ public class OptionsServiceImpl implements IOptionsService {
         // Upload image banner 2
         JSONObject banner2 = root.getJSONObject("imageBanner2");
         Map<String, Object> banner2Map = banner2.toMap();
-        if(banner2Map.get("imageParameter") != null) {
+        if (banner2Map.get("imageParameter") != null) {
             try {
                 fileUploadProvider.deleteFile(banner2Map.get("imageUrl").toString());
                 Part filePart = request.getPart(banner2Map.get("imageParameter").toString());
@@ -159,12 +159,13 @@ public class OptionsServiceImpl implements IOptionsService {
         }
         banner2Map.remove("imageParameter");
 
+        // not use
         //check id category into database
-        List<Long> listCatId = categories.stream().map(id -> Long.parseLong(id.toString())).collect(java.util.stream.Collectors.toList());
-        List<CategoryEntity> entityList = this.categoryRepository.findAllByIdIn(listCatId);
-        if(entityList.size() != listCatId.size()) {
-            throw new RuntimeException("Exist Category not found");
-        }
+//        List<Long> listCatId = categories.stream().map(id -> Long.parseLong(id.toString())).collect(java.util.stream.Collectors.toList());
+//        List<CategoryEntity> entityList = this.categoryRepository.findAllByIdIn(listCatId);
+//        if(entityList.size() != listCatId.size()) {
+//            throw new RuntimeException("Exist Category not found");
+//        }
 
         if (!imgUploadFutures.isEmpty()) {
             try {
@@ -178,7 +179,8 @@ public class OptionsServiceImpl implements IOptionsService {
 
         Map<String, Object> finalRs = new HashMap<>();
         finalRs.put("slides", slides);
-        finalRs.put("categories", categories);
+        // not use
+//        finalRs.put("categories", categories);
         finalRs.put("recommendProductFilter", recommendProductFilter);
         finalRs.put("imageBanner1", banner1Map);
         finalRs.put("imageBanner2", banner2Map);
@@ -186,7 +188,7 @@ public class OptionsServiceImpl implements IOptionsService {
         optionsEntity.setOptionValue(new JSONObject(finalRs).toString());
 
         // check option key is exist, if exist, update, else add new
-        if(optionsCheck == null) {
+        if (optionsCheck == null) {
             return this.optionsRepository.save(optionsEntity);
         } else {
             optionsCheck.setOptionValue(new JSONObject(finalRs).toString());
@@ -198,6 +200,7 @@ public class OptionsServiceImpl implements IOptionsService {
     public OptionsEntity getOptionByKey(String key) {
         return this.optionsRepository.findByOptionKey(key).orElseThrow(() -> new RuntimeException("Options not found"));
     }
+
     @Override
     public List<OptionsEntity> getOptionsByKeys(List<String> keys) {
         return keys.stream().map(key -> this.getOptionByKey(key)).collect(Collectors.toList());
