@@ -54,15 +54,14 @@ public class NotificationEntity {
     private Integer countEdit;
     @Column(name = "status")
     private String status;
-
     public static Integer limitEditMin = 5;
     @Temporal(javax.persistence.TemporalType.TIMESTAMP)
     @Column(name = "future_date")
     private Date futureDate;
-    @ManyToOne
-    @JoinColumn(name = "user_id")
-    private UserEntity createdBy;
 
+    @ManyToOne
+    @JoinColumn(name = "created_by")
+    private UserEntity createdBy;
 
     // this field use to separate notification for normal and socket
     @Column(name = "is_just_notice")

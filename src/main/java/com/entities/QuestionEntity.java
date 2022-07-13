@@ -45,6 +45,7 @@ public class QuestionEntity {
     @ManyToOne
     @JoinColumn(name = "created_by")
     private UserEntity createdBy;
+
     @ManyToOne
     @JoinColumn(name = "answered_by")
     private UserEntity answeredBy;
