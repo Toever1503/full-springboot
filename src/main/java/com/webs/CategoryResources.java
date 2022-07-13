@@ -76,8 +76,9 @@ public class CategoryResources {
 
     @Transactional
     @GetMapping("public/status/{status}")
-    public ResponseDto filterByStatus(@PathVariable Boolean status) {
-        List<CategoryEntity> categories = categoryService.findAll(Specification.where(CategorySpecification.byStatus(status)));
+    public ResponseDto filterParentByStatus(@PathVariable Boolean status) {
+        List<CategoryEntity> categories = categoryService.findAll(Specification.where(CategorySpecification.byStatus(status))
+                .and((root, query, cb) -> root.get(CategoryEntity_.PARENT_CATEGORY).isNull()));
         return ResponseDto.of(categories.stream()
                 .map(c -> CategoryDto.toDto(c, false)), "get category by status success");
     }
