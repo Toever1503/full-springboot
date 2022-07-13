@@ -159,6 +159,7 @@ public class CategoryServiceImpl implements ICategoryService {
         categoryEntity.setCreatedBy(SecurityUtils.getCurrentUser().getUser());
         categoryEntity.setTotalProduct(0);
         categoryEntity.setDeepLevel(0);
+        categoryEntity.setStatus(false);
         if (this.categoryRepository.findBySlug(model.getSlug()).isPresent())
             throw new RuntimeException("Slug already existed!");
 

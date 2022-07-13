@@ -43,20 +43,13 @@ import java.util.stream.Collectors;
 @Service
 @Order(5)
 public class UserServiceImp implements IUserService {
-    private final
-    IUserRepository userRepository;
-    private final
-    IRoleRepository roleRepository;
-    private final
-    JwtProvider jwtProvider;
-    private final
-    AuthenticationManager authenticationManager;
+    private final IUserRepository userRepository;
+    private final IRoleRepository roleRepository;
+    private final JwtProvider jwtProvider;
+    private final AuthenticationManager authenticationManager;
     private final
     PasswordEncoder passwordEncoder;
-
-    private final
-    MailService mailService;
-
+    private final MailService mailService;
     private final Random random = new Random();
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private final IAddressService addressService;
