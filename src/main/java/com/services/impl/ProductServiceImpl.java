@@ -607,12 +607,14 @@ public class ProductServiceImpl implements IProductService {
                     queryStringQuery(model.getQ())
                             .analyzeWildcard(true)
                             .field("name")
+                            .field("nameEng")
             );
         } else if (model.getRecommendByKeywords() != null) {
             rootAndQueryBuilders.add(
                     queryStringQuery(model.getRecommendByKeywords()
                             .stream().reduce((s1, s2) -> s1.concat(" OR ").concat(s2)).get())
                             .field("name")
+                            .field("nameEng")
                             .field("tags.tagName")
                             .analyzer("asciifolding")
             );

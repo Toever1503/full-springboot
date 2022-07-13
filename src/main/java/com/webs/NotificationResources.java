@@ -113,7 +113,7 @@ public class NotificationResources {
 
     @Transactional
     @PostMapping("filter")
-    public ResponseDto filter(@RequestBody @Valid NotificationFilter notificationFilter, Pageable page) {
+    public ResponseDto filter(@RequestBody NotificationFilter notificationFilter, Pageable page) {
         return ResponseDto.of(this.notificationService.filter(page, Specification.where(NotificationSpecification.filter(notificationFilter))).map(NotificationDto::toDto), "Filter success");
     }
 

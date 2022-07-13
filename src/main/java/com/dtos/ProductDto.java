@@ -2,6 +2,7 @@ package com.dtos;
 
 import com.config.elasticsearch.ElasticsearchIndices;
 import com.entities.ProductEntity;
+import com.utils.ASCIIConverter;
 import lombok.*;
 import org.json.JSONObject;
 import org.springframework.data.annotation.Id;
@@ -29,7 +30,6 @@ public class ProductDto {
             "category.categoryName",
             "category.description",
             "category.slug",
-            "industry.description",
             "productMetas.metaKey",
             "productMetas.metaValue",
             "tags.tagName",
@@ -41,6 +41,9 @@ public class ProductDto {
 
     @Field(type = FieldType.Text, name = "name")
     private String name;
+
+    @Field(type = FieldType.Text, name = "nameEng")
+    private String nameEng;
 
     @Field(type = FieldType.Text, name = "description")
     private String description;
@@ -98,6 +101,8 @@ public class ProductDto {
         ProductDto productDto = new ProductDto();
         productDto.setId(entity.getId());
         productDto.setName(entity.getName());
+        productDto.setNameEng(ASCIIConverter.removeAccent(entity.getName()));
+
         productDto.setDescription(entity.getDescription());
         productDto.setTotalLike(entity.getTotalLike());
         productDto.setTotalReview(entity.getTotalReview());
