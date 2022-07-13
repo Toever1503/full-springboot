@@ -59,4 +59,8 @@ public class ASCIIConverter {
     public static String utf8ToAscii(String s){
         return ASCIIConverter.removeAccent(s.replaceAll("\\s{2,}", " ")).replace(" ", "-").toLowerCase();
     }
+
+    public static void main(String[] args) {
+       
+    }
 }

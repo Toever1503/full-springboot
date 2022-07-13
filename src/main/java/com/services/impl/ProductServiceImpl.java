@@ -18,16 +18,10 @@ import com.utils.SecurityUtils;
 import org.apache.lucene.search.join.ScoreMode;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
-import org.elasticsearch.search.sort.NestedSortBuilder;
-import org.elasticsearch.search.sort.SortBuilder;
-import org.elasticsearch.search.sort.SortBuilders;
-import org.elasticsearch.search.sort.SortOrder;
+import org.elasticsearch.search.sort.*;
 import org.json.JSONObject;
 import org.springframework.context.annotation.Lazy;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
 import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate;
 import org.springframework.data.elasticsearch.core.SearchHit;
 import org.springframework.data.elasticsearch.core.SearchHits;
@@ -497,18 +491,22 @@ public class ProductServiceImpl implements IProductService {
                 .withQuery(rootQueryBool)
                 .build();
 
-        Sort.Order sortOrder  = page.getSort().getOrderFor("skus.price");
-        if(sortOrder != null){
-            if(sortOrder.getProperty().equals("skus.price")){
+        // sort nested
+        Sort.Order sortOrder = page.getSort().getOrderFor("skus.price");
+        if (sortOrder != null) {
+            if (sortOrder.getProperty().equals("skus.price")) {
                 NestedSortBuilder nestedSortBuilder = new NestedSortBuilder("skus");
                 nestedSortBuilder.setFilter(rangeQuery("skus.price").gte(0));
-                SortBuilder sortBuilder = SortBuilders.fieldSort("skus.price");
 
-//                sortBuilder.order(nestedSortBuilder);
+                FieldSortBuilder sortBuilder = SortBuilders.fieldSort("skus.price")
+                        .setNestedSort(nestedSortBuilder)
+                        .sortMode(SortMode.MIN)
+                        .order(SortOrder.fromString(sortOrder.getDirection().name()));
 
-                searchQuery.setMaxResults(page.getPageSize());
-            }
-            else{
+                PageRequest pageRequest = PageRequest.of(page.getPageNumber(), page.getPageSize());
+                searchQuery.setPageable(pageRequest);
+                searchQuery.getElasticsearchSorts().add(sortBuilder);
+            } else {
                 searchQuery.setPageable(page);
             }
         }
@@ -610,14 +608,13 @@ public class ProductServiceImpl implements IProductService {
                             .analyzeWildcard(true)
                             .field("name")
             );
-        }
-        else if(model.getRecommendByKeywords() != null){
+        } else if (model.getRecommendByKeywords() != null) {
             rootAndQueryBuilders.add(
                     queryStringQuery(model.getRecommendByKeywords()
-                            .stream().reduce((s1, s2)-> s1.concat(" OR ").concat(s2)).get())
-                            .analyzeWildcard(true)
+                            .stream().reduce((s1, s2) -> s1.concat(" OR ").concat(s2)).get())
                             .field("name")
                             .field("tags.tagName")
+                            .analyzer("asciifolding")
             );
 
         }
