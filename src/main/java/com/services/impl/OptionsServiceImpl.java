@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
 
 @Service
 public class OptionsServiceImpl implements IOptionsService {
@@ -191,5 +192,14 @@ public class OptionsServiceImpl implements IOptionsService {
             optionsCheck.setOptionValue(new JSONObject(finalRs).toString());
             return this.optionsRepository.save(optionsCheck);
         }
+    }
+
+    @Override
+    public OptionsEntity getOptionByKey(String key) {
+        return this.optionsRepository.findByOptionKey(key).orElseThrow(() -> new RuntimeException("Options not found"));
+    }
+    @Override
+    public List<OptionsEntity> getOptionsByKeys(List<String> keys) {
+        return keys.stream().map(key -> this.getOptionByKey(key)).collect(Collectors.toList());
     }
 }
