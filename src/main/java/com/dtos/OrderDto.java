@@ -4,6 +4,7 @@ import com.entities.OrderEntity;
 import lombok.*;
 
 import javax.persistence.Column;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -49,7 +50,7 @@ public class OrderDto {
                 .createdBy(entity.getCreatedBy() == null ? null : entity.getCreatedBy().getUserName())
                 .createdDate(entity.getCreatedDate())
                 .updatedDate(entity.getUpdatedDate())
-                .orderDetails(entity.getOrderDetails() == null ? null : entity.getOrderDetails().stream().map(OrderDetailDto::toDto).collect(Collectors.toList()))
+                .orderDetails(entity.getOrderDetails() == null ? Collections.EMPTY_LIST : entity.getOrderDetails().stream().map(OrderDetailDto::toDto).collect(Collectors.toList()))
                 .build();
     }
 }

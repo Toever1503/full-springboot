@@ -47,8 +47,7 @@ public class UserServiceImp implements IUserService {
     private final IRoleRepository roleRepository;
     private final JwtProvider jwtProvider;
     private final AuthenticationManager authenticationManager;
-    private final
-    PasswordEncoder passwordEncoder;
+    private final PasswordEncoder passwordEncoder;
     private final MailService mailService;
     private final Random random = new Random();
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -78,7 +77,6 @@ public class UserServiceImp implements IUserService {
         }
 
     }
-
 
     @Override
     public List<UserEntity> findAll() {

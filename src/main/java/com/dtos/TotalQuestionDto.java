@@ -38,7 +38,7 @@ public class TotalQuestionDto {
         dto.setCreatedDate(entity.getCreatedDate());
         dto.setQuestContent(entity.getQuestContent());
         dto.setTitle(entity.getTitle());
-        dto.setQuestFiles((entity.getQuestFile() == null ? null : parseJson(entity.getQuestFile()).getJSONArray("files").toList()));
+        dto.setQuestFiles((entity.getQuestFile() == null ? Collections.EMPTY_LIST : parseJson(entity.getQuestFile()).getJSONArray("files").toList()));
         dto.setUpdatedDate(entity.getUpdatedDate());
         dto.setReplyContent(entity.getReplyContent());
         dto.setCreatedBy(entity.getCreatedBy().getUserName());

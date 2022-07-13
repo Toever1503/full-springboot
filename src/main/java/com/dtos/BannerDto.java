@@ -3,6 +3,7 @@ package com.dtos;
 import com.entities.BannerEntity;
 import lombok.*;
 
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -28,7 +29,7 @@ public class BannerDto {
         return BannerDto.builder()
                 .id(entity.getId())
                 .name(entity.getName())
-                .attachFiles(entity.getAttachFiles() == null ? null : parseJson(entity.getAttachFiles()).getJSONArray("files").toList())
+                .attachFiles(entity.getAttachFiles() == null ? Collections.EMPTY_LIST : parseJson(entity.getAttachFiles()).getJSONArray("files").toList())
                 .createdDate(entity.getCreatedDate())
                 .updatedDate(entity.getUpdatedDate())
                 .isEdit(entity.getIsEdit())

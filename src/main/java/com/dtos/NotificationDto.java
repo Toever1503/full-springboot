@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.json.JSONObject;
 
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -81,7 +82,7 @@ public class NotificationDto {
                 .viewed(entity.getViewed())
                 .createdBy(entity.getCreatedBy().getUserName())
                 .isEdit(entity.getIsEdit())
-                .attachFiles(entity.getAttachFiles() == null ? null : new JSONObject(entity.getAttachFiles()).getJSONArray("files").toList())
+                .attachFiles(entity.getAttachFiles() == null ? Collections.EMPTY_LIST : new JSONObject(entity.getAttachFiles()).getJSONArray("files").toList())
                 .category(entity.getCategory())
                 .build();
     }

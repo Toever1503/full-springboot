@@ -5,6 +5,7 @@ import lombok.*;
 import org.springframework.data.elasticsearch.annotations.Field;
 import org.springframework.data.elasticsearch.annotations.FieldType;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -43,7 +44,7 @@ public class CategoryDto {
                 .description(entity.getDescription())
                 .deepLevel(entity.getDeepLevel())
                 .parentCategory(ParentCategoryDto.toDto(entity.getParentCategory()))
-                .childCategories(wantChild == true ? (entity.getChildCategories() == null ? null : entity.getChildCategories().stream().map(child -> CategoryDto.toDto(child, wantChild)).collect(Collectors.toList())) : null)
+                .childCategories(wantChild == true ? (entity.getChildCategories() == null ? Collections.EMPTY_LIST : entity.getChildCategories().stream().map(child -> CategoryDto.toDto(child, wantChild)).collect(Collectors.toList())) : Collections.EMPTY_LIST)
                 .status(entity.getStatus())
                 .image(entity.getCatFile())
                 .build();

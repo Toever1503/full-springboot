@@ -32,7 +32,7 @@ public class QuestionDto {
                 .category(questionEntity.getCategory())
                 .title(questionEntity.getTitle())
                 .questContent(questionEntity.getQuestContent())
-                .questFiles(questionEntity.getQuestFile() == null ? null : parseJson(questionEntity.getQuestFile()).getJSONArray("files").toList())
+                .questFiles(questionEntity.getQuestFile() == null ? Collections.EMPTY_LIST : parseJson(questionEntity.getQuestFile()).getJSONArray("files").toList())
                 .createdBy(UserDto.toDto(questionEntity.getCreatedBy()))
                 .createdDate(questionEntity.getCreatedDate())
                 .updatedDate(questionEntity.getUpdatedDate())

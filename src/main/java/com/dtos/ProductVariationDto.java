@@ -11,6 +11,7 @@ import org.springframework.data.elasticsearch.annotations.FieldType;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -31,7 +32,7 @@ public class ProductVariationDto {
         return ProductVariationDto.builder()
                 .variationId(entity.getId())
                 .variationName(entity.getVariationName())
-                .values(entity.getVariationValues() == null ? null : entity.getVariationValues().stream().map(ProductVariationValueDto::toDto).collect(Collectors.toList()))
+                .values(entity.getVariationValues() == null ? Collections.EMPTY_LIST : entity.getVariationValues().stream().map(ProductVariationValueDto::toDto).collect(Collectors.toList()))
                 .build();
     }
 }

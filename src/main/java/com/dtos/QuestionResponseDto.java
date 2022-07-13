@@ -26,7 +26,7 @@ public class QuestionResponseDto {
                 .id(question.getId())
                 .questionDto(QuestionDto.toDto(question))
                 .replyContent(question.getReplyContent())
-                .userReply(question.getAnsweredBy() != null ? UserDto.toDto(question.getAnsweredBy()) : null)
+                .userReply(UserDto.toDto(question.getAnsweredBy()))
                 .build();
     }
 }

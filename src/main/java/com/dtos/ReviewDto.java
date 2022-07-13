@@ -41,7 +41,7 @@ public class ReviewDto {
                 .optionName(entity.getOptionName())
                 .content(entity.getContent())
                 .rating(entity.getRating() == null ? null : entity.getRating())
-                .attachFiles(entity.getAttachFiles() != null ? new JSONObject(entity.getAttachFiles()).getJSONArray("files").toList() : null)
+                .attachFiles(entity.getAttachFiles() != null ? new JSONObject(entity.getAttachFiles()).getJSONArray("files").toList() : Collections.EMPTY_LIST)
                 .createdDate(entity.getCreatedDate())
                 .updatedDate(entity.getUpdatedDate())
                 .isEdit(entity.getIsEdit())

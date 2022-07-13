@@ -28,14 +28,12 @@ import java.util.stream.Collectors;
 @RequestMapping("users")
 @Validated
 public class UserResources {
-
     private final Logger log = LoggerFactory.getLogger(this.getClass());
     private final IUserService userService;
 
     public UserResources(IUserService userService) {
         this.userService = userService;
     }
-
 
     @RolesAllowed("ADMINISTRATOR")
     @Transactional
