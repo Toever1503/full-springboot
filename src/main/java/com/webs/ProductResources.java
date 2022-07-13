@@ -135,13 +135,13 @@ public class ProductResources {
 
 
     @PostMapping("/filter")
-    public ResponseDto filterProduct(@RequestBody @Valid ProductFilter productFilter, Pageable pageable) {
+    public ResponseDto filterProduct(@RequestBody ProductFilter productFilter, Pageable pageable) {
         return ResponseDto.of(productService.findAll(pageable, ProductSpecification.filter(productFilter)), "Filter product");
     }
 
     @Operation(summary = "filter products")
     @PostMapping("public/filter")
-    public ResponseDto filterProduct(@Valid @NotNull @RequestBody EProductFilterModel filterModel, Pageable page) {
+    public ResponseDto filterProduct(@RequestBody EProductFilterModel filterModel, Pageable page) {
         log.info("Product filterModel: {}", filterModel);
         return ResponseDto.of(this.productService.eFilter(page, filterModel), "Filter product");
     }

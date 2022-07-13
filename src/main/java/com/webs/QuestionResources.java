@@ -165,7 +165,7 @@ public class QuestionResources {
 
     @Transactional
     @PostMapping("filter")
-    public ResponseDto filter(@Valid @RequestBody QuestionFilterModel model, Pageable page) {
+    public ResponseDto filter(@RequestBody QuestionFilterModel model, Pageable page) {
         log.info("{} is filtering question", SecurityUtils.getCurrentUser().getUsername());
         Page<QuestionEntity> questionEntities = questionService.filter(page, Specification.where(QuestionSpecification.filter(model)));
         return ResponseDto.of(questionEntities.map(TotalQuestionDto::toTotalQuestionDTO), "Get question by filter successfully");

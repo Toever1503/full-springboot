@@ -115,7 +115,7 @@ public class ReviewResources {
 
     @Transactional
     @PostMapping("filter")
-    public ResponseDto filter(@Valid @RequestBody ReviewFilterModel model, Pageable page) {
+    public ResponseDto filter( @RequestBody ReviewFilterModel model, Pageable page) {
         Page<ReviewEntity> reviewEntities = reviewService.filter(page, Specification.where(ReviewSpecification.filter(model)));
         return ResponseDto.of(reviewEntities.map(ReviewDto::toDto), "Get question by filter successfully");
     }
