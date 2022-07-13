@@ -41,7 +41,6 @@ public class QuestionDto {
     }
 
         public static JSONObject parseJson(String json){
-            System.out.println("json: " + json);
             return new JSONObject(json);
         }
 
