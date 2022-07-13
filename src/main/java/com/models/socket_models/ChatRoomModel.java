@@ -27,26 +27,6 @@ public class ChatRoomModel {
     private boolean isMultiple;
     private List<GeneralSocketMessage> messages;
 
-
-//    public ChatRoomModel(WebSocketSession person, String roomId, boolean isMultiple, List<GeneralSocketMessage> messages) {
-//        this.persons = new ArrayList<>();
-//        this.persons.add(person);
-//        this.createdDate = Calendar.getInstance().getTime();
-//        this.roomId = roomId;
-//        this.isMultiple = isMultiple;
-//        this.messages = messages;
-//    }
-
-
-//    public ChatRoomModel(WebSocketSession person, Date createdDate, Date updatedDate, String roomId, boolean isMultiple, List<GeneralSocketMessage> messages) {
-//        this.persons = new ArrayList<>();
-//        this.persons.add(person);
-//        this.createdDate = Calendar.getInstance().getTime();
-//        this.roomId = roomId;
-//        this.isMultiple = isMultiple;
-//        this.messages = messages;
-//    }
-
     public ChatRoomModel(){
         this.persons = new ArrayList<>();
     }
@@ -60,39 +40,6 @@ public class ChatRoomModel {
                     throw new RuntimeException(e);
                 }
             });
-        }
-
-    public String joinRoom(WebSocketSession session) throws ChatRoomException {
-//        if (this.isMultiple){
-//            this.persons.add(session);
-//            if(!SocketHandler.userChatRooms.stream().filter(x->x.getUserId().equals(SecurityUtils.getCurrentUserId())).findAny().isPresent())
-//            {
-//                SocketHandler.userChatRooms.add(new SocketChatUserModel(SecurityUtils.getCurrentUserId(),new ArrayList<>()));
-//            }
-//            SocketHandler.userChatRooms.stream().filter(x->x.getUserId().equals(SecurityUtils.getCurrentUserId())).forEach(x->{
-//                x.getChatRoomList().add(this);
-//            });
-//            return this.roomId;
-//        }
-//        else {
-//            if (this.persons.size() < 2) {
-//                this.persons.add(session);
-//                if(!SocketHandler.userChatRooms.stream().filter(x->x.getUserId().equals(SecurityUtils.getCurrentUserId())).findAny().isPresent())
-//                {
-//                    SocketHandler.userChatRooms.add(new SocketChatUserModel(SecurityUtils.getCurrentUserId(),new ArrayList<>()));
-//                }
-//                SocketHandler.userChatRooms.stream().filter(x->x.getUserId().equals(SecurityUtils.getCurrentUserId())).forEach(x->{
-//                    x.getChatRoomList().add(this);
-//                });
-//                return this.roomId;
-//            } else if (this.persons.contains(session)) {
-//                return this.roomId;
-//            }
-//            else {
-//                throw new RuntimeException("Room is full");
-//            }
-//        }
-        return null;
     }
 
     public boolean hasPersons(int size) {
