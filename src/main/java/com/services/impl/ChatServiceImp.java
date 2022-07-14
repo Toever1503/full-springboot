@@ -156,7 +156,9 @@ public class ChatServiceImp implements IChatService {
         if (!roomIds.contains(chatRoom.getRoomId()))
             roomIds.add(chatRoom.getRoomId());
 
-        return new StringBuilder().append("Tư vấn viên ").append(UserEntity.getName(userEntity)).append(" đã tham gia phòng chat!").toString();
+        String data = new StringBuilder().append("Tư vấn viên ").append(UserEntity.getName(userEntity)).append(" đã tham gia phòng chat!").toString();
+        socketChatRoom.sendMessage(userSession.getId(), new TextMessage(data));
+        return data;
     }
 
     @Transactional
