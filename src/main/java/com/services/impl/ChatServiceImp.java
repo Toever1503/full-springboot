@@ -129,16 +129,21 @@ public class ChatServiceImp implements IChatService {
         if (room.getRoomId() == null) this.chatRoomRepository.save(room);
 
         // add room to socket user chat rooms list
-        ChatRoomModel socketChatRoom = userChatRooms.get(room.getRoomId());
-        if (socketChatRoom == null) {
-            socketChatRoom = new ChatRoomModel(userSession, room);
-        }
-        userChatRooms.put(room.getRoomId(), socketChatRoom);
-
-        List<Long> roomIds = (List<Long>) userSession.getAttributes().get("roomIds");
-        if (!roomIds.contains(room.getRoomId()))
-            roomIds.add(room.getRoomId());
+        this.addOrUpdateChatRoom(room, userSession);
         return room.getRoomId();
+    }
+
+    private ChatRoomModel addOrUpdateChatRoom(ChatRoomEntity chatRoomEntity, WebSocketSession userSession) {
+        ChatRoomModel chatRoomModel = userChatRooms.get(chatRoomEntity.getRoomId());
+        if (chatRoomModel == null) {
+            chatRoomModel = new ChatRoomModel(userSession, chatRoomEntity);
+            userChatRooms.put(chatRoomEntity.getRoomId(), chatRoomModel);
+        }
+        chatRoomModel.putIfAbsent(userSession);
+        List<Long> roomIds = (List<Long>) userSession.getAttributes().get("roomIds");
+        if (!roomIds.contains(chatRoomEntity.getRoomId()))
+            roomIds.add(chatRoomEntity.getRoomId());
+        return  chatRoomModel;
     }
 
     @Override
@@ -147,18 +152,7 @@ public class ChatServiceImp implements IChatService {
         WebSocketSession userSession = this.getUserSession(userEntity.getId());
         ChatRoomEntity chatRoom = chatRoomRepository.findById(roomId).orElseThrow(() -> new RuntimeException("Chat room not found!"));
 
-        ChatRoomModel socketChatRoom = userChatRooms.get(chatRoom.getRoomId());
-        // add room to socket user chat rooms list
-        if (socketChatRoom == null) {
-            socketChatRoom = new ChatRoomModel(userSession, chatRoom);
-            userChatRooms.put(chatRoom.getRoomId(), socketChatRoom);
-        }
-        socketChatRoom.putIfAbsent(userSession);
-
-
-        List<Long> roomIds = (List<Long>) userSession.getAttributes().get("roomIds");
-        if (!roomIds.contains(chatRoom.getRoomId()))
-            roomIds.add(chatRoom.getRoomId());
+        ChatRoomModel socketChatRoom = this.addOrUpdateChatRoom(chatRoom, userSession);
 
         String data = new StringBuilder().append("Tư vấn viên ").append(UserEntity.getName(userEntity)).append(" đã tham gia phòng chat!").toString();
         socketChatRoom.sendMessage(userSession.getId(), new TextMessage(data));
