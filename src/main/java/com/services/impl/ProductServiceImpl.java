@@ -755,6 +755,12 @@ public class ProductServiceImpl implements IProductService {
     }
 
     @Override
+    public List<String> autoComplete(String keyword, Pageable page) {
+
+        return null;
+    }
+
+    @Override
     public boolean deleteIndexElasticsearch() {
         return this.elasticsearchRestTemplate.indexOps(IndexCoordinates.of(ElasticsearchIndices.PRODUCT_INDEX)).delete();
     }

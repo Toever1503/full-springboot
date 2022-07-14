@@ -27,6 +27,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.annotation.security.RolesAllowed;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -171,6 +172,11 @@ public class ProductResources {
     @GetMapping("/get-product-by-categoryId/{id}")
     public ResponseDto getProductByCategoryId(@PathVariable Long id, Pageable page) {
         return ResponseDto.of(eProductRepository.findByCategoryId(id, page), "Get all products");
+    }
+
+    @GetMapping("public/auto-complete")
+    public ResponseDto autoComplete(@RequestParam @Valid @NotNull @NotBlank String keyword, Pageable page) {
+        return ResponseDto.of(this.productService.autoComplete(keyword, page), "Get all products");
     }
 
 }

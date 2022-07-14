@@ -46,4 +46,6 @@ public interface IProductService extends IBaseService<ProductEntity, ProductMode
     boolean deleteIndexElasticsearch();
 
     boolean reindexElasticsearch();
+
+    List<String> autoComplete(String keyword, Pageable page);
 }
