@@ -24,6 +24,7 @@ public class RoleEntity {
     private Long roleId;
     @Column(name = "role_name", unique = true)
     private String roleName;
-    @ManyToMany(mappedBy = "roleEntity",targetEntity = UserEntity.class)
+    @ManyToMany(mappedBy = "roleEntity", targetEntity = UserEntity.class)
     private Set<UserEntity> userEntitySet;
+
 }

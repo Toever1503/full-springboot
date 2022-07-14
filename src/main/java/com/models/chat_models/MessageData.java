@@ -1,4 +1,4 @@
-package com.models.socket_models;
+package com.models.chat_models;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

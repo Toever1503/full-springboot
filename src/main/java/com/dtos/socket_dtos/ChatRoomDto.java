@@ -1,10 +1,8 @@
 package com.dtos.socket_dtos;
 
-import com.config.socket.SocketHandler;
-import com.entities.ChatRoomEntity;
+import com.entities.chat.ChatRoomEntity;
 import com.entities.RoleEntity;
 import com.entities.UserEntity;
-import com.models.socket_models.ChatRoomModel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -17,22 +15,21 @@ import java.util.Date;
 @NoArgsConstructor
 @Builder
 public class ChatRoomDto {
-
-    private String roomId;
+    private Long roomId;
     private String userName;
-    private Date createdDate;
     private String userImage;
 
-    public static ChatRoomDto toDto(ChatRoomEntity chatRoomEntity){
-        UserEntity roomOwner = new UserEntity();
-        if(chatRoomEntity.getUserEntities().stream().anyMatch(x->x.getRoleEntity().size()==1 && x.getRoleEntity().stream().findFirst().get().getRoleName().equals(RoleEntity.USER))){
-            roomOwner = chatRoomEntity.getUserEntities().stream().filter(x->x.getRoleEntity().size()==1 && x.getRoleEntity().stream().findFirst().get().getRoleName().equals(RoleEntity.USER)).findFirst().get();
-        }
+    private Date createdDate;
+    private Date updatedDate;
+    private Boolean isFull;
+
+    public static ChatRoomDto toDto(ChatRoomEntity chatRoomEntity, boolean isFull){
         return ChatRoomDto.builder()
                 .roomId(chatRoomEntity.getRoomId())
-                .userName(roomOwner.getUserName())
+                .userName(UserEntity.getName(chatRoomEntity.getCreatedBy()))
+                .userImage(chatRoomEntity.getCreatedBy().getAvatar())
                 .createdDate(chatRoomEntity.getCreatedDate())
-                .userImage(roomOwner.getAvatar())
+                .isFull(isFull)
                 .build();
     }
 }

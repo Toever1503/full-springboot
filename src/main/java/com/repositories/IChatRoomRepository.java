@@ -1,6 +1,6 @@
 package com.repositories;
 
-import com.entities.ChatRoomEntity;
+import com.entities.chat.ChatRoomEntity;
 import com.entities.UserEntity;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -8,13 +8,11 @@ import org.springframework.data.jpa.repository.Query;
 
 
 import java.util.List;
-import java.util.UUID;
+import java.util.Optional;
 
-public interface IChatRoomRepository extends JpaRepository<ChatRoomEntity, String> {
-    List<ChatRoomEntity> findAllByUserEntitiesContains(UserEntity userEntity);
+public interface IChatRoomRepository extends JpaRepository<ChatRoomEntity, Long> {
 
-    @Query("select c from ChatRoomEntity c where c.userEntities.size = 1")
-    List<ChatRoomEntity> getAllAvailableRoom(Pageable pageable);
 
-    List<ChatRoomEntity> getAllByUserEntitiesContains(UserEntity userEntity, Pageable pageable);
+    Optional<ChatRoomEntity> findByCreatedById(Long userId);
+
 }

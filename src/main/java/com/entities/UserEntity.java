@@ -1,5 +1,6 @@
 package com.entities;
 
+import com.entities.chat.ChatRoomEntity;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.Fetch;
@@ -48,7 +49,7 @@ public class UserEntity {
     private boolean lockStatus;
     @Column(name = "main_address")
     private Long mainAddress;
-    @Column(name="avatar")
+    @Column(name = "avatar")
     private String avatar;
 
     @CreationTimestamp
@@ -88,7 +89,15 @@ public class UserEntity {
     @OneToMany(mappedBy = "createdBy", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ReviewEntity> reviewEntity;
 
-    @ManyToMany(mappedBy = "userEntities",targetEntity = ChatRoomEntity.class)
-    private Set<ChatRoomEntity> chatRoomEntities;
+
+    public static boolean hasRole(String roleName, Set<RoleEntity> roleEntities) {
+        return roleEntities.stream()
+                .anyMatch(x -> x.getRoleName()
+                        .equals(roleName));
+    }
+
+    public static String getName(UserEntity userEntity) {
+        return userEntity.getFullName() == null ? userEntity.getUserName() : userEntity.getFullName();
+    }
 
 }

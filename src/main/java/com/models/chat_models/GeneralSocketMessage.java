@@ -1,7 +1,7 @@
-package com.models.socket_models;
+package com.models.chat_models;
 
 import com.dtos.socket_dtos.ChatMessageDto;
-import com.entities.MessageEntity;
+import com.entities.chat.ChatMessageEntity;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -15,7 +15,7 @@ public class GeneralSocketMessage {
     private String topic;
     private Object data;
 
-    public static GeneralSocketMessage toGeneralSocketMessage(MessageEntity entity){
+    public static GeneralSocketMessage toGeneralSocketMessage(ChatMessageEntity entity){
         GeneralSocketMessage socketMessage = new GeneralSocketMessage();
         socketMessage.setTopic("Chat");
         socketMessage.setData(ChatMessageDto.toChatMessageDto(entity));

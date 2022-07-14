@@ -1,15 +1,13 @@
 package com.config.socket;
 
 import com.config.socket.exception.ChatRoomException;
-import com.entities.ChatRoomEntity;
-import com.entities.RoleEntity;
 import com.entities.UserEntity;
 import com.google.gson.Gson;
 import com.models.SocketNotificationModel;
-import com.models.socket_models.*;
-import com.repositories.IChatRoomRepository;
+import com.models.chat_models.*;
 import com.services.CustomUserDetail;
-import com.utils.SecurityUtils;
+import com.services.IChatService;
+import com.services.impl.ChatServiceImp;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,15 +19,10 @@ import org.springframework.web.socket.*;
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.stream.Collectors;
 
 @Component
 public class SocketHandler implements WebSocketHandler {
-    @Autowired
-    IChatRoomRepository chatRoomRepository;
     public static ConcurrentHashMap<Long, WebSocketSession> userSessions = new ConcurrentHashMap<>();
-    public static List<ChatRoomModel> userChatRooms = new ArrayList<>();
 
     @Transactional
     @Override
@@ -40,26 +33,10 @@ public class SocketHandler implements WebSocketHandler {
         session.getAttributes().put("username", customUserDetail.getUsername());
         session.getAttributes().put("id", customUserDetail.getUser().getId());
         userSessions.put(customUserDetail.getUser().getId(), session);
-        if(chatRoomRepository.findAllByUserEntitiesContains(customUserDetail.getUser()).size() > 0){
-            for (ChatRoomEntity chatRoomEntity : chatRoomRepository.findAllByUserEntitiesContains(customUserDetail.getUser())) {
-                ChatRoomModel chatRoomModel = ChatRoomModel.toModel(chatRoomEntity);
-                for (UserEntity userEntity : chatRoomEntity.getUserEntities()) {
-                     if(userSessions.get(userEntity.getId())!=null){
-                         chatRoomModel.getPersons().add(userSessions.get(userEntity.getId()));
-                     }
-                }
-                if(chatRoomModel.getPersons().stream().filter(x->x.getAttributes().get("id").equals(customUserDetail.getUser().getId())).findAny().isPresent()){
-                    chatRoomModel.getPersons().remove(chatRoomModel.getPersons().stream().filter(x->x.getAttributes().get("id").equals(customUserDetail.getUser().getId())).findAny().get());
-                    chatRoomModel.getPersons().add(session);
-                }
-                updateUsersChatRoom(chatRoomModel);
-                userChatRooms.add(chatRoomModel);
-            }
-        }
     }
 
     public static UserEntity getUserFromSession(WebSocketSession session) {
-        return ((CustomUserDetail)((UsernamePasswordAuthenticationToken) session.getPrincipal()).getPrincipal()).getUser();
+        return ((CustomUserDetail) ((UsernamePasswordAuthenticationToken) session.getPrincipal()).getPrincipal()).getUser();
     }
 
     @Override
@@ -80,8 +57,6 @@ public class SocketHandler implements WebSocketHandler {
             }
         }
         socketMessage.setUidSet(userSessions.keySet());
-        Long curUid = Long.valueOf(session.getAttributes().get("id").toString());
-        System.out.println(socketMessage.toString());
     }
 
     @Override
@@ -94,20 +69,21 @@ public class SocketHandler implements WebSocketHandler {
     }
 
     @Override
-    public void afterConnectionClosed(WebSocketSession session, CloseStatus closeStatus) throws Exception {
+    public void afterConnectionClosed(WebSocketSession session, CloseStatus closeStatus) {
         UsernamePasswordAuthenticationToken userDetail = (UsernamePasswordAuthenticationToken) session.getPrincipal();
         CustomUserDetail customUserDetail = (CustomUserDetail) userDetail.getPrincipal();
-//        if(chatRooms.values().stream().anyMatch(s -> s.getPersons().contains(session))){
-//            ChatRoomModel chatRoom = chatRooms.values().stream().filter(s -> s.getPersons().contains(session)).findFirst().get();
-//            chatRoom.getPersons().remove(session);
-//            if(userDetail.getAuthorities().stream().map(s->s.getAuthority()).collect(Collectors.toList()).containsAll(List.of(RoleEntity.ADMINISTRATOR,RoleEntity.USER))){
-//                chatRoom.sendMessage(session, new TextMessage("User "+ getUserFromSession(session).getUserName()+" has disconnected from chat room: " + chatRoom.getRoomId()),false);
-//            }else {
-//                chatRoom.sendMessage(session, new TextMessage("User "+ getUserFromSession(session).getUserName()+ " has closed chat room: " + chatRoom.getRoomId()),false);
-//                chatRooms.remove(chatRoom.getRoomId());
-//            }
-//        }
         userSessions.remove(customUserDetail.getUser().getId());
+
+        List<Long> roomIds = (List<Long>) this.getValueFromSessionAttribute(session, "roomIds");
+        if (roomIds != null)
+            roomIds.forEach(roomId -> {
+                ChatRoomModel chatRoom = ChatServiceImp.userChatRooms.get(roomId);
+                chatRoom.removeUserSession(session.getId());
+            });
+    }
+
+    private Object getValueFromSessionAttribute(WebSocketSession session, String key) {
+        return session.getAttributes().get(key);
     }
 
     @Override
@@ -150,12 +126,6 @@ public class SocketHandler implements WebSocketHandler {
             }
         }
         return null;
-    }
-
-    private static void updateUsersChatRoom(ChatRoomModel chatRoomModel){
-        userChatRooms.stream().filter(x->x.getRoomId().equals(chatRoomModel.getRoomId()))
-                .collect(Collectors.toList())
-                .forEach(x->userChatRooms.remove(x));
     }
 
 
