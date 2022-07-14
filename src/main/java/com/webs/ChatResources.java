@@ -23,16 +23,17 @@ public class ChatResources {
     @Autowired
     IChatService chatService;
 
+    @RolesAllowed(RoleEntity.USER)
     @Transactional
-    @PostMapping("/createChatRoom")
+    @GetMapping("/createChatRoom")
     public ResponseDto createChatRoom() {
         return ResponseDto.of(chatService.createChatRoom(),"Create chat room");
     }
 
     @Transactional
     @RolesAllowed(RoleEntity.ADMINISTRATOR)
-    @PostMapping("/joinChatRoom")
-    public ResponseDto joinChatRoom(@PathParam("roomId") String roomId) throws IOException {
+    @GetMapping("/joinChatRoom/{roomId}")
+    public ResponseDto joinChatRoom(@PathVariable Long roomId){
         return ResponseDto.of(chatService.joinChatRoom(roomId), "Join chat room");
     }
 
@@ -52,15 +53,10 @@ public class ChatResources {
         return ResponseDto.of(chatService.getAllMyChatRoom(pageable), "Get all my chat room");
     }
 
-    @Transactional
-    @GetMapping("/getAllAvailableChatRoom")
-    public ResponseDto getAllAvailableChatRoom(Pageable pageable) {
-        return ResponseDto.of(chatService.getAvailableRoomList(pageable), "Get all available chat room");
-    }
 
     @Transactional
     @GetMapping("/getAllChatRoomMessage/{id}")
-    public ResponseDto getAllChatRoomMessage(@PathVariable("id") String id, Pageable pageable) {
-        return ResponseDto.of(chatService.getAllRoomChatMessages(id,pageable), "Get all messages from room: "+id);
+    public ResponseDto getAllChatRoomMessage(@PathVariable("id") Long id) {
+        return ResponseDto.of(chatService.getAllRoomChatMessages(id), "Get all messages from room: "+id);
     }
 }

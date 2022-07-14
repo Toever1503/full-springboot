@@ -1,35 +1,36 @@
-package com.entities;
+package com.entities.chat;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.entities.UserEntity;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 
 import javax.persistence.*;
 import java.sql.Timestamp;
-import java.util.Date;
-import java.util.List;
 
 @Entity
-@Table(name = "tbl_messages")
+@Table(name = "tbl_chat_messages")
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
 @Setter
 @Builder
-public class MessageEntity {
+public class ChatMessageEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     @Column(name = "message")
     private String message;
+
     @Column(name = "attachment")
     private String attachment;
-    @ManyToOne(targetEntity = UserEntity.class, cascade = CascadeType.REMOVE)
+
+    @ManyToOne
     @JoinColumn(name = "user_id")
     private UserEntity user;
     @ManyToOne
-    @JoinColumn(name = "room_id")
-    private ChatRoomEntity chatRoomEntity;
+    private ChatRoomEntity chatRoom;
+
     @CreationTimestamp
     @Column(name = "created_date")
     private Timestamp createdDate;
