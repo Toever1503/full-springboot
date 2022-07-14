@@ -161,8 +161,7 @@ public class ChatServiceImp implements IChatService {
                 .roomId(chatRoom.getRoomId())
                 .attachments(List.of())
                 .message(message)
-                .senderRole(userEntity.getRoleEntity()
-                        .stream().map(RoleEntity::getRoleName).collect(Collectors.toList()))
+                .senderRole(RoleEntity.ADMINISTRATOR)
                 .sender("Tư vấn viên ".concat(UserEntity.getName(userEntity)))
                 .build();
         String jsonMss = new JSONObject(GeneralSocketMessage.builder().topic("Chat").data(chatData).build()).toString();
