@@ -132,8 +132,9 @@ public class ChatServiceImp implements IChatService {
         ChatRoomModel socketChatRoom = userChatRooms.get(room.getRoomId());
         if (socketChatRoom == null) {
             socketChatRoom = new ChatRoomModel(userSession, room);
-            userChatRooms.put(room.getRoomId(), socketChatRoom);
         }
+        userChatRooms.put(room.getRoomId(), socketChatRoom);
+
         List<Long> roomIds = (List<Long>) userSession.getAttributes().get("roomIds");
         if (!roomIds.contains(room.getRoomId()))
             roomIds.add(room.getRoomId());
@@ -147,8 +148,11 @@ public class ChatServiceImp implements IChatService {
         ChatRoomEntity chatRoom = chatRoomRepository.findById(roomId).orElseThrow(() -> new RuntimeException("Chat room not found!"));
 
         ChatRoomModel socketChatRoom = userChatRooms.get(chatRoom.getRoomId());
-        if (socketChatRoom == null)
-            throw new RuntimeException("Chat room has not been created yet!");
+        // add room to socket user chat rooms list
+        if (socketChatRoom == null) {
+            socketChatRoom = new ChatRoomModel(userSession, chatRoom);
+            userChatRooms.put(chatRoom.getRoomId(), socketChatRoom);
+        }
         socketChatRoom.putIfAbsent(userSession);
 
 
