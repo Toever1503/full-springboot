@@ -65,8 +65,6 @@ public class ChatServiceImp implements IChatService {
             }
             GeneralSocketMessage socketMessage = new GeneralSocketMessage("Chat",chatMessageDto);
             WebSocketMessage message = new TextMessage(new JSONObject(socketMessage).toString());
-            chatRoomModel.sendMessage(SocketHandler.userSessions.get(SecurityUtils.getCurrentUserId()),message);
-
             MessageEntity messageEntity = MessageEntity.builder()
                     .message(model.getMessage())
                     .chatRoomEntity(chatRoomEntity)
@@ -75,7 +73,13 @@ public class ChatServiceImp implements IChatService {
                     .build();
             chatRoomEntity.getMessageEntities().add(messageEntity);
             chatRoomRepository.save(chatRoomEntity);
-            return socketMessage;
+            try
+            {
+                chatRoomModel.sendMessage(SocketHandler.userSessions.get(SecurityUtils.getCurrentUserId()),message);
+                return socketMessage;
+            }catch (Exception e){
+                return socketMessage;
+            }
     }
 
     @Override
