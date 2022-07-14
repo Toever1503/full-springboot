@@ -13,6 +13,7 @@ import com.models.ChatMessageModel;
 import com.models.chat_models.ChatRoomModel;
 import com.repositories.IChatRoomRepository;
 import com.repositories.IMessageRepository;
+import com.services.CustomUserDetail;
 import com.services.IChatService;
 import com.utils.FileUploadProvider;
 import com.utils.SecurityUtils;
@@ -143,7 +144,7 @@ public class ChatServiceImp implements IChatService {
         List<Long> roomIds = (List<Long>) userSession.getAttributes().get("roomIds");
         if (!roomIds.contains(chatRoomEntity.getRoomId()))
             roomIds.add(chatRoomEntity.getRoomId());
-        return  chatRoomModel;
+        return chatRoomModel;
     }
 
     @Override
@@ -154,9 +155,19 @@ public class ChatServiceImp implements IChatService {
 
         ChatRoomModel socketChatRoom = this.addOrUpdateChatRoom(chatRoom, userSession);
 
-        String data = new StringBuilder().append("Tư vấn viên ").append(UserEntity.getName(userEntity)).append(" đã tham gia phòng chat!").toString();
-        socketChatRoom.sendMessage(userSession.getId(), new TextMessage(data));
-        return data;
+        String message = new StringBuilder().append("Tư vấn viên ").append(UserEntity.getName(userEntity)).append(" đã tham gia phòng chat!").toString();
+        ChatMessageDto chatData = ChatMessageDto.
+                builder()
+                .roomId(chatRoom.getRoomId())
+                .attachments(List.of())
+                .message(message)
+                .senderRole(userEntity.getRoleEntity()
+                        .stream().map(RoleEntity::getRoleName).collect(Collectors.toList()))
+                .sender("Tư vấn viên ".concat(UserEntity.getName(userEntity)))
+                .build();
+        String jsonMss = new JSONObject(GeneralSocketMessage.builder().topic("Chat").data(chatData).build()).toString();
+        socketChatRoom.sendMessage(userSession.getId(), new TextMessage(jsonMss));
+        return message;
     }
 
     @Transactional

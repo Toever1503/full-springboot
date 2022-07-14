@@ -30,8 +30,8 @@ public class ChatResources {
         return ResponseDto.of(chatService.createChatRoom(),"Create chat room");
     }
 
-    @Transactional
     @RolesAllowed(RoleEntity.ADMINISTRATOR)
+    @Transactional
     @GetMapping("/joinChatRoom/{roomId}")
     public ResponseDto joinChatRoom(@PathVariable Long roomId){
         return ResponseDto.of(chatService.joinChatRoom(roomId), "Join chat room");
