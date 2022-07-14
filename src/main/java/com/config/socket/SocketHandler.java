@@ -28,6 +28,7 @@ public class SocketHandler implements WebSocketHandler {
     @Override
     public void afterConnectionEstablished(WebSocketSession session) {
         session.getAttributes().put("topics", new ArrayList<>());
+        session.getAttributes().put("roomIds", new ArrayList<>());
         UsernamePasswordAuthenticationToken userDetail = (UsernamePasswordAuthenticationToken) session.getPrincipal();
         CustomUserDetail customUserDetail = (CustomUserDetail) userDetail.getPrincipal();
         session.getAttributes().put("username", customUserDetail.getUsername());

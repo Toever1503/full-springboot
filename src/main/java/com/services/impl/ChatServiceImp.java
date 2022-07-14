@@ -134,6 +134,9 @@ public class ChatServiceImp implements IChatService {
             socketChatRoom = new ChatRoomModel(userSession, room);
             userChatRooms.put(room.getRoomId(), socketChatRoom);
         }
+        List<Long> roomIds = (List<Long>) userSession.getAttributes().get("roomIds");
+        if (!roomIds.contains(room.getRoomId()))
+            roomIds.add(room.getRoomId());
         return room.getRoomId();
     }
 
@@ -147,6 +150,11 @@ public class ChatServiceImp implements IChatService {
         if (socketChatRoom == null)
             throw new RuntimeException("Chat room has not been created yet!");
         socketChatRoom.putIfAbsent(userSession);
+
+
+        List<Long> roomIds = (List<Long>) userSession.getAttributes().get("roomIds");
+        if (!roomIds.contains(chatRoom.getRoomId()))
+            roomIds.add(chatRoom.getRoomId());
 
         return new StringBuilder().append("Tư vấn viên ").append(UserEntity.getName(userEntity)).append(" đã tham gia phòng chat!").toString();
     }
