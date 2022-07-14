@@ -27,6 +27,7 @@ public class ProductDto {
 
     public final static String[] FIELDS = {"name",
             "description",
+            "status",
             "category.categoryName",
             "category.description",
             "category.slug",

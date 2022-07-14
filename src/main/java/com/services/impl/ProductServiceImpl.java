@@ -24,8 +24,10 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.*;
 import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate;
 import org.springframework.data.elasticsearch.core.SearchHit;
+import org.springframework.data.elasticsearch.core.SearchHitSupport;
 import org.springframework.data.elasticsearch.core.SearchHits;
 import org.springframework.data.elasticsearch.core.mapping.IndexCoordinates;
+import org.springframework.data.elasticsearch.core.query.MoreLikeThisQuery;
 import org.springframework.data.elasticsearch.core.query.NativeSearchQuery;
 import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilder;
 import org.springframework.data.jpa.domain.Specification;
@@ -326,6 +328,14 @@ public class ProductServiceImpl implements IProductService {
     @Override
     public DetailProductDto findDetailById(Pageable page, Long id) {
         ProductDto productDto = this.eProductRepository.findById(id).orElseThrow(() -> new RuntimeException("Product not found, id: ".concat(id.toString())));
+//        MoreLikeThisQuery query = new MoreLikeThisQuery();
+//        query.setId(id.toString());
+//        query.setPageable(page);
+//        query.addFields(ProductDto.FIELDS);
+//
+//        SearchHits<ProductDto> searchHits = null;
+//        SearchHitSupport.searchPageFor(searchHits, page);
+
         return DetailProductDto.builder()
                 .data(productDto)
                 .similarProducts(this.eProductRepository.searchSimilar(productDto, ProductDto.FIELDS, page))
