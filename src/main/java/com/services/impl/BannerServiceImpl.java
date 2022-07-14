@@ -62,6 +62,7 @@ public class BannerServiceImpl implements IBannerService {
         final String folder = "user/" + SecurityUtils.getCurrentUsername() + "/banner/";
         BannerEntity bannerEntity = BannerModel.toEntity(model);
 
+        // add file banner
         if (model.getAttachFiles() != null) { // check if model has attached file
             List<String> filePaths = new ArrayList<>();
             for (MultipartFile file : model.getAttachFiles()) {
@@ -73,6 +74,20 @@ public class BannerServiceImpl implements IBannerService {
             }
             JSONObject jsonObject = new JSONObject(Map.of("files", filePaths));
             bannerEntity.setAttachFiles(jsonObject.toString());
+        }
+
+        // add file slide
+        if (model.getAttachFilesSlide() != null) { // check if model has attached file
+            List<String> filePathSlide = new ArrayList<>();
+            for (MultipartFile file : model.getAttachFilesSlide()) {
+                try {
+                    filePathSlide.add(fileUploadProvider.uploadFile(folder, file));
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            JSONObject jsonObjectSlide = new JSONObject(Map.of("files", filePathSlide));
+            bannerEntity.setAttachFilesSlide(jsonObjectSlide.toString());
         }
         bannerEntity.setCreatedBy(SecurityUtils.getCurrentUser().getUser());
 
@@ -86,23 +101,24 @@ public class BannerServiceImpl implements IBannerService {
 
     @Override
     public BannerEntity update(BannerModel model) {
-        BannerEntity originalBanner = this.findById(model.getId());
-        final String folder = UserEntity.FOLDER + originalBanner.getCreatedBy().getUserName() + "/banner/";
+        BannerEntity originalBannerSLide = this.findById(model.getId());
+        final String folder = UserEntity.FOLDER + originalBannerSLide.getCreatedBy().getUserName() + "/banner/";
 
-        //delete file into s3
+        //!handler file banner
+        //delete file banner into s3
         List<Object> originalFile;
-        if (originalBanner.getAttachFiles() != null) {
-            originalFile = (parseJson(originalBanner.getAttachFiles()).getJSONArray("files").toList());
+        if (originalBannerSLide.getAttachFiles() != null) {
+            originalFile = (parseJson(originalBannerSLide.getAttachFiles()).getJSONArray("files").toList());
             originalFile.removeAll(model.getAttachFilesOrigin());
             originalFile.forEach(o -> fileUploadProvider.deleteFile(o.toString()));
         }
 
-        //add old file to uploadFiles
+        //add old file banner to uploadFiles
         List<String> uploadedFiles = new ArrayList<>();
         if (!model.getAttachFilesOrigin().isEmpty())
             uploadedFiles.addAll(model.getAttachFilesOrigin());
 
-        //upload new file to uploadFiles and save to database
+        //upload new file banner to uploadFiles and save to database
         if (model.getAttachFiles() != null) {
             for (MultipartFile file : model.getAttachFiles()) {
                 try {
@@ -112,14 +128,45 @@ public class BannerServiceImpl implements IBannerService {
                 }
             }
         }
-        originalBanner.setAttachFiles(uploadedFiles.isEmpty() ? null : (new JSONObject(Map.of("files", uploadedFiles)).toString()));
+        originalBannerSLide.setAttachFiles(uploadedFiles.isEmpty() ? null : (new JSONObject(Map.of("files", uploadedFiles)).toString()));
 
-        originalBanner.setName(model.getName());
-        originalBanner.setCreatedBy(SecurityUtils.getCurrentUser().getUser());
-        originalBanner.setIsEdit(true);
-        originalBanner.setStatus(model.getStatus());
+        //!handler file slide
+        //delete file slide into s3
+        List<Object> originalFileSlide;
+        if (originalBannerSLide.getAttachFilesSlide() != null) {
+            originalFileSlide = (parseJson(originalBannerSLide.getAttachFilesSlide()).getJSONArray("files").toList());
+            originalFileSlide.removeAll(model.getAttachFilesOriginSlide());
+            originalFileSlide.forEach(o -> fileUploadProvider.deleteFile(o.toString()));
+        }
 
-        return this.bannerRepository.save(originalBanner);
+        //add old file slide to uploadFileSlides
+        List<String> uploadedFileSlides = new ArrayList<>();
+        if (!model.getAttachFilesOriginSlide().isEmpty())
+            uploadedFileSlides.addAll(model.getAttachFilesOriginSlide());
+
+        //upload new file to uploadFileSlides and save to database
+        if (model.getAttachFilesSlide() != null) {
+            for (MultipartFile file : model.getAttachFilesSlide()) {
+                try {
+                    uploadedFileSlides.add(fileUploadProvider.uploadFile(folder, file));
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        originalBannerSLide.setAttachFilesSlide(uploadedFiles.isEmpty() ? null : (new JSONObject(Map.of("files", uploadedFiles)).toString()));
+
+
+        originalBannerSLide.setName(model.getName());
+        originalBannerSLide.setUrlBanner(model.getUrlBanner());
+        originalBannerSLide.setNameSlide(model.getNameSlide());
+        originalBannerSLide.setUrlSlide(model.getUrlSlide());
+        originalBannerSLide.setCreatedBy(SecurityUtils.getCurrentUser().getUser());
+        originalBannerSLide.setIsEdit(true);
+        originalBannerSLide.setStatus(model.getStatus());
+        originalBannerSLide.setRecommendProductFilter(model.getRecommendProductFilter());
+
+        return this.bannerRepository.save(originalBannerSLide);
     }
 
     @Override
@@ -128,6 +175,9 @@ public class BannerServiceImpl implements IBannerService {
         if(bannerEntity.getCreatedBy().getId().equals(SecurityUtils.getCurrentUserId()) || SecurityUtils.hasRole(RoleEntity.ADMINISTRATOR)){
             if (bannerEntity.getAttachFiles() != null) {
                 new JSONObject(bannerEntity.getAttachFiles()).getJSONArray("files").toList().forEach(u -> fileUploadProvider.deleteFile(u.toString()));
+            }
+            if(bannerEntity.getAttachFilesSlide() != null) {
+                new JSONObject(bannerEntity.getAttachFilesSlide()).getJSONArray("files").toList().forEach(u -> fileUploadProvider.deleteFile(u.toString()));
             }
             this.bannerRepository.deleteById(id);
             return true;

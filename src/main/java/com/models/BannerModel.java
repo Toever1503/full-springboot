@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.persistence.Column;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,11 +19,20 @@ import java.util.List;
 @Setter
 public class BannerModel {
     private Long id;
+
     private String name;
     @ApiModelProperty(notes = "attach Files banner", dataType = "List<MultipartFile>", example = "fileImage.jpg")
     private List<MultipartFile> attachFiles;
     @ApiModelProperty(notes = "List string link files old need keep", dataType = "List<String>", example = "[http://ijustforgotmypass.com, http://ijustforgotmypass1.com]")
     private List<String> attachFilesOrigin = new ArrayList<>();
+    private String urlBanner;
+
+    private String nameSlide;
+    private List<MultipartFile> attachFilesSlide;
+    private List<String> attachFilesOriginSlide = new ArrayList<>();
+    private String urlSlide;
+
+    private String recommendProductFilter;
     private String status;
 
     public static BannerEntity toEntity(BannerModel model) {
@@ -30,7 +40,11 @@ public class BannerModel {
         return BannerEntity.builder()
                 .id(model.getId())
                 .name(model.getName())
-                .status(model.status == null ? null : EBannerStatus.PUBLISHED.name())
+                .urlBanner(model.getUrlBanner())
+                .nameSlide(model.getNameSlide())
+                .urlSlide(model.getUrlSlide())
+                .recommendProductFilter(model.getRecommendProductFilter())
+                .status(model.status == null ? EBannerStatus.PUBLISHED.name() : model.getStatus())
                 .isEdit(false)
                 .build();
     }
