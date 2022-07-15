@@ -365,6 +365,8 @@ public class ProductServiceImpl implements IProductService {
                 .collect(Collectors.toMap(ProductVariationValueEntity::getId, Function.identity()));
 
         entity.setSkus(checkValidSku(productId, entity.getVariations().size(), variationValuesMap));
+        this.productVariationRepository.deleteAllByProductIdAndIdNotIn(entity.getId(),
+                entity.getVariations().stream().map(ProductVariationEntity::getId).collect(Collectors.toList()));
         return entity;
     }
 
@@ -767,6 +769,13 @@ public class ProductServiceImpl implements IProductService {
     public List<String> autoComplete(String keyword, Pageable page) {
 
         return null;
+    }
+
+    @Override
+    public boolean changeProductStatus(Long productId, EProductStatus status) {
+        ProductEntity productEntity = this.findById(productId);
+        productEntity.setStatus(status.name());
+        return this.saveDtoOnElasticsearch(this.productRepository.saveAndFlush(productEntity)) != null;
     }
 
     @Override

@@ -2,10 +2,7 @@ package com.webs;
 
 
 import com.config.elasticsearch.ERepositories.IEProductRepository;
-import com.dtos.ProductDto;
-import com.dtos.ProductSkuDto;
-import com.dtos.ProductVariationDto;
-import com.dtos.ResponseDto;
+import com.dtos.*;
 import com.entities.RoleEntity;
 import com.models.ProductModel;
 import com.models.ProductSkuModel;
@@ -172,6 +169,13 @@ public class ProductResources {
     @GetMapping("/get-product-by-categoryId/{id}")
     public ResponseDto getProductByCategoryId(@PathVariable Long id, Pageable page) {
         return ResponseDto.of(eProductRepository.findByCategoryId(id, page), "Get all products");
+    }
+
+    @RolesAllowed(RoleEntity.ADMINISTRATOR)
+    @Transactional
+    @PatchMapping("change-status/{productId}")
+    public ResponseDto changeProductStatus(@PathVariable Long productId, @RequestParam EProductStatus status){
+        return ResponseDto.of(this.productService.changeProductStatus(productId, status), "Change status");
     }
 
     @GetMapping("public/auto-complete")
