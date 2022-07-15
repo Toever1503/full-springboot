@@ -14,6 +14,7 @@ import java.util.List;
 @NoArgsConstructor
 @Builder
 public class ChatMessageDto {
+    private Long id;
     private String message;
     private Long roomId;
     private List<String> attachments;
@@ -26,6 +27,7 @@ public class ChatMessageDto {
             senderRole = RoleEntity.ADMINISTRATOR;
         }
         ChatMessageDto dto = new ChatMessageDto();
+        dto.setId(entity.getId());
         dto.setMessage(entity.getMessage());
         dto.setRoomId(entity.getChatRoom().getRoomId());
         if(entity.getAttachment() != null){

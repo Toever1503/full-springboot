@@ -88,6 +88,7 @@ public class SocketHandler implements WebSocketHandler {
                     GeneralSocketMessage mssData = GeneralSocketMessage.builder()
                             .topic("Chat")
                             .data(ChatMessageDto.builder()
+                                    .id(Math.round(Math.random()*10))
                                     .sender(name)
                                     .senderRole(role)
                                     .message((role.equals(RoleEntity.ADMINISTRATOR) ? "Tư vấn viên " : "")
