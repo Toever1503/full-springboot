@@ -21,7 +21,7 @@ public class ChatRoomDto {
 
     private Date createdDate;
     private Date updatedDate;
-    private Boolean hasMe = false;
+    private Boolean hasOtherAdmin = false;
     private Boolean isUserJoined = false;
 
     public static ChatRoomDto toDto(ChatRoomEntity chatRoomEntity) {
