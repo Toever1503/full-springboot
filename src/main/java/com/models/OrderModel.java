@@ -20,7 +20,6 @@ public class OrderModel {
     private String note;
     private List<Long> cartDetailIds;
 
-
     public static OrderEntity toEntity(OrderModel model) {
         if (model == null) return null;
         return OrderEntity.builder()
