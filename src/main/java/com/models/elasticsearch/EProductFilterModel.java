@@ -26,4 +26,6 @@ public class EProductFilterModel {
     private List<String> tags;
 
     private List<String> recommendByKeywords;
+
+    private Boolean isDeepSale = false;
 }

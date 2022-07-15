@@ -19,6 +19,7 @@ import org.apache.lucene.search.join.ScoreMode;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.RangeQueryBuilder;
+import org.elasticsearch.script.Script;
 import org.elasticsearch.search.sort.*;
 import org.json.JSONObject;
 import org.springframework.context.annotation.Lazy;
@@ -47,6 +48,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static org.elasticsearch.index.query.QueryBuilders.*;
+import static org.elasticsearch.index.query.QueryBuilders.nestedQuery;
 
 
 @Service
@@ -198,15 +200,15 @@ public class ProductServiceImpl implements IProductService {
     }
 
     private String getProductFolder(Long id) {
-        return UserEntity.FOLDER + SecurityUtils.getCurrentUsername() + ProductEntity.FOLDER + id;
+        return UserEntity.FOLDER + SecurityUtils.getCurrentUsername() + ProductEntity.FOLDER + id + "/";
     }
 
 
     @Override
     public ProductEntity update(ProductModel model) {
         ProductEntity originProduct = this.findById(model.getId());
-        ProductEntity entity = this.fromModel(model);
 
+        ProductEntity entity = this.fromModel(model);
         entity.setRating(originProduct.getRating());
         entity.setTotalReview(originProduct.getTotalReview());
         entity.setTotalLike(originProduct.getTotalLike());
@@ -219,7 +221,7 @@ public class ProductServiceImpl implements IProductService {
 
         // update images
         //delete file into s3
-        String folder = this.getProductFolder(entity.getId());
+        String folder = this.getProductFolder(originProduct.getId());
         List<Object> originalFile;
         if (!model.getAttachFilesOrigin().isEmpty()) {
             originalFile = FileUploadProvider.parseJson(originProduct.getAttachFiles());
@@ -233,6 +235,7 @@ public class ProductServiceImpl implements IProductService {
 
 
         List<CompletableFuture> futures = new ArrayList<>();
+
         //upload new file to uploadFiles and save to database
         if (model.getAttachFiles() != null) {
             futures.add(CompletableFuture.allOf(this.fileUploadProvider.asyncUploadFiles(uploadedFiles, folder, model.getAttachFiles()))
@@ -244,7 +247,7 @@ public class ProductServiceImpl implements IProductService {
         if (model.getImage() != null) {
             fileUploadProvider.deleteFile(originProduct.getImage());
 //                filePath.set(fileUploadProvider.uploadFile(folder, model.getImage()));
-            futures.add(this.fileUploadProvider.asyncUpload1File(folder, model.getImage()).thenAccept(o -> originProduct.setImage(o)));
+            futures.add(this.fileUploadProvider.asyncUpload1File(folder, model.getImage()).thenAccept(o -> entity.setImage(o)));
         }
 
         if (model.getProductMetas() != null)
@@ -252,11 +255,17 @@ public class ProductServiceImpl implements IProductService {
                 entity.setProductMetas(model.getProductMetas()
                         .stream().map(productMetaModel -> ProductMetaModel.toEntity(productMetaModel, model.getId())).collect(Collectors.toList()));
 
+        if (!model.getIsUseVariation().equals(originProduct.getIsUseVariation())) {
+            this.productSkuEntityRepository.deleteAllByProductId(model.getId());
+            this.productVariationRepository.deleteAll(originProduct.getVariations());
+            entity.setVariations(null);
+            entity.setSkus(null);
+        }
+
         try {
             if (!futures.isEmpty())
                 CompletableFuture.allOf(futures.toArray(CompletableFuture[]::new)).get();
             entity.setAttachFiles(uploadedFiles.isEmpty() ? null : (new JSONObject(Map.of("files", uploadedFiles)).toString()));
-
             return this.productRepository.saveAndFlush(entity);
 
         } catch (InterruptedException e) {
@@ -624,7 +633,11 @@ public class ProductServiceImpl implements IProductService {
                             .field("nameEng")
                             .field("tags.tagName")
             );
+        }
 
+        if (model.getIsDeepSale()) {
+            rootAndQueryBuilders.add(nestedQuery("skus", boolQuery()
+                    .must(scriptQuery(new Script("return ((1- doc['skus.price'].value/doc['skus.oldPrice'].value) * 100) > 49.5"))), ScoreMode.None));
         }
 
 //        use later
@@ -768,7 +781,6 @@ public class ProductServiceImpl implements IProductService {
         else
             skuEntity = ProductSkuModel.toEntity(model, entity);
 
-        skuEntity.setImage(model.getOriginImage());
         CompletableFuture<Void> imgUploadFuture = null;
         if (model.getImageParameter() != null) {
             fileUploadProvider.deleteFile(skuEntity.getImage());
@@ -783,38 +795,41 @@ public class ProductServiceImpl implements IProductService {
             }
         }
 
-        AtomicInteger indexVariation = new AtomicInteger();
-        List<ProductVariationValueEntity> values = new ArrayList<>();
-        if (model.getVariationValueNames() != null) { // for new sku or update new
-            model.getVariationValueNames().forEach(value -> {
-                ProductVariationValueEntity valueEntity = entity.getVariations().get(indexVariation.get())
-                        .getVariationValues().stream().filter(v -> v.getValue().equals(value))
-                        .findFirst().get();
-                values.add(valueEntity);
-                indexVariation.getAndIncrement();
-            });
-            skuEntity.setSkuCode(values.stream().map(v -> v.getId().toString()).reduce(
-                    (v1, v2) -> v1.concat("-").concat(v2)
-            ).get());
-            if (!skuEntity.getSkuCode().matches(ProductSkuEntity.SKU_CODE_PATTERN))
-                throw new RuntimeException("Generated skuCode is invalid: ".concat(skuEntity.getSkuCode()).concat(". Please check again!"));
-        } else { // for existed sku
-            model.getVariationValues().forEach(value -> {
-                ProductVariationValueEntity valueEntity = entity.getVariations().get(indexVariation.get())
-                        .getVariationValues().stream().filter(v -> v.getId().equals(value))
-                        .findFirst().get();
-                values.add(valueEntity);
-                indexVariation.getAndIncrement();
-            });
+        if (entity.getIsUseVariation()) {
+            AtomicInteger indexVariation = new AtomicInteger();
+            List<ProductVariationValueEntity> values = new ArrayList<>();
+            if (model.getVariationValueNames() != null) { // for new sku or update new
+                model.getVariationValueNames().forEach(value -> {
+                    ProductVariationValueEntity valueEntity = entity.getVariations().get(indexVariation.get())
+                            .getVariationValues().stream().filter(v -> v.getValue().equals(value))
+                            .findFirst().get();
+                    values.add(valueEntity);
+                    indexVariation.getAndIncrement();
+                });
+                skuEntity.setSkuCode(values.stream().map(v -> v.getId().toString()).reduce(
+                        (v1, v2) -> v1.concat("-").concat(v2)
+                ).get());
+                if (!skuEntity.getSkuCode().matches(ProductSkuEntity.SKU_CODE_PATTERN))
+                    throw new RuntimeException("Generated skuCode is invalid: ".concat(skuEntity.getSkuCode()).concat(". Please check again!"));
+            } else { // for existed sku
+                model.getVariationValues().forEach(value -> {
+                    ProductVariationValueEntity valueEntity = entity.getVariations().get(indexVariation.get())
+                            .getVariationValues().stream().filter(v -> v.getId().equals(value))
+                            .findFirst().get();
+                    values.add(valueEntity);
+                    indexVariation.getAndIncrement();
+                });
+            }
+            if (values.size() != entity.getVariations().size())
+                throw new RuntimeException("variation values not enough, expected " + values.size());
+            skuEntity.setOptionName(values.stream().map(v -> v.getVariation().getVariationName().concat(" ".concat(v.getValue())))
+                    .collect(Collectors.joining(", ")));
+            skuEntity.setVariationSize(entity.getVariations().size());
         }
-        if (values.size() != entity.getVariations().size())
-            throw new RuntimeException("variation values not enough, expected " + values.size());
-        skuEntity.setOptionName(values.stream().map(v -> v.getVariation().getVariationName().concat(" ".concat(v.getValue())))
-                .collect(Collectors.joining(", ")));
+
 
         try {
             skuEntity.setIsValid(true);
-            skuEntity.setVariationSize(entity.getVariations().size());
             if (imgUploadFuture != null) {
                 try {
                     imgUploadFuture.get();
