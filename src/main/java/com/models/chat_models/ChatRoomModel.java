@@ -1,5 +1,8 @@
 package com.models.chat_models;
 
+import com.config.socket.SocketHandler;
+import com.entities.RoleEntity;
+import com.entities.UserEntity;
 import com.entities.chat.ChatRoomEntity;
 import lombok.*;
 import org.springframework.web.socket.WebSocketMessage;
@@ -53,5 +56,17 @@ public class ChatRoomModel {
 
     public void removeUserSession(String sessionId) {
         this.persons.remove(sessionId);
+    }
+
+    public void adminJoin(Long userId, WebSocketSession userSession) {
+        if (this.persons.values()
+                .stream()
+                .anyMatch(session -> {
+                    UserEntity userEntity = SocketHandler.getUserFromSession(session);
+                    return !UserEntity.hasRole(RoleEntity.ADMINISTRATOR, userEntity.getRoleEntity()) && !userId.equals(userEntity.getId());
+                }))
+            this.persons.putIfAbsent(userSession.getId(), userSession);
+        else throw new RuntimeException("Tư vấn viên khác hiện đã tham gia!");
+
     }
 }
