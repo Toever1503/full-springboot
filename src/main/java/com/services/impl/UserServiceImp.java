@@ -168,7 +168,7 @@ public class UserServiceImp implements IUserService {
                 Map<String, Object> context = new HashMap<>();
                 context.put("url", urlResponse);
                 try {
-                    mailService.sendMail("VerificationMailTemplate.html", registerModel.getEmail(), "Active your account", context);
+                    mailService.sendMail("VerificationMailTemplate.html", registerModel.getEmail(), "Xác thực tài khoản", context);
                 } catch (MessagingException e) {
                     throw new RuntimeException(e);
                 }
@@ -230,7 +230,7 @@ public class UserServiceImp implements IUserService {
                 Map<String, Object> context = new HashMap<>();
                 context.put("url", userToken);
                 try {
-                    mailService.sendMail("VerificationMailTemplate.html", user.getEmail(), "Reset Password", context);
+                    mailService.sendMail("ResetPasswordMailTemplate.html", user.getEmail(), "Tạo mới mật khẩu", context);
                 } catch (MessagingException e) {
                     throw new RuntimeException(e);
                 }

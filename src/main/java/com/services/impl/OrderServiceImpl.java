@@ -8,6 +8,7 @@ import com.repositories.*;
 import com.services.INotificationService;
 import com.services.IOrderService;
 import com.services.IProductService;
+import com.services.MailService;
 import com.utils.SecurityUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -15,6 +16,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import javax.mail.MessagingException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.sql.Timestamp;
@@ -33,6 +35,9 @@ public class OrderServiceImpl implements IOrderService {
     ICartDetailRepository cartDetailRepository;
     @Autowired
     IAddressRepository addressRepository;
+
+    @Autowired
+    MailService mailService;
 
     @Autowired
     private IProductService productService;
@@ -159,7 +164,9 @@ public class OrderServiceImpl implements IOrderService {
             cartRepository.deleteAllByCartDetails_Empty();
 
             this.notificationService.addForSpecificUser(new SocketNotificationModel(null, "Bạn có đơn hàng mới!, #".concat(order.getUuid()), "", ENotificationCategory.ORDER, OrderEntity.ADMIN_ORDER_URL), this.userRepository.getAllIdsByRole(RoleEntity.ADMINISTRATOR));
-            return orderRepository.save(order);
+            OrderEntity finalOrder = orderRepository.save(order);
+            this.notifyUser("http://15.164.227.244/",finalOrder);
+            return finalOrder;
         } catch (Exception e) {
             e.printStackTrace();
             throw new RuntimeException("Error when save order!!!");
@@ -349,5 +356,21 @@ public class OrderServiceImpl implements IOrderService {
         listOrderGroupbyStatusDto.add(new OrderGroupbyStatusDto("list-size", list.stream().mapToInt(o -> ((BigInteger) o[0]).intValue()).sum()));
         return listOrderGroupbyStatusDto;
     }
+    private void notifyUser(String url, OrderEntity order) {
+        new Thread("Send Notify Order Mail") {
+            @Override
+            public void run() {
+                Map<String, Object> context = new HashMap<>();
+                context.put("url", url);
+                context.put("order", order);
+                context.put("totalPrices", order.getTotalPrices());
+                context.put("deliveryFee", order.getDeliveryFee());
+                try {
+                    mailService.sendMail("OrderDetailMailTemplate", order.getCreatedBy().getEmail(), "Đơn hàng đã được đặt", context);
+                } catch (MessagingException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }.start();
+    }
 }
-
