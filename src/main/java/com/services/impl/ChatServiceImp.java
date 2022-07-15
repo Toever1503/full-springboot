@@ -1,6 +1,5 @@
 package com.services.impl;
 
-import com.entities.CategoryEntity;
 import com.entities.UserEntity;
 import com.entities.chat.ChatMessageEntity;
 import com.entities.chat.ChatRoomEntity;
@@ -13,7 +12,6 @@ import com.models.ChatMessageModel;
 import com.models.chat_models.ChatRoomModel;
 import com.repositories.IChatRoomRepository;
 import com.repositories.IMessageRepository;
-import com.services.CustomUserDetail;
 import com.services.IChatService;
 import com.utils.FileUploadProvider;
 import com.utils.SecurityUtils;
@@ -27,8 +25,6 @@ import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketMessage;
 import org.springframework.web.socket.WebSocketSession;
 
-import java.io.IOException;
-import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
@@ -135,9 +131,12 @@ public class ChatServiceImp implements IChatService {
         ChatRoomModel chatRoomModel = userChatRooms.get(chatRoomEntity.getRoomId());
         if (chatRoomModel == null) {
             chatRoomModel = new ChatRoomModel(userSession, chatRoomEntity);
-            userChatRooms.put(chatRoomEntity.getRoomId(), chatRoomModel);
+            userChatRooms.putIfAbsent(chatRoomEntity.getRoomId(), chatRoomModel);
         } else
-            chatRoomModel.getPersons().put(userSession.getId(), userSession);
+            chatRoomModel.getPersons().putIfAbsent(userSession.getId(), userSession);
+
+        chatRoomModel.setUserJoined(true);
+
 
         List<Long> roomIds = (List<Long>) userSession.getAttributes().get("roomIds");
         if (!roomIds.contains(chatRoomEntity.getRoomId()))
@@ -154,45 +153,52 @@ public class ChatServiceImp implements IChatService {
         ChatRoomEntity chatRoom = chatRoomRepository.findById(roomId).orElseThrow(() -> new RuntimeException("Chat room not found!"));
 
         ChatRoomModel chatRoomModel = userChatRooms.get(chatRoom.getRoomId());
-        String message = new StringBuilder().append("Tư vấn viên ").append(UserEntity.getName(userEntity)).append(" đã tham gia phòng chat!").toString();
-        if (chatRoomModel != null) {
-            chatRoomModel.adminJoin(userSession); // admin join room if room session is has been created
-            List<Long> roomIds = (List<Long>) userSession.getAttributes().get("roomIds"); // add room id to list room id of user
-            if (!roomIds.contains(chatRoom.getRoomId()))
-                roomIds.add(chatRoom.getRoomId());
-            ChatMessageDto chatData = ChatMessageDto.
-                    builder()
-                    .roomId(chatRoom.getRoomId())
-                    .attachments(List.of())
-                    .message(message)
-                    .senderRole(RoleEntity.ADMINISTRATOR)
-                    .sender("Tư vấn viên ".concat(UserEntity.getName(userEntity)))
-                    .build();
-            String jsonMss = new JSONObject(GeneralSocketMessage.builder().topic("Chat").data(chatData).build()).toString();
-            chatRoomModel.sendMessage(userSession.getId(), new TextMessage(jsonMss));
+        if (chatRoomModel != null) { // if room has been created
+            if (!chatRoomModel.isAdminJoined()) { // admin hasn't join
+                chatRoomModel.setAdminJoined(true);
+                chatRoomModel.setAdminUserId(userEntity.getId());
+                chatRoomModel.getPersons().putIfAbsent(userSession.getId(), userSession);
+            } else if (!chatRoomModel.getAdminUserId().equals(userEntity.getId()))
+                throw new RuntimeException("Tư vấn viên khác hiện đã tham gia!");
+        } else { // create new chat room
+            chatRoomModel = new ChatRoomModel(userSession, chatRoom);
+            chatRoomModel.setAdminJoined(true);
+            chatRoomModel.setAdminUserId(userEntity.getId());
+            userChatRooms.putIfAbsent(chatRoom.getRoomId(), chatRoomModel);
         }
+
+        String message = new StringBuilder().append("Tư vấn viên ").append(UserEntity.getName(userEntity)).append(" đã tham gia phòng chat!").toString();
+        List<Long> roomIds = (List<Long>) userSession.getAttributes().get("roomIds"); // add room id to list room id of user
+        if (!roomIds.contains(chatRoom.getRoomId()))
+            roomIds.add(chatRoom.getRoomId());
+
+        ChatMessageDto chatData = ChatMessageDto.
+                builder()
+                .roomId(chatRoom.getRoomId())
+                .attachments(List.of())
+                .message(message)
+                .senderRole(RoleEntity.ADMINISTRATOR)
+                .sender("Tư vấn viên ".concat(UserEntity.getName(userEntity)))
+                .build();
+        String jsonMss = new JSONObject(GeneralSocketMessage.builder().topic("Chat").data(chatData).build()).toString();
+        chatRoomModel.sendMessage(userSession.getId(), new TextMessage(jsonMss));
         return message;
     }
 
     @Transactional
     @Override
     public Page<ChatRoomDto> getAllRoomList(Pageable pageable) {
-        WebSocketSession userSession = this.getUserSession(SecurityUtils.getCurrentUserId());
+        Long userId = SecurityUtils.getCurrentUserId();
         return this.chatRoomRepository.findAll(pageable).map(room -> {
             ChatRoomModel chatRoomModel = userChatRooms.get(room.getRoomId());
             ChatRoomDto dto = ChatRoomDto.toDto(room);
 
             if (chatRoomModel != null) {
                 dto.setIsUserJoined(chatRoomModel.isUserJoined());
-                dto.setHasMe(chatRoomModel.hasPerson(userSession.getId()));
+                dto.setHasOtherAdmin(chatRoomModel.isAdminJoined() && !chatRoomModel.getAdminUserId().equals(userId));
             }
             return dto;
         });
-    }
-
-    @Override
-    public List<ChatRoomDto> getAvailableRoomList(Pageable pageable) {
-        return null;
     }
 
     @Override

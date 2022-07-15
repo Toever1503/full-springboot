@@ -17,7 +17,6 @@ public interface IChatService {
 
     Page<ChatRoomDto> getAllRoomList(Pageable pageable);
 
-    List<ChatRoomDto> getAvailableRoomList(Pageable pageable);
     List<ChatRoomDto> getAllMyChatRoom(Pageable pageable);
     List<GeneralSocketMessage> getAllRoomChatMessages(Long roomId);
 }
