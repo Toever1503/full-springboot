@@ -1,6 +1,8 @@
 package com.config.socket;
 
 import com.config.socket.exception.ChatRoomException;
+import com.dtos.socket_dtos.ChatMessageDto;
+import com.entities.RoleEntity;
 import com.entities.UserEntity;
 import com.google.gson.Gson;
 import com.models.SocketNotificationModel;
@@ -74,12 +76,26 @@ public class SocketHandler implements WebSocketHandler {
         UsernamePasswordAuthenticationToken userDetail = (UsernamePasswordAuthenticationToken) session.getPrincipal();
         CustomUserDetail customUserDetail = (CustomUserDetail) userDetail.getPrincipal();
         userSessions.remove(customUserDetail.getUser().getId());
+        String role = UserEntity.hasRole(RoleEntity.ADMINISTRATOR, customUserDetail.getUser().getRoleEntity()) ? RoleEntity.ADMINISTRATOR : RoleEntity.USER;
+        String name = UserEntity.getName(customUserDetail.getUser());
 
         List<Long> roomIds = (List<Long>) this.getValueFromSessionAttribute(session, "roomIds");
         if (roomIds != null)
             roomIds.forEach(roomId -> {
                 ChatRoomModel chatRoom = ChatServiceImp.userChatRooms.get(roomId);
-                chatRoom.removeUserSession(session.getId());
+                if (chatRoom != null) {
+                    chatRoom.removeUserSession(session.getId());
+                    GeneralSocketMessage mssData = GeneralSocketMessage.builder()
+                            .topic("Chat")
+                            .data(ChatMessageDto.builder()
+                                    .sender(name)
+                                    .senderRole(role)
+                                    .message((role.equals(RoleEntity.ADMINISTRATOR) ? "Tư vấn viên " : "")
+                                            .concat(name.concat(" đã rời phòng chát!")))
+                                    .build())
+                            .build();
+                    chatRoom.sendMessage(session.getId(), new TextMessage(new JSONObject(mssData).toString()));
+                }
             });
     }
 

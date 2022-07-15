@@ -58,15 +58,14 @@ public class ChatRoomModel {
         this.persons.remove(sessionId);
     }
 
-    public void adminJoin(Long userId, WebSocketSession userSession) {
-        if (this.persons.values()
+    public void adminJoin(WebSocketSession userSession) {
+        List<WebSocketSession> check = this.persons.values()
                 .stream()
-                .anyMatch(session -> {
-                    UserEntity userEntity = SocketHandler.getUserFromSession(session);
-                    return !UserEntity.hasRole(RoleEntity.ADMINISTRATOR, userEntity.getRoleEntity()) && !userId.equals(userEntity.getId());
-                }))
+                .filter(session -> UserEntity.hasRole(RoleEntity.ADMINISTRATOR, SocketHandler.getUserFromSession(session).getRoleEntity()))
+                .collect(Collectors.toList());
+        if (check.size() == 0)
             this.persons.putIfAbsent(userSession.getId(), userSession);
         else throw new RuntimeException("Tư vấn viên khác hiện đã tham gia!");
-
     }
+
 }
