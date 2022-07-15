@@ -21,15 +21,15 @@ public class ChatRoomDto {
 
     private Date createdDate;
     private Date updatedDate;
-    private Boolean isFull;
+    private Boolean hasMe = false;
+    private Boolean isUserJoined = false;
 
-    public static ChatRoomDto toDto(ChatRoomEntity chatRoomEntity, boolean isFull){
+    public static ChatRoomDto toDto(ChatRoomEntity chatRoomEntity) {
         return ChatRoomDto.builder()
                 .roomId(chatRoomEntity.getRoomId())
                 .userName(UserEntity.getName(chatRoomEntity.getCreatedBy()))
                 .userImage(chatRoomEntity.getCreatedBy().getAvatar())
                 .createdDate(chatRoomEntity.getCreatedDate())
-                .isFull(isFull)
                 .build();
     }
 }

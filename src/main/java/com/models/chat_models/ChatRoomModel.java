@@ -24,6 +24,8 @@ public class ChatRoomModel {
     private Long roomId;
     private List<ChatMessageModel> messages;
 
+    private boolean isUserJoined;
+
     public ChatRoomModel(WebSocketSession session, ChatRoomEntity entity) {
         this.persons = new ConcurrentHashMap<>();
 
@@ -33,6 +35,15 @@ public class ChatRoomModel {
         this.createdDate = Calendar.getInstance().getTime();
         this.roomId = entity.getRoomId();
         this.messages = entity.getMessages().stream().map(ChatMessageModel::toModel).collect(Collectors.toList());
+        this.isUserJoined = true;
+    }
+
+    public int size(){
+        return this.getPersons().size();
+    }
+
+    public boolean hasPerson(String sessionId){
+        return this.persons.contains(sessionId);
     }
 
     public void sendMessage(String sessionId, WebSocketMessage<?> message) {
@@ -63,9 +74,9 @@ public class ChatRoomModel {
                 .stream()
                 .filter(session -> UserEntity.hasRole(RoleEntity.ADMINISTRATOR, SocketHandler.getUserFromSession(session).getRoleEntity()))
                 .collect(Collectors.toList());
-        if (check.size() == 0)
-            this.persons.putIfAbsent(userSession.getId(), userSession);
-        else throw new RuntimeException("Tư vấn viên khác hiện đã tham gia!");
+        if (check.size() > 0 && !userSession.getId().equals(check.get(0).getId()))
+            throw new RuntimeException("Tư vấn viên khác hiện đã tham gia!");
+        else if (check.size() == 0) this.persons.putIfAbsent(userSession.getId(), userSession);
     }
 
 }

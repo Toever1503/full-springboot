@@ -180,7 +180,13 @@ public class ChatServiceImp implements IChatService {
         WebSocketSession userSession = this.getUserSession(SecurityUtils.getCurrentUserId());
         return this.chatRoomRepository.findAll(pageable).map(room -> {
             ChatRoomModel chatRoomModel = userChatRooms.get(room.getRoomId());
-            return ChatRoomDto.toDto(room, chatRoomModel == null ? false : (chatRoomModel.getPersons().size() >= 2 && !chatRoomModel.getPersons().contains(userSession.getId()) ? true : false));
+            ChatRoomDto dto = ChatRoomDto.toDto(room);
+
+            if (chatRoomModel != null) {
+                dto.setIsUserJoined(chatRoomModel.isUserJoined());
+                dto.setHasMe(chatRoomModel.hasPerson(userSession.getId()));
+            }
+            return dto;
         });
     }
 
