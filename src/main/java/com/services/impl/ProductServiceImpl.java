@@ -519,8 +519,8 @@ public class ProductServiceImpl implements IProductService {
             } else {
                 searchQuery.setPageable(page);
             }
-        }
-
+        } else
+            searchQuery.setPageable(page);
 
 //        List<Criteria> criteriaList = new ArrayList<>();
         if (model.getCategorySlugs() != null) {

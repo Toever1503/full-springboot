@@ -153,7 +153,12 @@ public class ChatServiceImp implements IChatService {
         WebSocketSession userSession = this.getUserSession(userEntity.getId());
         ChatRoomEntity chatRoom = chatRoomRepository.findById(roomId).orElseThrow(() -> new RuntimeException("Chat room not found!"));
 
+
         ChatRoomModel socketChatRoom = this.addOrUpdateChatRoom(chatRoom, userSession);
+
+
+
+
 
         String message = new StringBuilder().append("Tư vấn viên ").append(UserEntity.getName(userEntity)).append(" đã tham gia phòng chat!").toString();
         ChatMessageDto chatData = ChatMessageDto.
