@@ -172,9 +172,10 @@ public class ChatServiceImp implements IChatService {
     @Transactional
     @Override
     public Page<ChatRoomDto> getAllRoomList(Pageable pageable) {
+        WebSocketSession userSession = this.getUserSession(SecurityUtils.getCurrentUserId());
         return this.chatRoomRepository.findAll(pageable).map(room -> {
             ChatRoomModel chatRoomModel = userChatRooms.get(room.getRoomId());
-            return ChatRoomDto.toDto(room, chatRoomModel == null ? false : (chatRoomModel.getPersons().size() >= 2 ? true : false));
+            return ChatRoomDto.toDto(room, chatRoomModel == null ? false : (chatRoomModel.getPersons().size() >= 2 && !chatRoomModel.getPersons().contains(userSession.getId()) ? true : false));
         });
     }
 
