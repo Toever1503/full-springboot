@@ -18,6 +18,7 @@ import com.utils.SecurityUtils;
 import org.apache.lucene.search.join.ScoreMode;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
+import org.elasticsearch.index.query.RangeQueryBuilder;
 import org.elasticsearch.search.sort.*;
 import org.json.JSONObject;
 import org.springframework.context.annotation.Lazy;
@@ -528,20 +529,16 @@ public class ProductServiceImpl implements IProductService {
 //            filter by category
         }
 
-        if (model.getMaxPrice() != null && model.getMinPrice() != null) {
-//            filter by price
-            rootAndQueryBuilders.add(nestedQuery("skus", boolQuery().must(
-                    rangeQuery("skus.price").gte(model.getMinPrice()).lte(model.getMaxPrice())
-            ), ScoreMode.None));
-        } else if (model.getMinPrice() != null) {
-            rootAndQueryBuilders.add(nestedQuery("skus", boolQuery().must(
-                    rangeQuery("skus.price").gte(model.getMinPrice())
-            ), ScoreMode.None));
-        } else if (model.getMaxPrice() != null) {
-            rootAndQueryBuilders.add(nestedQuery("skus", boolQuery().must(
-                    rangeQuery("skus.price").lte(model.getMaxPrice())
-            ), ScoreMode.None));
-        }
+        RangeQueryBuilder priceRange = rangeQuery("skus.price");
+        priceRange.gte(0);
+        if (model.getMinPrice() != null)
+            priceRange.gte(model.getMinPrice());
+        if (model.getMaxPrice() != null)
+            priceRange.lte(model.getMaxPrice());
+        rootAndQueryBuilders.add(nestedQuery("skus", boolQuery().must(
+                priceRange
+        ), ScoreMode.Min));
+
         if (model.getStatus() != null) {
             rootAndQueryBuilders.add(termQuery("status", model.getStatus()));
         }
@@ -626,7 +623,6 @@ public class ProductServiceImpl implements IProductService {
                             .field("name")
                             .field("nameEng")
                             .field("tags.tagName")
-                            .analyzer("asciifolding")
             );
 
         }
