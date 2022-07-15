@@ -22,7 +22,7 @@ public class JwtAuthenticationProvider implements AuthenticationProvider {
         CustomUserDetail userDetail = (CustomUserDetail) authentication.getPrincipal();
         //Check password of request with user's password (Decrypted)
         if (!BCrypt.checkpw(authentication.getCredentials().toString(), userDetail.getPassword()))
-            throw new BadCredentialsException(JwtAuthenticationProvider.this.messages.getMessage("AbstractUserDetailsAuthenticationProvider.badCredentials", "Bad credentials"));
+            throw new BadCredentialsException("Tài khoản hoặc mật khẩu không chính xác!");
         //Check user's account status
         check(userDetail);
         //Return detail and token
@@ -32,13 +32,13 @@ public class JwtAuthenticationProvider implements AuthenticationProvider {
     public void check(UserDetails user) {
         //Check if account is locked
         if (!user.isAccountNonLocked()) {
-            JwtAuthenticationProvider.this.logger.debug("Failed to authenticate since user account is locked");
-            throw new LockedException(JwtAuthenticationProvider.this.messages.getMessage("AbstractUserDetailsAuthenticationProvider.locked", "User account is locked"));
+            JwtAuthenticationProvider.this.logger.debug("Tài khoản đã bị khóa!");
+            throw new LockedException("Tài khoản đã bị khóa");
         }
         //Check if account is disabled
         if (!user.isEnabled()) {
-            JwtAuthenticationProvider.this.logger.debug("Failed to authenticate since user account is disabled");
-            throw new DisabledException(JwtAuthenticationProvider.this.messages.getMessage("AbstractUserDetailsAuthenticationProvider.disabled", "User is disabled"));
+            JwtAuthenticationProvider.this.logger.debug("Tài khoản chưa được kích hoạt!");
+            throw new DisabledException("Tài khoản chưa được kích hoạt!");
         }
         //Check if account is expired
         if (!user.isAccountNonExpired()) {

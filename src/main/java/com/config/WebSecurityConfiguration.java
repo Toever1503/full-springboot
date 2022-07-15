@@ -74,7 +74,7 @@ public class WebSecurityConfiguration {
         AuthenticationManager authenticationManager = httpSecurity
                 .getSharedObject(AuthenticationManagerBuilder.class)
                 .parentAuthenticationManager(authentication -> {
-                    throw new RuntimeException("Bad Credential");
+                    throw new RuntimeException("Tài khoản hoặc mật khẩu không chính xác!");
                 }).build();
         httpSecurity
                 .authenticationProvider(new JwtAuthenticationProvider())

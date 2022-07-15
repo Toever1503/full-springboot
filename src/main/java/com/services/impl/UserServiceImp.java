@@ -181,11 +181,20 @@ public class UserServiceImp implements IUserService {
     public JwtLoginResponse logIn(JwtUserLoginModel userLogin) {
         UserEntity user = this.findByUsername(userLogin.getUsername());
         if (user.isLockStatus())
-            throw new RuntimeException("User has locked!");
+            throw new RuntimeException("Tài khoản đã bị khóa!");
         else if (!user.isStatus())
-            throw new RuntimeException("User hasn't active!");
+            throw new RuntimeException("Tài khoản chưa được kích hoạt!");
         UserDetails userDetail = new CustomUserDetail(user);
-        this.authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(userDetail, userLogin.getPassword(), userDetail.getAuthorities()));
+        try {
+            this.authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(userDetail, userLogin.getPassword(), userDetail.getAuthorities()));
+        } catch (Exception e) {
+            user.setFailedLogin(user.getFailedLogin() + 1);
+            if (user.getFailedLogin() >= 3)
+                user.setLockStatus(true);
+            this.userRepository.saveAndFlush(user);
+            throw e;
+        }
+
         long timeValid = userLogin.isRemember() ? 86400 * 7 : 1800l;
         return JwtLoginResponse.builder()
                 .token(this.jwtProvider.generateToken(userDetail.getUsername(), timeValid))
