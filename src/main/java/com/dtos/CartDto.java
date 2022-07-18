@@ -19,15 +19,17 @@ public class CartDto {
     private List<CartDetailDto> cartDetailDtos;
     private Integer totalQuantity;
     private Date updateDate;
+    private Boolean isLiked;
 
     public static CartDto toDto(CartEntity cart) {
-        if(cart == null) return null;
+        if (cart == null) return null;
         return CartDto.builder()
                 .id(cart.getId())
                 .productDto(ProductDto.toDto(cart.getProduct()))
                 .cartDetailDtos(cart.getCartDetails().stream().map(CartDetailDto::toDto).collect(Collectors.toList()))
                 .totalQuantity(cart.getCartDetails().stream().mapToInt(CartDetailEntity::getQuantity).sum())
                 .updateDate(cart.getUpdatedDate())
+                .isLiked(cart.getIsLiked())
                 .build();
     }
 }
