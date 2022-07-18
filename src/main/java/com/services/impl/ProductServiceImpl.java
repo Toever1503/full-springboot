@@ -628,12 +628,14 @@ public class ProductServiceImpl implements IProductService {
                             .field("nameEng")
             );
         } else if (model.getRecommendByKeywords() != null) {
-            rootAndQueryBuilders.add(
+            rootQueryBool.should().add(
                     queryStringQuery(model.getRecommendByKeywords()
                             .stream().reduce((s1, s2) -> s1.concat(" OR ").concat(s2)).get())
                             .field("name")
                             .field("nameEng")
-                            .field("tags.tagName")
+            );
+            rootAndQueryBuilders.add(
+                    nestedQuery("tags", termsQuery("tags.tagName", model.getRecommendByKeywords()), ScoreMode.None)
             );
         }
 
@@ -788,7 +790,7 @@ public class ProductServiceImpl implements IProductService {
 //        if (model.getId() != null)
 //            skuEntity = this.productSkuEntityRepository.findById(model.getId()).orElse(null);
 //        else
-            skuEntity = ProductSkuModel.toEntity(model, entity);
+        skuEntity = ProductSkuModel.toEntity(model, entity);
 
         CompletableFuture<Void> imgUploadFuture = null;
         if (model.getImageParameter() != null) {
