@@ -5,6 +5,7 @@ import com.dtos.socket_dtos.ChatMessageDto;
 import com.entities.RoleEntity;
 import com.entities.UserEntity;
 import com.google.gson.Gson;
+import com.models.ChatMessageModel;
 import com.models.SocketNotificationModel;
 import com.models.chat_models.*;
 import com.services.CustomUserDetail;
@@ -12,7 +13,6 @@ import com.services.IChatService;
 import com.services.impl.ChatServiceImp;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,7 +24,13 @@ import java.util.concurrent.ConcurrentHashMap;
 
 @Component
 public class SocketHandler implements WebSocketHandler {
+
+    private final IChatService chatService;
     public static ConcurrentHashMap<Long, WebSocketSession> userSessions = new ConcurrentHashMap<>();
+
+    public SocketHandler(IChatService chatService) {
+        this.chatService = chatService;
+    }
 
     @Transactional
     @Override
@@ -84,17 +90,25 @@ public class SocketHandler implements WebSocketHandler {
             roomIds.forEach(roomId -> {
                 ChatRoomModel chatRoom = ChatServiceImp.userChatRooms.get(roomId);
                 if (chatRoom != null) {
-                    GeneralSocketMessage mssData = GeneralSocketMessage.builder()
-                            .topic("Chat")
-                            .data(ChatMessageDto.builder()
-                                    .id(Math.round(Math.random()*10))
-                                    .sender(name)
-                                    .senderRole(role)
-                                    .message((role.equals(RoleEntity.ADMINISTRATOR) ? "Tư vấn viên " : "")
-                                            .concat(name.concat(" đã rời phòng chát!")))
-                                    .build())
+//                    GeneralSocketMessage mssData = GeneralSocketMessage.builder()
+//                            .topic("Chat")
+//                            .data(ChatMessageDto.builder()
+//                                    .id(Math.round(Math.random()*10))
+//                                    .sender(name)
+//                                    .senderRole(role)
+//                                    .message((role.equals(RoleEntity.ADMINISTRATOR) ? "Tư vấn viên " : "")
+//                                            .concat(name.concat(" đã rời phòng chát!")))
+//                                    .build())
+//                            .build();
+                    ChatMessageModel chatMessageModel = ChatMessageModel
+                            .builder()
+                            .attachments(null)
+                            .message((role.equals(RoleEntity.ADMINISTRATOR) ? "Tư vấn viên " : "")
+                                    .concat(name.concat(" đã rời phòng chát!")))
+                            .roomId(roomId)
                             .build();
-                    chatRoom.sendMessage(session.getId(), new TextMessage(new JSONObject(mssData).toString()));
+                    this.chatService.sendMessage(chatMessageModel);
+//                    chatRoom.sendMessage(session.getId(), new TextMessage(new JSONObject(mssData).toString()));
                     chatRoom.removeUserSession(session.getId());
                 }
             });

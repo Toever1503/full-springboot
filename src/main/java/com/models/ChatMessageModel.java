@@ -4,6 +4,7 @@ import com.entities.chat.ChatMessageEntity;
 import com.entities.chat.ChatRoomEntity;
 import com.utils.SecurityUtils;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.web.multipart.MultipartFile;
@@ -14,6 +15,7 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 public class ChatMessageModel {
     private String message;
     @NotNull

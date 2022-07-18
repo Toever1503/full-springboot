@@ -31,7 +31,7 @@ public class ChatRoomModel {
     @Builder
     @AllArgsConstructor
     @NoArgsConstructor
-    public static class ChatRoomInfo{
+    public static class ChatRoomInfo {
         private Long roomId;
         private String userName;
         private String adminName;
@@ -53,15 +53,16 @@ public class ChatRoomModel {
     }
 
     private void sendMessage(WebSocketSession session, WebSocketMessage<?> message) {
-        try {
-            session.sendMessage(message);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        if (session != null)
+            try {
+                session.sendMessage(message);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
     }
 
     public void removeUserSession(String sessionId) {
-        if(sessionId.equals(userSession.getId()))
+        if (sessionId.equals(userSession.getId()))
             this.userSession = null;
         else
             this.adminSession = null;

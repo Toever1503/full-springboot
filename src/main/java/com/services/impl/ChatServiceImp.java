@@ -35,8 +35,6 @@ import java.util.stream.Collectors;
 @Service
 public class ChatServiceImp implements IChatService {
     @Autowired
-    SocketHandler socketHandler;
-    @Autowired
     FileUploadProvider fileUploadProvider;
     @Autowired
     IMessageRepository messageRepository;
@@ -90,7 +88,7 @@ public class ChatServiceImp implements IChatService {
                         chatRoomEntity.getMessages().add(chatMessageEntity);
                     }, this.taskExecutor),
                     CompletableFuture.runAsync(() -> {
-                        this.messageRepository.save(chatMessageEntity);
+                        this.messageRepository.saveAndFlush(chatMessageEntity);
                     }, this.taskExecutor)).get();
 
             // send message to all users in chat room
@@ -167,15 +165,24 @@ public class ChatServiceImp implements IChatService {
         if (!roomIds.contains(chatRoom.getRoomId()))
             roomIds.add(chatRoom.getRoomId());
 
-        ChatMessageDto chatData = ChatMessageDto.
-                builder()
-                .roomId(chatRoom.getRoomId())
-                .attachments(List.of())
+        ChatMessageEntity chatMessageEntity = ChatMessageEntity.builder()
+                .user(userEntity)
+                .chatRoom(chatRoom)
+                .attachment(null)
                 .message(message)
-                .senderRole(RoleEntity.ADMINISTRATOR)
-                .sender("Tư vấn viên ".concat(UserEntity.getName(userEntity)))
                 .build();
-        String jsonMss = new JSONObject(GeneralSocketMessage.builder().topic("Chat").data(chatData).build()).toString();
+        this.messageRepository.saveAndFlush(chatMessageEntity);
+        GeneralSocketMessage.toGeneralSocketMessage(chatMessageEntity);
+
+//        ChatMessageDto chatData = ChatMessageDto.
+//                builder()
+//                .roomId(chatRoom.getRoomId())
+//                .attachments(List.of())
+//                .message(message)
+//                .senderRole(RoleEntity.ADMINISTRATOR)
+//                .sender("Tư vấn viên ".concat(UserEntity.getName(userEntity)))
+//                .build();
+        String jsonMss = new JSONObject(GeneralSocketMessage.toGeneralSocketMessage(chatMessageEntity)).toString();
         chatRoomModel.sendMessage(userSession.getId(), new TextMessage(jsonMss));
         return message;
     }
