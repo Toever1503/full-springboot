@@ -31,7 +31,7 @@ public class ChatRoomModel {
     @Builder
     @AllArgsConstructor
     @NoArgsConstructor
-    public class ChatRoomInfo{
+    public static class ChatRoomInfo{
         private Long roomId;
         private String userName;
         private String adminName;
