@@ -84,7 +84,6 @@ public class SocketHandler implements WebSocketHandler {
             roomIds.forEach(roomId -> {
                 ChatRoomModel chatRoom = ChatServiceImp.userChatRooms.get(roomId);
                 if (chatRoom != null) {
-                    chatRoom.removeUserSession(session.getId());
                     GeneralSocketMessage mssData = GeneralSocketMessage.builder()
                             .topic("Chat")
                             .data(ChatMessageDto.builder()
@@ -96,6 +95,7 @@ public class SocketHandler implements WebSocketHandler {
                                     .build())
                             .build();
                     chatRoom.sendMessage(session.getId(), new TextMessage(new JSONObject(mssData).toString()));
+                    chatRoom.removeUserSession(session.getId());
                 }
             });
     }
