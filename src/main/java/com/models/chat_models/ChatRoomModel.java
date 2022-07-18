@@ -62,9 +62,9 @@ public class ChatRoomModel {
     }
 
     public void removeUserSession(String sessionId) {
-        if (sessionId.equals(userSession.getId()))
             this.userSession = null;
-        else
+    }
+    public void removeAdminSession(String sessionId) {
             this.adminSession = null;
     }
 }

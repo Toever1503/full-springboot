@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.annotation.security.RolesAllowed;
 import javax.websocket.server.PathParam;
 import java.io.IOException;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/chat")
@@ -75,7 +76,7 @@ public class ChatResources {
                         .adminName(SocketHandler.getUserFromSession(room.getAdminSession()).getUserName())
                         .userName(SocketHandler.getUserFromSession(room.getUserSession()).getUserName())
                         .build()
-        );
+        ).collect(Collectors.toList());
         return ResponseDto.of(s, "Get all information chat room");
     }
 }

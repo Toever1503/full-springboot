@@ -174,14 +174,6 @@ public class ChatServiceImp implements IChatService {
         this.messageRepository.saveAndFlush(chatMessageEntity);
         GeneralSocketMessage.toGeneralSocketMessage(chatMessageEntity);
 
-//        ChatMessageDto chatData = ChatMessageDto.
-//                builder()
-//                .roomId(chatRoom.getRoomId())
-//                .attachments(List.of())
-//                .message(message)
-//                .senderRole(RoleEntity.ADMINISTRATOR)
-//                .sender("Tư vấn viên ".concat(UserEntity.getName(userEntity)))
-//                .build();
         String jsonMss = new JSONObject(GeneralSocketMessage.toGeneralSocketMessage(chatMessageEntity)).toString();
         chatRoomModel.sendMessage(userSession.getId(), new TextMessage(jsonMss));
         return message;

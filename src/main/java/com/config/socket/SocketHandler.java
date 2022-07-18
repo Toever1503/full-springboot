@@ -1,15 +1,15 @@
 package com.config.socket;
 
 import com.config.socket.exception.ChatRoomException;
-import com.dtos.socket_dtos.ChatMessageDto;
 import com.entities.RoleEntity;
 import com.entities.UserEntity;
+import com.entities.chat.ChatMessageEntity;
 import com.google.gson.Gson;
-import com.models.ChatMessageModel;
 import com.models.SocketNotificationModel;
 import com.models.chat_models.*;
+import com.repositories.IChatRoomRepository;
+import com.repositories.IMessageRepository;
 import com.services.CustomUserDetail;
-import com.services.IChatService;
 import com.services.impl.ChatServiceImp;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -25,12 +25,15 @@ import java.util.concurrent.ConcurrentHashMap;
 @Component
 public class SocketHandler implements WebSocketHandler {
 
-    private final IChatService chatService;
+    private final IMessageRepository messageRepository;
+    private final IChatRoomRepository chatRoomRepository;
     public static ConcurrentHashMap<Long, WebSocketSession> userSessions = new ConcurrentHashMap<>();
 
-    public SocketHandler(IChatService chatService) {
-        this.chatService = chatService;
+    public SocketHandler(IMessageRepository messageRepository, IChatRoomRepository chatRoomRepository) {
+        this.messageRepository = messageRepository;
+        this.chatRoomRepository = chatRoomRepository;
     }
+
 
     @Transactional
     @Override
@@ -90,26 +93,21 @@ public class SocketHandler implements WebSocketHandler {
             roomIds.forEach(roomId -> {
                 ChatRoomModel chatRoom = ChatServiceImp.userChatRooms.get(roomId);
                 if (chatRoom != null) {
-//                    GeneralSocketMessage mssData = GeneralSocketMessage.builder()
-//                            .topic("Chat")
-//                            .data(ChatMessageDto.builder()
-//                                    .id(Math.round(Math.random()*10))
-//                                    .sender(name)
-//                                    .senderRole(role)
-//                                    .message((role.equals(RoleEntity.ADMINISTRATOR) ? "Tư vấn viên " : "")
-//                                            .concat(name.concat(" đã rời phòng chát!")))
-//                                    .build())
-//                            .build();
-                    ChatMessageModel chatMessageModel = ChatMessageModel
+                    ChatMessageEntity chatMessageEntity = ChatMessageEntity
                             .builder()
-                            .attachments(null)
+                            .attachment(null)
+                            .user(customUserDetail.getUser())
                             .message((role.equals(RoleEntity.ADMINISTRATOR) ? "Tư vấn viên " : "")
                                     .concat(name.concat(" đã rời phòng chát!")))
-                            .roomId(roomId)
+                            .chatRoom(this.chatRoomRepository.findById(roomId).get())
                             .build();
-                    this.chatService.sendMessage(chatMessageModel);
-//                    chatRoom.sendMessage(session.getId(), new TextMessage(new JSONObject(mssData).toString()));
-                    chatRoom.removeUserSession(session.getId());
+                    this.messageRepository.saveAndFlush(chatMessageEntity);
+                    chatRoom.sendMessage(session.getId(), new TextMessage(new JSONObject(GeneralSocketMessage.toGeneralSocketMessage(chatMessageEntity)).toString()));
+                    if (role.equals(RoleEntity.ADMINISTRATOR)) {
+                        chatRoom.removeAdminSession(session.getId());
+                    } else {
+                        chatRoom.removeUserSession(session.getId());
+                    }
                 }
             });
     }
