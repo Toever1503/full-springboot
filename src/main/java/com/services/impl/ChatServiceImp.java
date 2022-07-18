@@ -130,13 +130,10 @@ public class ChatServiceImp implements IChatService {
         if (chatRoomEntity.getRoomId() == null) this.chatRoomRepository.save(chatRoomEntity);
         ChatRoomModel chatRoomModel = userChatRooms.get(chatRoomEntity.getRoomId());
         if (chatRoomModel == null) {
-            chatRoomModel = new ChatRoomModel(userSession, chatRoomEntity);
+            chatRoomModel = new ChatRoomModel(chatRoomEntity);
             userChatRooms.putIfAbsent(chatRoomEntity.getRoomId(), chatRoomModel);
-        } else
-            chatRoomModel.getPersons().putIfAbsent(userSession.getId(), userSession);
-
-        chatRoomModel.setUserJoined(true);
-
+        }
+        chatRoomModel.setUserSession(userSession);
 
         List<Long> roomIds = (List<Long>) userSession.getAttributes().get("roomIds");
         if (!roomIds.contains(chatRoomEntity.getRoomId()))
@@ -154,17 +151,15 @@ public class ChatServiceImp implements IChatService {
 
         ChatRoomModel chatRoomModel = userChatRooms.get(chatRoom.getRoomId());
         if (chatRoomModel != null) { // if room has been created
-            if (!chatRoomModel.isAdminJoined()) { // admin hasn't join
-                chatRoomModel.setAdminJoined(true);
-                chatRoomModel.setAdminUserId(userEntity.getId());
-                chatRoomModel.getPersons().putIfAbsent(userSession.getId(), userSession);
-            } else if (!chatRoomModel.getAdminUserId().equals(userEntity.getId()))
+            if (chatRoomModel.getAdminSession() == null) {
+                chatRoomModel.setAdminSession(userSession);
+            } else if (!chatRoomModel.getAdminSession().getId().equals(userSession.getId())) {
                 throw new RuntimeException("Tư vấn viên khác hiện đã tham gia!");
+            }
         } else { // create new chat room
-            chatRoomModel = new ChatRoomModel(userSession, chatRoom);
-            chatRoomModel.setAdminJoined(true);
-            chatRoomModel.setAdminUserId(userEntity.getId());
+            chatRoomModel = new ChatRoomModel(chatRoom);
             userChatRooms.putIfAbsent(chatRoom.getRoomId(), chatRoomModel);
+            chatRoomModel.setAdminSession(userSession);
         }
 
         String message = new StringBuilder().append("Tư vấn viên ").append(UserEntity.getName(userEntity)).append(" đã tham gia phòng chat!").toString();
@@ -189,13 +184,15 @@ public class ChatServiceImp implements IChatService {
     @Override
     public Page<ChatRoomDto> getAllRoomList(Pageable pageable) {
         Long userId = SecurityUtils.getCurrentUserId();
+        WebSocketSession userSession = this.getUserSession(userId);
         return this.chatRoomRepository.findAll(pageable).map(room -> {
             ChatRoomModel chatRoomModel = userChatRooms.get(room.getRoomId());
             ChatRoomDto dto = ChatRoomDto.toDto(room);
 
             if (chatRoomModel != null) {
-                dto.setIsUserJoined(chatRoomModel.isUserJoined());
-                dto.setHasOtherAdmin(chatRoomModel.isAdminJoined() && !chatRoomModel.getAdminUserId().equals(userId));
+                dto.setIsUserJoined(chatRoomModel.getUserSession() == null ? false : true);
+                dto.setHasOtherAdmin(chatRoomModel.getAdminSession() == null ?
+                        false : (chatRoomModel.getAdminSession().getId().equals(userSession.getId()) ? false : true));
             }
             return dto;
         });

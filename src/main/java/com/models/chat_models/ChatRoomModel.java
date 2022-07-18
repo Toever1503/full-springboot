@@ -19,42 +19,34 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ChatRoomModel {
-    private ConcurrentHashMap<String, WebSocketSession> persons;
     private Date createdDate;
     private Long roomId;
     private List<ChatMessageModel> messages;
 
-    private boolean isUserJoined = false;
-    private Long adminUserId;
-    private boolean isAdminJoined = false;
+    private WebSocketSession userSession;
+    private WebSocketSession adminSession;
 
-    public ChatRoomModel(WebSocketSession session, ChatRoomEntity entity) {
-        this.persons = new ConcurrentHashMap<>();
-        persons.put(session.getId(), session);
-        this.createdDate = Calendar.getInstance().getTime();
+
+    public ChatRoomModel(ChatRoomEntity entity) {
+        this.createdDate = entity.getCreatedDate();
         this.roomId = entity.getRoomId();
         this.messages = entity.getMessages().stream().map(ChatMessageModel::toModel).collect(Collectors.toList());
     }
 
-    public int size() {
-        return this.getPersons().size();
-    }
 
     public void sendMessage(String sessionId, WebSocketMessage<?> message) {
-        persons.forEach((key, person) -> {
-            if (!key.equals(sessionId)) {
-                try {
-                    person.sendMessage(message);
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-        });
+        if (sessionId.equals(adminSession.getId()))
+            this.sendMessage(this.userSession, message); // admin send to user
+        else
+            this.sendMessage(this.adminSession, message); // user send to admin
     }
 
-
-    public void removeUserSession(String sessionId) {
-        this.persons.remove(sessionId);
+    private void sendMessage(WebSocketSession session, WebSocketMessage<?> message) {
+        try {
+            session.sendMessage(message);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
 }
