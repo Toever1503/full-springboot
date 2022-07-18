@@ -27,6 +27,17 @@ public class ChatRoomModel {
     private WebSocketSession adminSession;
 
 
+    @Data
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public class ChatRoomInfo{
+        private Long roomId;
+        private String userName;
+        private String adminName;
+    }
+
+
     public ChatRoomModel(ChatRoomEntity entity) {
         this.createdDate = entity.getCreatedDate();
         this.roomId = entity.getRoomId();
