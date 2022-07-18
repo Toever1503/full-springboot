@@ -1,5 +1,6 @@
 package com.services.impl;
 
+import com.config.FrontendConfiguration;
 import com.dtos.*;
 import com.entities.*;
 import com.models.OrderModel;
@@ -162,10 +163,15 @@ public class OrderServiceImpl implements IOrderService {
             order.setTotalNumberProducts(totalProducts.get());
             order.setOrderDetails(orderDetailEntities);
             cartRepository.deleteAllByCartDetails_Empty();
+            OrderEntity finalOrder = orderRepository.saveAndFlush(order);
 
-            this.notificationService.addForSpecificUser(new SocketNotificationModel(null, "Bạn có đơn hàng mới!, #".concat(order.getUuid()), "", ENotificationCategory.ORDER, OrderEntity.ADMIN_ORDER_URL), this.userRepository.getAllIdsByRole(RoleEntity.ADMINISTRATOR));
-            OrderEntity finalOrder = orderRepository.save(order);
-            this.notifyUser("http://15.164.227.244/",finalOrder);
+            this.notificationService.addForSpecificUser(
+                    new SocketNotificationModel(null,
+                            "Bạn có đơn hàng mới!, #".concat(order.getUuid()),
+                            "", ENotificationCategory.ORDER,
+                            FrontendConfiguration.ADMIN_ORDER_DETAIL_URL + order.getId()),
+                    this.userRepository.getAllIdsByRole(RoleEntity.ADMINISTRATOR));
+            this.notifyUser("http://15.164.227.244/", finalOrder);
             return finalOrder;
         } catch (Exception e) {
             e.printStackTrace();
@@ -356,6 +362,7 @@ public class OrderServiceImpl implements IOrderService {
         listOrderGroupbyStatusDto.add(new OrderGroupbyStatusDto("list-size", list.stream().mapToInt(o -> ((BigInteger) o[0]).intValue()).sum()));
         return listOrderGroupbyStatusDto;
     }
+
     private void notifyUser(String url, OrderEntity order) {
         new Thread("Send Notify Order Mail") {
             @Override

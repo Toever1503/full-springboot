@@ -1,5 +1,6 @@
 package com.services.impl;
 
+import com.config.FrontendConfiguration;
 import com.dtos.ENotificationCategory;
 import com.dtos.EStatusQuestion;
 import com.entities.QuestionEntity;
@@ -90,8 +91,13 @@ public class QuestionServiceImp implements IQuestionService {
         }
         questionEntity.setStatus(EStatusQuestion.PENDING.name());
         questionEntity.setCreatedBy(SecurityUtils.getCurrentUser().getUser());
-        notificationService.addForSpecificUser(new SocketNotificationModel(null, "Bạn có câu hỏi mới!", "", ENotificationCategory.QUESTION,QuestionEntity.QUESTION_URL), this.userRepository.getAllIdsByRole(RoleEntity.ADMINISTRATOR));
-        return this.questionRepository.save(questionEntity);
+        this.questionRepository.saveAndFlush(questionEntity);
+        notificationService.addForSpecificUser(
+                new SocketNotificationModel(null, "Bạn có câu hỏi mới!",
+                        "", ENotificationCategory.QUESTION,
+                        FrontendConfiguration.QUESTION_DETAIL_URL + questionEntity.getId()),
+                this.userRepository.getAllIdsByRole(RoleEntity.ADMINISTRATOR));
+        return questionEntity;
     }
 
     @Override
@@ -105,7 +111,7 @@ public class QuestionServiceImp implements IQuestionService {
     public QuestionEntity update(QuestionModel model) {
         QuestionEntity originalQuestion = this.findById(model.getId());
 
-        if(originalQuestion.getCreatedBy().getId().equals(SecurityUtils.getCurrentUserId()) || SecurityUtils.hasRole(RoleEntity.ADMINISTRATOR)){
+        if (originalQuestion.getCreatedBy().getId().equals(SecurityUtils.getCurrentUserId()) || SecurityUtils.hasRole(RoleEntity.ADMINISTRATOR)) {
             if (originalQuestion.getStatus().equalsIgnoreCase(EStatusQuestion.COMPLETED.name()))
                 throw new RuntimeException("Question is already completed");
 
@@ -135,8 +141,7 @@ public class QuestionServiceImp implements IQuestionService {
             originalQuestion.setTitle(model.getTitle());
             originalQuestion.setQuestContent(model.getQuestContent());
             return this.questionRepository.save(originalQuestion);
-        }
-        else
+        } else
             return null;
     }
 
@@ -144,14 +149,13 @@ public class QuestionServiceImp implements IQuestionService {
     @Override
     public boolean deleteById(Long id) {
         QuestionEntity questionEntity = this.findById(id);
-        if(questionEntity.getCreatedBy().getId().equals(SecurityUtils.getCurrentUserId()) || SecurityUtils.hasRole(RoleEntity.ADMINISTRATOR)){
+        if (questionEntity.getCreatedBy().getId().equals(SecurityUtils.getCurrentUserId()) || SecurityUtils.hasRole(RoleEntity.ADMINISTRATOR)) {
             if (questionEntity.getQuestFile() != null) {
                 new JSONObject(questionEntity.getQuestFile()).getJSONArray("files").toList().forEach(u -> fileUploadProvider.deleteFile(u.toString()));
             }
             questionRepository.deleteById(id);
             return true;
-        }
-        else
+        } else
             return false;
     }
 
@@ -187,7 +191,12 @@ public class QuestionServiceImp implements IQuestionService {
         question.setStatus(EStatusQuestion.COMPLETED.toString());
         question = questionRepository.save(question);
         notifyUser(model.getUrl(), question);
-        notificationService.addForSpecificUser(new SocketNotificationModel(null, "Admin đã phản hồi lại câu hỏi của bạn!", "", ENotificationCategory.QUESTION, QuestionEntity.QUESTION_URL), List.of(question.getCreatedBy().getId()));
+        notificationService.addForSpecificUser(
+                new SocketNotificationModel(null,
+                        "Admin đã phản hồi lại câu hỏi của bạn!",
+                        "", ENotificationCategory.QUESTION,
+                        FrontendConfiguration.QUESTION_DETAIL_URL + question.getId()),
+                List.of(question.getCreatedBy().getId()));
         return question;
     }
 
