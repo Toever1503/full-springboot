@@ -153,7 +153,7 @@ public class ChatServiceImp implements IChatService {
         if (chatRoomModel != null) { // if room has been created
             if (chatRoomModel.getAdminSession() == null) {
                 chatRoomModel.setAdminSession(userSession);
-            } else if (chatRoomModel.getAdminSession().getId().equals(userSession.getId())) {
+            } else if (!chatRoomModel.getAdminSession().getId().equals(userSession.getId())) {
                 throw new RuntimeException("Tư vấn viên khác hiện đã tham gia!");
             }
         } else { // create new chat room
