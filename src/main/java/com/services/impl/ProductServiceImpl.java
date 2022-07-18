@@ -785,9 +785,9 @@ public class ProductServiceImpl implements IProductService {
 
     private ProductSkuEntity saveSku(ProductEntity entity, String folder, ProductSkuModel model, HttpServletRequest req) {
         ProductSkuEntity skuEntity;
-        if (model.getId() != null)
-            skuEntity = this.productSkuEntityRepository.findById(model.getId()).orElse(null);
-        else
+//        if (model.getId() != null)
+//            skuEntity = this.productSkuEntityRepository.findById(model.getId()).orElse(null);
+//        else
             skuEntity = ProductSkuModel.toEntity(model, entity);
 
         CompletableFuture<Void> imgUploadFuture = null;
