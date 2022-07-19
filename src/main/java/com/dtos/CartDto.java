@@ -20,6 +20,7 @@ public class CartDto {
     private Integer totalQuantity;
     private Date updateDate;
     private Boolean isLiked;
+    private List<ProductSkuDto> productSkuDtos;
 
     public static CartDto toDto(CartEntity cart) {
         if (cart == null) return null;
@@ -30,6 +31,7 @@ public class CartDto {
                 .totalQuantity(cart.getCartDetails().stream().mapToInt(CartDetailEntity::getQuantity).sum())
                 .updateDate(cart.getUpdatedDate())
                 .isLiked(cart.getIsLiked())
+                .productSkuDtos(cart.getCartDetails().stream().map(CartDetailEntity::getSku).map(ProductSkuDto::toDto).collect(Collectors.toList()))
                 .build();
     }
 }
