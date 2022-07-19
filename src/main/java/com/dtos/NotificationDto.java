@@ -18,7 +18,6 @@ public class NotificationDto {
     private Long id;
     private String image;
     private String title;
-
     private String category;
     private String status;
     private String contentExcerpt;
@@ -29,10 +28,25 @@ public class NotificationDto {
     private Integer viewed;
     private boolean isRead;
 
+    private String url;
+
     private List<Object> attachFiles;
 
 
-    public NotificationDto(Long id, String image, String title, String status, String contentExcerpt, Date updatedDate, Date createdDate, Boolean isEdit, String createdBy, Integer viewed, boolean isRead, String attachFiles, String category) {
+    public NotificationDto(Long id,
+                           String image,
+                           String title,
+                           String status,
+                           String contentExcerpt,
+                           Date updatedDate,
+                           Date createdDate,
+                           Boolean isEdit,
+                           String createdBy,
+                           Integer viewed,
+                           boolean isRead,
+                           String attachFiles,
+                           String category,
+                           String url) {
         this.id = id;
         this.image = image;
         this.title = title;
@@ -46,6 +60,7 @@ public class NotificationDto {
         this.isRead = isRead;
         this.attachFiles = attachFiles == null ? null : new JSONObject(attachFiles).getJSONArray("files").toList();
         this.category = category;
+        this.url = url;
     }
 
     public NotificationDto(Long id, String image, String title, String category, String status, String contentExcerpt, Date updatedDate, Date createdDate, Boolean isEdit, String createdBy, Integer viewed, boolean isRead, List<Object> attachFiles) {

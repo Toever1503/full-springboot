@@ -338,7 +338,7 @@ public class ProductServiceImpl implements IProductService {
     @Override
     public DetailProductDto findDetailById(Pageable page, Long id) {
         ProductDto productDto = this.eProductRepository.findById(id).orElseThrow(() -> new RuntimeException("Product not found, id: ".concat(id.toString())));
-//        MoreLikeThisQuery query = new MoreLikeThisQuery();
+        MoreLikeThisQuery query = new MoreLikeThisQuery();
 //        query.setId(id.toString());
 //        query.setPageable(page);
 //        query.addFields(ProductDto.FIELDS);
@@ -643,6 +643,8 @@ public class ProductServiceImpl implements IProductService {
             rootAndQueryBuilders.add(nestedQuery("skus", boolQuery()
                     .must(scriptQuery(new Script("return ((1- doc['skus.price'].value/doc['skus.oldPrice'].value) * 100) > 49.5"))), ScoreMode.None));
         }
+//        rootAndQueryBuilders.add(scriptQuery(new Script("return doc['skus'].length > 0")));
+
 
 //        use later
 //        if (model.getSortBy() != null) {
