@@ -37,7 +37,7 @@ public class CartResources {
     @PostMapping
     public ResponseDto addCart(@RequestBody CartModel cartModel) {
         cartModel.setId(null);
-        return ResponseDto.of(CartDto.toDto(cartService.add(cartModel)), "Add Cart");
+        return ResponseDto.of(CartDto.toDto2(cartService.add(cartModel), cartModel.getSkuId()), "Add Cart");
     }
 
     @Transactional
