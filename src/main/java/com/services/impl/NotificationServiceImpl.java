@@ -248,7 +248,7 @@ public class NotificationServiceImpl implements INotificationService {
             else
                 entity.setCreatedBy(this.userService.findById(6l));
             this.notificationRepository.saveAndFlush(entity);
-            entity.setUrl(model.getUrl() + entity.getId());
+            entity.setUrl(model.getUrl());
             this.notificationRepository.saveAndFlush(entity);
 
             this.saveUserNotification(entity.getId(), userId);

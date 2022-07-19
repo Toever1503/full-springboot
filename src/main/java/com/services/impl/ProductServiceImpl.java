@@ -352,7 +352,7 @@ public class ProductServiceImpl implements IProductService {
                 .stream()
                 .filter(dto -> dto.getSkus().size() > 0)
                 .collect(Collectors.toList());
-        
+
         PageImpl<ProductDto> dtoPage = new PageImpl<>(list,
                 page,
                 list.size());

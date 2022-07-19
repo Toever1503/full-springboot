@@ -163,7 +163,7 @@ public class OrderServiceImpl implements IOrderService {
             order.setTotalNumberProducts(totalProducts.get());
             order.setOrderDetails(orderDetailEntities);
             cartRepository.deleteAllByCartDetails_Empty();
-            OrderEntity finalOrder = orderRepository.saveAndFlush(order);
+            orderRepository.saveAndFlush(order);
 
             this.notificationService.addForSpecificUser(
                     new SocketNotificationModel(null,
@@ -171,8 +171,8 @@ public class OrderServiceImpl implements IOrderService {
                             "", ENotificationCategory.ORDER,
                             FrontendConfiguration.ADMIN_ORDER_DETAIL_URL + order.getId()),
                     this.userRepository.getAllIdsByRole(RoleEntity.ADMINISTRATOR));
-            this.notifyUser("http://15.164.227.244/", finalOrder);
-            return finalOrder;
+//            this.notifyUser("http://15.164.227.244/", finalOrder);
+            return order;
         } catch (Exception e) {
             e.printStackTrace();
             throw new RuntimeException("Error when save order!!!");
