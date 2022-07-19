@@ -63,7 +63,7 @@ public class NotificationDto {
         this.url = url;
     }
 
-    public NotificationDto(Long id, String image, String title, String category, String status, String contentExcerpt, Date updatedDate, Date createdDate, Boolean isEdit, String createdBy, Integer viewed, boolean isRead, List<Object> attachFiles) {
+    public NotificationDto(Long id, String image, String title, String category, String status, String contentExcerpt, Date updatedDate, Date createdDate, Boolean isEdit, String createdBy, Integer viewed, boolean isRead, String url, List<Object> attachFiles) {
         this.id = id;
         this.image = image;
         this.title = title;
@@ -76,6 +76,7 @@ public class NotificationDto {
         this.createdBy = createdBy;
         this.viewed = viewed;
         this.isRead = isRead;
+        this.url = url;
         this.attachFiles = attachFiles;
     }
 
