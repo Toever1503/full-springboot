@@ -339,6 +339,7 @@ public class ProductServiceImpl implements IProductService {
     public DetailProductDto findDetailById(Pageable page, Long id) {
         ProductDto productDto = this.eProductRepository.findById(id).orElseThrow(() -> new RuntimeException("Product not found, id: ".concat(id.toString())));
         MoreLikeThisQuery query = new MoreLikeThisQuery();
+
 //        query.setId(id.toString());
 //        query.setPageable(page);
 //        query.addFields(ProductDto.FIELDS);
@@ -346,9 +347,19 @@ public class ProductServiceImpl implements IProductService {
 //        SearchHits<ProductDto> searchHits = null;
 //        SearchHitSupport.searchPageFor(searchHits, page);
 
+        Page<ProductDto> productDtoPage = this.eProductRepository.searchSimilar(productDto, ProductDto.FIELDS, page);
+        List<ProductDto> list = productDtoPage
+                .stream()
+                .filter(dto -> dto.getSkus().size() > 0)
+                .collect(Collectors.toList());
+        
+        PageImpl<ProductDto> dtoPage = new PageImpl<>(list,
+                page,
+                list.size());
+
         return DetailProductDto.builder()
                 .data(productDto)
-                .similarProducts(this.eProductRepository.searchSimilar(productDto, ProductDto.FIELDS, page))
+                .similarProducts(dtoPage)
                 .build();
     }
 
