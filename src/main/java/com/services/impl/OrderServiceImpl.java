@@ -21,6 +21,7 @@ import javax.mail.MessagingException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.sql.Timestamp;
+import java.text.DecimalFormat;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -171,7 +172,7 @@ public class OrderServiceImpl implements IOrderService {
                             "", ENotificationCategory.ORDER,
                             FrontendConfiguration.ADMIN_ORDER_DETAIL_URL + order.getId()),
                     this.userRepository.getAllIdsByRole(RoleEntity.ADMINISTRATOR));
-//            this.notifyUser("http://15.164.227.244/", finalOrder);
+            this.mailUser("http://15.164.227.244/", order);
             return order;
         } catch (Exception e) {
             e.printStackTrace();
@@ -363,13 +364,15 @@ public class OrderServiceImpl implements IOrderService {
         return listOrderGroupbyStatusDto;
     }
 
-    private void notifyUser(String url, OrderEntity order) {
+    private void mailUser(String url, OrderEntity order) {
         new Thread("Send Notify Order Mail") {
             @Override
             public void run() {
                 Map<String, Object> context = new HashMap<>();
                 context.put("url", url);
                 context.put("order", order);
+                DecimalFormat format = new DecimalFormat("₫#,###");
+                context.put("formatter", format);
                 context.put("totalPrices", order.getTotalPrices());
                 context.put("deliveryFee", order.getDeliveryFee());
                 try {
