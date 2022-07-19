@@ -40,7 +40,7 @@ public class CartDto {
         return CartDto.builder()
                 .id(cart.getId())
                 .productDto(ProductDto.toDto(cart.getProduct()))
-                .cartDetailDtos(cart.getCartDetails().stream().filter(cd -> cd.getSku().getId()==idSku).map(CartDetailDto::toDto).collect(Collectors.toList()))
+                .cartDetailDtos(cart.getCartDetails().stream().filter(cd -> cd.getSku().getId().equals(idSku)).map(CartDetailDto::toDto).collect(Collectors.toList()))
                 .totalQuantity(cart.getCartDetails().stream().mapToInt(CartDetailEntity::getQuantity).sum())
                 .updateDate(cart.getUpdatedDate())
                 .isLiked(cart.getIsLiked())
