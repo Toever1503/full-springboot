@@ -242,9 +242,8 @@ public class ReviewServiceImpl implements IReviewService {
     public ReviewEntity responseReview(ReviewModel model) {
         ReviewEntity reviewEntity = ReviewModel.toEntity(model);
         reviewEntity.setCreatedBy(SecurityUtils.getCurrentUser().getUser());
-        reviewEntity.setRating(null);
+        reviewEntity.setRating(reviewEntity.getRating() == null ? null : reviewEntity.getRating());
         reviewEntity.setStatus(EStatusReview.APPROVED.name());
-        this.reviewRepository.updateProductRating(reviewEntity.getProduct().getId());
         if (model.getParentId() != null) {
             if (model.getOrderDetailId() != this.findById(model.getParentId()).getOrderDetail().getId()) {
                 throw new RuntimeException("Order detail not found");
@@ -269,6 +268,7 @@ public class ReviewServiceImpl implements IReviewService {
                 }
                 JSONObject jsonObject = new JSONObject(Map.of("files", filePaths));
                 reviewEntity.setAttachFiles(jsonObject.toString());
+                this.reviewRepository.updateProductRating(reviewEntity.getProduct().getId());
             }
         } else {
             throw new RuntimeException("Parent review not found");

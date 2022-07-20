@@ -1,5 +1,6 @@
 package com.models.specifications;
 
+import com.entities.OrderEntity_;
 import com.entities.UserEntity;
 import com.entities.UserEntity_;
 import com.models.filters.UserFilterModel;
@@ -31,11 +32,21 @@ public class UserSpecification extends BaseSpecification {
         if (filter.getMaxBirthDay() != null && filter.getMinBirthDay() != null)
             specs.add(betweenDate(UserEntity_.BIRTH_DATE, filter.getMinBirthDay(), filter.getMaxBirthDay()));
 
-        if (filter.getMaxCreatedDate() != null && filter.getMinCreatedDate() != null)
-            specs.add(betweenDate(UserEntity_.CREATED_DATE, filter.getMinCreatedDate(), filter.getMaxCreatedDate()));
+        if (filter.getMinCreatedDate() != null && filter.getMaxCreatedDate() != null) {
+            specs.add(betweenDate(OrderEntity_.CREATED_DATE, filter.getMinCreatedDate(), filter.getMaxCreatedDate()));
+        } else if (filter.getMinCreatedDate() != null) {
+            specs.add(dateGreaterThanEqual(OrderEntity_.CREATED_DATE, filter.getMinCreatedDate()));
+        } else if (filter.getMaxCreatedDate() != null) {
+            specs.add(dateLessThanEqual(OrderEntity_.CREATED_DATE, filter.getMaxCreatedDate()));
+        }
 
-        if (filter.getMaxUpdatedDate() != null && filter.getMinUpdatedDate() != null)
-            specs.add(betweenDate(UserEntity_.UPDATED_DATE, filter.getMinUpdatedDate(), filter.getMaxUpdatedDate()));
+        if (filter.getMinUpdatedDate() != null && filter.getMaxUpdatedDate() != null) {
+            specs.add(betweenDate(OrderEntity_.UPDATED_DATE, filter.getMinUpdatedDate(), filter.getMaxUpdatedDate()));
+        } else if (filter.getMinUpdatedDate() != null) {
+            specs.add(dateGreaterThanEqual(OrderEntity_.UPDATED_DATE, filter.getMinUpdatedDate()));
+        } else if (filter.getMaxUpdatedDate() != null) {
+            specs.add(dateLessThanEqual(OrderEntity_.UPDATED_DATE, filter.getMaxUpdatedDate()));
+        }
 
 
         Specification<UserEntity> finalSpec = null;
