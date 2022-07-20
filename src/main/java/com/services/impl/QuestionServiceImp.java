@@ -184,13 +184,12 @@ public class QuestionServiceImp implements IQuestionService {
                     }
                 });
             }
-
         }
         question.setAnsweredBy(userService.findById(SecurityUtils.getCurrentUserId()));
         question.setReplyContent(model.getReplyContent());
         question.setStatus(EStatusQuestion.COMPLETED.toString());
         question = questionRepository.save(question);
-        notifyUser(model.getUrl(), question);
+        notifyUser(FrontendConfiguration.QUESTION_DETAIL_URL+question.getId(), question);
         notificationService.addForSpecificUser(
                 new SocketNotificationModel(null,
                         "Admin đã phản hồi lại câu hỏi của bạn!",
@@ -254,7 +253,7 @@ public class QuestionServiceImp implements IQuestionService {
                 context.put("url", url);
                 context.put("question", question);
                 try {
-                    mailService.sendMail("QuestionNotifyMailTemplate.html", question.getCreatedBy().getEmail(), "Question Answered", context);
+                    mailService.sendMail("QuestionNotifyMailTemplate.html", question.getCreatedBy().getEmail(), "Câu hỏi đã được giải đáp", context);
                 } catch (MessagingException e) {
                     throw new RuntimeException(e);
                 }
