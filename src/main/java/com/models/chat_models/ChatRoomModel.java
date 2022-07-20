@@ -52,10 +52,10 @@ public class ChatRoomModel {
             else
                 this.sendMessage(this.adminSession, message); // user send to admin
         } else if (this.userSession != null) {
-            if (sessionId.equals(adminSession.getId()))
-                this.sendMessage(this.userSession, message); // admin send to user
+            if (sessionId.equals(userSession.getId()))
+                this.sendMessage(this.adminSession, message); // admin send to user
             else
-                this.sendMessage(this.adminSession, message); // user send to admin
+                this.sendMessage(this.userSession, message); // user send to admin
         }
     }
 
