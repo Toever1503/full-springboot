@@ -245,7 +245,7 @@ public class ReviewServiceImpl implements IReviewService {
         reviewEntity.setRating(null);
         reviewEntity.setStatus(EStatusReview.APPROVED.name());
         if (model.getParentId() != null) {
-            if (model.getOrderDetailId() != this.findById(model.getParentId()).getOrderDetail().getId()) {
+            if (!model.getOrderDetailId().equals(this.findById(model.getParentId()).getOrderDetail().getId())) {
                 throw new RuntimeException("Order detail not found");
             }
             ReviewEntity parentReview = this.findById(model.getParentId());
@@ -274,7 +274,6 @@ public class ReviewServiceImpl implements IReviewService {
         } else {
             throw new RuntimeException("Parent review not found");
         }
-        this.productService.saveDtoOnElasticsearch(reviewEntity.getProduct());
         notificationService.addForSpecificUser(new SocketNotificationModel(null, "Admin đã phản hồi lại đánh giá của bạn!", "", ENotificationCategory.REVIEW, ReviewEntity.ADMIN_REVIEW_URL), List.of(reviewEntity.getCreatedBy().getId()));
         return this.reviewRepository.saveAndFlush(reviewEntity);
     }
@@ -284,7 +283,6 @@ public class ReviewServiceImpl implements IReviewService {
         reviewEntity.setStatus(status);
         this.reviewRepository.updateProductRating(reviewEntity.getProduct().getId());
         this.reviewRepository.saveAndFlush(reviewEntity);
-        this.productService.saveDtoOnElasticsearch(reviewEntity.getProduct());
         return reviewEntity;
     }
 

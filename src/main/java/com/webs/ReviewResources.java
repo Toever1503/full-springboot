@@ -8,6 +8,7 @@ import com.entities.RoleEntity;
 import com.models.ReviewModel;
 import com.models.filters.ReviewFilterModel;
 import com.models.specifications.ReviewSpecification;
+import com.services.IProductService;
 import com.services.IReviewService;
 import com.utils.SecurityUtils;
 import org.slf4j.Logger;
@@ -19,7 +20,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.security.RolesAllowed;
-import javax.validation.Valid;
 import java.util.stream.Collectors;
 
 @RestController
@@ -27,9 +27,11 @@ import java.util.stream.Collectors;
 public class ReviewResources {
     final private IReviewService reviewService;
     private final Logger log = LoggerFactory.getLogger(this.getClass());
+    private final IProductService productService;
 
-    public ReviewResources(IReviewService reviewService) {
+    public ReviewResources(IReviewService reviewService, IProductService productService) {
         this.reviewService = reviewService;
+        this.productService = productService;
     }
 
     @RolesAllowed("ADMINISTRATOR")
@@ -70,7 +72,9 @@ public class ReviewResources {
     @Transactional
     @PostMapping("/{id}/updateStatus")
     public ResponseDto updateStatus(@PathVariable Long id, @RequestParam("status") String status) {
-        return ResponseDto.of(this.reviewService.updateStatus(id, status), "Status updated successfully");
+        ReviewEntity review = this.reviewService.updateStatus(id, status);
+        this.productService.saveDtoOnElasticsearch(review.getProduct());
+        return ResponseDto.of(review, "Status updated successfully");
     }
 
     @RolesAllowed(RoleEntity.ADMINISTRATOR)
@@ -96,7 +100,9 @@ public class ReviewResources {
     @Transactional
     @PostMapping("/reply")
     public ResponseDto replyReview(@ModelAttribute ReviewModel reviewAdinModel) {
-        return ResponseDto.of(ReviewDto.toDto(reviewService.responseReview(reviewAdinModel)), "Review reply successfully");
+        ReviewEntity reviewDto = reviewService.responseReview(reviewAdinModel);
+        this.productService.saveDtoOnElasticsearch(reviewDto.getProduct());
+        return ResponseDto.of(ReviewDto.toDto(reviewDto), "Review reply successfully");
     }
 
     @RolesAllowed("ADMINISTRATOR")
