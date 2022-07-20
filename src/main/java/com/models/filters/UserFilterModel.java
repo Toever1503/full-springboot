@@ -39,20 +39,16 @@ public class UserFilterModel {
     private Date maxBirthDay;
 
     @ApiModelProperty(notes = "Min Created Time of user", dataType = "datetime", example = "2022-06-10 09:18:56")
-    @JsonSerialize(as = Date.class)
     @JsonFormat(pattern = "yyyy-MM-DD HH:mm:ss")
     private Date minCreatedDate;
     @ApiModelProperty(notes = "Max Created Time of user", dataType = "datetime", example = "2022-06-10 09:18:56")
-    @JsonSerialize(as = Date.class)
     @JsonFormat(pattern = "yyyy-MM-DD HH:mm:ss")
     private Date maxCreatedDate;
 
     @ApiModelProperty(notes = "Min Updated Time of user", dataType = "datetime", example = "2022-06-10 09:18:56")
-    @JsonSerialize(as = Date.class)
     @JsonFormat(pattern = "yyyy-MM-DD HH:mm:ss")
     private Date minUpdatedDate;
     @ApiModelProperty(notes = "Max Updated Time of user", dataType = "datetime", example = "2022-06-10 09:18:56")
-    @JsonSerialize(as = Date.class)
     @JsonFormat(pattern = "yyyy-MM-DD HH:mm:ss")
     private Date maxUpdatedDate;
 }
