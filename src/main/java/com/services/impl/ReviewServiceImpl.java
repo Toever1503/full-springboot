@@ -242,7 +242,7 @@ public class ReviewServiceImpl implements IReviewService {
     public ReviewEntity responseReview(ReviewModel model) {
         ReviewEntity reviewEntity = ReviewModel.toEntity(model);
         reviewEntity.setCreatedBy(SecurityUtils.getCurrentUser().getUser());
-        reviewEntity.setRating(reviewEntity.getRating() == null ? null : reviewEntity.getRating());
+        reviewEntity.setRating(null);
         reviewEntity.setStatus(EStatusReview.APPROVED.name());
         if (model.getParentId() != null) {
             if (model.getOrderDetailId() != this.findById(model.getParentId()).getOrderDetail().getId()) {
@@ -251,6 +251,7 @@ public class ReviewServiceImpl implements IReviewService {
             ReviewEntity parentReview = this.findById(model.getParentId());
             parentReview.setStatus(EStatusReview.APPROVED.name());
             this.reviewRepository.save(parentReview);
+            this.reviewRepository.updateProductRating(parentReview.getProduct().getId());
             reviewEntity.setParentReview(parentReview);
             reviewEntity.setProduct(parentReview.getProduct());
             reviewEntity.setOptionName(parentReview.getOptionName());
@@ -268,7 +269,7 @@ public class ReviewServiceImpl implements IReviewService {
                 }
                 JSONObject jsonObject = new JSONObject(Map.of("files", filePaths));
                 reviewEntity.setAttachFiles(jsonObject.toString());
-                this.reviewRepository.updateProductRating(reviewEntity.getProduct().getId());
+
             }
         } else {
             throw new RuntimeException("Parent review not found");
@@ -281,8 +282,8 @@ public class ReviewServiceImpl implements IReviewService {
     public ReviewEntity updateStatus(Long id, String status) {
         ReviewEntity reviewEntity = this.findById(id);
         reviewEntity.setStatus(status);
-        this.reviewRepository.saveAndFlush(reviewEntity);
         this.reviewRepository.updateProductRating(reviewEntity.getProduct().getId());
+        this.reviewRepository.saveAndFlush(reviewEntity);
         this.productService.saveDtoOnElasticsearch(reviewEntity.getProduct());
         return reviewEntity;
     }
