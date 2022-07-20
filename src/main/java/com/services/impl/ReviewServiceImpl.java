@@ -244,7 +244,6 @@ public class ReviewServiceImpl implements IReviewService {
         reviewEntity.setCreatedBy(SecurityUtils.getCurrentUser().getUser());
         reviewEntity.setRating(null);
         reviewEntity.setStatus(EStatusReview.APPROVED.name());
-        this.reviewRepository.updateProductRating(reviewEntity.getProduct().getId());
         if (model.getParentId() != null) {
             if (model.getOrderDetailId() != this.findById(model.getParentId()).getOrderDetail().getId()) {
                 throw new RuntimeException("Order detail not found");
@@ -252,6 +251,7 @@ public class ReviewServiceImpl implements IReviewService {
             ReviewEntity parentReview = this.findById(model.getParentId());
             parentReview.setStatus(EStatusReview.APPROVED.name());
             this.reviewRepository.save(parentReview);
+            this.reviewRepository.updateProductRating(parentReview.getProduct().getId());
             reviewEntity.setParentReview(parentReview);
             reviewEntity.setProduct(parentReview.getProduct());
             reviewEntity.setOptionName(parentReview.getOptionName());
@@ -269,6 +269,7 @@ public class ReviewServiceImpl implements IReviewService {
                 }
                 JSONObject jsonObject = new JSONObject(Map.of("files", filePaths));
                 reviewEntity.setAttachFiles(jsonObject.toString());
+
             }
         } else {
             throw new RuntimeException("Parent review not found");
@@ -281,8 +282,8 @@ public class ReviewServiceImpl implements IReviewService {
     public ReviewEntity updateStatus(Long id, String status) {
         ReviewEntity reviewEntity = this.findById(id);
         reviewEntity.setStatus(status);
-        this.reviewRepository.saveAndFlush(reviewEntity);
         this.reviewRepository.updateProductRating(reviewEntity.getProduct().getId());
+        this.reviewRepository.saveAndFlush(reviewEntity);
         this.productService.saveDtoOnElasticsearch(reviewEntity.getProduct());
         return reviewEntity;
     }
