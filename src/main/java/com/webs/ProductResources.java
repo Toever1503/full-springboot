@@ -148,6 +148,7 @@ public class ProductResources {
     @GetMapping("public/{id}")
     public ResponseDto findProductById(@PathVariable Long id, Pageable page) {
         log.info("find product by id: {}", id);
+        this.productService.saveDtoOnElasticsearch(this.productService.findById(id));
         return ResponseDto.of(
                 this.productService.findDetailById(page, id),
                 "Get product id: ".concat(id.toString()));
