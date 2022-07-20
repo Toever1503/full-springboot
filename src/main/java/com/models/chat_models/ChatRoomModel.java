@@ -46,10 +46,17 @@ public class ChatRoomModel {
 
 
     public void sendMessage(String sessionId, WebSocketMessage<?> message) {
-        if (sessionId.equals(adminSession.getId()))
-            this.sendMessage(this.userSession, message); // admin send to user
-        else
-            this.sendMessage(this.adminSession, message); // user send to admin
+        if (this.adminSession != null) {
+            if (sessionId.equals(adminSession.getId()))
+                this.sendMessage(this.userSession, message); // admin send to user
+            else
+                this.sendMessage(this.adminSession, message); // user send to admin
+        } else if (this.userSession != null) {
+            if (sessionId.equals(adminSession.getId()))
+                this.sendMessage(this.userSession, message); // admin send to user
+            else
+                this.sendMessage(this.adminSession, message); // user send to admin
+        }
     }
 
     private void sendMessage(WebSocketSession session, WebSocketMessage<?> message) {
@@ -62,9 +69,10 @@ public class ChatRoomModel {
     }
 
     public void removeUserSession(String sessionId) {
-            this.userSession = null;
+        this.userSession = null;
     }
+
     public void removeAdminSession(String sessionId) {
-            this.adminSession = null;
+        this.adminSession = null;
     }
 }
