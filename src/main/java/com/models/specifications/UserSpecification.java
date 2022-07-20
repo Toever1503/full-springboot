@@ -30,10 +30,14 @@ public class UserSpecification extends BaseSpecification {
             specs.add(equal(UserEntity_.LOCK_STATUS, filter.getLockStatus()));
         if (filter.getMaxBirthDay() != null && filter.getMinBirthDay() != null)
             specs.add(betweenDate(UserEntity_.BIRTH_DATE, filter.getMinBirthDay(), filter.getMaxBirthDay()));
+
         if (filter.getMaxCreatedDate() != null && filter.getMinCreatedDate() != null)
             specs.add(betweenDate(UserEntity_.CREATED_DATE, filter.getMinCreatedDate(), filter.getMaxCreatedDate()));
+
         if (filter.getMaxUpdatedDate() != null && filter.getMinUpdatedDate() != null)
             specs.add(betweenDate(UserEntity_.UPDATED_DATE, filter.getMinUpdatedDate(), filter.getMaxUpdatedDate()));
+
+
         Specification<UserEntity> finalSpec = null;
         for (Specification<UserEntity> spec : specs) {
             if (finalSpec == null)

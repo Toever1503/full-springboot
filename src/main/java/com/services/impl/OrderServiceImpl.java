@@ -172,7 +172,7 @@ public class OrderServiceImpl implements IOrderService {
                             "", ENotificationCategory.ORDER,
                             FrontendConfiguration.ADMIN_ORDER_DETAIL_URL + order.getId()),
                     this.userRepository.getAllIdsByRole(RoleEntity.ADMINISTRATOR));
-            this.mailUser("http://15.164.227.244/", order);
+            this.mailUser("http://3.38.92.188/", order);
             return order;
         } catch (Exception e) {
             e.printStackTrace();
