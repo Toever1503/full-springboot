@@ -1,5 +1,7 @@
 package com.webs;
 
+import com.config.elasticsearch.ERepositories.IEProductRepository;
+import com.dtos.ProductDto;
 import com.dtos.ResponseDto;
 import com.dtos.ReviewDto;
 import com.entities.ReviewEntity;
@@ -27,11 +29,11 @@ import java.util.stream.Collectors;
 public class ReviewResources {
     final private IReviewService reviewService;
     private final Logger log = LoggerFactory.getLogger(this.getClass());
-    private final IProductService productService;
+    private final IEProductRepository eProductRepository;
 
-    public ReviewResources(IReviewService reviewService, IProductService productService) {
+    public ReviewResources(IReviewService reviewService, IEProductRepository eProductRepository) {
         this.reviewService = reviewService;
-        this.productService = productService;
+        this.eProductRepository = eProductRepository;
     }
 
     @RolesAllowed("ADMINISTRATOR")
@@ -73,7 +75,7 @@ public class ReviewResources {
     @PostMapping("/{id}/updateStatus")
     public ResponseDto updateStatus(@PathVariable Long id, @RequestParam("status") String status) {
         ReviewEntity review = this.reviewService.updateStatus(id, status);
-        this.productService.saveDtoOnElasticsearch(review.getProduct());
+        this.eProductRepository.save(ProductDto.toDto(review.getProduct()));
         return ResponseDto.of(review, "Status updated successfully");
     }
 
@@ -100,9 +102,9 @@ public class ReviewResources {
     @Transactional
     @PostMapping("/reply")
     public ResponseDto replyReview(@ModelAttribute ReviewModel reviewAdinModel) {
-        ReviewEntity reviewDto = reviewService.responseReview(reviewAdinModel);
-        this.productService.saveDtoOnElasticsearch(reviewDto.getProduct());
-        return ResponseDto.of(ReviewDto.toDto(reviewDto), "Review reply successfully");
+        ReviewEntity reviewEntity = reviewService.responseReview(reviewAdinModel);
+        this.eProductRepository.save(ProductDto.toDto(reviewEntity.getProduct()));
+        return ResponseDto.of(ReviewDto.toDto(reviewEntity), "Review reply successfully");
     }
 
     @RolesAllowed("ADMINISTRATOR")
