@@ -1,5 +1,6 @@
 package com.services.impl;
 
+import co.elastic.clients.util.DateTime;
 import com.config.jwt.JwtLoginResponse;
 import com.config.jwt.JwtProvider;
 import com.config.jwt.JwtUserLoginModel;
@@ -37,6 +38,9 @@ import javax.mail.MessagingException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -188,11 +192,24 @@ public class UserServiceImp implements IUserService {
         try {
             this.authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(userDetail, userLogin.getPassword(), userDetail.getAuthorities()));
         } catch (Exception e) {
-            user.setFailedLogin(user.getFailedLogin() + 1);
-            if (user.getFailedLogin() >= 3)
-                user.setLockStatus(true);
-            this.userRepository.saveAndFlush(user);
-            throw e;
+            //check time < 15' => set failedLogin + 1, if time > 15' => set failedLogin = 0
+            if(user.getFailedLogin() == 0){
+                user.setFailedLogin(user.getFailedLogin() + 1);
+                if (user.getFailedLogin() >= 3)
+                    user.setLockStatus(true);
+                this.userRepository.saveAndFlush(user);
+            }else if((new Date().getTime() - user.getUpdatedDate().getTime()) > 15 * 60 * 1000 && user.isLockStatus() == false){
+                user.setFailedLogin(1);
+                user.setLockStatus(false);
+                this.userRepository.saveAndFlush(user);
+            }else {
+                user.setFailedLogin(user.getFailedLogin() + 1);
+                if (user.getFailedLogin() >= 3)
+                    user.setLockStatus(true);
+                this.userRepository.saveAndFlush(user);
+            }
+
+            return null;
         }
 
         long timeValid = userLogin.isRemember() ? 86400 * 7 : 1800l;
@@ -419,7 +436,13 @@ public class UserServiceImp implements IUserService {
     @Override
     public boolean changeLockStatus(Long userId) {
         UserEntity user = this.findById(userId);
-        user.setLockStatus(!user.isLockStatus());
+        if(user.isLockStatus()){
+            user.setLockStatus(false);
+            user.setFailedLogin(0);
+        }
+        else{
+            user.setLockStatus(true);
+        }
         return this.userRepository.save(user) != null;
     }
 }

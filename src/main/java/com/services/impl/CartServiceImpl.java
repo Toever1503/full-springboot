@@ -87,7 +87,7 @@ public class CartServiceImpl implements ICartService {
             } else {
                 cartDetailEntity.setQuantity(cartDetailEntity.getQuantity() + model.getQuantity());
                 if (cartDetailEntity.getQuantity() > productSkuEntity.getInventoryQuantity()) {
-                    throw new RuntimeException("Product quantity is not enough");
+                    throw new RuntimeException("San pham khong du so luong hoac so luong trong gio hang cua ban vuot qua so luong trong kho");
                 }
             }
         } else {
