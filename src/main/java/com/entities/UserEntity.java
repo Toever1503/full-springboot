@@ -89,6 +89,8 @@ public class UserEntity {
     @OneToMany(mappedBy = "createdBy", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ReviewEntity> reviewEntity;
 
+    public static String USER_NO_AVATAR = "https://team-2.s3.ap-northeast-2.amazonaws.com/user/no-avatar.png";
+
 
     public static boolean hasRole(String roleName, Set<RoleEntity> roleEntities) {
         return roleEntities.stream()

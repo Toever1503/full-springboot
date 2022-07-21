@@ -1,9 +1,11 @@
 package com.dtos;
+
 import com.entities.UserEntity;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
 import java.util.Date;
 
 @Builder
@@ -24,8 +26,9 @@ public class UserDto {
     private boolean lockStatus;
     private java.util.Date createdDate;
     private java.util.Date updatedDate;
+
     public static UserDto toDto(UserEntity userEntity) {
-        if(userEntity == null) return null;
+        if (userEntity == null) return null;
         return UserDto.builder()
                 .id(userEntity.getId())
                 .userName(userEntity.getUserName())
@@ -33,7 +36,7 @@ public class UserDto {
                 .phone(userEntity.getPhone())
                 .sex(userEntity.getSex())
                 .fullName(userEntity.getFullName())
-                .avatar(userEntity.getAvatar())
+                .avatar(userEntity.getAvatar() == null ? UserEntity.USER_NO_AVATAR : userEntity.getAvatar())
                 .birthDate(userEntity.getBirthDate())
                 .status(userEntity.isStatus())
                 .lockStatus(userEntity.isLockStatus())
