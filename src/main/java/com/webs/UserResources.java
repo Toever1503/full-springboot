@@ -1,5 +1,6 @@
 package com.webs;
 
+import com.config.jwt.JwtLoginResponse;
 import com.config.jwt.JwtUserLoginModel;
 import com.dtos.AddressDto;
 import com.dtos.ResponseDto;
@@ -127,7 +128,8 @@ public class UserResources {
     @PostMapping("/login")
     public ResponseDto loginUser(@RequestBody @Valid JwtUserLoginModel model) {
         log.info("{} is logging in system", model.getUsername());
-        return ResponseDto.of(userService.logIn(model), "Login");
+        JwtLoginResponse jwtUserLoginModel = userService.logIn(model);
+        return ResponseDto.of(jwtUserLoginModel == null ? "sai mat khau roi ban ei" : jwtUserLoginModel, "Login");
     }
 
     @Transactional
