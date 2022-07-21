@@ -99,7 +99,7 @@ public class UserEntity {
     }
 
     public static String getName(UserEntity userEntity) {
-        return userEntity.getFullName() == null ? userEntity.getUserName() : userEntity.getFullName();
+        return (userEntity.getFullName() == null || userEntity.getFullName().isEmpty()) ? userEntity.getUserName() : userEntity.getFullName();
     }
 
 }
