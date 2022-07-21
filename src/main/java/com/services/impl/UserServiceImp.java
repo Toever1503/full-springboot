@@ -368,18 +368,18 @@ public class UserServiceImp implements IUserService {
         userEntity.setBirthDate(model.getBirthDate());
         userEntity.setSex(model.getSex());
 
-        if (model.getPhone() != null) {
-            UserEntity checkUser = this.userRepository.findByPhone(model.getPhone()); // vudt
+        if (model.getPhone() != null && !model.getPhone().isEmpty() && model.getPhone().length() > 0) {
+            UserEntity checkUser = this.userRepository.findByPhone(model.getPhone());
             if (checkUser != null) {
                 if (checkUser.getId() != userEntity.getId()) {
                     throw new RuntimeException("Phone number already exists!");
                 }
             }
-//            if (!model.getPhone().matches("(84|0[3|5|7|8|9])+([0-9]{8})\\\\b"))
-//                throw new RuntimeException("Phone number must be in format: 84xxxxxxxx!");
-            userEntity.setPhone(model.getPhone());
+            String regexp = "^(0|\\+84)(\\s|\\.)?((3[2-9])|(5[689])|(7[06-9])|(8[1-689])|(9[0-46-9]))(\\d)(\\s|\\.)?(\\d{3})(\\s|\\.)?(\\d{3})$"; // message = "Phone number must follow vietnam"
+            if (!model.getPhone().matches(regexp))
+                throw new RuntimeException("Phone number must be in format: +84[3,5,7,8,9]xxxxxxxx! || 0[3,5,7,8,9]xxxxxxxx");
         }
-
+        userEntity.setPhone(model.getPhone());
 
         if (model.getPassword() != null)
             userEntity.setPassword(passwordEncoder.encode(model.getPassword()));
