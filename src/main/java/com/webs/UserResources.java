@@ -129,7 +129,7 @@ public class UserResources {
     public ResponseDto loginUser(@RequestBody @Valid JwtUserLoginModel model) {
         log.info("{} is logging in system", model.getUsername());
         JwtLoginResponse jwtUserLoginModel = userService.logIn(model);
-        return ResponseDto.of(jwtUserLoginModel == null ? "sai mat khau roi ban ei" : jwtUserLoginModel, "Login");
+        return ResponseDto.of(jwtUserLoginModel == null ? null : jwtUserLoginModel, "Login");
     }
 
     @Transactional

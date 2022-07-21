@@ -436,7 +436,13 @@ public class UserServiceImp implements IUserService {
     @Override
     public boolean changeLockStatus(Long userId) {
         UserEntity user = this.findById(userId);
-        user.setLockStatus(!user.isLockStatus());
+        if(user.isLockStatus()){
+            user.setLockStatus(false);
+            user.setFailedLogin(0);
+        }
+        else{
+            user.setLockStatus(true);
+        }
         return this.userRepository.save(user) != null;
     }
 }
