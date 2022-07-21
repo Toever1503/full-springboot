@@ -14,6 +14,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -126,10 +128,10 @@ public class UserResources {
 
     @Transactional
     @PostMapping("/login")
-    public ResponseDto loginUser(@RequestBody @Valid JwtUserLoginModel model) {
+    public ResponseEntity loginUser(@RequestBody @Valid JwtUserLoginModel model) {
         log.info("{} is logging in system", model.getUsername());
         JwtLoginResponse jwtUserLoginModel = userService.logIn(model);
-        return ResponseDto.of(jwtUserLoginModel == null ? null : jwtUserLoginModel, "Login");
+        return jwtUserLoginModel == null ? new ResponseEntity<>("Sai mật khẩu", HttpStatus.FOUND) : new ResponseEntity<>(jwtUserLoginModel, HttpStatus.OK);
     }
 
     @Transactional
