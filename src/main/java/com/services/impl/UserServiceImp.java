@@ -386,11 +386,10 @@ public class UserServiceImp implements IUserService {
     public UserEntity updateUserProfile(UserProfileModel model) {
         UserEntity userEntity = this.findById(SecurityUtils.getCurrentUserId());
         userEntity.setFullName(model.getFullName());
-
         userEntity.setBirthDate(model.getBirthDate());
         userEntity.setSex(model.getSex());
 
-        if (model.getPhone() != null && !model.getPhone().isEmpty() && model.getPhone().length() > 0) {
+        if (model.getPhone() != null && !model.getPhone().isEmpty() && model.getPhone().length() > 0 && !model.getPhone().equals("")) {
             UserEntity checkUser = this.userRepository.findByPhone(model.getPhone());
             if (checkUser != null) {
                 if (checkUser.getId() != userEntity.getId()) {
