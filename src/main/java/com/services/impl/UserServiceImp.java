@@ -260,14 +260,19 @@ public class UserServiceImp implements IUserService {
 
     @Override
     public boolean setPassword(PasswordModel model) {
-        String[] userToken = jwtProvider.getUsernameFromToken(model.getToken()).split("-");
-        UserEntity user = this.findByUsername(userToken[0]);
-        if (!user.getCode().equals(userToken[1])) throw new RuntimeException("Mã code không khớp!");
-        user.setPassword(passwordEncoder.encode(model.getNewPassword()));
-        user.setCode("0");
-        user.setStatus(true);
-        userRepository.save(user);
-        return true;
+        try{
+            String[] userToken = jwtProvider.getUsernameFromToken(model.getToken()).split("-");
+            UserEntity user = this.findByUsername(userToken[0]);
+            if (!user.getCode().equals(userToken[1])) throw new RuntimeException("Mã code không khớp!");
+            user.setPassword(passwordEncoder.encode(model.getNewPassword()));
+            user.setCode("0");
+            user.setStatus(true);
+            userRepository.saveAndFlush(user);
+            return true;
+        }
+        catch (Exception e){
+            throw new RuntimeException("Token không hợp lệ!");
+        }
     }
 
     @Override
