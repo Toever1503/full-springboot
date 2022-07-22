@@ -286,5 +286,4 @@ public class NotificationServiceImpl implements INotificationService {
         this.notificationUserRepository.setReadAll(SecurityUtils.getCurrentUserId());
         return true;
     }
-
 }

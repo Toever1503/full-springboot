@@ -23,6 +23,8 @@ public interface INotificationRepository extends JpaRepository<NotificationEntit
     @Modifying
     @Transactional(rollbackFor = RuntimeException.class)
     void postCronNotifications();
+    @Query(value = "select notification_id from tbl_notification c where c.status = 'FUTURE' and (UNIX_TIMESTAMP(future_date)) < UNIX_TIMESTAMP(DATE_ADD(CURRENT_TIMESTAMP(), INTERVAL '6 56' HOUR_MINUTE))", nativeQuery = true)
+    List<Long> findAllFutureIds();
 
     //Get all user's notification by userId and notification status
     @Query("select new com.dtos.NotificationDto(n.id, n.image, n.title, n.status, n.contentExcerpt, n.updatedDate , n.createdDate, n.isEdit, u.userName, n.viewed ,nu.isRead, n.attachFiles, n.category, n.url)" +

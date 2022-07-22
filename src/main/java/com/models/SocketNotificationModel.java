@@ -18,12 +18,13 @@ import java.util.Date;
 public class SocketNotificationModel {
     private Long id;
     private String title;
+    private String image;
     private String contentExcerpt;
     private ENotificationCategory category;
     private String url;
     private Date createdDate;
     private boolean read;
-
+    public static final String DEFAULT_SYSTEM_LOGO = "https://team-2.s3.ap-northeast-2.amazonaws.com/static-images/LogoYDs.png";
     public SocketNotificationModel(Long id, String title, String contentExcerpt, ENotificationCategory category, String url) {
         this.id = id;
         this.title = title;
@@ -46,13 +47,14 @@ public class SocketNotificationModel {
     }
     public static SocketNotificationModel toModel(NotificationEntity entity) {
         if (entity == null) throw new RuntimeException("NotificationEntity is null");
-        return SocketNotificationModel.builder()
-                .id(entity.getId())
-                .title(entity.getTitle())
-                .contentExcerpt(entity.getContentExcerpt())
-                .url(entity.getUrl())
-                .createdDate(entity.getCreatedDate())
-                .read(false)
-                .build();
+            return SocketNotificationModel.builder()
+                    .id(entity.getId())
+                    .title(entity.getTitle())
+                    .image(entity.getImage() == null ? DEFAULT_SYSTEM_LOGO : entity.getImage())
+                    .contentExcerpt(entity.getContentExcerpt())
+                    .url(entity.getUrl())
+                    .createdDate(entity.getCreatedDate())
+                    .read(false)
+                    .build();
     }
 }
