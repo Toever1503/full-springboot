@@ -132,7 +132,7 @@ public class UserResources {
     public ResponseEntity loginUser(@RequestBody @Valid JwtUserLoginModel model) {
         log.info("{} is logging in system", model.getUsername());
         JwtLoginResponse jwtUserLoginModel = userService.logIn(model);
-        return jwtUserLoginModel == null ? new ResponseEntity<>(ResponseDto.of1(null, "Đăng nhập"), HttpStatus.BAD_REQUEST) : new ResponseEntity<>(ResponseDto.of1(jwtUserLoginModel, "Đăng nhập"), HttpStatus.OK);
+        return jwtUserLoginModel == null ? new ResponseEntity<>(ResponseDto.of(null, "Đăng nhập"), HttpStatus.BAD_REQUEST) : new ResponseEntity<>(ResponseDto.of(jwtUserLoginModel, "Đăng nhập"), HttpStatus.OK);
     }
 
     @Transactional

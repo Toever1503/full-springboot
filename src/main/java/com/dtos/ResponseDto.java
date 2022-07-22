@@ -29,8 +29,4 @@ public class ResponseDto implements Serializable {
         return new ResponseDto(data != null ? prefix.concat(" thành công!") : prefix.concat(" thất bại!"), data != null ? "SUCCESS" : "ERROR", data);
     }
 
-    public static ResponseDto of1(Object data, String prefix) {
-        return new ResponseDto(data != null ? prefix.concat(" !") : prefix.concat(" !"), data != null ? "SUCCESS" : "ERROR", data);
-    }
-
 }
