@@ -73,7 +73,7 @@ public class CategoryServiceImpl implements ICategoryService {
 
     @Override
     public CategoryEntity findBySlug(String slug) {
-        return this.categoryRepository.findBySlug(slug).orElseThrow(() -> new RuntimeException("Category not found" + slug));
+        return this.categoryRepository.findBySlug(slug).orElseThrow(() -> new RuntimeException("không tìm thấy danh mục" + slug));
     }
 
     @Override
@@ -84,7 +84,7 @@ public class CategoryServiceImpl implements ICategoryService {
 
     @Override
     public CategoryEntity findOne(Specification<CategoryEntity> spec) {
-        return this.categoryRepository.findOne(spec).orElseThrow(() -> new RuntimeException("Category not found"));
+        return this.categoryRepository.findOne(spec).orElseThrow(() -> new RuntimeException("không tìm thấy danh mục"));
     }
 
     @Transactional(propagation = Propagation.NESTED)
@@ -136,7 +136,7 @@ public class CategoryServiceImpl implements ICategoryService {
 
     @Override
     public CategoryEntity findById(Long id) {
-        return this.categoryRepository.findById(id).orElseThrow(() -> new RuntimeException("Category not found: " + id));
+        return this.categoryRepository.findById(id).orElseThrow(() -> new RuntimeException("không tìm thấy danh mục, id: " + id));
     }
 
     @Override
@@ -161,7 +161,7 @@ public class CategoryServiceImpl implements ICategoryService {
         categoryEntity.setDeepLevel(0);
         categoryEntity.setStatus(false);
         if (this.categoryRepository.findBySlug(model.getSlug()).isPresent())
-            throw new RuntimeException("Slug already existed!");
+            throw new RuntimeException("Slug đã tồn tại !");
 
         this.saveParentCategory(categoryEntity, model.getParentId());
         categoryEntity = this.categoryRepository.saveAndFlush(categoryEntity);
@@ -181,7 +181,7 @@ public class CategoryServiceImpl implements ICategoryService {
 
         if (checkedCategory != null)
             if (!checkedCategory.getId().equals(model.getId()))
-                throw new RuntimeException("Slug already existed!");
+                throw new RuntimeException("Slug đã tồn tại !");
         CategoryEntity originCategory = this.findById(model.getId());
         final String folder = UserEntity.FOLDER + originCategory.getCreatedBy().getUserName() + "/" + CategoryEntity.FOLDER;
         originCategory.setCreatedBy(SecurityUtils.getCurrentUser().getUser());
@@ -209,7 +209,7 @@ public class CategoryServiceImpl implements ICategoryService {
         if (parentId != null) { //check if parent id not null\
             CategoryEntity parentCategory = this.findById(parentId);
             if (parentCategory.getDeepLevel() >= 3)
-                throw new RuntimeException("Parent category is too deep!");
+                throw new RuntimeException("danh mục chỉ có tối đa 3 cấp !");
             entity.setParentCategory(parentCategory);
             entity.setDeepLevel(parentCategory.getDeepLevel() + 1);
         }

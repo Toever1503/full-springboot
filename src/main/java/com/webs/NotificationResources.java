@@ -43,7 +43,7 @@ public class NotificationResources {
         log.info("admin {} is adding new notification", SecurityUtils.getCurrentUser().getUsername());
 //        NotificationEntity notificationEntity = socketService.sendNotificationForAllUser(model,"abcdefgh.com");
         NotificationDetailDto notificationDetailDto = NotificationDetailDto.toDto(this.notificationService.add(model));
-        return ResponseDto.of(notificationDetailDto, "Added notification successfully");
+        return ResponseDto.of(notificationDetailDto, "thêm thông báo");
     }
 
     @RolesAllowed("ADMINISTRATOR")
@@ -53,7 +53,7 @@ public class NotificationResources {
         log.info("admin {} is updating notification id: {}", SecurityUtils.getCurrentUser().getUsername(), id);
         NotificationEntity notificationEntity = this.notificationService.update(model);
         NotificationDetailDto notificationDetailDto = NotificationDetailDto.toDto(notificationEntity);
-        return ResponseDto.of(notificationDetailDto, "update notification successfully");
+        return ResponseDto.of(notificationDetailDto, "sửa thông báo");
     }
 
     @RolesAllowed("ADMINISTRATOR")
@@ -61,7 +61,7 @@ public class NotificationResources {
     @DeleteMapping("/{id}")
     public ResponseDto deleteNotification(@PathVariable("id") Long id) {
         log.info("admin {} is deleting notification id: {}", SecurityUtils.getCurrentUser().getUsername(), id);
-        return ResponseDto.of(this.notificationService.deleteById(id), "Deleted notification successfully");
+        return ResponseDto.of(this.notificationService.deleteById(id), "xoá thông báo");
     }
 
     @RolesAllowed("ADMINISTRATOR")
@@ -72,14 +72,14 @@ public class NotificationResources {
         Page<NotificationEntity> notificationEntities = this.notificationService.findAll(page);
 
         return ResponseDto.of(notificationEntities
-                .map(NotificationDto::toDto), "Admin get all notifications");
+                .map(NotificationDto::toDto), "quản trị viên lấy tất cả thông báo");
     }
 
     @Transactional
     @GetMapping("user/getAll")
     public ResponseDto userGetAll(Pageable page) {
         log.info("user {} is getting all notifications", SecurityUtils.getCurrentUser().getUsername());
-        return ResponseDto.of(this.notificationService.userGetAllNotifications(page), "User get all notifications");
+        return ResponseDto.of(this.notificationService.userGetAllNotifications(page), "người dùng lấy tất cả thông báo");
     }
 
 
@@ -88,14 +88,14 @@ public class NotificationResources {
     @GetMapping("{id}")
     public ResponseDto findById(@PathVariable Long id) {
         log.info("admin {} is getting notification id: {%d}", SecurityUtils.getCurrentUser().getUsername(), id);
-        return ResponseDto.of(NotificationDetailDto.toDto(this.notificationService.findById(id)), "Get notification id: " + id);
+        return ResponseDto.of(NotificationDetailDto.toDto(this.notificationService.findById(id)), "lấy thông báo theo id: " + id);
     }
 
     @Transactional
     @GetMapping("user/{id}")
     public ResponseDto userGetDetailQuestion(@PathVariable Long id) {
         log.info("user {} is getting notification id: {%d}", SecurityUtils.getCurrentUser().getUsername(), id);
-        return ResponseDto.of(NotificationDetailDto.toDto(this.notificationService.findById(id)), "Get notification id: " + id);
+        return ResponseDto.of(NotificationDetailDto.toDto(this.notificationService.findById(id)), "lấy thông báo theo id: " + id);
     }
 
     @ApiKeyAuthDefinition(name = "Authorization", in = ApiKeyAuthDefinition.ApiKeyLocation.HEADER, key = "Authorization")
@@ -103,13 +103,13 @@ public class NotificationResources {
     @Transactional
     @GetMapping("increase-view/{id}")
     public ResponseDto viewNotification(@PathVariable long id) {
-        return ResponseDto.of(this.notificationService.increaseView(id), "Increase view notification id: " + id);
+        return ResponseDto.of(this.notificationService.increaseView(id), "tăng lượt xem: " + id);
     }
 
     @Transactional
     @GetMapping("/mark-all-read")
     public ResponseDto setAllRead() {
-        return ResponseDto.of(this.notificationService.setAllRead(), "All Read");
+        return ResponseDto.of(this.notificationService.setAllRead(), "đọc tất cả thông báo");
     }
 
     @Transactional
@@ -120,11 +120,11 @@ public class NotificationResources {
 
     @GetMapping("list-status")
     public ResponseDto getListNotificationStatus() {
-        return ResponseDto.of(ENotificationStatus.values(), "Get list status successfully!");
+        return ResponseDto.of(ENotificationStatus.values(), "lấy tất cả danh sách trạng thái thông báo");
     }
 
     @GetMapping("list-categories")
     public ResponseDto getListNotificationCategory() {
-        return ResponseDto.of(ENotificationCategory.values(), "Get list categories successfully!");
+        return ResponseDto.of(ENotificationCategory.values(), "lấy tất cả danh sách thông báo theo danh mục");
     }
 }

@@ -51,7 +51,7 @@ public class ChatServiceImp implements IChatService {
         WebSocketSession userSession = SocketHandler.userSessions.get(userId); // check if user is opened socket
 
         if (userSession == null) // user must have socket to handle next step
-            throw new RuntimeException("Make sure you has been opened message!");
+            throw new RuntimeException("hãy chắc chắn bạn mở tin nhắn !");
 
         return userSession;
     }
@@ -59,7 +59,7 @@ public class ChatServiceImp implements IChatService {
     @Override
     public GeneralSocketMessage sendMessage(ChatMessageModel model) {
         WebSocketSession userSession = this.getUserSession(SecurityUtils.getCurrentUserId());
-        ChatRoomEntity chatRoomEntity = chatRoomRepository.findById(model.getRoomId()).orElseThrow(() -> new RuntimeException("Chat room not found!!!"));
+        ChatRoomEntity chatRoomEntity = chatRoomRepository.findById(model.getRoomId()).orElseThrow(() -> new RuntimeException("không tìm thấy phòng !!!"));
 
         ChatMessageEntity chatMessageEntity = ChatMessageModel.toEntity(model, chatRoomEntity);
 
@@ -112,7 +112,7 @@ public class ChatServiceImp implements IChatService {
     @Override
     public Long createChatRoom() {
         if (SecurityUtils.hasRole(RoleEntity.ADMINISTRATOR))
-            throw new RuntimeException("You are administrator, so you can't create chat room for self!");
+            throw new RuntimeException("bạn đang là quản trị viên nên không thể tạo phòng chat!");
         UserEntity userEntity = SecurityUtils.getCurrentUser().getUser();
         WebSocketSession userSession = this.getUserSession(userEntity.getId());
 
@@ -122,7 +122,7 @@ public class ChatServiceImp implements IChatService {
                         .messages(List.of())
                         .createdBy(userEntity).build());
         if (!chatRoomEntity.getCreatedBy().getId().equals(userEntity.getId()))
-            throw new RuntimeException("You can't create chat room because this room is other user!");
+            throw new RuntimeException("bạn không thể tạo phòng chat vì phòng chat này là của người khác!");
 
         // save room to database if room not found
         if (chatRoomEntity.getRoomId() == null) this.chatRoomRepository.save(chatRoomEntity);
@@ -145,7 +145,7 @@ public class ChatServiceImp implements IChatService {
     public String joinChatRoom(Long roomId) {
         UserEntity userEntity = SecurityUtils.getCurrentUser().getUser();
         WebSocketSession userSession = this.getUserSession(userEntity.getId());
-        ChatRoomEntity chatRoom = chatRoomRepository.findById(roomId).orElseThrow(() -> new RuntimeException("Chat room not found!"));
+        ChatRoomEntity chatRoom = chatRoomRepository.findById(roomId).orElseThrow(() -> new RuntimeException("không tìm thấy phòng chat !"));
 
         ChatRoomModel chatRoomModel = userChatRooms.get(chatRoom.getRoomId());
         if (chatRoomModel != null) { // if room has been created
@@ -207,7 +207,7 @@ public class ChatServiceImp implements IChatService {
 
     @Override
     public List<GeneralSocketMessage> getAllRoomChatMessages(Long roomId) {
-        ChatRoomEntity roomEntity = this.chatRoomRepository.findById(roomId).orElseThrow(() -> new RuntimeException("Chat room not found!"));
+        ChatRoomEntity roomEntity = this.chatRoomRepository.findById(roomId).orElseThrow(() -> new RuntimeException("không tìm thấy phòng chat!"));
         return roomEntity.getMessages().stream().map(GeneralSocketMessage::toGeneralSocketMessage).collect(Collectors.toList());
     }
 

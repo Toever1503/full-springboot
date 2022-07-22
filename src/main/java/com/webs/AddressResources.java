@@ -26,50 +26,50 @@ public class AddressResources {
     @GetMapping
     @Transactional
     public ResponseDto getAll(Pageable page) {
-        return ResponseDto.of(addressService.findAll(page).stream().map(AddressDto::toDto).collect(Collectors.toList()), "Get all addresses successfully");
+        return ResponseDto.of(addressService.findAll(page).stream().map(AddressDto::toDto).collect(Collectors.toList()), "lấy toàn bộ địa chỉ");
     }
 
     @GetMapping("/{id}")
     @Transactional
     public ResponseDto getById(@PathVariable("id") Long id) {
-        return ResponseDto.of(AddressDto.toDto(addressService.findById(id)), "Get address by id successfully");
+        return ResponseDto.of(AddressDto.toDto(addressService.findById(id)), "lấy địa chỉ theo id: + " + id);
     }
 
     @PostMapping
     @Transactional
     public ResponseDto add(@Valid @RequestBody AddressModel model) {
         model.setId(null);
-        return ResponseDto.of(AddressDto.toDto(addressService.add(model)), "Address add success");
+        return ResponseDto.of(AddressDto.toDto(addressService.add(model)), "thêm địa chỉ");
     }
 
     @PutMapping("{id}")
     @Transactional
     public ResponseDto update(@PathVariable long id, @Valid @RequestBody AddressModel model) {
         model.setId(id);
-        return ResponseDto.of(AddressDto.toDto(addressService.update(model)), "Address update success");
+        return ResponseDto.of(AddressDto.toDto(addressService.update(model)), "sửa địa chỉ");
     }
 
     @DeleteMapping("/{id}")
     @Transactional
     public ResponseDto delete(@PathVariable("id") Long id) {
-        return ResponseDto.of(addressService.deleteById(id) ? true : null, "Delete address successfully");
+        return ResponseDto.of(addressService.deleteById(id) ? true : null, "xoá địa chỉ");
     }
 
     @GetMapping("/provinces")
     @Transactional
     public ResponseDto getProvinces() {
-        return ResponseDto.of(addressService.getAllProvince(), "Get all provinces successfully");
+        return ResponseDto.of(addressService.getAllProvince(), "lấy tất cả các tỉnh thành");
     }
 
     @GetMapping("/getAllDistrict/{provinceId}")
     @Transactional
     public ResponseDto getDistricts(@PathVariable("provinceId") Integer provinceId) {
-        return ResponseDto.of(addressService.getAllDistrict(provinceId), "Get all districts successfully");
+        return ResponseDto.of(addressService.getAllDistrict(provinceId), "lấy tất cả các quận, huyện");
     }
 
     @Transactional
     @GetMapping("/getAllWards/{provinceId}/{districtId}")
     public ResponseDto getWards(@PathVariable("provinceId") Integer provinceId, @PathVariable("districtId") Integer districtId) {
-        return ResponseDto.of(addressService.getAllByWard(provinceId, districtId), "Get all wards successfully");
+        return ResponseDto.of(addressService.getAllByWard(provinceId, districtId), "lấy tất cả các phường xã");
     }
 }

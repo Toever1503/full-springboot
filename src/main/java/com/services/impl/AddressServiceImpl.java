@@ -54,14 +54,14 @@ public class AddressServiceImpl implements IAddressService {
 
     @Override
     public AddressEntity findById(Long id) {
-        return addressRepository.findById(id).orElseThrow(() -> new RuntimeException("Address not found"));
+        return addressRepository.findById(id).orElseThrow(() -> new RuntimeException("không có địa chỉ"));
     }
 
     @Override
     public AddressEntity add(AddressModel model) {
-        Province province = provinceRepository.findById(model.getProvinceId()).orElseThrow(() -> new RuntimeException("Province not found, id: " + model.getProvinceId()));
-        District district = districtRepository.findById(model.getDistrictId()).orElseThrow(() -> new RuntimeException("District not found, id: " + model.getDistrictId()));
-        Ward ward = wardRepository.findById(model.getWardId()).orElseThrow(() -> new RuntimeException("Ward not found, id: " + model.getWardId()));
+        Province province = provinceRepository.findById(model.getProvinceId()).orElseThrow(() -> new RuntimeException("không có tỉnh, id: " + model.getProvinceId()));
+        District district = districtRepository.findById(model.getDistrictId()).orElseThrow(() -> new RuntimeException("không có quận/huyện, id: " + model.getDistrictId()));
+        Ward ward = wardRepository.findById(model.getWardId()).orElseThrow(() -> new RuntimeException("không có xã/phường, id: " + model.getWardId()));
         AddressEntity addressEntity = AddressEntity.builder()
                 .street(model.getStreet())
                 .province(province)
@@ -81,9 +81,9 @@ public class AddressServiceImpl implements IAddressService {
 
     @Override
     public AddressEntity update(AddressModel model) {
-        Province province = provinceRepository.findById(model.getProvinceId()).orElseThrow(() -> new RuntimeException("Province not found, id: " + model.getProvinceId()));
-        District district = districtRepository.findById(model.getDistrictId()).orElseThrow(() -> new RuntimeException("District not found, id: " + model.getDistrictId()));
-        Ward ward = wardRepository.findById(model.getWardId()).orElseThrow(() -> new RuntimeException("Ward not found, id: " + model.getWardId()));
+        Province province = provinceRepository.findById(model.getProvinceId()).orElseThrow(() -> new RuntimeException("không có tỉnh, id: " + model.getProvinceId()));
+        District district = districtRepository.findById(model.getDistrictId()).orElseThrow(() -> new RuntimeException("không có quận/huyện, id: " + model.getDistrictId()));
+        Ward ward = wardRepository.findById(model.getWardId()).orElseThrow(() -> new RuntimeException("không có xã/phường, id: " + model.getWardId()));
         AddressEntity addressEntity = AddressEntity.builder()
                 .id(model.getId())
                 .street(model.getStreet())
