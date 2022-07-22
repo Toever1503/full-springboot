@@ -101,7 +101,6 @@ public class SocketHandler implements WebSocketHandler {
                                     .concat(name.concat(" đã rời phòng chát!")))
                             .chatRoom(this.chatRoomRepository.findById(roomId).get())
                             .build();
-                    this.messageRepository.saveAndFlush(chatMessageEntity);
                     chatRoom.sendMessage(session.getId(), new TextMessage(new JSONObject(GeneralSocketMessage.toGeneralSocketMessage(chatMessageEntity)).toString()));
                     if (role.equals(RoleEntity.ADMINISTRATOR)) {
                         chatRoom.removeAdminSession(session.getId());
