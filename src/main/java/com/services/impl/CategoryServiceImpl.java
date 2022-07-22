@@ -73,7 +73,7 @@ public class CategoryServiceImpl implements ICategoryService {
 
     @Override
     public CategoryEntity findBySlug(String slug) {
-        return this.categoryRepository.findBySlug(slug).orElseThrow(() -> new RuntimeException("không tìm thấy danh mục" + slug));
+        return this.categoryRepository.findBySlug(slug).orElseThrow(() -> new RuntimeException("Không tìm thấy danh mục" + slug));
     }
 
     @Override
@@ -84,7 +84,7 @@ public class CategoryServiceImpl implements ICategoryService {
 
     @Override
     public CategoryEntity findOne(Specification<CategoryEntity> spec) {
-        return this.categoryRepository.findOne(spec).orElseThrow(() -> new RuntimeException("không tìm thấy danh mục"));
+        return this.categoryRepository.findOne(spec).orElseThrow(() -> new RuntimeException("Không tìm thấy danh mục"));
     }
 
     @Transactional(propagation = Propagation.NESTED)
@@ -136,7 +136,7 @@ public class CategoryServiceImpl implements ICategoryService {
 
     @Override
     public CategoryEntity findById(Long id) {
-        return this.categoryRepository.findById(id).orElseThrow(() -> new RuntimeException("không tìm thấy danh mục, id: " + id));
+        return this.categoryRepository.findById(id).orElseThrow(() -> new RuntimeException("Không tìm thấy danh mục, id: " + id));
     }
 
     @Override
@@ -209,7 +209,7 @@ public class CategoryServiceImpl implements ICategoryService {
         if (parentId != null) { //check if parent id not null\
             CategoryEntity parentCategory = this.findById(parentId);
             if (parentCategory.getDeepLevel() >= 3)
-                throw new RuntimeException("danh mục chỉ có tối đa 3 cấp !");
+                throw new RuntimeException("Danh mục chỉ có tối đa 3 cấp !");
             entity.setParentCategory(parentCategory);
             entity.setDeepLevel(parentCategory.getDeepLevel() + 1);
         }

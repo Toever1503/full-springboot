@@ -59,14 +59,14 @@ public class CartServiceImpl implements ICartService {
 
     @Override
     public CartEntity findById(Long id) {
-        return this.cartRepository.findByUser_IdAndId(SecurityUtils.getCurrentUserId(), id).orElseThrow(() -> new RuntimeException("không tìm thấy giỏ hàng"));
+        return this.cartRepository.findByUser_IdAndId(SecurityUtils.getCurrentUserId(), id).orElseThrow(() -> new RuntimeException("Không tìm thấy giỏ hàng"));
     }
 
     @Override
     public CartEntity add(CartModel model) {
-        ProductEntity productEntity = this.productRepository.findById(model.getProductId()).orElseThrow(() -> new RuntimeException("không tìm thấy sản phẩm"));
+        ProductEntity productEntity = this.productRepository.findById(model.getProductId()).orElseThrow(() -> new RuntimeException("Không tìm thấy sản phẩm"));
         UserEntity userEntity = SecurityUtils.getCurrentUser().getUser();
-        ProductSkuEntity productSkuEntity = this.productSkuRepository.findById(model.getSkuId()).orElseThrow(() -> new RuntimeException("không tìm thấy sản phẩm"));
+        ProductSkuEntity productSkuEntity = this.productSkuRepository.findById(model.getSkuId()).orElseThrow(() -> new RuntimeException("Không tìm thấy sản phẩm"));
 
         CartEntity cart = this.cartRepository.findByProduct_IdAndUser_Id(model.getProductId(), userEntity.getId())
                 .orElse(CartEntity.builder().product(productEntity).user(userEntity).cartDetails(new ArrayList<>()).build());
@@ -75,7 +75,7 @@ public class CartServiceImpl implements ICartService {
 
         if (productSkuEntity.getProduct().getId().equals(model.getProductId())) {
             if (model.getQuantity() > productSkuEntity.getInventoryQuantity()) {
-                throw new RuntimeException("số lượng sản phẩm không đủ hoặc số lượng sản trong giỏ hàng của bạn lớn hơn số lượng có trong kho");
+                throw new RuntimeException("Số lượng sản phẩm không đủ hoặc số lượng sản trong giỏ hàng của bạn lớn hơn số lượng có trong kho");
             }
             if (cartDetailEntity == null) {
                 cartDetailEntity = CartDetailEntity.builder()
@@ -87,11 +87,11 @@ public class CartServiceImpl implements ICartService {
             } else {
                 cartDetailEntity.setQuantity(cartDetailEntity.getQuantity() + model.getQuantity());
                 if (cartDetailEntity.getQuantity() > productSkuEntity.getInventoryQuantity()) {
-                    throw new RuntimeException("số lượng sản phẩm không đủ hoặc số lượng sản trong giỏ hàng của bạn lớn hơn số lượng có trong kho");
+                    throw new RuntimeException("Số lượng sản phẩm không đủ hoặc số lượng sản trong giỏ hàng của bạn lớn hơn số lượng có trong kho");
                 }
             }
         } else {
-            throw new RuntimeException("không tìm thấy sku sản phẩm");
+            throw new RuntimeException("Không tìm thấy sku sản phẩm");
         }
 
         return this.cartRepository.save(cart);
@@ -115,7 +115,7 @@ public class CartServiceImpl implements ICartService {
             this.cartRepository.deleteById(id);
             return true;
         } else {
-            throw new RuntimeException("bạn không được phép xoá giỏ hàng này");
+            throw new RuntimeException("Bạn không được phép xoá giỏ hàng này");
         }
     }
 
@@ -136,7 +136,7 @@ public class CartServiceImpl implements ICartService {
                 if (checkedCart != null) {
                     checkedCart.setQuantity(model.getQuantity() + checkedCart.getQuantity());
                     if (checkedCart.getQuantity() > checkedCart.getSku().getInventoryQuantity()) {
-                        throw new RuntimeException("số lượng sản phẩm không đủ hoặc số lượng sản trong giỏ hàng của bạn lớn hơn số lượng có trong kho");
+                        throw new RuntimeException("Số lượng sản phẩm không đủ hoặc số lượng sản trong giỏ hàng của bạn lớn hơn số lượng có trong kho");
                     }
                     originCart.getCartDetails().removeIf(cd -> cd.getSku().getId().equals(model.getSkuIdOld()));
                 } else {
@@ -153,11 +153,11 @@ public class CartServiceImpl implements ICartService {
                     originCart.getCartDetails().removeIf(cd -> cd.getSku().getId().equals(model.getSkuIdOld()));
                 }
             } else {
-                throw new RuntimeException("không tìm thấy sản phẩm");
+                throw new RuntimeException("Không tìm thấy sản phẩm");
             }
             return this.cartRepository.save(originCart);
         } else {
-            throw new RuntimeException("bạn không thể thay đổi giỏ hàng");
+            throw new RuntimeException("Bạn không thể thay đổi giỏ hàng");
         }
 
     }
@@ -169,21 +169,21 @@ public class CartServiceImpl implements ICartService {
         if (originCart.getUser().getId().equals(SecurityUtils.getCurrentUser().getUser().getId())) {
             if (originCart.getProduct().getId().equals(model.getProductId())) {
                 if (originCart.getProduct().getSkus().stream().filter(sku -> sku.getId().equals(model.getSkuId())).findFirst().orElse(null) == null) {
-                    throw new RuntimeException("không tìm thấy sku sản phẩm");
+                    throw new RuntimeException("Không tìm thấy sku sản phẩm");
                 }
                 originCart.getCartDetails().stream().filter(cd -> cd.getSku().getId().equals(model.getSkuId())).findFirst().ifPresent(cd -> {
                     if (model.getQuantity() > cd.getSku().getInventoryQuantity()) {
-                        throw new RuntimeException("số lượng sản phẩm không đủ");
+                        throw new RuntimeException("Số lượng sản phẩm không đủ");
                     }
                     cd.setQuantity(model.getQuantity());
                     this.cartDetailRepository.save(cd);
                 });
             } else {
-                throw new RuntimeException("không tìm thấy sản phẩm");
+                throw new RuntimeException("Không tìm thấy sản phẩm");
             }
             return this.cartRepository.save(originCart);
         } else {
-            throw new RuntimeException("bạn không có quyền thay đổi giỏ hàng");
+            throw new RuntimeException("Bạn không có quyền thay đổi giỏ hàng");
         }
 
     }
@@ -199,7 +199,7 @@ public class CartServiceImpl implements ICartService {
             }
             return true;
         } else {
-            throw new RuntimeException("bạn không có quyền thay đổi giỏ hàng");
+            throw new RuntimeException("Bạn không có quyền thay đổi giỏ hàng");
         }
     }
 }

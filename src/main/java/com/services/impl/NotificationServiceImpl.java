@@ -85,7 +85,7 @@ public class NotificationServiceImpl implements INotificationService {
 
     @Override
     public NotificationEntity findById(Long id) {
-        return this.notificationRepository.findById(id).orElseThrow(() -> new RuntimeException("không tìm thấy thông báo, id: " + id));
+        return this.notificationRepository.findById(id).orElseThrow(() -> new RuntimeException("Không tìm thấy thông báo, id: " + id));
     }
 
     @Override
@@ -145,7 +145,7 @@ public class NotificationServiceImpl implements INotificationService {
 
     @Override
     public NotificationEntity update(NotificationModel model) {
-        NotificationEntity originNotificationEntity = this.notificationRepository.findById(model.getId()).orElseThrow(() -> new RuntimeException("thông báo với id: " + model.getId() + " không có"));
+        NotificationEntity originNotificationEntity = this.notificationRepository.findById(model.getId()).orElseThrow(() -> new RuntimeException("Thông báo với id: " + model.getId() + " không có"));
         final String folder = UserEntity.FOLDER + originNotificationEntity.getCreatedBy().getUserName() + "/" + NotificationEntity.FOLDER;
 
         // giới hạn số lần + thời gian sửa file
@@ -153,7 +153,7 @@ public class NotificationServiceImpl implements INotificationService {
             long difference = (new Date().getTime() - originNotificationEntity.getUpdatedDate().getTime()) / 60000;
 
             if (difference > NotificationEntity.limitEditMin) {
-                throw new RuntimeException("bạn chỉ có thể chỉnh sửa thông báo trong " + NotificationEntity.limitEditMin + " phút");
+                throw new RuntimeException("Bạn chỉ có thể chỉnh sửa thông báo trong " + NotificationEntity.limitEditMin + " phút");
             } else {
                 originNotificationEntity.setCountEdit(originNotificationEntity.getCountEdit() + 1);
 
@@ -208,7 +208,7 @@ public class NotificationServiceImpl implements INotificationService {
                 return this.notificationRepository.save(originNotificationEntity);
             }
         } else {
-            throw new RuntimeException("sửa thông báo thất bại, bạn chỉ có thể sửa thông báo " + NotificationEntity.limitEditCount + " lần");
+            throw new RuntimeException("Sửa thông báo thất bại, bạn chỉ có thể sửa thông báo " + NotificationEntity.limitEditCount + " lần");
         }
     }
 
@@ -271,7 +271,7 @@ public class NotificationServiceImpl implements INotificationService {
 
     @Override
     public boolean increaseView(long id) {
-        NotificationUser notificationUser = this.notificationUserRepository.findByUserIdAndNotificationId(SecurityUtils.getCurrentUserId(), id).orElseThrow(() -> new RuntimeException("không tìm thấy thông báo với id người dùng: " + id));
+        NotificationUser notificationUser = this.notificationUserRepository.findByUserIdAndNotificationId(SecurityUtils.getCurrentUserId(), id).orElseThrow(() -> new RuntimeException("Không tìm thấy thông báo với id người dùng: " + id));
         NotificationEntity entity = this.findById(id);
         entity.setViewed(entity.getViewed() == null ? 0 : entity.getViewed() + 1);
         notificationUser.setIsRead(true);

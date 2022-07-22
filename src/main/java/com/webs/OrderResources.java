@@ -36,7 +36,7 @@ public class OrderResources {
     @Transactional
     @GetMapping("/{id}")
     public ResponseDto getOrderById(@PathVariable("id") Long id) {
-        return ResponseDto.of(OrderDto.toDto(orderService.findById(id)), "lấy đơn hàng theo id: " + id);
+        return ResponseDto.of(OrderDto.toDto(orderService.findById(id)), "Lấy đơn hàng theo id: " + id);
     }
 
     @Transactional
@@ -62,96 +62,96 @@ public class OrderResources {
     @PostMapping
     public ResponseDto createOrder(@RequestBody OrderModel orderModel) {
         OrderEntity order = orderService.add(orderModel);
-        return ResponseDto.of(OrderDto.toDto(order), "thêm đơn hàng");
+        return ResponseDto.of(OrderDto.toDto(order), "Thêm đơn hàng");
     }
 
     @Transactional
     @PatchMapping("update-delivery-code/{id}")
     public ResponseDto updateDeliveryCode(@PathVariable("id") Long id, @RequestParam(name = "code") @Valid @NotBlank String deliveryCode) {
         OrderEntity order = orderService.updateDeliveryCode(id, deliveryCode);
-        return ResponseDto.of(OrderDto.toDto(order), "sửa mã đơn hàng");
+        return ResponseDto.of(OrderDto.toDto(order), "Sửa mã đơn hàng");
     }
 
     @Transactional
     @PatchMapping("update-status/{id}")
     public ResponseDto updateStatusOrder(@PathVariable("id") Long id, @RequestParam("status") String status) {
         OrderEntity order = this.orderService.updateStatusOrder(id, status);
-        return ResponseDto.of(OrderDto.toDto(order), "sửa trạng thái đơn hàng theo id: " + id);
+        return ResponseDto.of(OrderDto.toDto(order), "Sửa trạng thái đơn hàng theo id: " + id);
     }
 
     @Transactional
     @DeleteMapping("/{id}")
     public ResponseDto deleteOrder(@PathVariable("id") Long id) {
         OrderEntity order = this.orderService.cancelOrder(id);
-        return ResponseDto.of(OrderDto.toDto(order), "huỷ đơn hàng: " + id);
+        return ResponseDto.of(OrderDto.toDto(order), "Huỷ đơn hàng: " + id);
     }
 
     @RolesAllowed(RoleEntity.ADMINISTRATOR)
     @Transactional
     @PostMapping("filter")
     public ResponseDto filter(@RequestBody OrderFilterModel orderFilterModel, Pageable page) throws ParseException {
-        return ResponseDto.of(this.orderService.filter(page, Specification.where(OrderSpecification.filter(orderFilterModel))).map(OrderDto::toDto), "lọc đơn hàng");
+        return ResponseDto.of(this.orderService.filter(page, Specification.where(OrderSpecification.filter(orderFilterModel))).map(OrderDto::toDto), "Lọc đơn hàng");
     }
 
     @Transactional
     @GetMapping("/check/{id}")
     public ResponseDto getPayStatus(@PathVariable("id") Long id) {
-        return ResponseDto.of(orderService.getStatusByID(id), "lấy trạng thái");
+        return ResponseDto.of(orderService.getStatusByID(id), "Lấy trạng thái");
     }
 
     @Transactional
     @GetMapping("/redirect/{id}")
     public ResponseDto getPayUrl(@PathVariable("id") Long id) {
-        return ResponseDto.of(orderService.getUrlByID(id), "lấy url");
+        return ResponseDto.of(orderService.getUrlByID(id), "Lấy url");
     }
 
     @RolesAllowed("ADMINISTRATOR")
     @Transactional
     @PostMapping("/report/all-by-time-and-status")
     public ResponseDto getTotalOrder(@RequestBody TotalOrderModel model) {
-        return ResponseDto.of(this.orderService.getAllOrderByStatusAndTime(model.getStatus(), model.getTime_from(), model.getTime_to()), "thống kê tất cả theo trạng thái và thời gian");
+        return ResponseDto.of(this.orderService.getAllOrderByStatusAndTime(model.getStatus(), model.getTime_from(), model.getTime_to()), "Thống kê tất cả theo trạng thái và thời gian");
     }
 
     @RolesAllowed("ADMINISTRATOR")
     @Transactional
     @PostMapping("/report/statistic-year-by-time-and-status")
     public ResponseDto getTotalOrderByYear(@RequestBody TotalOrderModel model) {
-        return ResponseDto.of(this.orderService.statisticsYearOrderByStatusAndTime(model.getStatus(), model.getTime_from(), model.getTime_to()), "thống kê năm theo trạng thái và thời gian");
+        return ResponseDto.of(this.orderService.statisticsYearOrderByStatusAndTime(model.getStatus(), model.getTime_from(), model.getTime_to()), "Thống kê năm theo trạng thái và thời gian");
     }
 
     @RolesAllowed("ADMINISTRATOR")
     @Transactional
     @PostMapping("/report/statistic-year-by-time-and-all-status")
     public ResponseDto getTotalOrderByYearAllStatus(@RequestBody TotalOrderModel model) {
-        return ResponseDto.of(this.orderService.statisticsYearOrderByAndTime(model.getTime_from(), model.getTime_to()), "thống kê năm theo thời gian");
+        return ResponseDto.of(this.orderService.statisticsYearOrderByAndTime(model.getTime_from(), model.getTime_to()), "Thống kê năm theo thời gian");
     }
 
     @RolesAllowed("ADMINISTRATOR")
     @Transactional
     @PostMapping("/report/statistic-year-select-status")
     public ResponseDto statisticsYearOrderSelectStatus(@RequestBody TotalOrderSelectStatusModel model) {
-        return ResponseDto.of(this.orderService.statisticsYearOrderSelectStatus(model.getStatus_orders(),model.getTime_from(), model.getTime_to()), "thống kê năm theo trạng thái");
+        return ResponseDto.of(this.orderService.statisticsYearOrderSelectStatus(model.getStatus_orders(),model.getTime_from(), model.getTime_to()), "Thống kê năm theo trạng thái");
     }
 
     @RolesAllowed("ADMINISTRATOR")
     @Transactional
     @PostMapping("/report/total-order-by-time-and-status")
     public ResponseDto getTotalOrderByStatus(@RequestBody TotalOrderModel model) {
-        return ResponseDto.of(this.orderService.getTotalOrderByStatusAndTime(model.getStatus(), model.getTime_from(), model.getTime_to()), "thống kê đơn hàng theo trạng thái và thời gian");
+        return ResponseDto.of(this.orderService.getTotalOrderByStatusAndTime(model.getStatus(), model.getTime_from(), model.getTime_to()), "Thống kê đơn hàng theo trạng thái và thời gian");
     }
 
     @RolesAllowed("ADMINISTRATOR")
     @Transactional
     @PostMapping("/report/total-user-by-time")
     public ResponseDto getTotalUserByTime(@RequestBody TotalUserModel model) {
-        return ResponseDto.of(this.orderService.getTotalUserByTime(model.getTime_from(), model.getTime_to()), "thống kê người dùng theo thời gian");
+        return ResponseDto.of(this.orderService.getTotalUserByTime(model.getTime_from(), model.getTime_to()), "Thống kê người dùng theo thời gian");
     }
 
     @RolesAllowed("ADMINISTRATOR")
     @Transactional
     @GetMapping("/report/get-all-order-groupby-status")
     public ResponseDto getAllOrderGroupByStatus() {
-        return ResponseDto.of(this.orderService.getAllOrderGroupByStatus(), "thống kê tất cả đơn hàng theo trạng thái");
+        return ResponseDto.of(this.orderService.getAllOrderGroupByStatus(), "Thống kê tất cả đơn hàng theo trạng thái");
     }
 
 }
