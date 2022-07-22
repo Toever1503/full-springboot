@@ -23,6 +23,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.security.RolesAllowed;
 import javax.validation.Valid;
+import java.text.ParseException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -158,7 +159,7 @@ public class UserResources {
 
     @Transactional
     @PostMapping("filter")
-    public ResponseDto filterUser(@RequestBody UserFilterModel model, Pageable page) {
+    public ResponseDto filterUser(@RequestBody UserFilterModel model, Pageable page) throws ParseException {
         log.info("{} is filtering user", SecurityUtils.getCurrentUser().getUsername());
         return ResponseDto.of(userService.filter(page, Specification.where(UserSpecification.filter(model))).map(UserDto::toDto), "Filter user");
     }

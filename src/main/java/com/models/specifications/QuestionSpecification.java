@@ -8,6 +8,7 @@ import com.models.filters.QuestionFilterModel;
 import org.springframework.data.jpa.domain.Specification;
 
 import javax.persistence.criteria.Join;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -21,7 +22,7 @@ public class QuestionSpecification extends BaseSpecification {
         };
     }
 
-    public static Specification<QuestionEntity> filter(QuestionFilterModel filter) {
+    public static Specification<QuestionEntity> filter(QuestionFilterModel filter) throws ParseException {
         List<Specification<QuestionEntity>> specs = new ArrayList<>();
         if (filter.getCategories() != null)
             if (!filter.getCategories().isEmpty())

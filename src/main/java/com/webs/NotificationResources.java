@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.security.RolesAllowed;
 import javax.validation.Valid;
+import java.text.ParseException;
 
 @RestController
 @RequestMapping("/notifications")
@@ -113,7 +114,7 @@ public class NotificationResources {
 
     @Transactional
     @PostMapping("filter")
-    public ResponseDto filter(@RequestBody NotificationFilter notificationFilter, Pageable page) {
+    public ResponseDto filter(@RequestBody NotificationFilter notificationFilter, Pageable page) throws ParseException {
         return ResponseDto.of(this.notificationService.filter(page, Specification.where(NotificationSpecification.filter(notificationFilter))).map(NotificationDto::toDto), "Filter success");
     }
 

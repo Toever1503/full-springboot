@@ -8,6 +8,8 @@ import org.springframework.data.jpa.domain.Specification;
 
 import javax.persistence.criteria.Join;
 import javax.persistence.criteria.Predicate;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
@@ -21,12 +23,18 @@ public abstract class BaseSpecification {
         return (root, query, cb) -> cb.equal(root.get(field), data);
     }
 
-    public static Specification betweenDate(String field, Date minDate, Date maxDate) {
-        return (root, query, cb) -> cb.between(root.get(field), minDate, maxDate);
+    public static Specification betweenDate(String field, String minDate, String maxDate) throws ParseException {
+        SimpleDateFormat formatter1 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        SimpleDateFormat formatter2 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        Date date1 = formatter1.parse(minDate);
+        Date date2 = formatter2.parse(maxDate);
+        return (root, query, cb) -> cb.between(root.get(field), date1, date2);
     }
 
-    public static Specification dateGreaterThanEqual(String field, Date data) {
-        return (root, query, cb) -> cb.greaterThanOrEqualTo(root.get(field), data);
+    public static Specification dateGreaterThanEqual(String field, String data) throws ParseException {
+        SimpleDateFormat formatter1 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        Date date1 = formatter1.parse(data);
+        return (root, query, cb) -> cb.greaterThanOrEqualTo(root.get(field), date1);
     }
 
     public static Specification<OrderEntity> byBetweenTypeDouble(String field, Double min, Double max) {
@@ -57,11 +65,13 @@ public abstract class BaseSpecification {
         };
     }
 
-    public static Specification dateLessThanEqual(String field, Date data) {
-        return (root, query, cb) -> cb.lessThanOrEqualTo(root.get(field), data);
+    public static Specification dateLessThanEqual(String field, String data) throws ParseException {
+        SimpleDateFormat formatter1 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        Date date1 = formatter1.parse(data);
+        return (root, query, cb) -> cb.lessThanOrEqualTo(root.get(field), date1);
     }
 
-    public static Specification dateBetween(String field, Date min, Date max) {
+    public static Specification dateBetween(String field, String min, String max) throws ParseException {
         if (min != null && max != null)
             return betweenDate(field, min, max);
         else if (min != null)

@@ -3,6 +3,7 @@ package com.webs;
 import com.dtos.OrderDto;
 import com.dtos.ResponseDto;
 import com.entities.OrderEntity;
+import com.entities.RoleEntity;
 import com.models.OrderModel;
 import com.models.TotalOrderModel;
 import com.models.TotalOrderSelectStatusModel;
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.annotation.security.RolesAllowed;
 import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
+import java.text.ParseException;
 
 @RestController
 @RequestMapping("/order")
@@ -84,9 +86,10 @@ public class OrderResources {
         return ResponseDto.of(OrderDto.toDto(order), "Delete order id: " + id);
     }
 
+    @RolesAllowed(RoleEntity.ADMINISTRATOR)
     @Transactional
     @PostMapping("filter")
-    public ResponseDto filter(@RequestBody OrderFilterModel orderFilterModel, Pageable page) {
+    public ResponseDto filter(@RequestBody OrderFilterModel orderFilterModel, Pageable page) throws ParseException {
         return ResponseDto.of(this.orderService.filter(page, Specification.where(OrderSpecification.filter(orderFilterModel))).map(OrderDto::toDto), "Filter success");
     }
 

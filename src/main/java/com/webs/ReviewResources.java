@@ -22,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.security.RolesAllowed;
+import java.text.ParseException;
 import java.util.stream.Collectors;
 
 @RestController
@@ -123,7 +124,7 @@ public class ReviewResources {
 
     @Transactional
     @PostMapping("filter")
-    public ResponseDto filter( @RequestBody ReviewFilterModel model, Pageable page) {
+    public ResponseDto filter( @RequestBody ReviewFilterModel model, Pageable page) throws ParseException {
         Page<ReviewEntity> reviewEntities = reviewService.filter(page, Specification.where(ReviewSpecification.filter(model)));
         return ResponseDto.of(reviewEntities.map(ReviewDto::toDto), "Get question by filter successfully");
     }

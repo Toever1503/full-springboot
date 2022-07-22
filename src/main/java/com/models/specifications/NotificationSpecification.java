@@ -6,6 +6,7 @@ import org.springframework.data.jpa.domain.Specification;
 
 import javax.persistence.criteria.Join;
 import javax.persistence.criteria.Predicate;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -44,7 +45,7 @@ public class NotificationSpecification extends BaseSpecification {
         };
     }
 
-    public static Specification<NotificationEntity> filter(NotificationFilter notificationFilter) {
+    public static Specification<NotificationEntity> filter(NotificationFilter notificationFilter) throws ParseException {
         List<Specification<NotificationEntity>> specs = new ArrayList<>();
         specs.add((root, query, criteriaBuilder) -> criteriaBuilder.or(
                 root.get(NotificationEntity_.IS_JUST_NOTICE).isNull(),

@@ -7,6 +7,7 @@ import org.springframework.data.jpa.domain.Specification;
 
 import javax.persistence.criteria.Join;
 import javax.persistence.criteria.Predicate;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -70,7 +71,7 @@ public class OrderSpecification extends BaseSpecification {
         };
     }
 
-    public static Specification<OrderEntity> filter(OrderFilterModel orderFilterModel) {
+    public static Specification<OrderEntity> filter(OrderFilterModel orderFilterModel) throws ParseException {
         List<Specification<OrderEntity>> specs = new ArrayList<>();
 
         if (SecurityUtils.hasRole(RoleEntity.ADMINISTRATOR)) {
