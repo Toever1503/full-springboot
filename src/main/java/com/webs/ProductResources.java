@@ -47,16 +47,16 @@ public class ProductResources {
 
     @GetMapping("public/get-all")
     public ResponseDto getAll(Pageable page) {
-        return ResponseDto.of(eProductRepository.findAll(page), "Get all products");
+        return ResponseDto.of(eProductRepository.findAll(page), "Lấy toàn bộ sản phẩm");
     }
 
     @Transactional
     @GetMapping("/{id}")
     public ResponseDto findById(@PathVariable Long id, @RequestParam(required = false) boolean force) {
         if (force)
-            return ResponseDto.of(ProductDto.toDto(this.productService.findById(id)), "Get product by id: ".concat(id.toString()));
+            return ResponseDto.of(ProductDto.toDto(this.productService.findById(id)), "Lấy sản phẩm theo id: ".concat(id.toString()));
         return ResponseDto.of(this.eProductRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Cannot found product id: ".concat(id.toString()))), "Get product id: ".concat(id.toString()));
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy sản phẩm id: ".concat(id.toString()))), "Lấy sản phẩm theo id: ".concat(id.toString()));
     }
 
 
@@ -64,14 +64,14 @@ public class ProductResources {
     @PostMapping("variations/{productId}")
     public ResponseDto saveVariations(@PathVariable Long productId, @RequestBody @Valid List<ProductVariationModel> models) {
         ProductDto dto = productService.saveDtoOnElasticsearch(this.productService.saveVariations(productId, models));
-        return ResponseDto.of(dto, "Save variations for product id: ".concat(productId.toString()));
+        return ResponseDto.of(dto, "Lưu biến thể cho sản phẩm có id: ".concat(productId.toString()));
     }
 
     @Transactional
     @PostMapping("skus/{productId}")
     public ResponseDto saveSkus(@PathVariable Long productId, @Valid @RequestPart List<ProductSkuModel> models, HttpServletRequest req) {
         ProductDto dto = productService.saveDtoOnElasticsearch(this.productService.saveSkus(req, productId, models));
-        return ResponseDto.of(dto, "Save skus for product id: ".concat(productId.toString()));
+        return ResponseDto.of(dto, "Lưu sku cho sản phẩm có id: ".concat(productId.toString()));
     }
 
     @Transactional
@@ -82,19 +82,19 @@ public class ProductResources {
         productModel.setId(null);
         productModel.setAttachFiles(attachFiles);
         productModel.setImage(image);
-        return ResponseDto.of(this.productService.saveDtoOnElasticsearch(productService.add(productModel)), "Create product successfully");
+        return ResponseDto.of(this.productService.saveDtoOnElasticsearch(productService.add(productModel)), "Tạo sản phẩm");
     }
 
     @Transactional
     @GetMapping("variations/{id}")
     public ResponseDto findVariations(@PathVariable Long id) {
-        return ResponseDto.of(this.productService.findVariations(id).stream().map(ProductVariationDto::toDto).collect(Collectors.toList()), "Get variations for product id: ".concat(id.toString()));
+        return ResponseDto.of(this.productService.findVariations(id).stream().map(ProductVariationDto::toDto).collect(Collectors.toList()), "Lấy danh sách biến thể cho sản phẩm có id: ".concat(id.toString()));
     }
 
     @Transactional
     @GetMapping("skus/{id}")
     public ResponseDto findSkus(@PathVariable Long id) {
-        return ResponseDto.of(this.productService.findSkus(id).stream().map(ProductSkuDto::toDto).collect(Collectors.toList()), "Get skus for product id: ".concat(id.toString()));
+        return ResponseDto.of(this.productService.findSkus(id).stream().map(ProductSkuDto::toDto).collect(Collectors.toList()), "Lấy sku cho sản phẩm có id: ".concat(id.toString()));
     }
 
     @Transactional
@@ -105,7 +105,7 @@ public class ProductResources {
         productModel.setId(id);
         productModel.setAttachFiles(attachFiles);
         productModel.setImage(image);
-        return ResponseDto.of(this.productService.saveDtoOnElasticsearch(this.productService.update(productModel)), "Update product successfully");
+        return ResponseDto.of(this.productService.saveDtoOnElasticsearch(this.productService.update(productModel)), "Cập nhật sản phẩm");
     }
 
     @RolesAllowed(RoleEntity.ADMINISTRATOR)
@@ -121,27 +121,27 @@ public class ProductResources {
     @Transactional
     @GetMapping("delete-all-data")
     public ResponseDto deleteAllData() {
-        return ResponseDto.of(this.productService.deleteAllDataOnElasticsearch(), "Delete all data on elasticsearch");
+        return ResponseDto.of(this.productService.deleteAllDataOnElasticsearch(), "Xóa toàn bộ dữ liệu elasticsearch");
     }
 
     @RolesAllowed(RoleEntity.ADMINISTRATOR)
     @Transactional
     @GetMapping("delete-index")
     public ResponseDto deleteIndex() {
-        return ResponseDto.of(this.productService.deleteIndexElasticsearch(), "Delete index on elasticsearch");
+        return ResponseDto.of(this.productService.deleteIndexElasticsearch(), "Xóa index trên elasticsearch");
     }
 
 
     @PostMapping("/filter")
     public ResponseDto filterProduct(@RequestBody ProductFilter productFilter, Pageable pageable) {
-        return ResponseDto.of(productService.findAll(pageable, ProductSpecification.filter(productFilter)), "Filter product");
+        return ResponseDto.of(productService.findAll(pageable, ProductSpecification.filter(productFilter)), "Lọc sản phẩm");
     }
 
     @Operation(summary = "filter products")
     @PostMapping("public/filter")
     public ResponseDto filterProduct(@RequestBody EProductFilterModel filterModel, Pageable page) {
         log.info("Product filterModel: {}", filterModel);
-        return ResponseDto.of(this.productService.eFilter(page, filterModel), "Filter product");
+        return ResponseDto.of(this.productService.eFilter(page, filterModel), "Lọc sản phẩm");
     }
 
     @Operation(summary = "find product by id and related data")
@@ -157,31 +157,31 @@ public class ProductResources {
     @Transactional
     @GetMapping("public/get-filter-data")
     public ResponseDto getFilterData() {
-        return ResponseDto.of(this.productService.getFilterData(), "Get filter data");
+        return ResponseDto.of(this.productService.getFilterData(), "Lấy dữ liệu lọc");
     }
 
     @Transactional
     @DeleteMapping("{id}")
     public ResponseDto deleteProduct(@PathVariable Long id) {
-        return ResponseDto.of(this.productService.deleteById(id), "Delete product successfully");
+        return ResponseDto.of(this.productService.deleteById(id), "Xóa sản phẩm");
     }
 
     @Transactional
     @GetMapping("/get-product-by-categoryId/{id}")
     public ResponseDto getProductByCategoryId(@PathVariable Long id, Pageable page) {
-        return ResponseDto.of(eProductRepository.findByCategoryId(id, page), "Get all products");
+        return ResponseDto.of(eProductRepository.findByCategoryId(id, page), "Lấy toàn bộ sản phẩm");
     }
 
     @RolesAllowed(RoleEntity.ADMINISTRATOR)
     @Transactional
     @PatchMapping("change-status/{productId}")
     public ResponseDto changeProductStatus(@PathVariable Long productId, @RequestParam EProductStatus status){
-        return ResponseDto.of(this.productService.changeProductStatus(productId, status), "Change status");
+        return ResponseDto.of(this.productService.changeProductStatus(productId, status), "Thay đổi trạng thái sản phẩm");
     }
 
     @GetMapping("public/auto-complete")
     public ResponseDto autoComplete(@RequestParam @Valid @NotNull @NotBlank String keyword, Pageable page) {
-        return ResponseDto.of(this.productService.autoComplete(keyword, page), "Get all products");
+        return ResponseDto.of(this.productService.autoComplete(keyword, page), "Lấy toàn bộ sản phẩm");
     }
 
 }

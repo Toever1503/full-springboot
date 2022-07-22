@@ -47,7 +47,7 @@ public class QuestionResources {
             count += model.getReplyFile().size();
         }
         if (count > 3)
-            return ResponseDto.of(null, "Failed! , Max image count is 3 per question");
+            return ResponseDto.of(null, "1 Câu hỏi chỉ được phép có 3 ảnh");
         else{
             QuestionEntity question = questionService.answerQuestion(qid, model);
             return ResponseDto.of(TotalQuestionDto.toTotalQuestionDTO(question), "Answered");
@@ -58,27 +58,27 @@ public class QuestionResources {
     @GetMapping("/user")
     public ResponseDto getAllMyQuestion(Pageable pageable) {
         log.info("user {} is getting all their question", SecurityUtils.getCurrentUser().getUsername());
-        return ResponseDto.of(questionService.getAllMyQuestion(pageable).map(QuestionDto::toDto), "Get all my question");
+        return ResponseDto.of(questionService.getAllMyQuestion(pageable).map(QuestionDto::toDto), "Lấy toàn bộ câu hỏi của bạn");
     }
 
     @Transactional
     @GetMapping("/asked/user")
     public ResponseDto getAllAskedUser() {
         log.info("user {} is creating ask question", SecurityUtils.getCurrentUser().getUsername());
-        return ResponseDto.of(questionService.getAllAskedUser(), "Get all asked user");
+        return ResponseDto.of(questionService.getAllAskedUser(), "Lấy toàn bộ người dùng đặt câu hỏi");
     }
 
     @Transactional // will need review later
     @GetMapping("/user/answered")
     public ResponseDto getAllMyAnsweredQuestion(Pageable pageable) {
         log.info("admin {} is answering question id", SecurityUtils.getCurrentUser().getUsername());
-        return ResponseDto.of(questionService.getAllMyAnsweredQuestion(pageable).map(TotalQuestionDto::toTotalQuestionDTO), "Get all my answered question");
+        return ResponseDto.of(questionService.getAllMyAnsweredQuestion(pageable).map(TotalQuestionDto::toTotalQuestionDTO), "Lấy toàn bộ câu hỏi đã được trả lời");
     }
 
     @Transactional // will need review later
     @GetMapping("/user/answered/{uid}")
     public ResponseDto getAllAnsweredQuestionByUID(@PathVariable("uid") @Valid Long uid, Pageable pageable) {
-        return ResponseDto.of(questionService.getAllQuestionAnsweredByID(uid, pageable).map(TotalQuestionDto::toTotalQuestionDTO), "Get all answered question by user id");
+        return ResponseDto.of(questionService.getAllQuestionAnsweredByID(uid, pageable).map(TotalQuestionDto::toTotalQuestionDTO), "Lấy toàn bộ câu hỏi đã được trả lời theo id người dùng:" + uid);
     }
 
 
@@ -87,7 +87,7 @@ public class QuestionResources {
     @Transactional
     public ResponseDto getQuestions(Pageable pageable) {
         log.info("admin {} is getting all question", SecurityUtils.getCurrentUser().getUsername());
-        return ResponseDto.of(questionService.findAll(pageable).map(TotalQuestionDto::toTotalQuestionDTO), "Get questions successfully");
+        return ResponseDto.of(questionService.findAll(pageable).map(TotalQuestionDto::toTotalQuestionDTO), "Lấy toàn bộ câu hỏi");
     }
 
     @RolesAllowed("ADMINISTRATOR")
@@ -95,28 +95,28 @@ public class QuestionResources {
     @Transactional
     public ResponseDto getQuestions(@RequestParam("category") EStatusQuestion category, Pageable pageable) {
         log.info("admin {} is getting question by category", SecurityUtils.getCurrentUser().getUsername());
-        return ResponseDto.of(questionService.getAllQuestionByCategory(category.name(), pageable).map(QuestionDto::toDto), "Admin Get questions by category successfully");
+        return ResponseDto.of(questionService.getAllQuestionByCategory(category.name(), pageable).map(QuestionDto::toDto), "Admin lấy câu hỏi theo danh mục");
     }
 
     @GetMapping("/user/category")
     @Transactional
     public ResponseDto userGetQuestionsByCategory(@RequestParam("category") EStatusQuestion category, Pageable pageable) {
         log.info("user {} is getting question by category", SecurityUtils.getCurrentUser().getUsername());
-        return ResponseDto.of(questionService.userGetAllQuestionByCategory(category.name(), pageable).map(QuestionDto::toDto), "Admin Get questions by category successfully");
+        return ResponseDto.of(questionService.userGetAllQuestionByCategory(category.name(), pageable).map(QuestionDto::toDto), "Người dùng lấy câu hỏi theo danh mục");
     }
 
     @Transactional
     @GetMapping("/{id}")
     public ResponseDto findById(@PathVariable Long id) {
         log.info("admin {} is getting detail question id", SecurityUtils.getCurrentUser().getUsername());
-        return ResponseDto.of(TotalQuestionDto.toTotalQuestionDTO(questionService.findById(id)), "Get question by id successfully");
+        return ResponseDto.of(TotalQuestionDto.toTotalQuestionDTO(questionService.findById(id)), "Lấy câu hỏi theo id: "+id);
     }
 
     @Transactional
     @GetMapping("user/{id}")
     public ResponseDto userGetDetailQuestion(@PathVariable Long id) {
         log.info("user {} is getting detail question id", SecurityUtils.getCurrentUser().getUsername());
-        return ResponseDto.of(QuestionResponseDto.toDto(questionService.getQuestionByIdAndUserId(id, SecurityUtils.getCurrentUserId())), "Get question by id successfully");
+        return ResponseDto.of(QuestionResponseDto.toDto(questionService.getQuestionByIdAndUserId(id, SecurityUtils.getCurrentUserId())), "Lấy câu hỏi theo id: "+id);
     }
 
     @Transactional
@@ -126,12 +126,12 @@ public class QuestionResources {
 
         if (questionModel.getQuestFile() != null) {
             if (questionModel.getQuestFile().size() > 3)
-                return ResponseDto.of(null, "Failed! , Max image count is 3 per question");
+                return ResponseDto.of(null, "1 Câu hỏi chỉ được phép có 3 ảnh");
         }
 
         QuestionEntity questionEntity = this.questionService.add(questionModel);
         QuestionDto questionDto = QuestionDto.toDto(questionEntity);
-        return ResponseDto.of(questionDto, "Add question successfully");
+        return ResponseDto.of(questionDto, "Thêm câu hỏi");
     }
 
     @Transactional
@@ -143,25 +143,25 @@ public class QuestionResources {
         if (questionModel.getQuestFile() != null)
             count += questionModel.getQuestFile().get(0).isEmpty() ? (count + questionModel.getQuestFile().size()) : 0;
         if (count > 3)
-            return ResponseDto.of(null, "Failed! , Max image count is 3 per question");
+            return ResponseDto.of(null, "1 Câu hỏi chỉ được phép có 3 ảnh");
 
         QuestionEntity questionEntity = this.questionService.update(questionModel);
         QuestionDto questionDto = QuestionDto.toDto(questionEntity);
-        return ResponseDto.of(questionDto, "Question updated successfully");
+        return ResponseDto.of(questionDto, "Cập nhật câu hỏi");
     }
 
     @Transactional
     @DeleteMapping("/{id}")
     public ResponseDto deleteQuestion(@PathVariable("id") Long id) {
         log.info("admin {} is deleting question id", SecurityUtils.getCurrentUser().getUsername());
-        return ResponseDto.of(questionService.deleteById(id), "Question deleted successfully");
+        return ResponseDto.of(questionService.deleteById(id), "Xóa câu hỏi");
     }
 
     @Transactional
     @DeleteMapping("/delete-list")
     public ResponseDto DeleteQuestions(@RequestBody List<Long> ids) {
         log.info("admin {} is deleting questions by id list {}", SecurityUtils.getCurrentUser().getUsername(), ids.toString());
-        return ResponseDto.of(questionService.deleteByIds(ids), "Questions deleted successfully");
+        return ResponseDto.of(questionService.deleteByIds(ids), "Xóa câu hỏi");
     }
 
     @Transactional
@@ -169,17 +169,17 @@ public class QuestionResources {
     public ResponseDto filter(@RequestBody QuestionFilterModel model, Pageable page) throws ParseException {
         log.info("{} is filtering question", SecurityUtils.getCurrentUser().getUsername());
         Page<QuestionEntity> questionEntities = questionService.filter(page, Specification.where(QuestionSpecification.filter(model)));
-        return ResponseDto.of(questionEntities.map(TotalQuestionDto::toTotalQuestionDTO), "Get question by filter successfully");
+        return ResponseDto.of(questionEntities.map(TotalQuestionDto::toTotalQuestionDTO), "Lọc câu hỏi");
     }
 
     @GetMapping("list-status")
     public ResponseDto getListQuestionStatus() {
-        return ResponseDto.of(EStatusQuestion.values(), "Get list status successfully!");
+        return ResponseDto.of(EStatusQuestion.values(), "Lấy danh sách trạng thái câu hỏi");
     }
 
     @GetMapping("list-categories")
     public ResponseDto getListNotificationCategory() {
-        return ResponseDto.of(EQuestionCategory.values(), "Get list categories successfully!");
+        return ResponseDto.of(EQuestionCategory.values(), "Lấy danh sách danh mục");
     }
 
 }

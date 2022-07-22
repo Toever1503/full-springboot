@@ -82,6 +82,14 @@ public class NotificationSpecification extends BaseSpecification {
         else if (notificationFilter.getMaxCreatedDate() != null)
             specs.add(dateLessThanEqual(NotificationEntity_.CREATED_DATE, notificationFilter.getMaxCreatedDate()));
 
+        if (notificationFilter.getMinUpdatedDate() != null && notificationFilter.getMaxUpdatedDate() != null)
+            specs.add(betweenDate(NotificationEntity_.CREATED_DATE, notificationFilter.getMinUpdatedDate(), notificationFilter.getMaxUpdatedDate()));
+        else if (notificationFilter.getMinCreatedDate() != null)
+            specs.add(dateGreaterThanEqual(NotificationEntity_.CREATED_DATE, notificationFilter.getMinUpdatedDate()));
+        else if (notificationFilter.getMaxCreatedDate() != null)
+            specs.add(dateLessThanEqual(NotificationEntity_.CREATED_DATE, notificationFilter.getMaxUpdatedDate()));
+
+
         if (notificationFilter.getCreatedBy() != null)
             specs.add(likeCreatedBy(notificationFilter.getCreatedBy()));
 

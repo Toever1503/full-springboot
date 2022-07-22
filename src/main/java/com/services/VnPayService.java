@@ -35,7 +35,7 @@ public class VnPayService {
     }
 
     public String PerformTransaction(Long id, HttpServletRequest request, String url) throws UnsupportedEncodingException {
-        OrderEntity curOrder = orderRepository.findById(id).orElseThrow(() -> new RuntimeException("Not Found"));
+        OrderEntity curOrder = orderRepository.findById(id).orElseThrow(() -> new RuntimeException("Không tìm thấy đơn hàng"));
         if (curOrder.getCreatedBy().getId() == SecurityUtils.getCurrentUserId() && Arrays.stream(ALLOWED_STATUS).filter(s -> s.equals(curOrder.getStatus())).collect(Collectors.toList()).size() > 0) {
             Calendar cld = Calendar.getInstance(TimeZone.getTimeZone("Etc/GMT+7"));
             if (curOrder.getPaymentMethod().equals(EPaymentMethod.CASH.toString()))
@@ -202,41 +202,41 @@ public class VnPayService {
                                 orderRepository.save(order);
                                 this.notificationService.addForSpecificUser(SocketNotificationModel.builder().category(ENotificationCategory.ORDER).title("Don hang #".concat(order.getUuid()).concat(" da duoc thanh toan")).contentExcerpt("").url(resultDto.getUrl()).build(), List.of(order.getCreatedBy().getId()));
 //                                socketService.sendOrderNotificationForSingleUser(orderRepository.save(order),order.getCreatedBy().getId(),"abcdef.com.vn", "Don hang da duoc thanh toan: ");
-                                System.out.print("{\"RspCode\":\"00\",\"Message\":\"Confirm Success\"}");
+                                System.out.print("{\"RspCode\":\"00\",\"Message\":\"Thành công\"}");
                                 return resultDto;
                                 //Update DB When success
                             } else {
                                 orderRepository.changeOrderStatusByID(EStatusOrder.FAILED.toString(), order.getId());
                                 this.notificationService.addForSpecificUser(SocketNotificationModel.builder().category(ENotificationCategory.ORDER).title("Don hang #".concat(order.getUuid()).concat(" thanh toan that bai")).contentExcerpt("").url(FrontendConfiguration.ORDER_DETAIL_URL + order.getId()).build(), List.of(order.getCreatedBy().getId()));
-                                System.out.print("{\"RspCode\":\"00\",\"Message\":\"Confirm Success\"}");
+                                System.out.print("{\"RspCode\":\"00\",\"Message\":\"Thành công\"}");
                                 return null;
                             }
                         } else {
-                            System.out.print("{\"RspCode\":\"02\",\"Message\":\"Order already confirmed\"}");
+                            System.out.print("{\"RspCode\":\"02\",\"Message\":\"Đơn hàng đã được thanh toán\"}");
                             orderRepository.changeOrderStatusByID(EStatusOrder.FAILED.toString(), order.getId());
                             this.notificationService.addForSpecificUser(SocketNotificationModel.builder().category(ENotificationCategory.ORDER).title("Don hang #".concat(order.getUuid()).concat(" thanh toan that bai")).contentExcerpt("").url(FrontendConfiguration.ORDER_DETAIL_URL + order.getId()).build(), List.of(order.getCreatedBy().getId()));
                             return null;
                         }
                     } else {
-                        System.out.print("{\"RspCode\":\"04\",\"Message\":\"Invalid Amount\"}");
+                        System.out.print("{\"RspCode\":\"04\",\"Message\":\"Giá trị đơn hàng không hợp lệ\"}");
                         orderRepository.changeOrderStatusByID(EStatusOrder.FAILED.toString(), order.getId());
                         this.notificationService.addForSpecificUser(SocketNotificationModel.builder().category(ENotificationCategory.ORDER).title("Don hang #".concat(order.getUuid()).concat(" thanh toan that bai")).contentExcerpt("").url(FrontendConfiguration.ORDER_DETAIL_URL + order.getId()).build(), List.of(order.getCreatedBy().getId()));
                         return null;
                     }
                 } else {
-                    System.out.print("{\"RspCode\":\"01\",\"Message\":\"Order not Found\"}");
+                    System.out.print("{\"RspCode\":\"01\",\"Message\":\"Không tìm thấy đơn hàng\"}");
                     orderRepository.changeOrderStatusByID(EStatusOrder.FAILED.toString(), order.getId());
                     this.notificationService.addForSpecificUser(SocketNotificationModel.builder().category(ENotificationCategory.ORDER).title("Don hang #".concat(order.getUuid()).concat(" thanh toan that bai")).contentExcerpt("").url(FrontendConfiguration.ORDER_DETAIL_URL + order.getId()).build(), List.of(order.getCreatedBy().getId()));
                     return null;
                 }
             } else {
-                System.out.print("{\"RspCode\":\"97\",\"Message\":\"Invalid Checksum\"}");
+                System.out.print("{\"RspCode\":\"97\",\"Message\":\"Mã bảo vệ không trùng khớp\"}");
                 return null;
 
             }
         } catch (Exception e) {
             e.printStackTrace();
-            System.out.print("{\"RspCode\":\"99\",\"Message\":\"Unknow error\"}");
+            System.out.print("{\"RspCode\":\"99\",\"Message\":\"Lỗi không xác định\"}");
             return null;
         }
     }

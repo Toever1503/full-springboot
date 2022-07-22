@@ -79,14 +79,14 @@ public class ReviewServiceImpl implements IReviewService {
 
     @Override
     public ReviewEntity findById(Long id) {
-        return this.reviewRepository.findById(id).orElseThrow(() -> new RuntimeException("Review not found"));
+        return this.reviewRepository.findById(id).orElseThrow(() -> new RuntimeException("Không tìm thấy đánh giá có id: " + id));
     }
 
     @Override
     public ReviewEntity add(ReviewModel model) {
         ReviewEntity reviewEntity = ReviewModel.toEntity(model);
         reviewEntity.setParentReview(null);
-        OrderDetailEntity orderDetailEntity = this.orderDetailRepository.findById(model.getOrderDetailId()).orElseThrow(() -> new RuntimeException("Order detail not found"));
+        OrderDetailEntity orderDetailEntity = this.orderDetailRepository.findById(model.getOrderDetailId()).orElseThrow(() -> new RuntimeException("Không tìm thấy thông tin đơn hàng có id: " + model.getOrderDetailId()));
 
         ProductEntity productEntity = orderDetailEntity.getProductId(); // get product to update total review
         if (model.getParentId() == null)
@@ -96,7 +96,7 @@ public class ReviewServiceImpl implements IReviewService {
         // neu ok thi se set lai createBy, optionName,
         OrderEntity orderEntity = orderDetailEntity.getOrder();
         if (orderEntity == null) {
-            throw new RuntimeException("Order not found");
+            throw new RuntimeException("Đơn hàng không tồn tại");
         } else {
             if (orderEntity.getCreatedBy().getId().equals(SecurityUtils.getCurrentUserId()) && orderEntity.getStatus().equals(EStatusOrder.COMPLETED.name())) {
                 reviewEntity.setCreatedBy(SecurityUtils.getCurrentUser().getUser());
@@ -127,7 +127,7 @@ public class ReviewServiceImpl implements IReviewService {
                 }
 
             } else {
-                throw new RuntimeException("You can not review this order, because you have not received it yet");
+                throw new RuntimeException("Bạn không được phép đánh giá sản phẩm này!");
             }
         }
 
@@ -143,7 +143,7 @@ public class ReviewServiceImpl implements IReviewService {
             return reviewEntity;
         } catch (Exception e) {
             e.printStackTrace();
-            throw new RuntimeException("Error when add review!!!");
+            throw new RuntimeException("Có lỗi khi thêm đánh giá!!!");
         } finally {
             this.productService.saveDtoOnElasticsearch(productEntity);
         }
@@ -177,7 +177,7 @@ public class ReviewServiceImpl implements IReviewService {
 
             // set product
             if (orderDetailEntity.getProductId().getId() != originReview.getProduct().getId()) {
-                throw new RuntimeException("Product not found");
+                throw new RuntimeException("Không có sản phẩm này trong đơn hàng!");
             } else {
                 updateReview.setProduct(originReview.getProduct());
             }
@@ -208,7 +208,7 @@ public class ReviewServiceImpl implements IReviewService {
             }
             updateReview.setAttachFiles(uploadedFiles.isEmpty() ? null : (new JSONObject(Map.of("files", uploadedFiles)).toString()));
         } else {
-            throw new RuntimeException("You can not update this review, because you have not created it yet");
+            throw new RuntimeException("Bạn không được phép sửa đánh giá này!");
         }
 
         // update rating of product
@@ -246,7 +246,7 @@ public class ReviewServiceImpl implements IReviewService {
         reviewEntity.setStatus(EStatusReview.APPROVED.name());
         if (model.getParentId() != null) {
             if (!model.getOrderDetailId().equals(this.findById(model.getParentId()).getOrderDetail().getId())) {
-                throw new RuntimeException("Order detail not found");
+                throw new RuntimeException("Thông tin đơn hàng không tồn tại");
             }
             ReviewEntity parentReview = this.findById(model.getParentId());
             parentReview.setStatus(EStatusReview.APPROVED.name());

@@ -78,24 +78,24 @@ public class OrderServiceImpl implements IOrderService {
 
     @Override
     public OrderEntity findById(Long id) {
-        return orderRepository.findById(id).orElseThrow(() -> new RuntimeException("Order not found!!!"));
+        return orderRepository.findById(id).orElseThrow(() -> new RuntimeException("Không tìm thấy đơn hàng!!!"));
     }
 
     //Address,Delete cartDetail
     @Override
     public OrderEntity add(OrderModel model) {
         if (!model.getCartDetailIds().stream().findFirst().isPresent()) {
-            throw new RuntimeException("Cart is empty!!!");
+            throw new RuntimeException("Giỏ hàng trống!!!");
         }
         model.getCartDetailIds().stream().forEach(x -> {
-            CartEntity cart = cartRepository.findCartByCartDetails_Id(x).orElseThrow(() -> new RuntimeException("Cart not found!!!"));
+            CartEntity cart = cartRepository.findCartByCartDetails_Id(x).orElseThrow(() -> new RuntimeException("Không tìm thấy giỏ hàng!!!"));
             if (!cart.getUser().getId().equals(SecurityUtils.getCurrentUserId())) {
-                throw new RuntimeException("Cart item not valid!!!");
+                throw new RuntimeException("Sản phẩm trong giỏ không hợp lệ!!!");
             }
         });
         String uuid = UUID.randomUUID().toString();
         String note = model.getNote();
-        AddressEntity address = this.addressRepository.findById(model.getAddressId()).orElseThrow(() -> new RuntimeException("Address not found!!!"));
+        AddressEntity address = this.addressRepository.findById(model.getAddressId()).orElseThrow(() -> new RuntimeException("Không tìm thấy địa chỉ!!!"));
         String paymentMethod = model.getPaymentMethod().toString();
         List<CartDetailEntity> cartDetailEntities = cartDetailRepository.findAllById(model.getCartDetailIds());
         if (cartDetailEntities.size() == 0) {
@@ -176,7 +176,7 @@ public class OrderServiceImpl implements IOrderService {
             return order;
         } catch (Exception e) {
             e.printStackTrace();
-            throw new RuntimeException("Error when save order!!!");
+            throw new RuntimeException("Có lỗi xảy ra khi lưu đơn hàng!!!");
         } finally {
             productEntities.forEach(productService::saveDtoOnElasticsearch);
         }
@@ -232,7 +232,7 @@ public class OrderServiceImpl implements IOrderService {
 
     @Override
     public OrderEntity onlyUserFindById(Long id, Long userId) {
-        return orderRepository.findByIdAndCreatedById(id, userId).orElseThrow(() -> new RuntimeException("Order not found!!!"));
+        return orderRepository.findByIdAndCreatedById(id, userId).orElseThrow(() -> new RuntimeException("Không tìm thấy đơn hàng!!!"));
     }
 
     @Override
@@ -242,7 +242,7 @@ public class OrderServiceImpl implements IOrderService {
 
     @Override
     public OrderEntity findByUUID(String uuid) {
-        return orderRepository.findByUuid(uuid).orElseThrow(() -> new RuntimeException("Order not found!!!"));
+        return orderRepository.findByUuid(uuid).orElseThrow(() -> new RuntimeException("Không tìm thấy đơn hàng!!!"));
     }
 
     @Override

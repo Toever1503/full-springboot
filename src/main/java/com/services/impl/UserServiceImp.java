@@ -105,7 +105,7 @@ public class UserServiceImp implements IUserService {
     @Override
     public UserEntity findById(Long id) {
 //        logger.info("{} finding user id: {%d}", SecurityUtils.getCurrentUsername(), id);
-        return userRepository.findById(id).orElseThrow(() -> new RuntimeException("Not found user id: " + id));
+        return userRepository.findById(id).orElseThrow(() -> new RuntimeException("Không tìm thấy người dùng có id: " + id));
     }
 
     @Override
@@ -155,10 +155,10 @@ public class UserServiceImp implements IUserService {
     @Transactional
     public boolean signUp(RegisterModel registerModel) {
         if (this.userRepository.findByUserName(registerModel.getUserName()) != null) {
-            throw new RuntimeException("Username has already registered!");
+            throw new RuntimeException("Tên đăng nhập đã được sử dụng!");
         }
         if (this.userRepository.findByEmail(registerModel.getEmail()) != null)
-            throw new RuntimeException("Email has already registered!");
+            throw new RuntimeException("Email đã được đăng kí bởi tài khoản khác!");
 
         Set<RoleEntity> roleEntitySet = new HashSet<>();
         roleEntitySet.add(roleRepository.findRoleEntityByRoleName(RoleEntity.USER));
@@ -225,7 +225,7 @@ public class UserServiceImp implements IUserService {
     }
 
     public UserEntity findByUsername(String userName) {
-        return userRepository.findUserEntityByUserNameOrEmail(userName, userName).orElseThrow(() -> new RuntimeException("Not found username: " + userName));
+        return userRepository.findUserEntityByUserNameOrEmail(userName, userName).orElseThrow(() -> new RuntimeException("Không tìm thấy người dùng có tên: " + userName));
     }
 
     public String codeGenerator() {
@@ -262,7 +262,7 @@ public class UserServiceImp implements IUserService {
     public boolean setPassword(PasswordModel model) {
         String[] userToken = jwtProvider.getUsernameFromToken(model.getToken()).split("-");
         UserEntity user = this.findByUsername(userToken[0]);
-        if (!user.getCode().equals(userToken[1])) throw new RuntimeException("User code mismatch!");
+        if (!user.getCode().equals(userToken[1])) throw new RuntimeException("Mã code không khớp!");
         user.setPassword(passwordEncoder.encode(model.getNewPassword()));
         user.setCode("0");
         user.setStatus(true);
@@ -274,7 +274,7 @@ public class UserServiceImp implements IUserService {
     public boolean changePassword(ChangePasswordModel model) {
         UserEntity user = SecurityUtils.getCurrentUser().getUser();
         if (!BCrypt.checkpw(model.getOldPassword(), user.getPassword())) {
-            throw new RuntimeException("Old password mismatch!");
+            throw new RuntimeException("Mật khẩu cũ không đúng!");
         }
         user.setPassword(passwordEncoder.encode(model.getNewPassword()));
         userRepository.save(user);
@@ -389,12 +389,12 @@ public class UserServiceImp implements IUserService {
             UserEntity checkUser = this.userRepository.findByPhone(model.getPhone());
             if (checkUser != null) {
                 if (checkUser.getId() != userEntity.getId()) {
-                    throw new RuntimeException("Phone number already exists!");
+                    throw new RuntimeException("Số điện thoại đã tồn tại trên hệ thống!");
                 }
             }
             String regexp = "^(0|\\+84)(\\s|\\.)?((3[2-9])|(5[689])|(7[06-9])|(8[1-689])|(9[0-46-9]))(\\d)(\\s|\\.)?(\\d{3})(\\s|\\.)?(\\d{3})$"; // message = "Phone number must follow vietnam"
             if (!model.getPhone().matches(regexp))
-                throw new RuntimeException("Phone number must be in format: +84[3,5,7,8,9]xxxxxxxx! || 0[3,5,7,8,9]xxxxxxxx");
+                throw new RuntimeException("Số điện thoại cần ở định dạng: +84[3,5,7,8,9]xxxxxxxx! || 0[3,5,7,8,9]xxxxxxxx");
         }
         userEntity.setPhone(model.getPhone());
 
@@ -405,7 +405,7 @@ public class UserServiceImp implements IUserService {
                 this.fileUploadProvider.deleteFile(userEntity.getAvatar());
                 userEntity.setAvatar(this.fileUploadProvider.uploadFile(UserEntity.FOLDER + userEntity.getUserName() + "/", model.getAvatar()));
             } catch (IOException e) {
-                throw new RuntimeException("File upload error!");
+                throw new RuntimeException("Tải file thất bại!");
             }
         }
         return this.userRepository.save(userEntity);
@@ -414,14 +414,14 @@ public class UserServiceImp implements IUserService {
     @Override
     public boolean updateAvatar(MultipartFile avatar) {
         if (avatar.isEmpty())
-            throw new RuntimeException("Avatar file is empty!");
+            throw new RuntimeException("Ảnh đại diện đang để trống!");
         UserEntity userEntity = SecurityUtils.getCurrentUser().getUser();
         if (userEntity.getAvatar() != null)
             this.fileUploadProvider.deleteFile(userEntity.getAvatar());
         try {
             userEntity.setAvatar(this.fileUploadProvider.uploadFile(UserEntity.FOLDER + userEntity.getUserName() + "/", avatar));
         } catch (IOException e) {
-            throw new RuntimeException("File Avatar upload error!");
+            throw new RuntimeException("Tải ảnh đại diện lên thất bại!");
         }
         return this.userRepository.save(userEntity) != null;
     }

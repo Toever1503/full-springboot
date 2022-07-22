@@ -29,6 +29,11 @@ public class NotificationFilter {
     @JsonSerialize(as = Date.class)
     @JsonFormat(pattern = "yyyy-MM-DD HH:mm:ss")
     private String maxCreatedDate;
+    @JsonFormat(pattern = "yyyy-MM-DD HH:mm:ss")
+    private String minUpdatedDate;
+    @JsonSerialize(as = Date.class)
+    @JsonFormat(pattern = "yyyy-MM-DD HH:mm:ss")
+    private String maxUpdatedDate;
     @ApiModelProperty(notes = "User's name created", dataType = "String", example = "shiki")
     String createdBy;
 }

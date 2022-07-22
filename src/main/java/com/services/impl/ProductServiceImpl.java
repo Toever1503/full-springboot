@@ -113,7 +113,7 @@ public class ProductServiceImpl implements IProductService {
 
     @Override
     public ProductEntity findById(Long id) {
-        return this.productRepository.findById(id).orElseThrow(() -> new RuntimeException("Product not found, id: " + id));
+        return this.productRepository.findById(id).orElseThrow(() -> new RuntimeException("Không tìm thấy sản phẩm id: " + id));
     }
 
     @Override
@@ -161,19 +161,19 @@ public class ProductServiceImpl implements IProductService {
             this.taskExecutor.execute(() -> {
                 removeFile(entity.getImage(), uploadedFiles);
             });
-            throw new RuntimeException("Error when upload file");
+            throw new RuntimeException("Có lỗi khi tải file lên");
         } catch (ExecutionException e) {
             e.printStackTrace();
             this.taskExecutor.execute(() -> {
                 removeFile(entity.getImage(), uploadedFiles);
             });
-            throw new RuntimeException("Error when upload file");
+            throw new RuntimeException("Có lỗi khi tải file lên");
         } catch (Exception e) {
             e.printStackTrace();
             this.taskExecutor.execute(() -> {
                 removeFile(entity.getImage(), uploadedFiles);
             });
-            throw new RuntimeException("Error when add product");
+            throw new RuntimeException("Có lỗi khi tải file lên");
         }
     }
 
@@ -273,19 +273,19 @@ public class ProductServiceImpl implements IProductService {
             this.taskExecutor.execute(() -> {
                 removeFile(entity.getImage(), uploadedFiles);
             });
-            throw new RuntimeException("Error when upload file");
+            throw new RuntimeException("Có lỗi khi tải file lên");
         } catch (ExecutionException e) {
             e.printStackTrace();
             this.taskExecutor.execute(() -> {
                 removeFile(entity.getImage(), uploadedFiles);
             });
-            throw new RuntimeException("Error when upload file");
+            throw new RuntimeException("Có lỗi khi tải file lên");
         } catch (Exception e) {
             e.printStackTrace();
             this.taskExecutor.execute(() -> {
                 removeFile(entity.getImage(), uploadedFiles);
             });
-            throw new RuntimeException("Error when update product");
+            throw new RuntimeException("Có lỗi khi tải file lên");
         }
 
     }
@@ -337,7 +337,7 @@ public class ProductServiceImpl implements IProductService {
 
     @Override
     public DetailProductDto findDetailById(Pageable page, Long id) {
-        ProductDto productDto = this.eProductRepository.findById(id).orElseThrow(() -> new RuntimeException("Product not found, id: ".concat(id.toString())));
+        ProductDto productDto = this.eProductRepository.findById(id).orElseThrow(() -> new RuntimeException("Không tìm thấy sản phẩm có id: ".concat(id.toString())));
         MoreLikeThisQuery query = new MoreLikeThisQuery();
 
 //        query.setId(id.toString());
@@ -368,7 +368,7 @@ public class ProductServiceImpl implements IProductService {
     public ProductEntity saveVariations(Long productId, List<ProductVariationModel> models) {
         ProductEntity entity = this.findById(productId);
         if (!entity.getIsUseVariation())
-            throw new RuntimeException("Product is not use variation, id: ".concat(entity.getId().toString()));
+            throw new RuntimeException("Sản phẩm không dùng biến thể!, id: ".concat(entity.getId().toString()));
         entity.getVariations().clear();
         entity.getVariations().addAll(this.productVariationRepository.saveAllAndFlush(models.stream().map(variation -> ProductVariationModel.toEntity(variation, entity)).collect(Collectors.toList())));
 
@@ -834,7 +834,7 @@ public class ProductServiceImpl implements IProductService {
                         (v1, v2) -> v1.concat("-").concat(v2)
                 ).get());
                 if (!skuEntity.getSkuCode().matches(ProductSkuEntity.SKU_CODE_PATTERN))
-                    throw new RuntimeException("Generated skuCode is invalid: ".concat(skuEntity.getSkuCode()).concat(". Please check again!"));
+                    throw new RuntimeException("Sku không hợp lệ: ".concat(skuEntity.getSkuCode()).concat(". Vui lòng kiểm tra lại!"));
             } else { // for existed sku
                 model.getVariationValues().forEach(value -> {
                     ProductVariationValueEntity valueEntity = entity.getVariations().get(indexVariation.get())
@@ -845,7 +845,7 @@ public class ProductServiceImpl implements IProductService {
                 });
             }
             if (values.size() != entity.getVariations().size())
-                throw new RuntimeException("variation values not enough, expected " + values.size());
+                throw new RuntimeException("Giá trị của biến thể không hợp lệ, giá trị mong muốn: " + values.size());
             skuEntity.setOptionName(values.stream().map(v -> v.getVariation().getVariationName().concat(" ".concat(v.getValue())))
                     .collect(Collectors.joining(", ")));
             skuEntity.setVariationSize(entity.getVariations().size());
@@ -867,7 +867,7 @@ public class ProductServiceImpl implements IProductService {
         } catch (Exception e) {
             e.printStackTrace();
             System.out.println("=============exception");
-            throw new RuntimeException("Duplicate skuCode: " + skuEntity.getSkuCode().concat(", product id: ".concat(entity.getId().toString().concat(". please check again!"))));
+            throw new RuntimeException("Mã Sku bị trùng: " + skuEntity.getSkuCode().concat(", Sản phẩm có id: ".concat(entity.getId().toString().concat(". Vui lòng kiểm tra lại!"))));
         }
     }
 
