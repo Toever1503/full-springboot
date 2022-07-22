@@ -41,7 +41,7 @@ public class QuestionSpecification extends BaseSpecification {
             specs.add(betweenDate(QuestionEntity_.CREATED_DATE, filter.getMinCreatedDate(), filter.getMaxCreatedDate()));
         else if (filter.getMinCreatedDate() != null)
             specs.add(dateGreaterThanEqual(QuestionEntity_.CREATED_DATE, filter.getMinCreatedDate()));
-        else if (filter.getMaxUpdatedDate() != null)
+        else if (filter.getMaxCreatedDate() != null)
             specs.add(dateLessThanEqual(QuestionEntity_.CREATED_DATE, filter.getMaxCreatedDate()));
 
         if (filter.getMinUpdatedDate() != null && filter.getMaxUpdatedDate() != null)
