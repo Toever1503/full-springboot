@@ -26,20 +26,20 @@ public class OptionsResources {
     @Transactional
     @GetMapping("get-options-by-key")
     public ResponseDto getOptionsByKey(@RequestParam String key) {
-        return ResponseDto.of(OptionsDto.toDto(this.optionsService.getOptionByKey(key)), "lấy slide và banner theo key: " + key);
+        return ResponseDto.of(OptionsDto.toDto(this.optionsService.getOptionByKey(key)), "Lấy slide và banner theo key: " + key);
     }
 
     @Transactional
     @GetMapping("get-options-by-keys")
     public ResponseDto getOptionsByKeys(@RequestParam List<String> keys) {
-        return ResponseDto.of(this.optionsService.getOptionsByKeys(keys).stream().map(OptionsDto::toDto).collect(Collectors.toList()), "lấy danh sách slide và banner theo danh sách key: " + keys);
+        return ResponseDto.of(this.optionsService.getOptionsByKeys(keys).stream().map(OptionsDto::toDto).collect(Collectors.toList()), "Lấy danh sách slide và banner theo danh sách key: " + keys);
     }
 
     @RolesAllowed(RoleEntity.ADMINISTRATOR)
     @Transactional
     @PostMapping
     public ResponseDto settingUpdateHomePage(OptionsModel model, HttpServletRequest request) {
-        return ResponseDto.of(OptionsDto.toDto(this.optionsService.settingUpdateHomePage(model, request)), "thêm slide và banner");
+        return ResponseDto.of(OptionsDto.toDto(this.optionsService.settingUpdateHomePage(model, request)), "Thêm slide và banner");
     }
 
 }

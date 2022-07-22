@@ -59,9 +59,9 @@ public class AddressServiceImpl implements IAddressService {
 
     @Override
     public AddressEntity add(AddressModel model) {
-        Province province = provinceRepository.findById(model.getProvinceId()).orElseThrow(() -> new RuntimeException("không có tỉnh, id: " + model.getProvinceId()));
-        District district = districtRepository.findById(model.getDistrictId()).orElseThrow(() -> new RuntimeException("không có quận/huyện, id: " + model.getDistrictId()));
-        Ward ward = wardRepository.findById(model.getWardId()).orElseThrow(() -> new RuntimeException("không có xã/phường, id: " + model.getWardId()));
+        Province province = provinceRepository.findById(model.getProvinceId()).orElseThrow(() -> new RuntimeException("Không có tỉnh, id: " + model.getProvinceId()));
+        District district = districtRepository.findById(model.getDistrictId()).orElseThrow(() -> new RuntimeException("Không có quận/huyện, id: " + model.getDistrictId()));
+        Ward ward = wardRepository.findById(model.getWardId()).orElseThrow(() -> new RuntimeException("Không có xã/phường, id: " + model.getWardId()));
         AddressEntity addressEntity = AddressEntity.builder()
                 .street(model.getStreet())
                 .province(province)
@@ -81,9 +81,9 @@ public class AddressServiceImpl implements IAddressService {
 
     @Override
     public AddressEntity update(AddressModel model) {
-        Province province = provinceRepository.findById(model.getProvinceId()).orElseThrow(() -> new RuntimeException("không có tỉnh, id: " + model.getProvinceId()));
-        District district = districtRepository.findById(model.getDistrictId()).orElseThrow(() -> new RuntimeException("không có quận/huyện, id: " + model.getDistrictId()));
-        Ward ward = wardRepository.findById(model.getWardId()).orElseThrow(() -> new RuntimeException("không có xã/phường, id: " + model.getWardId()));
+        Province province = provinceRepository.findById(model.getProvinceId()).orElseThrow(() -> new RuntimeException("Không có tỉnh, id: " + model.getProvinceId()));
+        District district = districtRepository.findById(model.getDistrictId()).orElseThrow(() -> new RuntimeException("Không có quận/huyện, id: " + model.getDistrictId()));
+        Ward ward = wardRepository.findById(model.getWardId()).orElseThrow(() -> new RuntimeException("Không có xã/phường, id: " + model.getWardId()));
         AddressEntity addressEntity = AddressEntity.builder()
                 .id(model.getId())
                 .street(model.getStreet())

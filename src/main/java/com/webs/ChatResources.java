@@ -32,39 +32,39 @@ public class ChatResources {
     @Transactional
     @GetMapping("/createChatRoom")
     public ResponseDto createChatRoom() {
-        return ResponseDto.of(chatService.createChatRoom(), "tạo phòng chat");
+        return ResponseDto.of(chatService.createChatRoom(), "Tạo phòng chat");
     }
 
     @RolesAllowed(RoleEntity.ADMINISTRATOR)
     @Transactional
     @GetMapping("/joinChatRoom/{roomId}")
     public ResponseDto joinChatRoom(@PathVariable Long roomId) {
-        return ResponseDto.of(chatService.joinChatRoom(roomId), "vào phòng chat");
+        return ResponseDto.of(chatService.joinChatRoom(roomId), "Vào phòng chat");
     }
 
     @Transactional
     @PostMapping("/sendChatMessage")
     public ResponseDto sendChatMessage(ChatMessageModel model) {
-        return ResponseDto.of(chatService.sendMessage(model), "gửi tin nhắn chat");
+        return ResponseDto.of(chatService.sendMessage(model), "Gửi tin nhắn chat");
     }
 
     @Transactional
     @GetMapping("/getAllChatRoom")
     public ResponseDto getAllChatRoom(Pageable pageable) {
-        return ResponseDto.of(chatService.getAllRoomList(pageable), "lấy tất cả phòng chat");
+        return ResponseDto.of(chatService.getAllRoomList(pageable), "Lấy tất cả phòng chat");
     }
 
     @Transactional
     @GetMapping("/getAllMyChatRoom")
     public ResponseDto getAllMyChatRoom(Pageable pageable) {
-        return ResponseDto.of(chatService.getAllMyChatRoom(pageable), "lấy tất cả phòng chat của tôi");
+        return ResponseDto.of(chatService.getAllMyChatRoom(pageable), "Lấy tất cả phòng chat của tôi");
     }
 
 
     @Transactional
     @GetMapping("/getAllChatRoomMessage/{id}")
     public ResponseDto getAllChatRoomMessage(@PathVariable("id") Long id) {
-        return ResponseDto.of(chatService.getAllRoomChatMessages(id), "lấy tất cả tin nhắn từ id phòng chat: " + id);
+        return ResponseDto.of(chatService.getAllRoomChatMessages(id), "Lấy tất cả tin nhắn từ id phòng chat: " + id);
     }
 
 
@@ -78,6 +78,6 @@ public class ChatResources {
                         .userName(SocketHandler.getUserFromSession(room.getUserSession()).getUserName())
                         .build()
         ).collect(Collectors.toList());
-        return ResponseDto.of(s, "lấy tất cả thông tin phòng chat");
+        return ResponseDto.of(s, "Lấy tất cả thông tin phòng chat");
     }
 }
