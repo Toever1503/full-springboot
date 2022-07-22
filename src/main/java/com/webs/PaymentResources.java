@@ -26,7 +26,7 @@ public class PaymentResources {
     @PostMapping("/checkout")
     public ResponseDto sendPayRequest(HttpServletRequest request, @RequestParam("id") Long id, @RequestParam("url") String url){
         try {
-            return ResponseDto.of(vnPayService.PerformTransaction(id,request,url),"Send pay request");
+            return ResponseDto.of(vnPayService.PerformTransaction(id,request,url),"Gửi yêu cầu thanh toán");
         } catch (UnsupportedEncodingException e) {
             throw new RuntimeException(e);
         }
@@ -37,7 +37,7 @@ public class PaymentResources {
             System.out.println(DateTime.now());
             PaymentResultDto dto = vnPayService.getTransactionResult(request, response);
         response.sendRedirect(dto.getUrl()+"?Ammount="+dto.getAmount()+"&BankCode="+dto.getBankCode()+"&Transaction="+dto.getTransactionNo()+"&PayDate="+dto.getPayDate()+"&Info="+String.valueOf(dto.getOrderInfo().replace(" ","+"))+"&Status="+dto.getStatus());
-        return ResponseDto.of(dto,"Get Transaction Information");
+        return ResponseDto.of(dto,"Lấy kết quả thanh toán");
 //        response.sendRedirect(order.getRedirectUrl()+"&BankCode="+String.valueOf(fields.get("vnp_BankCode"))+"&Transaction="+order.getTransactionNo()+"&Status="+order.getStatus());
 
     }

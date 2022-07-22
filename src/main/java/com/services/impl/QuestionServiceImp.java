@@ -31,17 +31,14 @@ public class QuestionServiceImp implements IQuestionService {
     final IQuestionRepository questionRepository;
     final IUserService userService;
     final FileUploadProvider fileUploadProvider;
-    final ISocketService socketService; // remove this line later
     final INotificationService notificationService;
-
     private final IUserRepository userRepository;
     final MailService mailService;
 
-    public QuestionServiceImp(IQuestionRepository questionRepository, IUserService userService, FileUploadProvider fileUploadProvider, ISocketService socketService, INotificationService notificationService, IUserRepository userRepository, MailService mailService) {
+    public QuestionServiceImp(IQuestionRepository questionRepository, IUserService userService, FileUploadProvider fileUploadProvider, INotificationService notificationService, IUserRepository userRepository, MailService mailService) {
         this.questionRepository = questionRepository;
         this.userService = userService;
         this.fileUploadProvider = fileUploadProvider;
-        this.socketService = socketService;
         this.notificationService = notificationService;
         this.userRepository = userRepository;
         this.mailService = mailService;
@@ -51,22 +48,18 @@ public class QuestionServiceImp implements IQuestionService {
     public List<QuestionEntity> findAll() {
         return null;
     }
-
     @Override
     public Page<QuestionEntity> findAll(Pageable page) {
         return questionRepository.findAllWithCompatible(true, page);
     }
-
     @Override
     public List<QuestionEntity> findAll(Specification<QuestionEntity> specs) {
         return null;
     }
-
     @Override
     public Page<QuestionEntity> filter(Pageable page, Specification<QuestionEntity> specs) {
         return this.questionRepository.findAll(specs, page);
     }
-
     @Override
     public QuestionEntity findById(Long id) {
         return questionRepository.findById(id).orElse(null);
@@ -113,7 +106,7 @@ public class QuestionServiceImp implements IQuestionService {
 
         if (originalQuestion.getCreatedBy().getId().equals(SecurityUtils.getCurrentUserId()) || SecurityUtils.hasRole(RoleEntity.ADMINISTRATOR)) {
             if (originalQuestion.getStatus().equalsIgnoreCase(EStatusQuestion.COMPLETED.name()))
-                throw new RuntimeException("Question is already completed");
+                throw new RuntimeException("Câu hỏi đã được trả lời");
 
             if (originalQuestion.getQuestFile() != null) {
                 List<Object> originalFile = (this.parseJson(originalQuestion.getQuestFile()).getJSONArray("files").toList());
@@ -238,7 +231,7 @@ public class QuestionServiceImp implements IQuestionService {
 
     @Override
     public QuestionEntity getQuestionByIdAndUserId(Long id, Long currentUserId) {
-        return this.questionRepository.findByIdAndCreatedById(id, currentUserId).orElseThrow(() -> new RuntimeException("Question not found id: " + id));
+        return this.questionRepository.findByIdAndCreatedById(id, currentUserId).orElseThrow(() -> new RuntimeException("Không tìm thấy câu hỏi có id: " + id));
     }
 
     public JSONObject parseJson(String json) {

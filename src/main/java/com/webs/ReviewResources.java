@@ -41,33 +41,33 @@ public class ReviewResources {
     @Transactional
     @GetMapping
     public ResponseDto getAllReviews(Pageable page) {
-        return ResponseDto.of(reviewService.findAll(page).map(ReviewDto::toDto), "Reviews retrieved successfully");
+        return ResponseDto.of(reviewService.findAll(page).map(ReviewDto::toDto), "Lấy toàn bộ đánh giá");
     }
 
     @Transactional
     @GetMapping("/{id}")
     public ResponseDto getReviewById(@PathVariable("id") Long id) {
-        return ResponseDto.of(ReviewDto.toDto(this.reviewService.findById(id)), "Review retrieved successfully");
+        return ResponseDto.of(ReviewDto.toDto(this.reviewService.findById(id)), "Lấy đánh giá theo id: " + id);
     }
 
     @Transactional
     @PostMapping
     public ResponseDto addReview(@ModelAttribute ReviewModel reviewModel) {
-        return ResponseDto.of(ReviewDto.toDto(reviewService.add(reviewModel)), "Review added successfully");
+        return ResponseDto.of(ReviewDto.toDto(reviewService.add(reviewModel)), "Thêm đánh giá");
     }
 
     @Transactional
     @PutMapping("/{id}")
     public ResponseDto updateReview(@PathVariable Long id, @ModelAttribute ReviewModel reviewModel) {
         reviewModel.setId(id);
-        return ResponseDto.of(ReviewDto.toDto(reviewService.update(reviewModel)), "Review updated successfully");
+        return ResponseDto.of(ReviewDto.toDto(reviewService.update(reviewModel)), "Cập nhật đánh giá");
     }
 
     @RolesAllowed("ADMINISTRATOR")
     @Transactional
     @DeleteMapping("/{id}")
     public ResponseDto deleteReview(@PathVariable Long id) {
-        return ResponseDto.of(this.reviewService.deleteById(id), "Review deleted successfully");
+        return ResponseDto.of(this.reviewService.deleteById(id), "Xóa đánh giá có id: "+id);
     }
 
     //API update status
@@ -77,7 +77,7 @@ public class ReviewResources {
     public ResponseDto updateStatus(@PathVariable Long id, @RequestParam("status") String status) {
         ReviewEntity review = this.reviewService.updateStatus(id, status);
         this.eProductRepository.save(ProductDto.toDto(review.getProduct()));
-        return ResponseDto.of(review, "Status updated successfully");
+        return ResponseDto.of(review, "Cập nhật trạng thái đánh giá");
     }
 
     @RolesAllowed(RoleEntity.ADMINISTRATOR)
@@ -96,7 +96,7 @@ public class ReviewResources {
 
         Page<ReviewEntity> reviewEntityPage = this.reviewService.filter(page, finalSpec);
         return ResponseDto.of(reviewEntityPage.map(ReviewDto::toDto),
-                "Reviews retrieved for product: ".concat(id.toString()));
+                "Lấy đánh giá cho sản phẩm có id: ".concat(id.toString()));
     }
 
     @RolesAllowed("ADMINISTRATOR")
@@ -105,41 +105,41 @@ public class ReviewResources {
     public ResponseDto replyReview(@ModelAttribute ReviewModel reviewAdinModel) {
         ReviewEntity reviewEntity = reviewService.responseReview(reviewAdinModel);
         this.eProductRepository.save(ProductDto.toDto(reviewEntity.getProduct()));
-        return ResponseDto.of(ReviewDto.toDto(reviewEntity), "Review reply successfully");
+        return ResponseDto.of(ReviewDto.toDto(reviewEntity), "Phản hồi đánh giá");
     }
 
     @RolesAllowed("ADMINISTRATOR")
     @Transactional
     @GetMapping("/all-parent")
     public ResponseDto getAllParentReviews(Pageable page) {
-        return ResponseDto.of(reviewService.findAllParentReviewIsNull(page).map(ReviewDto::toDto), "Reviews retrieved successfully");
+        return ResponseDto.of(reviewService.findAllParentReviewIsNull(page).map(ReviewDto::toDto), "Lấy toàn bộ đánh giá cha");
     }
 
     @Transactional
     @GetMapping("/product/{productId}")
     public ResponseDto getAllParentReviewsByStatusAndProductId(Pageable page, @PathVariable("productId") Long productId) {
         String status = "APPROVED";
-        return ResponseDto.of(reviewService.findAllParentReviewIsNullAndStatusAndProductId(page, status, productId).map(ReviewDto::toDto), "Reviews retrieved successfully");
+        return ResponseDto.of(reviewService.findAllParentReviewIsNullAndStatusAndProductId(page, status, productId).map(ReviewDto::toDto), "Lấy toàn bộ đánh giá cha theo trạng thái và sản phẩm có id: "+productId);
     }
 
     @Transactional
     @PostMapping("filter")
     public ResponseDto filter( @RequestBody ReviewFilterModel model, Pageable page) throws ParseException {
         Page<ReviewEntity> reviewEntities = reviewService.filter(page, Specification.where(ReviewSpecification.filter(model)));
-        return ResponseDto.of(reviewEntities.map(ReviewDto::toDto), "Get question by filter successfully");
+        return ResponseDto.of(reviewEntities.map(ReviewDto::toDto), "Lọc đánh giá");
     }
 
     @Transactional
     @GetMapping("/reply/{id}")
     public ResponseDto getReplyByParentId(@PathVariable("id") Long parentId, Pageable pageable) {
-        return ResponseDto.of(this.reviewService.findAllByParentId(parentId, pageable).map(ReviewDto::toDto), "Get all review by parent review id: " + parentId);
+        return ResponseDto.of(this.reviewService.findAllByParentId(parentId, pageable).map(ReviewDto::toDto), "Lấy toàn bộ đánh giá theo đánh giá cha có id: " + parentId);
     }
 
     @Transactional
     @GetMapping("/my-reviews/{orderId}")
     public ResponseDto getMyReviews(@PathVariable Long orderId) {
         return ResponseDto.of(this.reviewService.findAllMyReview(orderId).stream().map(ReviewDto::toDto)
-                .collect(Collectors.toList()), "Get all review by user id: " + SecurityUtils.getCurrentUserId());
+                .collect(Collectors.toList()), "Lấy toàn bộ đánh giá theo người dùng có id: " + SecurityUtils.getCurrentUserId());
     }
 
 }

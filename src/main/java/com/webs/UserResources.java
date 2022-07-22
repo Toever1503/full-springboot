@@ -44,7 +44,7 @@ public class UserResources {
     @GetMapping
     public ResponseDto adminGetAllUser(Pageable page) {
         log.info("{} is getting all users ", SecurityUtils.getCurrentUser().getUsername());
-        return ResponseDto.of(this.userService.findAll(page).map(UserDto::toDto), "Get all users ");
+        return ResponseDto.of(this.userService.findAll(page).map(UserDto::toDto), "Lấy toàn bộ người dùng");
     }
 
     @RolesAllowed("ADMINISTRATOR")
@@ -52,21 +52,21 @@ public class UserResources {
     @GetMapping("{id}")
     public ResponseDto getUser(@PathVariable("id") Long id) {
         log.info("{} is getting detail user id: {}", SecurityUtils.getCurrentUser().getUsername(), id);
-        return ResponseDto.of(UserDto.toDto(this.userService.findById(id)), "Get user id: " + id);
+        return ResponseDto.of(UserDto.toDto(this.userService.findById(id)), "Lấy thông tin người dùng có id: " + id);
     }
 
     @Transactional
     @PutMapping("my-profile/update")
     public ResponseDto updateMyProfile(@Valid UserProfileModel model) {
         log.info("{} is updating my profile", SecurityUtils.getCurrentUser().getUsername());
-        return ResponseDto.of(UserDto.toDto(this.userService.updateUserProfile(model)), "Update my profile");
+        return ResponseDto.of(UserDto.toDto(this.userService.updateUserProfile(model)), "Cập nhật thông tin cá nhân");
     }
 
     @Transactional
     @GetMapping("my-profile")
     public ResponseDto getMyProfile() {
         log.info("{} is getting their profile", SecurityUtils.getCurrentUser().getUsername());
-        return ResponseDto.of(UserDto.toDto(this.userService.getMyProfile()), "Get my profile");
+        return ResponseDto.of(UserDto.toDto(this.userService.getMyProfile()), "Lấy thông tin cá nhân");
     }
 
     @Transactional
@@ -76,7 +76,7 @@ public class UserResources {
         Map<String, Object> map = new HashMap<>();
         map.put("addresses", this.userService.getMyAddresses().stream().map(AddressDto::toDto).collect(Collectors.toList()));
         map.put("mainAddress", SecurityUtils.getCurrentUser().getUser().getMainAddress());
-        return ResponseDto.of(map, "Get all my addresses");
+        return ResponseDto.of(map, "Lấy toàn bộ địa chỉ của người dùng");
     }
 
     @Transactional
@@ -84,7 +84,7 @@ public class UserResources {
     public ResponseDto addMyAddress(@Valid @RequestBody AddressModel model) {
         log.info("{} is adding new address", SecurityUtils.getCurrentUser().getUsername());
         model.setId(null);
-        return ResponseDto.of(AddressDto.toDto(this.userService.addMyAddress(model)), "Add new address");
+        return ResponseDto.of(AddressDto.toDto(this.userService.addMyAddress(model)), "Thêm địa chỉ mới");
     }
 
     @Transactional
@@ -92,14 +92,14 @@ public class UserResources {
     public ResponseDto updateMyAddress(@PathVariable("id") Long id, @Valid @RequestBody AddressModel model) {
         model.setId(id);
         log.info("{} is updating address id: {%d}", SecurityUtils.getCurrentUser().getUsername(), id);
-        return ResponseDto.of(AddressDto.toDto(this.userService.updateMyAddress(model)), "Update address ID: " + id);
+        return ResponseDto.of(AddressDto.toDto(this.userService.updateMyAddress(model)), "Cập nhật địa chỉ ID: " + id);
     }
 
     @Transactional
     @PatchMapping("my-addresses/main/{id}") // set main address
     public ResponseDto setMainAddress(@PathVariable("id") Long id) {
         log.info("{} is setting main address", SecurityUtils.getCurrentUser().getUsername());
-        return ResponseDto.of(this.userService.setMainAddress(id), "Set main address");
+        return ResponseDto.of(this.userService.setMainAddress(id), "Đặt địa chỉ chính");
     }
 
     @Transactional
@@ -107,9 +107,9 @@ public class UserResources {
     public ResponseDto deleteMyAddress(@PathVariable("id") Long id) {
         log.info("{} is deleting their address id: {%d}", SecurityUtils.getCurrentUser().getUsername(), id);
         if (this.userService.deleteMyAddress(id))
-            return ResponseDto.of(true, "Delete my address");
+            return ResponseDto.of(true, "Xóa địa chỉ");
         else
-            return ResponseDto.of(null, "Delete address");
+            return ResponseDto.of(null, "Xóa địa chỉ");
     }
 
     @RolesAllowed("ADMINISTRATOR")
@@ -117,14 +117,14 @@ public class UserResources {
     @DeleteMapping("delete-user/{id}")
     public ResponseDto deleteUser(@PathVariable("id") Long id) {
         log.info("{} is deleting user id: {%d}", SecurityUtils.getCurrentUser().getUsername(), id);
-        return ResponseDto.of(this.userService.deleteById(id), "Account don't login, account is deleted");
+        return ResponseDto.of(this.userService.deleteById(id), "Xóa tài khoản");
     }
 
     @Transactional
     @PostMapping("/signup")
     public ResponseDto signUpUser(@RequestBody @Valid RegisterModel model) {
         log.info("{Anonymous} is signing up");
-        return ResponseDto.of(userService.signUp(model), "Signup");
+        return ResponseDto.of(userService.signUp(model), "Đăng ký");
     }
 
     @Transactional
@@ -132,7 +132,7 @@ public class UserResources {
     public ResponseEntity loginUser(@RequestBody @Valid JwtUserLoginModel model) {
         log.info("{} is logging in system", model.getUsername());
         JwtLoginResponse jwtUserLoginModel = userService.logIn(model);
-        return jwtUserLoginModel == null ? new ResponseEntity<>(ResponseDto.of1(null, "Sai mật khẩu"), HttpStatus.BAD_REQUEST) : new ResponseEntity<>(ResponseDto.of1(jwtUserLoginModel, "Đăng nhập thành công"), HttpStatus.OK);
+        return jwtUserLoginModel == null ? new ResponseEntity<>(ResponseDto.of1(null, "Đăng nhập"), HttpStatus.BAD_REQUEST) : new ResponseEntity<>(ResponseDto.of1(jwtUserLoginModel, "Đăng nhập"), HttpStatus.OK);
     }
 
     @Transactional
@@ -140,55 +140,55 @@ public class UserResources {
     public ResponseDto forgetPassword(@RequestBody @Valid ForgetPasswordModel model) {
         log.info("{} is requesting forget password", model.getUserName());
         userService.forgetPassword(model);
-        return ResponseDto.of(model.getUserName(), "Please check your reset password email that we have sent");
+        return ResponseDto.of(model.getUserName(), "Vui lòng kiểm tra email của bạn");
     }
 
     @Transactional
     @PostMapping(value = "/set-password")
     public ResponseDto setPassword(@RequestBody @Valid PasswordModel model) {
         log.info("user {} is setting new password");
-        return ResponseDto.of(userService.setPassword(model) ? true : null, "Set password");
+        return ResponseDto.of(userService.setPassword(model) ? true : null, "Đặt mật khẩu");
     }
 
     @Transactional
     @PostMapping(value = "/change-password")
     public ResponseDto changePassword(@RequestBody @Valid ChangePasswordModel model) {
         log.info("user {} is changing password", SecurityUtils.getCurrentUser().getUsername());
-        return ResponseDto.of(userService.changePassword(model) ? true : null, "Password change");
+        return ResponseDto.of(userService.changePassword(model) ? true : null, "Đổi mật khẩu");
     }
 
     @Transactional
     @PostMapping("filter")
     public ResponseDto filterUser(@RequestBody UserFilterModel model, Pageable page) throws ParseException {
         log.info("{} is filtering user", SecurityUtils.getCurrentUser().getUsername());
-        return ResponseDto.of(userService.filter(page, Specification.where(UserSpecification.filter(model))).map(UserDto::toDto), "Filter user");
+        return ResponseDto.of(userService.filter(page, Specification.where(UserSpecification.filter(model))).map(UserDto::toDto), "Lọc người dùng");
     }
 
     @Transactional
     @GetMapping("get-my-avatar")
     public ResponseDto getMyAvatar() {
         log.info("{} is getting their avatar", SecurityUtils.getCurrentUser().getUsername());
-        return ResponseDto.of(SecurityUtils.getCurrentUser().getUser().getAvatar(), "Get my avatar");
+        return ResponseDto.of(SecurityUtils.getCurrentUser().getUser().getAvatar(), "Lấy ảnh đại diện");
     }
 
     @Transactional
     @PutMapping("update-profile/avatar")
     public ResponseDto updateAvatar(@RequestPart MultipartFile avatar) {
         log.info("{} is updating their avatar", SecurityUtils.getCurrentUser().getUsername());
-        return ResponseDto.of(userService.updateAvatar(avatar), "Update avatar");
+        return ResponseDto.of(userService.updateAvatar(avatar), "Cập nhật ảnh đại diện");
     }
 
     @Transactional
     @PatchMapping("change-status/{id}")
     public ResponseDto changeStatusUser(@PathVariable Long id) {
         log.info("admin {} is changing status user", SecurityUtils.getCurrentUser().getUsername());
-        return ResponseDto.of(this.userService.changeStatus(id), "Change user's status");
+        return ResponseDto.of(this.userService.changeStatus(id), "Thay đổi trạng thái người dùng");
     }
 
     @Transactional
     @PatchMapping("change-lock-status/{id}")
     public ResponseDto changeLockStatusUser(@PathVariable Long id) {
         log.info("admin {} is changing lock status user", SecurityUtils.getCurrentUser().getUsername());
-        return ResponseDto.of(this.userService.changeLockStatus(id), "Change user's lock status");
+        return ResponseDto.of(this.userService.changeLockStatus(id), "Thay đổi trạng thái khóa của người dùng");
     }
 }

@@ -43,7 +43,7 @@ public class TagServiceImp implements ITagService {
 
     @Override
     public TagEntity findById(Long id) {
-        return tagRepository.findById(id).orElseThrow(() -> new RuntimeException("Not Found"));
+        return tagRepository.findById(id).orElseThrow(() -> new RuntimeException("Không tìm thấy thẻ có id: "+id));
     }
 
     @Override
