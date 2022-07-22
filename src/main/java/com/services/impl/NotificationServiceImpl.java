@@ -124,6 +124,7 @@ public class NotificationServiceImpl implements INotificationService {
         notificationEntity = this.notificationRepository.save(notificationEntity);
         notificationEntity.setIsJustNotice(false);
         this.saveUserNotification(notificationEntity.getId(), this.userRepository.getAllId());
+        if(!notificationEntity.getStatus().equals(ENotificationStatus.FUTURE))
         this.socketService.sendNotificationForAllUser(SocketNotificationModel.toModel(notificationEntity));
         return notificationEntity;
     }

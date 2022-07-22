@@ -13,7 +13,7 @@ public class ScheduledJobConfig {
     IOrderRepository orderRepository;
     //Cron for posting future notification
     // tham so trong cron la giay, phut, gio, ngay, thang, nam
-    @Scheduled(cron = "0 0/15 * * * *")
+    @Scheduled(cron = "0 0/5 * * * *")
     public void uploadNotification(){
         notificationRepository.postCronNotifications();
     }
