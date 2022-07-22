@@ -26,19 +26,19 @@ public class ReviewFilterModel {
     @ApiModelProperty(notes = "Min Created Time of review", dataType = "datetime", example = "2022-06-10 09:18:56")
     @JsonSerialize(as = Date.class)
     @JsonFormat(pattern = "yyyy-MM-DD HH:mm:ss")
-    private Date minCreatedDate;
+    private String minCreatedDate;
     @ApiModelProperty(notes = "Min Updated Time of review", dataType = "datetime", example = "2022-06-10 09:18:56")
     @JsonSerialize(as = Date.class)
     @JsonFormat(pattern = "yyyy-MM-DD HH:mm:ss")
-    private Date minUpdatedDate;
+    private String minUpdatedDate;
     @ApiModelProperty(notes = "Max Created Time of review", dataType = "datetime", example = "2022-06-10 09:18:56")
     @JsonSerialize(as = Date.class)
     @JsonFormat(pattern = "yyyy-MM-DD HH:mm:ss")
-    private Date maxCreatedDate;
+    private String maxCreatedDate;
     @ApiModelProperty(notes = "Max Updated Time of review", dataType = "datetime", example = "2022-06-10 09:18:56")
     @JsonSerialize(as = Date.class)
     @JsonFormat(pattern = "yyyy-MM-DD HH:mm:ss")
-    private Date maxUpdatedDate;
+    private String maxUpdatedDate;
 
     @ApiModelProperty(notes = "User's name created", dataType = "String", example = "vudt")
     private String createdBy;

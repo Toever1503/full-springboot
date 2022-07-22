@@ -6,6 +6,7 @@ import com.entities.UserEntity_;
 import com.models.filters.UserFilterModel;
 import org.springframework.data.jpa.domain.Specification;
 
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -13,7 +14,7 @@ import java.util.stream.Collectors;
 public class UserSpecification extends BaseSpecification {
 
 
-    public static Specification<UserEntity> filter(UserFilterModel filter) {
+    public static Specification<UserEntity> filter(UserFilterModel filter) throws ParseException {
         List<Specification<UserEntity>> specs = new ArrayList<>();
         if (filter.getUsername() != null)
             specs.add(like(UserEntity_.USER_NAME, filter.getUsername()));
@@ -33,19 +34,19 @@ public class UserSpecification extends BaseSpecification {
             specs.add(betweenDate(UserEntity_.BIRTH_DATE, filter.getMinBirthDay(), filter.getMaxBirthDay()));
 
         if (filter.getMinCreatedDate() != null && filter.getMaxCreatedDate() != null) {
-            specs.add(betweenDate(OrderEntity_.CREATED_DATE, filter.getMinCreatedDate(), filter.getMaxCreatedDate()));
+            specs.add(betweenDate(UserEntity_.CREATED_DATE, filter.getMinCreatedDate(), filter.getMaxCreatedDate()));
         } else if (filter.getMinCreatedDate() != null) {
-            specs.add(dateGreaterThanEqual(OrderEntity_.CREATED_DATE, filter.getMinCreatedDate()));
+            specs.add(dateGreaterThanEqual(UserEntity_.CREATED_DATE, filter.getMinCreatedDate()));
         } else if (filter.getMaxCreatedDate() != null) {
-            specs.add(dateLessThanEqual(OrderEntity_.CREATED_DATE, filter.getMaxCreatedDate()));
+            specs.add(dateLessThanEqual(UserEntity_.CREATED_DATE, filter.getMaxCreatedDate()));
         }
 
         if (filter.getMinUpdatedDate() != null && filter.getMaxUpdatedDate() != null) {
-            specs.add(betweenDate(OrderEntity_.UPDATED_DATE, filter.getMinUpdatedDate(), filter.getMaxUpdatedDate()));
+            specs.add(betweenDate(UserEntity_.UPDATED_DATE, filter.getMinUpdatedDate(), filter.getMaxUpdatedDate()));
         } else if (filter.getMinUpdatedDate() != null) {
-            specs.add(dateGreaterThanEqual(OrderEntity_.UPDATED_DATE, filter.getMinUpdatedDate()));
+            specs.add(dateGreaterThanEqual(UserEntity_.UPDATED_DATE, filter.getMinUpdatedDate()));
         } else if (filter.getMaxUpdatedDate() != null) {
-            specs.add(dateLessThanEqual(OrderEntity_.UPDATED_DATE, filter.getMaxUpdatedDate()));
+            specs.add(dateLessThanEqual(UserEntity_.UPDATED_DATE, filter.getMaxUpdatedDate()));
         }
 
 

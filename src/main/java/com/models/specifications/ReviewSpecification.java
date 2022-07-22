@@ -5,6 +5,7 @@ import com.models.filters.ReviewFilterModel;
 import org.springframework.data.jpa.domain.Specification;
 
 import javax.persistence.criteria.Join;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -28,7 +29,7 @@ public class ReviewSpecification extends BaseSpecification {
         };
     }
 
-    public static Specification<ReviewEntity> filter(ReviewFilterModel filter) {
+    public static Specification<ReviewEntity> filter(ReviewFilterModel filter) throws ParseException {
         List<Specification<ReviewEntity>> specs = new ArrayList<>();
 
         if (filter.getOptionName() != null)

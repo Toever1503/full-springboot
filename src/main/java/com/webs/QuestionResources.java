@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.security.RolesAllowed;
 import javax.validation.Valid;
+import java.text.ParseException;
 import java.util.List;
 
 @RestController
@@ -165,7 +166,7 @@ public class QuestionResources {
 
     @Transactional
     @PostMapping("filter")
-    public ResponseDto filter(@RequestBody QuestionFilterModel model, Pageable page) {
+    public ResponseDto filter(@RequestBody QuestionFilterModel model, Pageable page) throws ParseException {
         log.info("{} is filtering question", SecurityUtils.getCurrentUser().getUsername());
         Page<QuestionEntity> questionEntities = questionService.filter(page, Specification.where(QuestionSpecification.filter(model)));
         return ResponseDto.of(questionEntities.map(TotalQuestionDto::toTotalQuestionDTO), "Get question by filter successfully");

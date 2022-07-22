@@ -25,14 +25,14 @@ public class OrderFilterModel {
     private List<String> statusList;
     @JsonSerialize(as = Date.class)
     @JsonFormat(shape=JsonFormat.Shape.STRING, pattern="yyyy-MM-dd HH:mm:ss")
-    private Date minCreatedDate;
+    private String minCreatedDate;
     @JsonSerialize(as = Date.class)
     @JsonFormat(shape=JsonFormat.Shape.STRING, pattern="yyyy-MM-dd HH:mm:ss")
-    private Date minUpdatedDate;
+    private String minUpdatedDate;
     @JsonSerialize(as = Date.class)
     @JsonFormat(shape=JsonFormat.Shape.STRING, pattern="yyyy-MM-dd HH:mm:ss")
-    private Date maxCreatedDate;
+    private String maxCreatedDate;
     @JsonSerialize(as = Date.class)
     @JsonFormat(shape=JsonFormat.Shape.STRING, pattern="yyyy-MM-dd HH:mm:ss")
-    private Date maxUpdatedDate;
+    private String maxUpdatedDate;
 }

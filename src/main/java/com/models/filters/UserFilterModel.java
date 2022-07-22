@@ -33,22 +33,22 @@ public class UserFilterModel {
 
     @ApiModelProperty(notes = "Max birthday of user", dataType = "datetime", example = "2022-06-10 09:18:56")
     @JsonFormat(pattern="yyyy-MM-dd")
-    private Date minBirthDay;
+    private String minBirthDay;
     @ApiModelProperty(notes = "Max birthday of user", dataType = "datetime", example = "2022-06-10 09:18:56")
     @JsonFormat(pattern="yyyy-MM-dd")
-    private Date maxBirthDay;
+    private String maxBirthDay;
 
     @ApiModelProperty(notes = "Min Created Time of user", dataType = "datetime", example = "2022-06-10 09:18:56")
     @JsonFormat(pattern = "yyyy-MM-DD HH:mm:ss", shape=JsonFormat.Shape.STRING)
-    private Date minCreatedDate;
+    private String minCreatedDate;
     @ApiModelProperty(notes = "Max Created Time of user", dataType = "datetime", example = "2022-06-10 09:18:56")
     @JsonFormat(pattern = "yyyy-MM-DD HH:mm:ss", shape=JsonFormat.Shape.STRING)
-    private Date maxCreatedDate;
+    private String maxCreatedDate;
 
     @ApiModelProperty(notes = "Min Updated Time of user", dataType = "datetime", example = "2022-06-10 09:18:56")
     @JsonFormat(pattern = "yyyy-MM-DD HH:mm:ss", shape=JsonFormat.Shape.STRING)
-    private Date minUpdatedDate;
+    private String minUpdatedDate;
     @ApiModelProperty(notes = "Max Updated Time of user", dataType = "datetime", example = "2022-06-10 09:18:56")
     @JsonFormat(pattern = "yyyy-MM-DD HH:mm:ss", shape=JsonFormat.Shape.STRING)
-    private Date maxUpdatedDate;
+    private String maxUpdatedDate;
 }
