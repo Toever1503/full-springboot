@@ -114,6 +114,8 @@ public class NotificationServiceImpl implements INotificationService {
             } catch (IOException e) {
                 e.printStackTrace();
             }
+        }else {
+            notificationEntity.setImage(null);
         }
 
         UserEntity userEntity = userService.findById(SecurityUtils.getCurrentUserId());
