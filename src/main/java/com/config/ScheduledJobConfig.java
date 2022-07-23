@@ -23,11 +23,11 @@ public class ScheduledJobConfig {
     // tham so trong cron la giay, phut, gio, ngay, thang, nam
     @Scheduled(cron = "0 0/5 * * * *")
     public void uploadNotification(){
-        notificationRepository.postCronNotifications();
         List<Long> ids = this.notificationRepository.findAllFutureIds();
         for (Long id : ids) {
             socketService.sendNotificationForAllUser(SocketNotificationModel.toModel(this.notificationRepository.findById(id).get()));
         }
+        notificationRepository.postCronNotifications();
     }
 
     @Scheduled(cron = "0 0 0/12 * * *")
