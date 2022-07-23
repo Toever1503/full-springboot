@@ -19,11 +19,22 @@ import java.util.Optional;
 public interface INotificationRepository extends JpaRepository<NotificationEntity, Long>, JpaSpecificationExecutor<NotificationEntity> {
 
     //Update future notification posts native query
-    @Query(value = "update tbl_notification set status = 'POSTED' where( notification_id>0 and status = 'FUTURE' and (UNIX_TIMESTAMP(future_date)) < UNIX_TIMESTAMP(DATE_ADD(CURRENT_TIMESTAMP(), INTERVAL '0 7' DAY_HOUR)))", nativeQuery = true)
+    @Query(value = "update tbl_notification set status = 'POSTED' where( notification_id>0 and status = 'FUTURE' and (future_date < now()))", nativeQuery = true)
     @Modifying
     @Transactional(rollbackFor = RuntimeException.class)
     void postCronNotifications();
-    @Query(value = "select notification_id from tbl_notification c where c.status = 'FUTURE' and (UNIX_TIMESTAMP(future_date)) < UNIX_TIMESTAMP(DATE_ADD(CURRENT_TIMESTAMP(), INTERVAL '6 56' HOUR_MINUTE))", nativeQuery = true)
+    @Query(value = "select\n" +
+            "        c.notification_id \n" +
+            "    from\n" +
+            "        tbl_notification c \n" +
+            "    where\n" +
+            "    c.status = 'FUTURE'\n" +
+            "    and\n" +
+            "\t\tc.future_date\n" +
+            "        between \n" +
+            "        date_sub(now(),interval 5 minute)\n" +
+            "        and\n" +
+            "        now()", nativeQuery = true)
     List<Long> findAllFutureIds();
 
     //Get all user's notification by userId and notification status
