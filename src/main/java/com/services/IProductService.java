@@ -1,9 +1,6 @@
 package com.services;
 
-import com.dtos.DetailProductDto;
-import com.dtos.EProductStatus;
-import com.dtos.ProductDto;
-import com.dtos.ProductFilterDataDto;
+import com.dtos.*;
 import com.entities.ProductEntity;
 import com.entities.ProductSkuEntity;
 import com.entities.ProductVariationEntity;
@@ -48,7 +45,7 @@ public interface IProductService extends IBaseService<ProductEntity, ProductMode
 
     boolean reindexElasticsearch();
 
-    List<String> autoComplete(String keyword, Pageable page);
+    List<ProductAutoCompletionDto> autoComplete(String keyword, Pageable page);
 
     boolean changeProductStatus(Long productId, EProductStatus status);
 }

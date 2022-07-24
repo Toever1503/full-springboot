@@ -9,7 +9,6 @@ import com.models.ProductModel;
 import com.models.ProductSkuModel;
 import com.models.ProductVariationModel;
 import com.models.elasticsearch.EProductFilterModel;
-import com.models.specifications.CategorySpecification;
 import com.repositories.*;
 import com.services.ICategoryService;
 import com.services.IProductService;
@@ -26,7 +25,6 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.*;
 import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate;
 import org.springframework.data.elasticsearch.core.SearchHit;
-import org.springframework.data.elasticsearch.core.SearchHitSupport;
 import org.springframework.data.elasticsearch.core.SearchHits;
 import org.springframework.data.elasticsearch.core.mapping.IndexCoordinates;
 import org.springframework.data.elasticsearch.core.query.MoreLikeThisQuery;
@@ -781,9 +779,12 @@ public class ProductServiceImpl implements IProductService {
     }
 
     @Override
-    public List<String> autoComplete(String keyword, Pageable page) {
-
-        return null;
+    public List<ProductAutoCompletionDto> autoComplete(String keyword, Pageable page) {
+        List<ProductDto> ls = this.eProductRepository.findAllByNameLikeOrNameEngLike(keyword, keyword, page);
+        if (ls.isEmpty())
+            return List.of();
+        return ls.stream()
+                .map(p -> new ProductAutoCompletionDto(p.getId(), p.getName())).collect(Collectors.toList());
     }
 
     @Override
