@@ -30,7 +30,7 @@ public class ScheduledJobConfig {
         notificationRepository.postCronNotifications();
     }
 
-    @Scheduled(cron = "0 0 0/12 * * *")
+    @Scheduled(cron = "0 0 0/1 * * *")
     public void updateOrderPayStatus(){
         orderRepository.changeOrderStatusByIDAndTime();
     }

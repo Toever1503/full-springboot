@@ -43,7 +43,7 @@ public class VnPayService {
             SimpleDateFormat formatter = new SimpleDateFormat(OLD_FORMAT);
             String vnp_CreateDate = formatter.format(cld.getTime());
             //Expire time
-            cld.add(Calendar.MINUTE, 15);
+            cld.add(Calendar.MINUTE, 60);
             String vnp_ExpireDate = formatter.format(cld.getTime());
 
             Map<String, String> vnp_Params = new HashMap<>();
@@ -208,7 +208,7 @@ public class VnPayService {
                             } else {
                                 orderRepository.changeOrderStatusByID(EStatusOrder.FAILED.toString(), order.getId());
                                 this.notificationService.addForSpecificUser(SocketNotificationModel.builder().category(ENotificationCategory.ORDER).title("Don hang #".concat(order.getUuid()).concat(" thanh toan that bai")).contentExcerpt("").url(FrontendConfiguration.ORDER_DETAIL_URL + order.getId()).build(), List.of(order.getCreatedBy().getId()));
-                                System.out.print("{\"RspCode\":\"00\",\"Message\":\"Thành công\"}");
+                                System.out.print("{\"RspCode\":\"01\",\"Message\":\"Trạng thái đơn hàng không hợp lệ!!\"}");
                                 return null;
                             }
                         } else {

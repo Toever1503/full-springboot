@@ -1,5 +1,6 @@
 package com.webs;
 
+import com.config.FrontendConfiguration;
 import com.dtos.PaymentResultDto;
 import com.dtos.ResponseDto;
 import com.services.VnPayService;
@@ -36,6 +37,10 @@ public class PaymentResources {
     public ResponseDto getPayResult(HttpServletRequest request, HttpServletResponse response) throws IOException {
             System.out.println(DateTime.now());
             PaymentResultDto dto = vnPayService.getTransactionResult(request, response);
+            if(dto==null){
+                response.sendRedirect(FrontendConfiguration.ORDER_CANCEL_URL);
+                return ResponseDto.of(null,"Hủy thanh toán");
+            }
         response.sendRedirect(dto.getUrl()+"?Ammount="+dto.getAmount()+"&BankCode="+dto.getBankCode()+"&Transaction="+dto.getTransactionNo()+"&PayDate="+dto.getPayDate()+"&Info="+String.valueOf(dto.getOrderInfo().replace(" ","+"))+"&Status="+dto.getStatus());
         return ResponseDto.of(dto,"Lấy kết quả thanh toán");
 //        response.sendRedirect(order.getRedirectUrl()+"&BankCode="+String.valueOf(fields.get("vnp_BankCode"))+"&Transaction="+order.getTransactionNo()+"&Status="+order.getStatus());
