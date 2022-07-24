@@ -181,7 +181,7 @@ public class ProductResources {
 
     @GetMapping("public/auto-complete")
     public ResponseDto autoComplete(@RequestParam @Valid @NotNull @NotBlank String keyword, Pageable page) {
-        return ResponseDto.of(this.productService.autoComplete(keyword, page), "Lấy toàn bộ sản phẩm");
+        return ResponseDto.of(this.productService.autoComplete(keyword, page), "o");
     }
 
 }
