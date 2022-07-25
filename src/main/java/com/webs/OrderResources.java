@@ -84,7 +84,6 @@ public class OrderResources {
         return ResponseDto.of(OrderDto.toDto(order), "Sửa trạng thái đơn hàng theo id: " + id);
     }
 
-    @PreAuthorize("hasAuthority('ADMINISTRATOR')")
     @Transactional
     @DeleteMapping("/{id}")
     public ResponseDto deleteOrder(@PathVariable("id") Long id) {
