@@ -12,6 +12,7 @@ import com.services.ICategoryService;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -54,14 +55,14 @@ public class CategoryResources {
 
     @Transactional
     @PostMapping
-    @RolesAllowed(RoleEntity.ADMINISTRATOR)
+    @PreAuthorize("hasAuthority('ADMINISTRATOR')")
     public ResponseDto add(CategoryModel model) {
         return ResponseDto.of(CategoryDto.toDto(categoryService.add(model), false), "Thêm danh mục");
     }
 
     @Transactional
     @PutMapping("/{id}")
-    @RolesAllowed(RoleEntity.ADMINISTRATOR)
+    @PreAuthorize("hasAuthority('ADMINISTRATOR')")
     public ResponseDto update(CategoryModel model, @PathVariable("id") Long id) {
         model.setId(model.getId());
         return ResponseDto.of(CategoryDto.toDto(categoryService.update(model), false), "Sửa danh mục");
@@ -69,7 +70,7 @@ public class CategoryResources {
 
     @Transactional
     @DeleteMapping("/{id}")
-    @RolesAllowed(RoleEntity.ADMINISTRATOR)
+    @PreAuthorize("hasAuthority('ADMINISTRATOR')")
     public ResponseDto deleteById(@PathVariable("id") Long id) {
         return ResponseDto.of(categoryService.deleteById(id), "Xoá danh mục");
     }

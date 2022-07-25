@@ -13,6 +13,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.retry.annotation.EnableRetry;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.EnableAsync;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
@@ -28,14 +29,14 @@ public class ChatResources {
     @Autowired
     IChatService chatService;
 
-    @RolesAllowed(RoleEntity.USER)
+    @PreAuthorize("hasAuthority('USER')")
     @Transactional
     @GetMapping("/createChatRoom")
     public ResponseDto createChatRoom() {
         return ResponseDto.of(chatService.createChatRoom(), "Tạo phòng chat");
     }
 
-    @RolesAllowed(RoleEntity.ADMINISTRATOR)
+    @PreAuthorize("hasAuthority('ADMINISTRATOR')")
     @Transactional
     @GetMapping("/joinChatRoom/{roomId}")
     public ResponseDto joinChatRoom(@PathVariable Long roomId) {

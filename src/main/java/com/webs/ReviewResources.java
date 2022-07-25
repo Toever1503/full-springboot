@@ -18,6 +18,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
@@ -37,7 +38,7 @@ public class ReviewResources {
         this.eProductRepository = eProductRepository;
     }
 
-    @RolesAllowed("ADMINISTRATOR")
+    @PreAuthorize("hasAuthority('ADMINISTRATOR')")
     @Transactional
     @GetMapping
     public ResponseDto getAllReviews(Pageable page) {
@@ -63,7 +64,7 @@ public class ReviewResources {
         return ResponseDto.of(ReviewDto.toDto(reviewService.update(reviewModel)), "Cập nhật đánh giá");
     }
 
-    @RolesAllowed("ADMINISTRATOR")
+    @PreAuthorize("hasAuthority('ADMINISTRATOR')")
     @Transactional
     @DeleteMapping("/{id}")
     public ResponseDto deleteReview(@PathVariable Long id) {
@@ -71,7 +72,7 @@ public class ReviewResources {
     }
 
     //API update status
-    @RolesAllowed("ADMINISTRATOR")
+    @PreAuthorize("hasAuthority('ADMINISTRATOR')")
     @Transactional
     @PostMapping("/{id}/updateStatus")
     public ResponseDto updateStatus(@PathVariable Long id, @RequestParam("status") String status) {
@@ -80,7 +81,7 @@ public class ReviewResources {
         return ResponseDto.of(review, "Cập nhật trạng thái đánh giá");
     }
 
-    @RolesAllowed(RoleEntity.ADMINISTRATOR)
+    @PreAuthorize("hasAuthority('ADMINISTRATOR')")
     @Transactional
     @GetMapping("all-reviews-by-product/{id}")
     public ResponseDto getAllReviewsForProduct(@PathVariable Long id, Pageable page, @RequestParam("rating") Float rating) {
@@ -99,7 +100,7 @@ public class ReviewResources {
                 "Lấy đánh giá cho sản phẩm có id: ".concat(id.toString()));
     }
 
-    @RolesAllowed("ADMINISTRATOR")
+    @PreAuthorize("hasAuthority('ADMINISTRATOR')")
     @Transactional
     @PostMapping("/reply")
     public ResponseDto replyReview(@ModelAttribute ReviewModel reviewAdinModel) {
@@ -108,7 +109,7 @@ public class ReviewResources {
         return ResponseDto.of(ReviewDto.toDto(reviewEntity), "Phản hồi đánh giá");
     }
 
-    @RolesAllowed("ADMINISTRATOR")
+    @PreAuthorize("hasAuthority('ADMINISTRATOR')")
     @Transactional
     @GetMapping("/all-parent")
     public ResponseDto getAllParentReviews(Pageable page) {

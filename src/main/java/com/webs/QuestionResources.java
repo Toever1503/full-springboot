@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -35,7 +36,7 @@ public class QuestionResources {
         this.questionService = questionService;
     }
 
-    @RolesAllowed("ADMINISTRATOR")
+    @PreAuthorize("hasAuthority('ADMINISTRATOR')")
     @Transactional
     @PatchMapping("/answer/{qid}")
     public ResponseDto answerQuestion(@PathVariable("qid") @Valid Long qid, @Valid QuestionResponseModel model) {
@@ -82,7 +83,7 @@ public class QuestionResources {
     }
 
 
-    @RolesAllowed("ADMINISTRATOR")
+    @PreAuthorize("hasAuthority('ADMINISTRATOR')")
     @GetMapping
     @Transactional
     public ResponseDto getQuestions(Pageable pageable) {
@@ -90,7 +91,7 @@ public class QuestionResources {
         return ResponseDto.of(questionService.findAll(pageable).map(TotalQuestionDto::toTotalQuestionDTO), "Lấy toàn bộ câu hỏi");
     }
 
-    @RolesAllowed("ADMINISTRATOR")
+    @PreAuthorize("hasAuthority('ADMINISTRATOR')")
     @GetMapping("/category")
     @Transactional
     public ResponseDto getQuestions(@RequestParam("category") EStatusQuestion category, Pageable pageable) {

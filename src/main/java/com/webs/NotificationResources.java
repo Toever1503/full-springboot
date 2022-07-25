@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -36,7 +37,7 @@ public class NotificationResources {
         this.socketService = socketService;
     }
 
-    @RolesAllowed("ADMINISTRATOR")
+    @PreAuthorize("hasAuthority('ADMINISTRATOR')")
     @Transactional
     @PostMapping
     public ResponseDto addNotificationDetail(@Valid NotificationModel model) {
@@ -46,7 +47,7 @@ public class NotificationResources {
         return ResponseDto.of(notificationDetailDto, "Thêm thông báo");
     }
 
-    @RolesAllowed("ADMINISTRATOR")
+    @PreAuthorize("hasAuthority('ADMINISTRATOR')")
     @Transactional
     @PutMapping("{id}")
     public ResponseDto updateNotification(@PathVariable Long id, @Valid NotificationModel model) {
@@ -56,7 +57,7 @@ public class NotificationResources {
         return ResponseDto.of(notificationDetailDto, "Sửa thông báo");
     }
 
-    @RolesAllowed("ADMINISTRATOR")
+    @PreAuthorize("hasAuthority('ADMINISTRATOR')")
     @Transactional
     @DeleteMapping("/{id}")
     public ResponseDto deleteNotification(@PathVariable("id") Long id) {
@@ -64,7 +65,7 @@ public class NotificationResources {
         return ResponseDto.of(this.notificationService.deleteById(id), "Xoá thông báo");
     }
 
-    @RolesAllowed("ADMINISTRATOR")
+    @PreAuthorize("hasAuthority('ADMINISTRATOR')")
     @Transactional
     @GetMapping
     public ResponseDto getAll(Pageable page) {
@@ -83,7 +84,7 @@ public class NotificationResources {
     }
 
 
-    @RolesAllowed("ADMINISTRATOR")
+    @PreAuthorize("hasAuthority('ADMINISTRATOR')")
     @Transactional
     @GetMapping("{id}")
     public ResponseDto findById(@PathVariable Long id) {

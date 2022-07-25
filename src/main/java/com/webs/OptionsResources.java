@@ -5,6 +5,7 @@ import com.dtos.ResponseDto;
 import com.entities.RoleEntity;
 import com.models.OptionsModel;
 import com.services.IOptionsService;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.security.RolesAllowed;
@@ -35,7 +36,7 @@ public class OptionsResources {
         return ResponseDto.of(this.optionsService.getOptionsByKeys(keys).stream().map(OptionsDto::toDto).collect(Collectors.toList()), "Lấy danh sách slide và banner theo danh sách key: " + keys);
     }
 
-    @RolesAllowed(RoleEntity.ADMINISTRATOR)
+    @PreAuthorize("hasAuthority('ADMINISTRATOR')")
     @Transactional
     @PostMapping
     public ResponseDto settingUpdateHomePage(OptionsModel model, HttpServletRequest request) {

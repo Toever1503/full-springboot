@@ -16,6 +16,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -39,7 +40,7 @@ public class UserResources {
         this.userService = userService;
     }
 
-    @RolesAllowed("ADMINISTRATOR")
+    @PreAuthorize("hasAuthority('ADMINISTRATOR')")
     @Transactional
     @GetMapping
     public ResponseDto adminGetAllUser(Pageable page) {
@@ -47,7 +48,7 @@ public class UserResources {
         return ResponseDto.of(this.userService.findAll(page).map(UserDto::toDto), "Lấy toàn bộ người dùng");
     }
 
-    @RolesAllowed("ADMINISTRATOR")
+    @PreAuthorize("hasAuthority('ADMINISTRATOR')")
     @Transactional
     @GetMapping("{id}")
     public ResponseDto getUser(@PathVariable("id") Long id) {
@@ -112,7 +113,7 @@ public class UserResources {
             return ResponseDto.of(null, "Xóa địa chỉ");
     }
 
-    @RolesAllowed("ADMINISTRATOR")
+    @PreAuthorize("hasAuthority('ADMINISTRATOR')")
     @Transactional
     @DeleteMapping("delete-user/{id}")
     public ResponseDto deleteUser(@PathVariable("id") Long id) {
