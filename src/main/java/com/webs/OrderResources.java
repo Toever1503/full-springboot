@@ -41,6 +41,7 @@ public class OrderResources {
         return ResponseDto.of(OrderDto.toDto(orderService.findById(id)), "Lấy đơn hàng theo id: " + id);
     }
 
+
     @Transactional
     @GetMapping("/user/{id}")
     public ResponseDto getOrderUserById(@PathVariable("id") Long id) {
@@ -67,6 +68,7 @@ public class OrderResources {
         return ResponseDto.of(OrderDto.toDto(order), "Thêm đơn hàng");
     }
 
+    @PreAuthorize("hasAuthority('ADMINISTRATOR')")
     @Transactional
     @PatchMapping("update-delivery-code/{id}")
     public ResponseDto updateDeliveryCode(@PathVariable("id") Long id, @RequestParam(name = "code") @Valid @NotBlank String deliveryCode) {
@@ -74,6 +76,7 @@ public class OrderResources {
         return ResponseDto.of(OrderDto.toDto(order), "Sửa mã đơn hàng");
     }
 
+    @PreAuthorize("hasAuthority('ADMINISTRATOR')")
     @Transactional
     @PatchMapping("update-status/{id}")
     public ResponseDto updateStatusOrder(@PathVariable("id") Long id, @RequestParam("status") String status) {
@@ -81,6 +84,7 @@ public class OrderResources {
         return ResponseDto.of(OrderDto.toDto(order), "Sửa trạng thái đơn hàng theo id: " + id);
     }
 
+    @PreAuthorize("hasAuthority('ADMINISTRATOR')")
     @Transactional
     @DeleteMapping("/{id}")
     public ResponseDto deleteOrder(@PathVariable("id") Long id) {
@@ -88,7 +92,6 @@ public class OrderResources {
         return ResponseDto.of(OrderDto.toDto(order), "Huỷ đơn hàng: " + id);
     }
 
-    @RolesAllowed(RoleEntity.ADMINISTRATOR)
     @Transactional
     @PostMapping("filter")
     public ResponseDto filter(@RequestBody OrderFilterModel orderFilterModel, Pageable page) throws ParseException {
