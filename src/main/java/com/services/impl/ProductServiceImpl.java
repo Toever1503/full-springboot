@@ -784,7 +784,7 @@ public class ProductServiceImpl implements IProductService {
         if (ls.isEmpty())
             return List.of();
         return ls.stream()
-                .map(p -> new ProductAutoCompletionDto(p.getId(), p.getName())).collect(Collectors.toList());
+                .map(p -> ProductAutoCompletionDto.builder().id(p.getId()).Name(p.getName()).build()).collect(Collectors.toList());
     }
 
     @Override

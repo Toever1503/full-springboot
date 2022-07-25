@@ -179,6 +179,7 @@ public class ProductResources {
         return ResponseDto.of(this.productService.changeProductStatus(productId, status), "Thay đổi trạng thái sản phẩm");
     }
 
+    @Transactional
     @GetMapping("public/auto-complete")
     public ResponseDto autoComplete(@RequestParam @Valid @NotNull @NotBlank String keyword, Pageable page) {
         return ResponseDto.of(this.productService.autoComplete(keyword, page), "o");
