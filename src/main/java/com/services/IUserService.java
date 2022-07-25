@@ -42,4 +42,6 @@ public interface IUserService extends IBaseService<UserEntity, UserModel, Long>{
     boolean changeStatus(Long userId);
 
     boolean changeLockStatus(Long userId);
+
+    String updateAvatar1(MultipartFile avatar);
 }

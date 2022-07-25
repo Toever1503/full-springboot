@@ -430,6 +430,23 @@ public class UserServiceImp implements IUserService {
         return this.userRepository.save(userEntity) != null;
     }
 
+    public String updateAvatar1(MultipartFile avatar) {
+        if (avatar.isEmpty())
+            throw new RuntimeException("Ảnh đại diện đang để trống!");
+        UserEntity userEntity = SecurityUtils.getCurrentUser().getUser();
+        if (userEntity.getAvatar() != null)
+            this.fileUploadProvider.deleteFile(userEntity.getAvatar());
+        try {
+            userEntity.setAvatar(this.fileUploadProvider.uploadFile(UserEntity.FOLDER + userEntity.getUserName() + "/", avatar));
+        } catch (IOException e) {
+            throw new RuntimeException("Tải ảnh đại diện lên thất bại!");
+        }
+        if(this.userRepository.save(userEntity) != null){
+            return userEntity.getAvatar();
+        }
+        return new RuntimeException("Bạn chưa chọn ảnh, tải ảnh đại diện lên thất bại!").getMessage();
+    }
+
     @Override
     public boolean changeStatus(Long userId) {
         UserEntity user = this.findById(userId);

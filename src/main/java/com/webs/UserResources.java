@@ -176,7 +176,7 @@ public class UserResources {
     @PutMapping("update-profile/avatar")
     public ResponseDto updateAvatar(@RequestPart MultipartFile avatar) {
         log.info("{} is updating their avatar", SecurityUtils.getCurrentUser().getUsername());
-        return ResponseDto.of(userService.updateAvatar(avatar), "Cập nhật ảnh đại diện");
+        return ResponseDto.of(userService.updateAvatar1(avatar), "Cập nhật ảnh đại diện");
     }
 
     @Transactional
