@@ -206,26 +206,26 @@ public class VnPayService {
                                 return resultDto;
                                 //Update DB When success
                             } else {
-                                orderRepository.changeOrderStatusByID(EStatusOrder.FAILED.toString(), order.getId());
+                                orderRepository.changeOrderStatusByID(EStatusOrder.CANCELED.toString(), order.getId());
                                 this.notificationService.addForSpecificUser(SocketNotificationModel.builder().category(ENotificationCategory.ORDER).title("Don hang #".concat(order.getUuid()).concat(" thanh toan that bai")).contentExcerpt("").url(FrontendConfiguration.ORDER_DETAIL_URL + order.getId()).build(), List.of(order.getCreatedBy().getId()));
                                 System.out.print("{\"RspCode\":\"01\",\"Message\":\"Trạng thái đơn hàng không hợp lệ!!\"}");
                                 return null;
                             }
                         } else {
                             System.out.print("{\"RspCode\":\"02\",\"Message\":\"Đơn hàng đã được thanh toán\"}");
-                            orderRepository.changeOrderStatusByID(EStatusOrder.FAILED.toString(), order.getId());
+                            orderRepository.changeOrderStatusByID(EStatusOrder.CANCELED.toString(), order.getId());
                             this.notificationService.addForSpecificUser(SocketNotificationModel.builder().category(ENotificationCategory.ORDER).title("Don hang #".concat(order.getUuid()).concat(" thanh toan that bai")).contentExcerpt("").url(FrontendConfiguration.ORDER_DETAIL_URL + order.getId()).build(), List.of(order.getCreatedBy().getId()));
                             return null;
                         }
                     } else {
                         System.out.print("{\"RspCode\":\"04\",\"Message\":\"Giá trị đơn hàng không hợp lệ\"}");
-                        orderRepository.changeOrderStatusByID(EStatusOrder.FAILED.toString(), order.getId());
+                        orderRepository.changeOrderStatusByID(EStatusOrder.CANCELED.toString(), order.getId());
                         this.notificationService.addForSpecificUser(SocketNotificationModel.builder().category(ENotificationCategory.ORDER).title("Don hang #".concat(order.getUuid()).concat(" thanh toan that bai")).contentExcerpt("").url(FrontendConfiguration.ORDER_DETAIL_URL + order.getId()).build(), List.of(order.getCreatedBy().getId()));
                         return null;
                     }
                 } else {
                     System.out.print("{\"RspCode\":\"01\",\"Message\":\"Không tìm thấy đơn hàng\"}");
-                    orderRepository.changeOrderStatusByID(EStatusOrder.FAILED.toString(), order.getId());
+                    orderRepository.changeOrderStatusByID(EStatusOrder.CANCELED.toString(), order.getId());
                     this.notificationService.addForSpecificUser(SocketNotificationModel.builder().category(ENotificationCategory.ORDER).title("Don hang #".concat(order.getUuid()).concat(" thanh toan that bai")).contentExcerpt("").url(FrontendConfiguration.ORDER_DETAIL_URL + order.getId()).build(), List.of(order.getCreatedBy().getId()));
                     return null;
                 }
