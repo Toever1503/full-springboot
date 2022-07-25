@@ -17,6 +17,7 @@ import org.springframework.context.annotation.Lazy;
 import com.models.filters.ProductFilter;
 import com.models.specifications.ProductSpecification;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -45,6 +46,7 @@ public class ProductResources {
         this.eProductRepository = eProductRepository;
     }
 
+    @PreAuthorize("hasAuthority('ADMINISTRATOR')")
     @GetMapping("public/get-all")
     public ResponseDto getAll(Pageable page) {
         return ResponseDto.of(eProductRepository.findAll(page), "Lấy toàn bộ sản phẩm");
@@ -60,6 +62,7 @@ public class ProductResources {
     }
 
 
+    @PreAuthorize("hasAuthority('ADMINISTRATOR')")
     @Transactional
     @PostMapping("variations/{productId}")
     public ResponseDto saveVariations(@PathVariable Long productId, @RequestBody @Valid List<ProductVariationModel> models) {
@@ -67,6 +70,7 @@ public class ProductResources {
         return ResponseDto.of(dto, "Lưu biến thể cho sản phẩm có id: ".concat(productId.toString()));
     }
 
+    @PreAuthorize("hasAuthority('ADMINISTRATOR')")
     @Transactional
     @PostMapping("skus/{productId}")
     public ResponseDto saveSkus(@PathVariable Long productId, @Valid @RequestPart List<ProductSkuModel> models, HttpServletRequest req) {
@@ -74,6 +78,7 @@ public class ProductResources {
         return ResponseDto.of(dto, "Lưu sku cho sản phẩm có id: ".concat(productId.toString()));
     }
 
+    @PreAuthorize("hasAuthority('ADMINISTRATOR')")
     @Transactional
     @PostMapping
     public ResponseDto createProduct(@Valid @RequestPart("product") ProductModel productModel,
@@ -85,18 +90,7 @@ public class ProductResources {
         return ResponseDto.of(this.productService.saveDtoOnElasticsearch(productService.add(productModel)), "Tạo sản phẩm");
     }
 
-    @Transactional
-    @GetMapping("variations/{id}")
-    public ResponseDto findVariations(@PathVariable Long id) {
-        return ResponseDto.of(this.productService.findVariations(id).stream().map(ProductVariationDto::toDto).collect(Collectors.toList()), "Lấy danh sách biến thể cho sản phẩm có id: ".concat(id.toString()));
-    }
-
-    @Transactional
-    @GetMapping("skus/{id}")
-    public ResponseDto findSkus(@PathVariable Long id) {
-        return ResponseDto.of(this.productService.findSkus(id).stream().map(ProductSkuDto::toDto).collect(Collectors.toList()), "Lấy sku cho sản phẩm có id: ".concat(id.toString()));
-    }
-
+    @PreAuthorize("hasAuthority('ADMINISTRATOR')")
     @Transactional
     @PutMapping("{id}")
     public ResponseDto updateProduct(@PathVariable("id") Long id, @Valid @RequestPart("product") ProductModel productModel,
@@ -108,7 +102,7 @@ public class ProductResources {
         return ResponseDto.of(this.productService.saveDtoOnElasticsearch(this.productService.update(productModel)), "Cập nhật sản phẩm");
     }
 
-    @RolesAllowed(RoleEntity.ADMINISTRATOR)
+    @PreAuthorize("hasAuthority('ADMINISTRATOR')")
     @Transactional
     @GetMapping("refreshData")
     @Operation(summary = "resync data on database to  elasticsearch")
@@ -117,14 +111,14 @@ public class ProductResources {
         return "Ok";
     }
 
-    @RolesAllowed(RoleEntity.ADMINISTRATOR)
+    @PreAuthorize("hasAuthority('ADMINISTRATOR')")
     @Transactional
     @GetMapping("delete-all-data")
     public ResponseDto deleteAllData() {
         return ResponseDto.of(this.productService.deleteAllDataOnElasticsearch(), "Xóa toàn bộ dữ liệu elasticsearch");
     }
 
-    @RolesAllowed(RoleEntity.ADMINISTRATOR)
+    @PreAuthorize("hasAuthority('ADMINISTRATOR')")
     @Transactional
     @GetMapping("delete-index")
     public ResponseDto deleteIndex() {
@@ -172,7 +166,7 @@ public class ProductResources {
         return ResponseDto.of(eProductRepository.findByCategoryId(id, page), "Lấy toàn bộ sản phẩm");
     }
 
-    @RolesAllowed(RoleEntity.ADMINISTRATOR)
+    @PreAuthorize("hasAuthority('ADMINISTRATOR')")
     @Transactional
     @PatchMapping("change-status/{productId}")
     public ResponseDto changeProductStatus(@PathVariable Long productId, @RequestParam EProductStatus status){

@@ -65,7 +65,6 @@ public class NotificationResources {
         return ResponseDto.of(this.notificationService.deleteById(id), "Xoá thông báo");
     }
 
-    @PreAuthorize("hasAuthority('ADMINISTRATOR')")
     @Transactional
     @GetMapping
     public ResponseDto getAll(Pageable page) {
@@ -84,7 +83,6 @@ public class NotificationResources {
     }
 
 
-    @PreAuthorize("hasAuthority('ADMINISTRATOR')")
     @Transactional
     @GetMapping("{id}")
     public ResponseDto findById(@PathVariable Long id) {

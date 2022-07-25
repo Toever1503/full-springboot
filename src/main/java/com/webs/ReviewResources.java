@@ -81,7 +81,7 @@ public class ReviewResources {
         return ResponseDto.of(review, "Cập nhật trạng thái đánh giá");
     }
 
-    @PreAuthorize("hasAuthority('ADMINISTRATOR')")
+
     @Transactional
     @GetMapping("all-reviews-by-product/{id}")
     public ResponseDto getAllReviewsForProduct(@PathVariable Long id, Pageable page, @RequestParam("rating") Float rating) {

@@ -83,7 +83,7 @@ public class QuestionResources {
     }
 
 
-    @PreAuthorize("hasAuthority('ADMINISTRATOR')")
+
     @GetMapping
     @Transactional
     public ResponseDto getQuestions(Pageable pageable) {
