@@ -218,6 +218,28 @@ public class OrderServiceImpl implements IOrderService {
     public OrderEntity updateStatusOrder(Long id, String status) {
         OrderEntity order = this.findById(id);
         order.setStatus(status);
+        String statusCheck = "";
+        if(status.equals(EStatusOrder.APPROVE.name())){
+            statusCheck = "đã duyệt";
+        }else if(status.equals(EStatusOrder.DELIVERING.name())){
+            statusCheck = "đang giao hàng";
+        }else if(status.equals(EStatusOrder.COMPLETED.name())){
+            statusCheck = "đã giao hàng";
+        }else if(status.equals(EStatusOrder.CANCELED.name())){
+            statusCheck = "đã hủy";
+        }
+        else if(status.equals(EStatusOrder.REFUNDING.name())){
+            statusCheck = "đang hoàn tiền";
+        }
+        else if(status.equals(EStatusOrder.REFUNDED.name())){
+            statusCheck = "đã hoàn tiền";
+        }
+        this.notificationService.addForSpecificUser(
+                new SocketNotificationModel(null,
+                        "Trạng thái đơn hàng #".concat(order.getId().toString()).concat(" đã được cập nhật thành "+ statusCheck),
+                        "", ENotificationCategory.ORDER,
+                        FrontendConfiguration.ORDER_DETAIL_URL + order.getId()),
+                List.of(order.getCreatedBy().getId()));
         return orderRepository.saveAndFlush(order);
     }
 

@@ -46,6 +46,7 @@ public class NotificationServiceImpl implements INotificationService {
     private final INotificationUserRepository notificationUserRepository;
     private final IUserRepository userRepository;
     private final ISocketService socketService;
+    public static final String DEFAULT_SYSTEM_LOGO = "https://team-2.s3.ap-northeast-2.amazonaws.com/static-images/LogoYDs.png";
 
     public NotificationServiceImpl(INotificationRepository notificationRepository,
                                    FileUploadProvider fileUploadProvider,
@@ -115,7 +116,7 @@ public class NotificationServiceImpl implements INotificationService {
                 e.printStackTrace();
             }
         } else {
-            notificationEntity.setImage(null);
+            notificationEntity.setImage(DEFAULT_SYSTEM_LOGO);
         }
 
         UserEntity userEntity = userService.findById(SecurityUtils.getCurrentUserId());

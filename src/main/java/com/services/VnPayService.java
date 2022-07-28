@@ -107,7 +107,7 @@ public class VnPayService {
             curOrder.setStatus(EStatusOrder.PAYING.toString());
             curOrder.setRedirectUrl(url);
             orderRepository.saveAndFlush(curOrder);
-            this.notificationService.addForSpecificUser(SocketNotificationModel.builder().category(ENotificationCategory.ORDER).title("Don hang #".concat(curOrder.getUuid()).concat(" dang duoc thanh toan")).contentExcerpt("").url(FrontendConfiguration.ORDER_DETAIL_URL + curOrder.getId()).build(), List.of(curOrder.getCreatedBy().getId()));
+            this.notificationService.addForSpecificUser(SocketNotificationModel.builder().category(ENotificationCategory.ORDER).title("Đơn hàng #".concat(curOrder.getUuid()).concat(" đang được thanh toán")).contentExcerpt("").url(FrontendConfiguration.ORDER_DETAIL_URL + curOrder.getId()).build(), List.of(curOrder.getCreatedBy().getId()));
             queryUrl += "&vnp_SecureHash=" + vnp_SecureHash;
             String paymentUrl = VnPayUtils.vnp_Url + "?" + queryUrl;
             return paymentUrl;
@@ -215,29 +215,29 @@ public class VnPayService {
                                 order.setTransactionNo(String.valueOf(fields.get("vnp_TransactionNo")));
                                 order.setStatus(EStatusOrder.PAID.toString());
                                 orderRepository.save(order);
-                                this.notificationService.addForSpecificUser(SocketNotificationModel.builder().category(ENotificationCategory.ORDER).title("Don hang #".concat(order.getUuid()).concat(" da duoc thanh toan")).contentExcerpt("").url(resultDto.getUrl()).build(), List.of(order.getCreatedBy().getId()));
+                                this.notificationService.addForSpecificUser(SocketNotificationModel.builder().category(ENotificationCategory.ORDER).title("Đơn hàng #".concat(order.getUuid()).concat(" đã được thanh toán")).contentExcerpt("").url(FrontendConfiguration.ORDER_DETAIL_URL + order.getId()).build(), List.of(order.getCreatedBy().getId()));
 //                                socketService.sendOrderNotificationForSingleUser(orderRepository.save(order),order.getCreatedBy().getId(),"abcdef.com.vn", "Don hang da duoc thanh toan: ");
                                 System.out.print("{\"RspCode\":\"00\",\"Message\":\"Thành công\"}");
                                 return resultDto;
                                 //Update DB When success
                             } else {
-                                this.notificationService.addForSpecificUser(SocketNotificationModel.builder().category(ENotificationCategory.ORDER).title("Don hang #".concat(order.getUuid()).concat(" thanh toan that bai")).contentExcerpt("").url(FrontendConfiguration.ORDER_DETAIL_URL + order.getId()).build(), List.of(order.getCreatedBy().getId()));
+                                this.notificationService.addForSpecificUser(SocketNotificationModel.builder().category(ENotificationCategory.ORDER).title("Đơn hàng #".concat(order.getUuid()).concat(" thanh toán thất bại")).contentExcerpt("").url(FrontendConfiguration.ORDER_DETAIL_URL + order.getId()).build(), List.of(order.getCreatedBy().getId()));
                                 System.out.print("{\"RspCode\":\"01\",\"Message\":\"Trạng thái đơn hàng không hợp lệ!!\"}");
                                 return null;
                             }
                         } else {
                             System.out.print("{\"RspCode\":\"02\",\"Message\":\"Đơn hàng đã được thanh toán\"}");
-                            this.notificationService.addForSpecificUser(SocketNotificationModel.builder().category(ENotificationCategory.ORDER).title("Don hang #".concat(order.getUuid()).concat(" thanh toan that bai")).contentExcerpt("").url(FrontendConfiguration.ORDER_DETAIL_URL + order.getId()).build(), List.of(order.getCreatedBy().getId()));
+                            this.notificationService.addForSpecificUser(SocketNotificationModel.builder().category(ENotificationCategory.ORDER).title("Đơn hàng #".concat(order.getUuid()).concat(" thanh toán thất bại")).contentExcerpt("").url(FrontendConfiguration.ORDER_DETAIL_URL + order.getId()).build(), List.of(order.getCreatedBy().getId()));
                             return null;
                         }
                     } else {
                         System.out.print("{\"RspCode\":\"04\",\"Message\":\"Giá trị đơn hàng không hợp lệ\"}");
-                        this.notificationService.addForSpecificUser(SocketNotificationModel.builder().category(ENotificationCategory.ORDER).title("Don hang #".concat(order.getUuid()).concat(" thanh toan that bai")).contentExcerpt("").url(FrontendConfiguration.ORDER_DETAIL_URL + order.getId()).build(), List.of(order.getCreatedBy().getId()));
+                        this.notificationService.addForSpecificUser(SocketNotificationModel.builder().category(ENotificationCategory.ORDER).title("Đơn hàng #".concat(order.getUuid()).concat(" thanh toán thất bại")).contentExcerpt("").url(FrontendConfiguration.ORDER_DETAIL_URL + order.getId()).build(), List.of(order.getCreatedBy().getId()));
                         return null;
                     }
                 } else {
                     System.out.print("{\"RspCode\":\"01\",\"Message\":\"Không tìm thấy đơn hàng\"}");
-                    this.notificationService.addForSpecificUser(SocketNotificationModel.builder().category(ENotificationCategory.ORDER).title("Don hang #".concat(order.getUuid()).concat(" thanh toan that bai")).contentExcerpt("").url(FrontendConfiguration.ORDER_DETAIL_URL + order.getId()).build(), List.of(order.getCreatedBy().getId()));
+                    this.notificationService.addForSpecificUser(SocketNotificationModel.builder().category(ENotificationCategory.ORDER).title("Đơn hàng #".concat(order.getUuid()).concat(" thanh toán thất bại")).contentExcerpt("").url(FrontendConfiguration.ORDER_DETAIL_URL + order.getId()).build(), List.of(order.getCreatedBy().getId()));
                     return null;
                 }
             } else {
