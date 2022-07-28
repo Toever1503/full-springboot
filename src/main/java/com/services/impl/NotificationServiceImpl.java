@@ -114,7 +114,7 @@ public class NotificationServiceImpl implements INotificationService {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-        }else {
+        } else {
             notificationEntity.setImage(null);
         }
 
@@ -126,8 +126,8 @@ public class NotificationServiceImpl implements INotificationService {
         notificationEntity = this.notificationRepository.save(notificationEntity);
         notificationEntity.setIsJustNotice(false);
         this.saveUserNotification(notificationEntity.getId(), this.userRepository.getAllId());
-        if(!notificationEntity.getStatus().equals(ENotificationStatus.FUTURE.name()))
-        this.socketService.sendNotificationForAllUser(SocketNotificationModel.toModel(notificationEntity));
+        if (!notificationEntity.getStatus().equals(ENotificationStatus.FUTURE.name()))
+            this.socketService.sendNotificationForAllUser(SocketNotificationModel.toModel(notificationEntity));
         return notificationEntity;
     }
 
@@ -236,8 +236,13 @@ public class NotificationServiceImpl implements INotificationService {
     }
 
     @Override
-    public Page<NotificationDto> userGetAllNotifications(Pageable page) {
-        return this.notificationRepository.userGetAllNotifications(SecurityUtils.getCurrentUserId(), "POSTED", page);
+    public Page<NotificationDto> userGetAllNotifications(Pageable page, Long userId) {
+        return this.notificationRepository.userGetAllNotifications(userId, "POSTED", page);
+    }
+
+    @Override
+    public Long totalUnreadNotification(Long userId) {
+        return this.notificationUserRepository.findTotalUnread(userId);
     }
 
     @Override

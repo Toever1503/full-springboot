@@ -13,9 +13,13 @@ public interface INotificationUserRepository extends JpaRepository<NotificationU
     //Make all notification read of user
     @Query("update NotificationUser u set u.isRead = true where u.userId=?1")
     @Modifying
-   @Transactional
+    @Transactional
     void setReadAll(Long id);
+
     Optional<NotificationUser> findByUserIdAndNotificationId(Long currentUserId, long id);
+
+    @Query("select count(u.id) from NotificationUser u where u.userId=?1 and u.isRead=false")
+    Long findTotalUnread(Long userId);
 
     void deleteAllByNotificationId(Long notificationId);
 }

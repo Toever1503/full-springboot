@@ -9,7 +9,8 @@ import org.springframework.data.domain.Pageable;
 import java.util.List;
 
 public interface INotificationService extends IBaseService<NotificationEntity, NotificationModel, Long> {
-    Page<NotificationDto> userGetAllNotifications(Pageable page);
+    Page<NotificationDto> userGetAllNotifications(Pageable page, Long userId);
+    Long totalUnreadNotification(Long userId);
 
     void addForSpecificUser(SocketNotificationModel model,  List<Long> userId);
 

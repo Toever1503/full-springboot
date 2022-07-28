@@ -2,7 +2,6 @@ package com.webs;
 
 import com.dtos.*;
 import com.entities.NotificationEntity;
-import com.entities.NotificationEntity_;
 import com.models.NotificationModel;
 import com.models.filters.NotificationFilter;
 import com.models.specifications.NotificationSpecification;
@@ -12,6 +11,7 @@ import com.utils.SecurityUtils;
 import io.swagger.annotations.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.task.TaskExecutor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -20,9 +20,12 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import javax.annotation.security.RolesAllowed;
 import javax.validation.Valid;
 import java.text.ParseException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
 @RestController
 @RequestMapping("/notifications")
@@ -30,11 +33,14 @@ import java.text.ParseException;
 public class NotificationResources {
     private final INotificationService notificationService;
     private final ISocketService socketService;
+
+    private final TaskExecutor taskExecutor;
     private final Logger log = LoggerFactory.getLogger(this.getClass());
 
-    public NotificationResources(INotificationService notificationService, ISocketService socketService) {
+    public NotificationResources(INotificationService notificationService, ISocketService socketService, TaskExecutor taskExecutor) {
         this.notificationService = notificationService;
         this.socketService = socketService;
+        this.taskExecutor = taskExecutor;
     }
 
     @PreAuthorize("hasAuthority('ADMINISTRATOR')")
@@ -79,7 +85,22 @@ public class NotificationResources {
     @GetMapping("user/getAll")
     public ResponseDto userGetAll(Pageable page) {
         log.info("user {} is getting all notifications", SecurityUtils.getCurrentUser().getUsername());
-        return ResponseDto.of(this.notificationService.userGetAllNotifications(page), "Người dùng lấy tất cả thông báo");
+        Long userId = SecurityUtils.getCurrentUserId();
+        Map<String, Object> data = new HashMap<>();
+        try {
+            CompletableFuture.allOf(
+                    CompletableFuture.supplyAsync(() -> this.notificationService.userGetAllNotifications(page, userId), this.taskExecutor).thenAccept(d -> data.put("data", d)),
+                    CompletableFuture.supplyAsync(() -> this.notificationService.totalUnreadNotification(userId), this.taskExecutor).thenAccept(t -> data.put("totalUnread", t))
+            ).get();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+            throw new RuntimeException("Lấy dữ liệu thông báo thất bại!");
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+            throw new RuntimeException("Lấy dữ liệu thông báo thất bại!");
+        }
+
+        return ResponseDto.of(data, "Lấy dữ liệu thông báo");
     }
 
 

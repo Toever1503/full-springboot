@@ -139,7 +139,7 @@ public class ReviewServiceImpl implements IReviewService {
             this.orderDetailRepository.save(orderDetailEntity);
             // update rating of product
 //            this.reviewRepository.updateProductRating(reviewEntity.getProduct().getId());
-            notificationService.addForSpecificUser(new SocketNotificationModel(null, SecurityUtils.getCurrentUsername() + " đã đánh giá cho sản phẩm!", "", ENotificationCategory.REVIEW, ReviewEntity.ADMIN_REVIEW_URL), this.userRepository.getAllIdsByRole(RoleEntity.ADMINISTRATOR));
+//            notificationService.addForSpecificUser(new SocketNotificationModel(null, SecurityUtils.getCurrentUsername() + " đã đánh giá cho sản phẩm!", "", ENotificationCategory.REVIEW, ReviewEntity.ADMIN_REVIEW_URL), this.userRepository.getAllIdsByRole(RoleEntity.ADMINISTRATOR));
             return reviewEntity;
         } catch (Exception e) {
             e.printStackTrace();
@@ -274,7 +274,7 @@ public class ReviewServiceImpl implements IReviewService {
         } else {
             throw new RuntimeException("Parent review not found");
         }
-        notificationService.addForSpecificUser(new SocketNotificationModel(null, "Admin đã phản hồi lại đánh giá của bạn!", "", ENotificationCategory.REVIEW, ReviewEntity.ADMIN_REVIEW_URL), List.of(reviewEntity.getCreatedBy().getId()));
+//        notificationService.addForSpecificUser(new SocketNotificationModel(null, "Admin đã phản hồi lại đánh giá của bạn!", "", ENotificationCategory.REVIEW, ReviewEntity.ADMIN_REVIEW_URL), List.of(reviewEntity.getCreatedBy().getId()));
         return this.reviewRepository.saveAndFlush(reviewEntity);
     }
 
