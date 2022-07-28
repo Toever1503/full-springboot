@@ -76,10 +76,10 @@ public class OrderSpecification extends BaseSpecification {
 
         if (SecurityUtils.hasRole(RoleEntity.ADMINISTRATOR)) {
             if (orderFilterModel.getUsername() != null && !orderFilterModel.getUsername().isEmpty()) {
-                specs.add(likeCreatedBy(orderFilterModel.getUsername()));
+                specs.add(likeCreatedBy("%" + orderFilterModel.getUsername() + "%"));
             }
         } else
-            specs.add(likeCreatedBy(SecurityUtils.getCurrentUsername()));
+            specs.add(likeCreatedBy("%" + SecurityUtils.getCurrentUsername() + "%"));
 
         if (orderFilterModel.getOrderCode() != null)
             specs.add(like(OrderEntity_.UUID, orderFilterModel.getOrderCode()));
