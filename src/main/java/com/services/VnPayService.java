@@ -6,8 +6,12 @@ import com.dtos.EPaymentMethod;
 import com.dtos.EStatusOrder;
 import com.dtos.PaymentResultDto;
 import com.entities.OrderEntity;
+import com.entities.ProductEntity;
+import com.entities.ProductSkuEntity;
 import com.models.SocketNotificationModel;
 import com.repositories.IOrderRepository;
+import com.repositories.IProductRepository;
+import com.repositories.IProductSkuRepository;
 import com.utils.SecurityUtils;
 import com.utils.VnPayUtils;
 import org.springframework.stereotype.Service;
@@ -25,13 +29,20 @@ import java.util.stream.Collectors;
 public class VnPayService {
     final IOrderRepository orderRepository;
     final INotificationService notificationService;
+    final IProductSkuRepository productSkuRepository;
+    final IProductRepository productRepository;
+
+    final IProductService productService;
     final String OLD_FORMAT = "yyyyMMddHHmmss";
     final String NEW_FORMAT = "yyyy/MM/dd'T'HH:mm:ss";
     final String ALLOWED_STATUS[] = {"PENDING", "APPROVE", "PAYING", "FAILED"};
 
-    public VnPayService(IOrderRepository orderRepository, INotificationService notificationService) {
+    public VnPayService(IOrderRepository orderRepository, INotificationService notificationService, IProductSkuRepository productSkuRepository, IProductRepository productRepository, IProductService productService) {
         this.orderRepository = orderRepository;
         this.notificationService = notificationService;
+        this.productSkuRepository = productSkuRepository;
+        this.productRepository = productRepository;
+        this.productService = productService;
     }
 
     public String PerformTransaction(Long id, HttpServletRequest request, String url) throws UnsupportedEncodingException {
@@ -174,6 +185,10 @@ public class VnPayService {
                         if (checkOrderStatus) {
                             if ("00".equals(request.getParameter("vnp_ResponseCode"))) {
                                 PaymentResultDto resultDto = new PaymentResultDto();
+                                if(Long.valueOf(String.valueOf(fields.get("vnp_Amount")))/100>=1000000000L){
+                                    this.cancelOrder(order.getId());
+                                    return null;
+                                }
                                 resultDto.setAmount(Long.valueOf(String.valueOf(fields.get("vnp_Amount"))));
                                 resultDto.setBankCode(String.valueOf(fields.get("vnp_BankCode")));
                                 resultDto.setBankTransNo(String.valueOf(fields.get("vnp_BankTranNo")));
@@ -206,26 +221,26 @@ public class VnPayService {
                                 return resultDto;
                                 //Update DB When success
                             } else {
-                                orderRepository.changeOrderStatusByID(EStatusOrder.CANCELED.toString(), order.getId());
+                                this.cancelOrder(order.getId());
                                 this.notificationService.addForSpecificUser(SocketNotificationModel.builder().category(ENotificationCategory.ORDER).title("Don hang #".concat(order.getUuid()).concat(" thanh toan that bai")).contentExcerpt("").url(FrontendConfiguration.ORDER_DETAIL_URL + order.getId()).build(), List.of(order.getCreatedBy().getId()));
                                 System.out.print("{\"RspCode\":\"01\",\"Message\":\"Trạng thái đơn hàng không hợp lệ!!\"}");
                                 return null;
                             }
                         } else {
                             System.out.print("{\"RspCode\":\"02\",\"Message\":\"Đơn hàng đã được thanh toán\"}");
-                            orderRepository.changeOrderStatusByID(EStatusOrder.CANCELED.toString(), order.getId());
+                            this.cancelOrder(order.getId());
                             this.notificationService.addForSpecificUser(SocketNotificationModel.builder().category(ENotificationCategory.ORDER).title("Don hang #".concat(order.getUuid()).concat(" thanh toan that bai")).contentExcerpt("").url(FrontendConfiguration.ORDER_DETAIL_URL + order.getId()).build(), List.of(order.getCreatedBy().getId()));
                             return null;
                         }
                     } else {
                         System.out.print("{\"RspCode\":\"04\",\"Message\":\"Giá trị đơn hàng không hợp lệ\"}");
-                        orderRepository.changeOrderStatusByID(EStatusOrder.CANCELED.toString(), order.getId());
+                        this.cancelOrder(order.getId());
                         this.notificationService.addForSpecificUser(SocketNotificationModel.builder().category(ENotificationCategory.ORDER).title("Don hang #".concat(order.getUuid()).concat(" thanh toan that bai")).contentExcerpt("").url(FrontendConfiguration.ORDER_DETAIL_URL + order.getId()).build(), List.of(order.getCreatedBy().getId()));
                         return null;
                     }
                 } else {
                     System.out.print("{\"RspCode\":\"01\",\"Message\":\"Không tìm thấy đơn hàng\"}");
-                    orderRepository.changeOrderStatusByID(EStatusOrder.CANCELED.toString(), order.getId());
+                    this.cancelOrder(order.getId());
                     this.notificationService.addForSpecificUser(SocketNotificationModel.builder().category(ENotificationCategory.ORDER).title("Don hang #".concat(order.getUuid()).concat(" thanh toan that bai")).contentExcerpt("").url(FrontendConfiguration.ORDER_DETAIL_URL + order.getId()).build(), List.of(order.getCreatedBy().getId()));
                     return null;
                 }
@@ -239,5 +254,45 @@ public class VnPayService {
             System.out.print("{\"RspCode\":\"99\",\"Message\":\"Lỗi không xác định\"}");
             return null;
         }
+    }
+
+    public OrderEntity cancelOrder(Long id) {
+        OrderEntity order = orderRepository.findById(id).orElseThrow(()->new RuntimeException("Không tìm thấy đơn hàng"));
+        order.setStatus("CANCELED");
+        order.getOrderDetails().stream().forEach(orderDetailEntity -> {
+            // set quantity of product after cancel order
+            Integer quantity = orderDetailEntity.getQuantity();
+            ProductSkuEntity productSku = orderDetailEntity.getSku();
+            productSku.setInventoryQuantity(productSku.getInventoryQuantity() + quantity);
+            productSkuRepository.saveAndFlush(productSku);
+            productService.saveDtoOnElasticsearch(productSku.getProduct());
+
+            // set total sold of product after cancel order
+            ProductEntity product = productSku.getProduct();
+            product.setTotalSold(product.getTotalSold() - quantity);
+            productRepository.saveAndFlush(product);
+            productService.saveDtoOnElasticsearch(product);
+        });
+        return orderRepository.saveAndFlush(order);
+    }
+
+    public OrderEntity cancelOrderByUUID(String UUID) {
+        OrderEntity order = orderRepository.findByUuid(UUID).orElseThrow(()->new RuntimeException("Không tìm thấy đơn hàng"));
+        order.setStatus("CANCELED");
+        order.getOrderDetails().stream().forEach(orderDetailEntity -> {
+            // set quantity of product after cancel order
+            Integer quantity = orderDetailEntity.getQuantity();
+            ProductSkuEntity productSku = orderDetailEntity.getSku();
+            productSku.setInventoryQuantity(productSku.getInventoryQuantity() + quantity);
+            productSkuRepository.saveAndFlush(productSku);
+            productService.saveDtoOnElasticsearch(productSku.getProduct());
+
+            // set total sold of product after cancel order
+            ProductEntity product = productSku.getProduct();
+            product.setTotalSold(product.getTotalSold() - quantity);
+            productRepository.saveAndFlush(product);
+            productService.saveDtoOnElasticsearch(product);
+        });
+        return orderRepository.saveAndFlush(order);
     }
 }

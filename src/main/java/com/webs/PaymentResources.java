@@ -38,6 +38,7 @@ public class PaymentResources {
             System.out.println(DateTime.now());
             PaymentResultDto dto = vnPayService.getTransactionResult(request, response);
             if(dto==null){
+                vnPayService.cancelOrderByUUID(request.getParameter(String.valueOf(String.valueOf(request.getParameter("vnp_TxnRef")))));
                 response.sendRedirect(FrontendConfiguration.ORDER_CANCEL_URL);
                 return ResponseDto.of(null,"Hủy thanh toán");
             }
