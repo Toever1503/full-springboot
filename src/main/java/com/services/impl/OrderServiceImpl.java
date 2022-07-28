@@ -37,20 +37,18 @@ public class OrderServiceImpl implements IOrderService {
     ICartDetailRepository cartDetailRepository;
     @Autowired
     IAddressRepository addressRepository;
-
     @Autowired
     MailService mailService;
-
     @Autowired
     private IProductService productService;
-
     @Autowired
     private final IProductRepository productRepository;
     @Autowired
     private INotificationService notificationService;
-
     @Autowired
     private IUserRepository userRepository;
+    @Autowired
+    private IProductSkuRepository productSkuRepository;
 
     public OrderServiceImpl(IProductRepository productRepository) {
         this.productRepository = productRepository;
@@ -227,6 +225,20 @@ public class OrderServiceImpl implements IOrderService {
     public OrderEntity cancelOrder(Long id) {
         OrderEntity order = this.findById(id);
         order.setStatus("CANCELED");
+        order.getOrderDetails().stream().forEach(orderDetailEntity -> {
+            // set quantity of product after cancel order
+            Integer quantity = orderDetailEntity.getQuantity();
+            ProductSkuEntity productSku = orderDetailEntity.getSku();
+            productSku.setInventoryQuantity(productSku.getInventoryQuantity() + quantity);
+            productSkuRepository.saveAndFlush(productSku);
+            productService.saveDtoOnElasticsearch(productSku.getProduct());
+
+            // set total sold of product after cancel order
+            ProductEntity product = productSku.getProduct();
+            product.setTotalSold(product.getTotalSold() - quantity);
+            productRepository.saveAndFlush(product);
+            productService.saveDtoOnElasticsearch(product);
+        });
         return orderRepository.saveAndFlush(order);
     }
 

@@ -51,7 +51,7 @@ public class QuestionResources {
             return ResponseDto.of(null, "1 Câu hỏi chỉ được phép có 3 ảnh");
         else{
             QuestionEntity question = questionService.answerQuestion(qid, model);
-            return ResponseDto.of(TotalQuestionDto.toTotalQuestionDTO(question), "Answered");
+            return ResponseDto.of(TotalQuestionDto.toTotalQuestionDTO(question), "Đã trả lời");
         }
     }
 
