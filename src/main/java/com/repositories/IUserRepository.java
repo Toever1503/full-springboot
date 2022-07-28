@@ -22,7 +22,15 @@ public interface IUserRepository extends JpaRepository<UserEntity, Long>, JpaSpe
     UserEntity findByEmail(String email);
 
     //Get all userId
-    @Query("select u.id from UserEntity u")
+    @Query(value = "SELECT u.user_id FROM marketplace_cy_2.tbl_user u \n" +
+            "join user_role r on u.user_id = r.user_id \n" +
+            "join tbl_role as rl on rl.role_id = r.role_id\n" +
+            "where r.role_id = 1 and u.user_id not in (\n" +
+            "\tSELECT u1.user_id FROM marketplace_cy_2.tbl_user u1 \n" +
+            "\tjoin user_role r1 on u1.user_id = r1.user_id \n" +
+            "\tjoin tbl_role as rl1 on rl1.role_id = r1.role_id\n" +
+            "\twhere r1.role_id = 2\n" +
+            "\t)", nativeQuery = true)
     List<Long> getAllId();
 
     UserEntity findByPhone(String phone);

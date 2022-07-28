@@ -33,12 +33,11 @@ public class SocketNotificationModel {
         this.url = url;
     }
 
-
-
     public static NotificationEntity toEntity(SocketNotificationModel model) {
         if (model == null) throw new RuntimeException("SocketNotificationModel is null");
         return NotificationEntity.builder()
                 .title(model.getTitle())
+                .image(model.getImage() == null ? DEFAULT_SYSTEM_LOGO : model.getImage())
                 .contentExcerpt(model.getContentExcerpt())
                 .category(model.getCategory().name())
                 .url(model.getUrl())
