@@ -104,7 +104,7 @@ public class ProductResources {
 
     @PreAuthorize("hasAuthority('ADMINISTRATOR')")
     @Transactional
-    @GetMapping("refreshData")
+    @PostMapping("refreshData")
     @Operation(summary = "resync data on database to  elasticsearch")
     public String refreshElasticsearch() {
         this.productService.refreshDataElasticsearch();
